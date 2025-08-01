@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{50E3E514
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Web", "src\Tomeshelf.Web\Tomeshelf.Web.csproj", "{E12C7D7F-3BD5-3A71-B824-98B088C320BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Api", "Tomeshelf.Api\Tomeshelf.Api.csproj", "{EF6856B8-2858-C4D1-96BB-9E1D5526C3B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Api", "src\Tomeshelf.Api\Tomeshelf.Api.csproj", "{EF6856B8-2858-C4D1-96BB-9E1D5526C3B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
