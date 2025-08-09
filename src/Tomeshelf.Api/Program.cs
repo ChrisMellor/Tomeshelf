@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Threading.Tasks;
-using Tomeshelf.ServiceDefaults;
 
 namespace Tomeshelf.Api;
 
@@ -18,11 +16,11 @@ public class Program
         // Add services to the container.
         builder.Services.AddProblemDetails();
 
-        // Add services to the container.
-        builder.Services.AddControllers();
-
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
+
+        // Add services to the container.
+        builder.Services.AddControllers();
 
         var app = builder.Build();
 
@@ -36,13 +34,8 @@ public class Program
 
             app.UseSwaggerUI(options =>
             {
+                options.RoutePrefix = string.Empty; // Serve Swagger UI at the app's root
                 options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf API v1");
-            });
-
-            app.MapGet("/", context =>
-            {
-                context.Response.Redirect("/swagger");
-                return Task.CompletedTask;
             });
         }
 

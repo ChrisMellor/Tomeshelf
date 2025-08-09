@@ -8,15 +8,16 @@ internal class Program
     {
         var builder = DistributedApplication.CreateBuilder(args);
 
-        var apiService = builder.AddProject<Projects.Tomeshelf_Api>("Api")
-            .WithHttpHealthCheck("/health")
-            .WithUrl("/swagger");
+        // API
+        var api = builder.AddProject<Projects.Tomeshelf_Api>("Api")
+            .WithHttpHealthCheck("/health");
 
+        // Web
         builder.AddProject<Projects.Tomeshelf_Web>("Web")
             .WithExternalHttpEndpoints()
             .WithHttpHealthCheck("/health")
-            .WithReference(apiService)
-            .WaitFor(apiService);
+            .WithReference(api)
+            .WaitFor(api);
 
         builder.Build().Run();
     }
