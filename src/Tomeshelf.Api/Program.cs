@@ -63,7 +63,7 @@ public static class Program
         builder.Services.AddInfrastructure();
         builder.Services.AddHostedService<Hosted.ComicConUpdateBackgroundService>();
 
-        builder.AddSqlServerDbContext<TomeshelfDbContext>("appdb");
+        builder.AddSqlServerDbContext<TomeshelfDbContext>("tomeshelfdb");
 
         var app = builder.Build();
 

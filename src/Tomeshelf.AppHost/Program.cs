@@ -1,5 +1,4 @@
 using Aspire.Hosting;
-using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using Tomeshelf.AppHost.Records;
@@ -30,17 +29,14 @@ internal class Program
                 .WithDashboard(resourceBuilder => resourceBuilder.WithHostPort(18888));
         }
 
-        var sql = builder.AddSqlServer("sql")
-            .WithLifetime(ContainerLifetime.Persistent)
-            .WithDataVolume();
-
-        var database = sql.AddDatabase("appdb");
+        var databaseServer = builder.AddAzureSqlServer("sql")
+            .AddDatabase("tomeshelfdb");
 
         var api = builder.AddProject<Projects.Tomeshelf_Api>("api")
             .WithExternalHttpEndpoints()
             .WithHttpHealthCheck("/health")
-            .WithReference(database)
-            .WaitFor(database);
+            .WithReference(databaseServer)
+            .WaitFor(databaseServer);
 
         builder.AddProject<Projects.Tomeshelf_Web>("web")
             .WithExternalHttpEndpoints()
