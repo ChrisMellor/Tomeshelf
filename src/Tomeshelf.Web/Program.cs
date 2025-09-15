@@ -42,7 +42,10 @@ public class Program
 
         builder.Services.AddHttpClient<IGuestsApi, GuestsApi>(client =>
         {
-            client.BaseAddress = new Uri(builder.Configuration["Services:ApiBase"]!);
+            // Prefer .NET Aspire service discovery in Development; otherwise allow config override.
+            var configured = builder.Configuration["Services:ApiBase"];
+            var useDiscovery = builder.Environment.IsDevelopment() || string.IsNullOrWhiteSpace(configured);
+            client.BaseAddress = new Uri(useDiscovery ? "http://api" : configured);
             client.DefaultRequestVersion = HttpVersion.Version11;
             client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
             client.Timeout = TimeSpan.FromSeconds(100);

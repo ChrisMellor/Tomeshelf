@@ -37,7 +37,6 @@ internal class Program
         var database = sql.AddDatabase("appdb");
 
         var api = builder.AddProject<Projects.Tomeshelf_Api>("api")
-            .WithHttpEndpoint(name: "api-http", targetPort: 5280)
             .WithExternalHttpEndpoints()
             .WithHttpHealthCheck("/health")
             .WithReference(database)
