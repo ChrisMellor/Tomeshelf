@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <!-- Output formats for coverage tools -->
+          <Format>cobertura,opencover</Format>
+          <!-- Exclude generated and migration files by path -->
+          <ExcludeByFile>**/Migrations/*.cs;**/obj/**;**/bin/**</ExcludeByFile>
+          <!-- Exclude namespaces/types by filter -->
+          <Exclude>
+            [Tomeshelf.Infrastructure]*.Migrations.*
+          </Exclude>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
+
