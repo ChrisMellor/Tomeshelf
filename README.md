@@ -1,5 +1,8 @@
 # Tomeshelf
 
+[![Build (main)](https://github.com/ChrisMellor/Tomeshelf/actions/workflows/dotnet-ci.yml/badge.svg?branch=main)](https://github.com/ChrisMellor/Tomeshelf/actions/workflows/dotnet-ci.yml?query=branch%3Amain)
+[![Tests (main)](https://img.shields.io/github/actions/workflow/status/ChrisMellor/Tomeshelf/dotnet-ci.yml?branch=main&label=tests)](https://github.com/ChrisMellor/Tomeshelf/actions/workflows/dotnet-ci.yml?query=branch%3Amain)
+
 Tomeshelf is a small .NET 9 that pulls Comic Con guest data from an external API, stores it in SQL Server via EF Core, and exposes the data through an HTTP API and a simple MVC web UI. It uses .NET Aspire to orchestrate the app (API + Web + SQL) in development, with OpenTelemetry and health checks wired in.
 
 **Highlights**
@@ -126,6 +129,9 @@ In Development, visit the API root for Swagger UI.
 
 - Build: `dotnet build Tomeshelf.sln`
 - Test: `dotnet test`
+- CI on main: see latest runs and artifacts
+  - https://github.com/ChrisMellor/Tomeshelf/actions/workflows/dotnet-ci.yml?query=branch%3Amain
+  - The CI uploads `coverage-results` (Coverlet) for each run
 - Apply migrations (if creating new ones):
 
   - Add migration: `dotnet ef migrations add Name -s src/Tomeshelf.Api -p src/Tomeshelf.Infrastructure`
@@ -144,4 +150,3 @@ The API applies pending migrations automatically on startup.
 - SQL connection errors: confirm `ConnectionStrings:tomeshelfdb` and SQL reachability
 - Web cannot reach API when running standalone: set `Services:ApiBase` to the API URL
 - EF foreign key conflicts: ensure relationships are created via tracked navigation properties (handled by the ingest service)
-
