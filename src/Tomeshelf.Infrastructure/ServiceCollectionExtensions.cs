@@ -6,7 +6,6 @@ namespace Tomeshelf.Infrastructure;
 
 public static class ServiceCollectionExtensions
 {
-    // Aspire-friendly overload: assumes DbContext configured elsewhere
     /// <summary>
     /// Registers infrastructure services assuming the DbContext is configured elsewhere (Aspire-friendly overload).
     /// </summary>
@@ -16,12 +15,11 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<Queries.GuestQueries>();
         services.AddScoped<Services.EventIngestService>();
-        services.AddTransient<Clients.IGuestsClient, Clients.GuestsClient>();
+        services.AddHttpClient<Clients.IGuestsClient, Clients.GuestsClient>();
         services.AddTransient<Services.IGuestService, Services.GuestService>();
         return services;
     }
 
-    // Classic overload: configures DbContext and all infrastructure services
     /// <summary>
     /// Registers infrastructure services and configures the EF Core DbContext (classic overload).
     /// </summary>

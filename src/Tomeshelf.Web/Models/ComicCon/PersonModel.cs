@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Tomeshelf.Web.Infrastructure;
+using Tomeshelf.Application;
 
 namespace Tomeshelf.Web.Models.ComicCon;
 
@@ -96,4 +96,3 @@ public sealed record PersonModel
     [JsonPropertyName("schedules")]
     public List<ScheduleModel> Schedules { get; init; } = [];
 }
-

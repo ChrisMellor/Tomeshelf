@@ -16,7 +16,7 @@ public class ComicConController(IGuestsApi api) : Controller
     /// <param name="cancellationToken">Cancellation token for the HTTP call.</param>
     /// <returns>An <see cref="IActionResult"/> that renders the guests view.</returns>
     [HttpGet("city/{city}/guests")]
-    public async Task<IActionResult> Index(string city, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Index([FromRoute] string city, CancellationToken cancellationToken = default)
     {
         var sw = System.Diagnostics.Stopwatch.StartNew();
         var (groups, total) = await api.GetComicConGuestsByCityAsync(city, cancellationToken);

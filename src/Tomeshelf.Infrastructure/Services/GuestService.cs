@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Application.Options;
@@ -47,18 +48,18 @@ public class GuestService : IGuestService
     /// <returns>The list of people returned by the external API (possibly empty).</returns>
     /// <exception cref="ApplicationException">Thrown when the city is not configured or no guests are returned.</exception>
     /// <exception cref="HttpRequestException">Thrown when the external request fails.</exception>
-    public async Task<List<PersonDto>> GetGuests(string city)
+    public async Task<List<PersonDto>> GetGuestsAsync(string city, CancellationToken cancellationToken = default)
     {
         var comicConKey = GetKeyFromConfig(city);
 
-        var evt = await _guestsClient.GetLatestGuests(comicConKey);
+        var evt = await _guestsClient.GetLatestGuestsAsync(comicConKey, cancellationToken);
         if (evt is null)
         {
             _logger.LogWarning("No guests found for Comic Con with key {ComicConKey}", comicConKey);
             throw new ApplicationException($"No guests found for Comic Con key: '{comicConKey}'.");
         }
 
-        var changed = await _ingest.UpsertAsync(evt);
+        var changed = await _ingest.UpsertAsync(evt, cancellationToken);
         _logger.LogInformation("Upserted event {Slug} with {Count} people; changed={Changed}", evt.EventSlug, evt.People?.Count ?? 0, changed);
 
         return evt.People ?? [];
@@ -82,7 +83,7 @@ public class GuestService : IGuestService
             throw new ApplicationException($"No Comic Con configured for city: '{city}'.");
         }
 
-        _logger.LogInformation("Fetching latest guests for Comic Con with key {ComicConKey} in city {City}", comicConKey, city);
+        _logger.LogInformation("Fetching latest guests for Comic Con in city {City}", city);
 
         return comicConKey;
     }

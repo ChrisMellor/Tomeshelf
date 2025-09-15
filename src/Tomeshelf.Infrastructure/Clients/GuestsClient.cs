@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Tomeshelf.Application.Contracts;
+using System.Threading;
 
 namespace Tomeshelf.Infrastructure.Clients;
 
@@ -12,14 +13,17 @@ namespace Tomeshelf.Infrastructure.Clients;
 /// </summary>
 public class GuestsClient : IGuestsClient
 {
-    private readonly ILogger<IGuestsClient> _logger;
+    private readonly HttpClient _http;
+    private readonly ILogger<GuestsClient> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GuestsClient"/> class.
     /// </summary>
+    /// <param name="http">Injected HttpClient.</param>
     /// <param name="logger">Logger instance.</param>
-    public GuestsClient(ILogger<IGuestsClient> logger)
+    public GuestsClient(HttpClient http, ILogger<GuestsClient> logger)
     {
+        _http = http;
         _logger = logger;
     }
 
@@ -27,27 +31,21 @@ public class GuestsClient : IGuestsClient
     /// Calls the external Comic Con API to fetch the latest guests.
     /// </summary>
     /// <param name="key">The Comic Con API key for the target event/city.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The deserialized event payload; may be null if the body is empty.</returns>
     /// <exception cref="HttpRequestException">Thrown when the HTTP request fails.</exception>
-    /// <exception cref="Exception">Thrown when the API returns a non-success status code.</exception>
     /// <exception cref="JsonException">Thrown when the response body cannot be parsed.</exception>
-    public async Task<EventDto> GetLatestGuests(Guid key)
+    public async Task<EventDto> GetLatestGuestsAsync(Guid key, CancellationToken cancellationToken = default)
     {
         var url = $"https://conventions.leapevent.tech/api/people?key={key}";
+        _logger.LogInformation("HTTP GET {Url}", url);
 
-        using var httpClient = new HttpClient();
-        var response = await httpClient.GetAsync(url);
+        using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        response.EnsureSuccessStatusCode();
 
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new Exception($"Failed to fetch guests: {response.ReasonPhrase}");
-        }
-
-        var content = await response.Content.ReadAsStringAsync();
-        var guests = JsonSerializer.Deserialize<EventDto>(content);
-
-        _logger.LogInformation("Guests for Comic Con with key {key}: {content}", key, content);
-
-        return guests;
+        await using var s = await response.Content.ReadAsStreamAsync(cancellationToken);
+        var guests = await JsonSerializer.DeserializeAsync<EventDto>(s, cancellationToken: cancellationToken);
+        _logger.LogInformation("Fetched guests payload ({Length} bytes)", response.Content.Headers.ContentLength?.ToString() ?? "?");
+        return guests!;
     }
 }

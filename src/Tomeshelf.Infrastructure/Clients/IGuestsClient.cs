@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Tomeshelf.Application.Contracts;
 
+using System.Threading;
+
 namespace Tomeshelf.Infrastructure.Clients;
 
 /// <summary>
@@ -19,5 +21,5 @@ public interface IGuestsClient
     /// <exception cref="HttpRequestException">Thrown when the HTTP request fails.</exception>
     /// <exception cref="Exception">Thrown when the API returns a non-success status code.</exception>
     /// <exception cref="JsonException">Thrown when the response body cannot be parsed.</exception>
-    Task<EventDto> GetLatestGuests(Guid key);
+    Task<EventDto> GetLatestGuestsAsync(Guid key, CancellationToken cancellationToken = default);
 }

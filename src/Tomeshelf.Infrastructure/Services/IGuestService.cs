@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Application.Contracts;
 
@@ -16,5 +17,5 @@ public interface IGuestService
     /// <returns>The list of people returned by the external API.</returns>
     /// <exception cref="ApplicationException">Thrown when the city is not configured or no guests are returned.</exception>
     /// <exception cref="HttpRequestException">Thrown when the external request fails.</exception>
-    Task<List<PersonDto>> GetGuests(string city);
+    Task<List<PersonDto>> GetGuestsAsync(string city, CancellationToken cancellationToken = default);
 }

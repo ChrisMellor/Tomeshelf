@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Application.Options;
@@ -24,7 +25,7 @@ public class GuestServiceTests
         var key = Guid.NewGuid();
         var options = Options.Create(new ComicConOptions
         {
-            ComicCon = new List<Location> { new(city, key) }
+            ComicCon = new List<Location> { new Location { City = city, Key = key } }
         });
 
         var peopleFaker = new Faker<PersonDto>()
@@ -51,7 +52,7 @@ public class GuestServiceTests
         var sut = new GuestService(guestsClient, options, logger, ingest);
 
         // Act
-        var result = await sut.GetGuests(city);
+        var result = await sut.GetGuestsAsync(city, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -73,7 +74,7 @@ public class GuestServiceTests
         var sut = new GuestService(guestsClient, options, NullLogger<GuestService>.Instance, ingest);
 
         // Act & Assert
-        Func<Task> actMissingCity = async () => await sut.GetGuests("UnknownCity");
+        Func<Task> actMissingCity = async () => await sut.GetGuestsAsync("UnknownCity", CancellationToken.None);
         await actMissingCity.Should().ThrowAsync<ApplicationException>();
     }
 
@@ -85,7 +86,7 @@ public class GuestServiceTests
         var key = Guid.NewGuid();
         var options = Options.Create(new ComicConOptions
         {
-            ComicCon = new List<Location> { new(city, key) }
+            ComicCon = new List<Location> { new Location { City = city, Key = key } }
         });
         IGuestsClient guestsClient = new FakeGuestsClient(null);
 
@@ -98,7 +99,7 @@ public class GuestServiceTests
         var sut = new GuestService(guestsClient, options, NullLogger<GuestService>.Instance, ingest);
 
         // Act & Assert
-        Func<Task> actNullClient = async () => await sut.GetGuests(city);
+        Func<Task> actNullClient = async () => await sut.GetGuestsAsync(city, CancellationToken.None);
         await actNullClient.Should().ThrowAsync<ApplicationException>();
     }
 
@@ -117,7 +118,7 @@ public class GuestServiceTests
         var sut = new GuestService(guestsClient, options, NullLogger<GuestService>.Instance, ingest);
 
         // Act
-        Func<Task> act = async () => await sut.GetGuests("   ");
+        Func<Task> act = async () => await sut.GetGuestsAsync("   ", CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<ApplicationException>();
@@ -130,7 +131,7 @@ public class GuestServiceTests
         var key = Guid.NewGuid();
         var options = Options.Create(new ComicConOptions
         {
-            ComicCon = new List<Location> { new("London", key) }
+            ComicCon = new List<Location> { new Location { City = "London", Key = key } }
         });
         var evt = new EventDto { EventId = "E", EventName = "N", EventSlug = "s", People = new List<PersonDto>() };
         IGuestsClient guestsClient = new FakeGuestsClient(evt);
@@ -142,7 +143,7 @@ public class GuestServiceTests
         var sut = new GuestService(guestsClient, options, NullLogger<GuestService>.Instance, ingest);
 
         // Act
-        var people = await sut.GetGuests("london");
+        var people = await sut.GetGuestsAsync("london", CancellationToken.None);
 
         // Assert
         people.Should().NotBeNull();
@@ -152,6 +153,6 @@ public class GuestServiceTests
     {
         private readonly EventDto _response;
         public FakeGuestsClient(EventDto response) => _response = response;
-        public Task<EventDto> GetLatestGuests(Guid key) => Task.FromResult(_response);
+        public Task<EventDto> GetLatestGuestsAsync(Guid key, CancellationToken cancellationToken = default) => Task.FromResult(_response);
     }
 }

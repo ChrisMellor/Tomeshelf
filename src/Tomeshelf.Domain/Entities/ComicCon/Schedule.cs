@@ -18,5 +18,5 @@ public class Schedule
     public string Location { get; set; }
 
     public int? VenueLocationId { get; set; }
-    public VenueLocation VenueLocation { get; set; }
+    public VenueLocation? VenueLocation { get; set; }
 }

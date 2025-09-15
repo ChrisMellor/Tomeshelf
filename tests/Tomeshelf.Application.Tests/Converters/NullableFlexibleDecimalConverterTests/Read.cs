@@ -1,6 +1,5 @@
 using FluentAssertions;
 using System.Text.Json;
-using Tomeshelf.Application;
 
 namespace Tomeshelf.Application.Tests.Converters.NullableFlexibleDecimalConverterTests;
 
@@ -19,9 +18,9 @@ public class NullableFlexibleDecimalConverter_Read_Tests
         var json = "{\"v\":null}";
         var doc = JsonDocument.Parse(json);
         var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
-        reader.Read(); // StartObject
-        reader.Read(); // PropertyName v
-        reader.Read(); // Null
+        reader.Read();
+        reader.Read();
+        reader.Read();
         var converter = new NullableFlexibleDecimalConverter();
         decimal? value = converter.Read(ref reader, typeof(decimal?), _opts);
         value.Should().BeNull();

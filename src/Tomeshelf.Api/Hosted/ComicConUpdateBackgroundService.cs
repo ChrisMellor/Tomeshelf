@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -14,16 +15,16 @@ namespace Tomeshelf.Api.Hosted;
 public sealed class ComicConUpdateBackgroundService : BackgroundService
 {
     private readonly ILogger<ComicConUpdateBackgroundService> _logger;
-    private readonly IGuestService _guestService;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
     /// Initializes a new instance of the background service.
     /// </summary>
-    /// <param name="guestService">Service used to fetch and persist guests.</param>
+    /// <param name="scopeFactory">Factory to create DI scopes for resolving scoped services.</param>
     /// <param name="logger">Logger.</param>
-    public ComicConUpdateBackgroundService(IGuestService guestService, ILogger<ComicConUpdateBackgroundService> logger)
+    public ComicConUpdateBackgroundService(IServiceScopeFactory scopeFactory, ILogger<ComicConUpdateBackgroundService> logger)
     {
-        _guestService = guestService;
+        _scopeFactory = scopeFactory;
         _logger = logger;
     }
 
@@ -36,30 +37,15 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
     {
         _logger.LogInformation("ComicCon update background service started");
 
-        while (!cancellationToken.IsCancellationRequested)
+        var timer = new PeriodicTimer(TimeSpan.FromHours(1));
+        try
         {
-            var nowUtc = DateTimeOffset.UtcNow;
-            var nextUtc = new DateTimeOffset(nowUtc.Year, nowUtc.Month, nowUtc.Day, nowUtc.Hour, 0, 0, TimeSpan.Zero)
-                .AddHours(1);
-            var delay = nextUtc - nowUtc;
-            _logger.LogInformation("Next ComicCon update scheduled at {NextUtc}", nextUtc);
-
-            try
+            while (await timer.WaitForNextTickAsync(cancellationToken))
             {
-                await Task.Delay(delay, cancellationToken);
+                await RunOnceAsync(cancellationToken);
             }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-
-            if (cancellationToken.IsCancellationRequested)
-            {
-                break;
-            }
-
-            await RunOnceAsync(cancellationToken);
         }
+        catch (OperationCanceledException) { }
 
         _logger.LogInformation("ComicCon update background service stopping");
     }
@@ -76,7 +62,9 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
             {
                 _logger.LogInformation("Updating guests for {CityName}", city);
 
-                await _guestService.GetGuests(city.ToString());
+                using var scope = _scopeFactory.CreateScope();
+                var guestService = scope.ServiceProvider.GetRequiredService<IGuestService>();
+                await guestService.GetGuestsAsync(city.ToString(), cancellationToken);
             }
             catch (Exception ex)
             {

@@ -23,7 +23,7 @@ public class ComicConController_UpdateGuests_Tests
     {
         // Arrange
         var svc = A.Fake<IGuestService>();
-        A.CallTo(() => svc.GetGuests("London")).Returns(new List<PersonDto>());
+        A.CallTo(() => svc.GetGuestsAsync("London", A<CancellationToken>._)).Returns(new List<PersonDto>());
 
         using var db = new TomeshelfDbContext(new DbContextOptionsBuilder<TomeshelfDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
@@ -31,11 +31,11 @@ public class ComicConController_UpdateGuests_Tests
         var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance);
 
         // Act
-        var result = await controller.UpdateGuests(City.London);
+        var result = await controller.UpdateGuests(City.London, TestContext.Current.CancellationToken);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>();
-        A.CallTo(() => svc.GetGuests("London")).MustHaveHappenedOnceExactly();
+        A.CallTo(() => svc.GetGuestsAsync("London", A<CancellationToken>._)).MustHaveHappenedOnceExactly();
     }
 
     [Fact]
@@ -43,18 +43,18 @@ public class ComicConController_UpdateGuests_Tests
     {
         // Arrange
         var svc = A.Fake<IGuestService>();
-        A.CallTo(() => svc.GetGuests("Birmingham")).Throws(new ApplicationException("nope"));
+        A.CallTo(() => svc.GetGuestsAsync("Birmingham", A<CancellationToken>._)).Throws(new ApplicationException("nope"));
         using var db = new TomeshelfDbContext(new DbContextOptionsBuilder<TomeshelfDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
         var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance);
 
         // Act
-        var result = await controller.UpdateGuests(City.Birmingham);
+        var result = await controller.UpdateGuests(City.Birmingham, TestContext.Current.CancellationToken);
 
         // Assert
         result.Should().BeOfType<NotFoundObjectResult>();
-        A.CallTo(() => svc.GetGuests("Birmingham")).MustHaveHappenedOnceExactly();
+        A.CallTo(() => svc.GetGuestsAsync("Birmingham", A<CancellationToken>._)).MustHaveHappenedOnceExactly();
     }
 }
 

@@ -61,8 +61,7 @@ public static class Program
             .ValidateDataAnnotations();
 
         builder.Services.AddInfrastructure();
-
-        builder.Services.AddHostedService<Tomeshelf.Api.Hosted.ComicConUpdateBackgroundService>();
+        builder.Services.AddHostedService<Hosted.ComicConUpdateBackgroundService>();
 
         builder.AddSqlServerDbContext<TomeshelfDbContext>("appdb");
 

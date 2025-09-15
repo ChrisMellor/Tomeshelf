@@ -32,7 +32,7 @@ public class CitySchemaTransformer : IOpenApiSchemaTransformer
         schema.Type = "string";
         schema.Format = null;
         schema.Enum = Enum.GetNames<City>()
-            .Select(IOpenApiAny (cityName) => new OpenApiString(cityName))
+            .Select(n => (IOpenApiAny)new OpenApiString(n))
             .ToList();
 
         return Task.CompletedTask;

@@ -45,14 +45,12 @@ public class Program
             client.BaseAddress = new Uri(builder.Configuration["Services:ApiBase"]!);
             client.DefaultRequestVersion = HttpVersion.Version11;
             client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
-            client.Timeout = TimeSpan.FromSeconds(100); // optional bump
+            client.Timeout = TimeSpan.FromSeconds(100);
         }).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
         {
             AutomaticDecompression = DecompressionMethods.None
         });
 
-
-        builder.Services.AddControllersWithViews();
 
         var app = builder.Build();
 

@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Tomeshelf.ServiceDefaults\Tomeshelf.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Tomeshelf.Application\Tomeshelf.Application.csproj" />
   </ItemGroup>
 
 </Project>

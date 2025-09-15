@@ -38,9 +38,10 @@ public class ComicConController : ControllerBase
     /// Triggers an on-demand refresh of guests for the given city and returns the updated people.
     /// </summary>
     /// <param name="city">The city to refresh (enum value).</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>>
     /// <returns>An <see cref="IActionResult"/> with the updated guests or an error.</returns>
     [HttpPost("Guests/City", Name = "UpdateLatestGuests")]
-    public async Task<IActionResult> UpdateGuests([FromQuery] City city)
+    public async Task<IActionResult> UpdateGuests([FromQuery] City city, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Updating guests for {CityName}", city);
 
@@ -51,7 +52,7 @@ public class ComicConController : ControllerBase
                 case City.London:
                 case City.Birmingham:
                     var cityName = city.ToString();
-                    var newGuests = await _guestService.GetGuests(cityName);
+                    var newGuests = await _guestService.GetGuestsAsync(cityName, cancellationToken);
 
                     return Ok(newGuests);
                 default:
@@ -77,10 +78,10 @@ public class ComicConController : ControllerBase
     /// Returns grouped guests and totals for a given city slug.
     /// </summary>
     /// <param name="city">City name to query (e.g., "london").</param>
-    /// <param name="ct">Cancellation token for the query.</param>
+    /// <param name="cancellationToken">Cancellation token for the query.</param>
     /// <returns>An <see cref="ActionResult"/> containing city, total and groups.</returns>
-    [HttpGet("Guests/City")] // fetch by city (ComicCon naming)
-    public async Task<ActionResult<object>> GetByCity([FromQuery] string city, CancellationToken ct = default)
+    [HttpGet("Guests/City")]
+    public async Task<ActionResult<object>> GetByCity([FromQuery] string city, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(city))
         {
@@ -91,7 +92,7 @@ public class ComicConController : ControllerBase
         _logger.LogInformation("Fetching guests by city");
         var started = DateTimeOffset.UtcNow;
 
-        var groups = await _queries.GetGuestsByCityAsync(city, ct);
+        var groups = await _queries.GetGuestsByCityAsync(city, cancellationToken);
         var total = groups.Sum(g => g.Items.Count);
 
         var duration = DateTimeOffset.UtcNow - started;

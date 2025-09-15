@@ -28,146 +28,178 @@ public class EventIngestService(TomeshelfDbContext context)
     /// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
     public async Task<int> UpsertAsync(EventDto eventData, CancellationToken cancellationToken = default)
     {
-        var entity = await context.Events.SingleOrDefaultAsync(x => x.ExternalId == eventData.EventId, cancellationToken);
+        var entity = await UpsertEventAsync(eventData, cancellationToken);
+
+        var categoryCache = await BuildCategoryCacheAsync(eventData, cancellationToken);
+
+        foreach (var personData in eventData.People)
+        {
+            var person = await GetOrCreatePersonAsync(personData.Id, cancellationToken);
+            UpdatePersonProperties(person, personData);
+            SyncPersonImages(person, personData.Images);
+            EnsureCategories(personData.GlobalCategories, categoryCache);
+            SyncPersonCategories(person, personData.GlobalCategories, categoryCache);
+
+            var appearance = await GetOrCreateAppearanceAsync(entity.Id, person.Id, cancellationToken);
+            UpdateAppearanceProperties(appearance, personData);
+            await SyncSchedulesAsync(appearance, personData.Schedules, cancellationToken);
+        }
+
+        return await context.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<Event> UpsertEventAsync(EventDto dto, CancellationToken ct)
+    {
+        var entity = await context.Events.SingleOrDefaultAsync(x => x.ExternalId == dto.EventId, ct);
         if (entity is null)
         {
-            entity = new Event { ExternalId = eventData.EventId, Name = eventData.EventName, Slug = eventData.EventSlug };
+            entity = new Event { ExternalId = dto.EventId, Name = dto.EventName, Slug = dto.EventSlug };
             context.Events.Add(entity);
         }
         else
         {
-            entity.Name = eventData.EventName;
-            entity.Slug = eventData.EventSlug;
+            entity.Name = dto.EventName;
+            entity.Slug = dto.EventSlug;
             entity.UpdatedUtc = DateTime.UtcNow;
         }
+        return entity;
+    }
 
-        var allCatIds = eventData.People
-            .SelectMany(personData => personData.GlobalCategories ?? [])
-            .Select(categoryData => categoryData.Id)
-            .Distinct()
-            .ToList();
-
-        var categoryCache = await context.Categories
+    private async Task<Dictionary<string, Category>> BuildCategoryCacheAsync(EventDto dto, CancellationToken ct)
+    {
+        var allCatIds = dto.People.SelectMany(p => p.GlobalCategories ?? [])
+            .Select(c => c.Id).Distinct().ToList();
+        var cache = await context.Categories
             .Where(c => allCatIds.Contains(c.ExternalId))
-            .ToDictionaryAsync(c => c.ExternalId, c => c, cancellationToken);
+            .ToDictionaryAsync(c => c.ExternalId, c => c, ct);
+        return cache;
+    }
 
-        foreach (var personData in eventData.People)
+    private async Task<Person> GetOrCreatePersonAsync(string externalId, CancellationToken ct)
+    {
+        var person = await context.People
+            .Include(x => x.Images)
+            .Include(x => x.Categories).ThenInclude(pc => pc.Category)
+            .SingleOrDefaultAsync(x => x.ExternalId == externalId, ct);
+        if (person is null)
         {
-            var person = await context.People
-                .Include(x => x.Images)
-                .Include(x => x.Categories).ThenInclude(pc => pc.Category)
-                .SingleOrDefaultAsync(x => x.ExternalId == personData.Id, cancellationToken);
+            person = new Person { ExternalId = externalId };
+            context.People.Add(person);
+        }
+        return person;
+    }
 
-            if (person is null)
+    private static void UpdatePersonProperties(Person person, PersonDto data)
+    {
+        person.Uid = data.Uid;
+        person.PubliclyVisible = data.PubliclyVisible;
+        person.FirstName = data.FirstName ?? "";
+        person.LastName = data.LastName ?? "";
+        person.AltName = data.AltName;
+        person.Bio = data.Bio;
+        person.KnownFor = data.KnownFor;
+        person.ProfileUrl = data.ProfileUrl;
+        person.ProfileUrlLabel = data.ProfileUrlLabel;
+        person.VideoLink = data.VideoLink;
+        person.Twitter = data.Twitter;
+        person.Facebook = data.Facebook;
+        person.Instagram = data.Instagram;
+        person.YouTube = data.YouTube;
+        person.Twitch = data.Twitch;
+        person.Snapchat = data.Snapchat;
+        person.DeviantArt = data.DeviantArt;
+        person.Tumblr = data.Tumblr;
+        person.UpdatedUtc ??= DateTime.UtcNow;
+    }
+
+    private static void SyncPersonImages(Person person, List<ImageSetDto> images)
+    {
+        person.Images.Clear();
+        foreach (var img in images ?? [])
+        {
+            person.Images.Add(new PersonImage { Big = img.Big, Med = img.Med, Small = img.Small, Thumb = img.Thumb });
+        }
+    }
+
+    private void EnsureCategories(List<CategoryDto> categories, Dictionary<string, Category> cache)
+    {
+        foreach (var c in categories ?? [])
+        {
+            GetOrAddCategory(c.Id, c.Name, cache, context);
+        }
+    }
+
+    private static void SyncPersonCategories(Person person, List<CategoryDto> categories, Dictionary<string, Category> cache)
+    {
+        var desired = (categories ?? []).Select(c => c.Id).ToHashSet();
+        person.Categories.RemoveWhere(link => !desired.Contains(link.Category.ExternalId));
+        var existing = person.Categories.Select(x => x.Category.ExternalId).ToHashSet();
+        foreach (var id in desired.Except(existing))
+        {
+            var category = cache[id];
+            person.Categories.Add(new PersonCategory { Person = person, Category = category });
+        }
+    }
+
+    private async Task<EventAppearance> GetOrCreateAppearanceAsync(int eventId, int personId, CancellationToken ct)
+    {
+        var appearance = await context.EventAppearances
+            .Include(x => x.Schedules)
+            .SingleOrDefaultAsync(x => x.EventId == eventId && x.PersonId == personId, ct);
+        if (appearance is null)
+        {
+            appearance = new EventAppearance { EventId = eventId, PersonId = personId };
+            context.EventAppearances.Add(appearance);
+        }
+        return appearance;
+    }
+
+    private static void UpdateAppearanceProperties(EventAppearance a, PersonDto data)
+    {
+        a.DaysAtShow = data.DaysAtShow;
+        a.BoothNumber = data.BoothNumber;
+        a.AutographAmount = data.AutographAmount;
+        a.PhotoOpAmount = data.PhotoOpAmount;
+        a.PhotoOpTableAmount = data.PhotoOpTableAmount;
+    }
+
+    private async Task SyncSchedulesAsync(EventAppearance a, List<ScheduleDto> schedules, CancellationToken ct)
+    {
+        var byId = a.Schedules.ToDictionary(s => s.ExternalId);
+        foreach (var sd in schedules ?? [])
+        {
+            if (!byId.TryGetValue(sd.Id, out var s))
             {
-                person = new Person { ExternalId = personData.Id };
-                context.People.Add(person);
+                s = new Schedule { EventAppearance = a, ExternalId = sd.Id };
+                a.Schedules.Add(s);
             }
 
-            person.Uid = personData.Uid;
-            person.PubliclyVisible = personData.PubliclyVisible;
-            person.FirstName = personData.FirstName ?? "";
-            person.LastName = personData.LastName ?? "";
-            person.AltName = personData.AltName;
-            person.Bio = personData.Bio;
-            person.KnownFor = personData.KnownFor;
-            person.ProfileUrl = personData.ProfileUrl;
-            person.ProfileUrlLabel = personData.ProfileUrlLabel;
-            person.VideoLink = personData.VideoLink;
-            person.Twitter = personData.Twitter;
-            person.Facebook = personData.Facebook;
-            person.Instagram = personData.Instagram;
-            person.YouTube = personData.YouTube;
-            person.Twitch = personData.Twitch;
-            person.Snapchat = personData.Snapchat;
-            person.DeviantArt = personData.DeviantArt;
-            person.Tumblr = personData.Tumblr;
-            person.UpdatedUtc ??= DateTime.UtcNow;
+            s.Title = sd.Title;
+            s.Description = sd.Description;
+            s.StartTimeUtc = ParseAsUtc(sd.StartTime);
+            s.EndTimeUtc = string.IsNullOrWhiteSpace(sd.EndTime) ? null : ParseAsUtc(sd.EndTime);
+            s.NoEndTime = sd.NoEndTime;
+            s.Location = sd.Location;
 
-            person.Images.Clear();
-            foreach (var img in personData.Images ?? [])
+            if (sd.VenueLocation is not null)
             {
-                person.Images.Add(new PersonImage
+                var vl = await context.VenueLocations.SingleOrDefaultAsync(x => x.ExternalId == sd.VenueLocation.Id, ct);
+                if (vl is null)
                 {
-                    Big = img.Big,
-                    Med = img.Med,
-                    Small = img.Small,
-                    Thumb = img.Thumb
-                });
-            }
-
-            var desiredCatIds = (personData.GlobalCategories ?? [])
-                .Select(categoryData => categoryData.Id)
-                .ToHashSet();
-
-            foreach (var categoryData in personData.GlobalCategories ?? [])
-            {
-                GetOrAddCategory(categoryData.Id, categoryData.Name, categoryCache, context);
-            }
-
-            person.Categories.RemoveWhere(link => !desiredCatIds.Contains(link.Category.ExternalId));
-            var existingCatIds = person.Categories.Select(x => x.Category.ExternalId).ToHashSet();
-
-            foreach (var id in desiredCatIds.Except(existingCatIds))
-            {
-                var category = categoryCache[id];
-                person.Categories.Add(new PersonCategory { Person = person, Category = category });
-            }
-
-            var eventAppearance = await context.EventAppearances
-                .Include(x => x.Schedules)
-                .SingleOrDefaultAsync(x => x.EventId == entity.Id && x.PersonId == person.Id, cancellationToken);
-
-            if (eventAppearance is null)
-            {
-                eventAppearance = new EventAppearance { Event = entity, Person = person };
-                context.EventAppearances.Add(eventAppearance);
-            }
-
-            eventAppearance.DaysAtShow = personData.DaysAtShow;
-            eventAppearance.BoothNumber = personData.BoothNumber;
-            eventAppearance.AutographAmount = personData.AutographAmount;
-            eventAppearance.PhotoOpAmount = personData.PhotoOpAmount;
-            eventAppearance.PhotoOpTableAmount = personData.PhotoOpTableAmount;
-
-            var scheduleById = eventAppearance.Schedules.ToDictionary(s => s.ExternalId);
-            foreach (var scheduleData in personData.Schedules ?? [])
-            {
-                if (!scheduleById.TryGetValue(scheduleData.Id, out var schedule))
-                {
-                    schedule = new Schedule { EventAppearance = eventAppearance, ExternalId = scheduleData.Id };
-                    eventAppearance.Schedules.Add(schedule);
-                }
-
-                schedule.Title = scheduleData.Title;
-                schedule.Description = scheduleData.Description;
-                schedule.StartTimeUtc = ParseAsUtc(scheduleData.StartTime);
-                schedule.EndTimeUtc = string.IsNullOrWhiteSpace(scheduleData.EndTime) ? null : ParseAsUtc(scheduleData.EndTime);
-                schedule.NoEndTime = scheduleData.NoEndTime;
-                schedule.Location = scheduleData.Location;
-
-                if (scheduleData.VenueLocation is not null)
-                {
-                    var venueLocation = await context.VenueLocations.SingleOrDefaultAsync(vl => vl.ExternalId == scheduleData.VenueLocation.Id, cancellationToken);
-                    if (venueLocation is null)
-                    {
-                        venueLocation = new VenueLocation { ExternalId = scheduleData.VenueLocation.Id, Name = scheduleData.VenueLocation.Name };
-                        context.VenueLocations.Add(venueLocation);
-                    }
-                    else
-                    {
-                        venueLocation.Name = scheduleData.VenueLocation.Name;
-                    }
-                    schedule.VenueLocation = venueLocation;
+                    vl = new VenueLocation { ExternalId = sd.VenueLocation.Id, Name = sd.VenueLocation.Name };
+                    context.VenueLocations.Add(vl);
                 }
                 else
                 {
-                    schedule.VenueLocation = null;
+                    vl.Name = sd.VenueLocation.Name;
                 }
+                s.VenueLocation = vl;
+            }
+            else
+            {
+                s.VenueLocation = null;
             }
         }
-
-        return await context.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>
@@ -196,14 +228,13 @@ public class EventIngestService(TomeshelfDbContext context)
     }
 
     /// <summary>
-    /// Parses a date-time string and forces it to UTC kind.
+    /// Parses a date-time string and returns the UTC DateTime.
     /// </summary>
     /// <param name="value">The date-time string representation.</param>
-    /// <returns>A <see cref="DateTime"/> with <see cref="DateTimeKind.Utc"/>.</returns>
+    /// <returns>A UTC <see cref="DateTime"/>.</returns>
     private static DateTime ParseAsUtc(string value)
     {
-        var dateTime = DateTime.SpecifyKind(DateTime.Parse(value), DateTimeKind.Utc);
-
-        return dateTime;
+        var dto = DateTimeOffset.Parse(value, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal);
+        return dto.UtcDateTime;
     }
 }

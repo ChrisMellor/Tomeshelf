@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Web.Models.ComicCon;
+using Tomeshelf.Web.Models;
 
 namespace Tomeshelf.Web.Services;
 
@@ -55,5 +56,11 @@ public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGue
         public string City { get; set; }
         public int Total { get; set; }
         public List<GuestsGroupModel> Groups { get; set; }
+    }
+
+    public async Task<GuestsByCityResult> GetComicConGuestsByCityResultAsync(string city, CancellationToken cancellationToken)
+    {
+        var (groups, total) = await GetComicConGuestsByCityAsync(city, cancellationToken);
+        return new GuestsByCityResult(groups, total);
     }
 }
