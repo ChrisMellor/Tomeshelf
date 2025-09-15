@@ -1,31 +1,77 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Globalization;
+using System.Net;
+using System.Net.Http;
+using Tomeshelf.ServiceDefaults;
+using Tomeshelf.Web.Services;
 
 namespace Tomeshelf.Web;
 
+/// <summary>
+/// Web application entry point and configuration.
+/// </summary>
 public class Program
 {
+    /// <summary>
+    /// Application entry point for the MVC web host.
+    /// Configures services and starts the web server.
+    /// </summary>
+    /// <param name="args">Command-line arguments.</param>
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
         builder.AddServiceDefaults();
 
-        // Add services to the container.
+        builder.Services.AddHttpLogging(o =>
+        {
+            o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod |
+                               HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration |
+                               HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
+            o.RequestHeaders.Add("User-Agent");
+            o.MediaTypeOptions.AddText("text/html");
+        });
+
         builder.Services.AddControllersWithViews();
+        builder.Services.AddAuthorization();
+        builder.Services.AddLocalization();
+
+        builder.Services.AddHttpClient<IGuestsApi, GuestsApi>(client =>
+        {
+            // Prefer .NET Aspire service discovery in Development; otherwise allow config override.
+            var configured = builder.Configuration["Services:ApiBase"];
+            var useDiscovery = builder.Environment.IsDevelopment() || string.IsNullOrWhiteSpace(configured);
+            client.BaseAddress = new Uri(useDiscovery ? "http://api" : configured);
+            client.DefaultRequestVersion = HttpVersion.Version11;
+            client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+            client.Timeout = TimeSpan.FromSeconds(100);
+        }).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+        {
+            AutomaticDecompression = DecompressionMethods.None
+        });
+
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Home/Error");
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
 
+        var supportedCultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+        var locOptions = new RequestLocalizationOptions()
+            .SetDefaultCulture("en-GB")
+            .AddSupportedCultures(Array.ConvertAll(supportedCultures, c => c.Name))
+            .AddSupportedUICultures(Array.ConvertAll(supportedCultures, c => c.Name));
+        app.UseRequestLocalization(locOptions);
+
         app.UseHttpsRedirection();
+        app.UseHttpLogging();
         app.UseRouting();
 
         app.UseAuthorization();

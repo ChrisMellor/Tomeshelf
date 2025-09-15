@@ -1,11 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+	  <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Tomeshelf.ServiceDefaults\Tomeshelf.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Tomeshelf.Application\Tomeshelf.Application.csproj" />
   </ItemGroup>
 
 </Project>
