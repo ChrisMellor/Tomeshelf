@@ -9,7 +9,7 @@ using Tomeshelf.Infrastructure.Queries;
 
 namespace Tomeshelf.Infrastructure.Tests.Queries.GuestQueriesTests;
 
-public class GuestQueries_GetCategoriesByEventSlugAsync_Tests
+public class GuestQueriesGetCategoriesByEventSlugAsyncTests
 {
     [Fact]
     public async Task GetCategoriesByEventSlugAsync_ReturnsEmpty_WhenEventNotFound()

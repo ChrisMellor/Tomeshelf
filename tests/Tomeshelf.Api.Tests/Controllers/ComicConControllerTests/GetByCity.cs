@@ -12,7 +12,7 @@ using Tomeshelf.Infrastructure.Services;
 
 namespace Tomeshelf.Api.Tests.Controllers.ComicConControllerTests;
 
-public class ComicConController_GetByCity_Tests
+public class ComicConControllerGetByCityTests
 {
     [Fact]
     public async Task GetByCity_WhenCityMissing_ReturnsBadRequest()

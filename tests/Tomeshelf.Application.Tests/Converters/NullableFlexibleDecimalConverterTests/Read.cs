@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Tomeshelf.Application.Tests.Converters.NullableFlexibleDecimalConverterTests;
 
-public class NullableFlexibleDecimalConverter_Read_Tests
+public class NullableFlexibleDecimalConverterReadTests
 {
     private readonly JsonSerializerOptions _opts = new(JsonSerializerDefaults.Web)
     {

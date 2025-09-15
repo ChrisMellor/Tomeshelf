@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Tomeshelf.Application.Tests.Converters.NullableFlexibleDecimalConverterTests;
 
-public class NullableFlexibleDecimalConverter_Write_Tests
+public class NullableFlexibleDecimalConverterWriteTests
 {
     [Fact]
     public void Write_Null_WritesNull()

@@ -16,7 +16,7 @@ using Tomeshelf.Infrastructure.Services;
 
 namespace Tomeshelf.Api.Tests.Controllers.ComicConControllerTests;
 
-public class ComicConController_UpdateGuests_Tests
+public class ComicConControllerUpdateGuestsTests
 {
     [Fact]
     public async Task UpdateGuests_WhenCityValid_ReturnsOk()
