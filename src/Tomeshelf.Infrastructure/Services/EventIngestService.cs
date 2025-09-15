@@ -40,7 +40,7 @@ public class EventIngestService(TomeshelfDbContext context)
             EnsureCategories(personData.GlobalCategories, categoryCache);
             SyncPersonCategories(person, personData.GlobalCategories, categoryCache);
 
-            var appearance = await GetOrCreateAppearanceAsync(entity.Id, person.Id, cancellationToken);
+            var appearance = await GetOrCreateAppearanceAsync(entity, person, cancellationToken);
             UpdateAppearanceProperties(appearance, personData);
             await SyncSchedulesAsync(appearance, personData.Schedules, cancellationToken);
         }
@@ -141,16 +141,23 @@ public class EventIngestService(TomeshelfDbContext context)
         }
     }
 
-    private async Task<EventAppearance> GetOrCreateAppearanceAsync(int eventId, int personId, CancellationToken ct)
+    private async Task<EventAppearance> GetOrCreateAppearanceAsync(Event eventEntity, Person person, CancellationToken ct)
     {
-        var appearance = await context.EventAppearances
-            .Include(x => x.Schedules)
-            .SingleOrDefaultAsync(x => x.EventId == eventId && x.PersonId == personId, ct);
+        EventAppearance? appearance = null;
+
+        if (eventEntity.Id > 0 && person.Id > 0)
+        {
+            appearance = await context.EventAppearances
+                .Include(x => x.Schedules)
+                .SingleOrDefaultAsync(x => x.EventId == eventEntity.Id && x.PersonId == person.Id, ct);
+        }
+
         if (appearance is null)
         {
-            appearance = new EventAppearance { EventId = eventId, PersonId = personId };
+            appearance = new EventAppearance { Event = eventEntity, Person = person };
             context.EventAppearances.Add(appearance);
         }
+
         return appearance;
     }
 

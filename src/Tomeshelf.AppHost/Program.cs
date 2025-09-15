@@ -1,4 +1,5 @@
 using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using Tomeshelf.AppHost.Records;
@@ -26,17 +27,35 @@ internal class Program
         if (!isPublish)
         {
             builder.AddDockerComposeEnvironment("metrics")
-                .WithDashboard(resourceBuilder => resourceBuilder.WithHostPort(18888));
+                .WithDashboard(rb => rb.WithHostPort(18888));
         }
 
-        var databaseServer = builder.AddAzureSqlServer("sql")
-            .AddDatabase("tomeshelfdb");
+        IResourceBuilder<ProjectResource> api;
 
-        var api = builder.AddProject<Projects.Tomeshelf_Api>("api")
-            .WithExternalHttpEndpoints()
-            .WithHttpHealthCheck("/health")
-            .WithReference(databaseServer)
-            .WaitFor(databaseServer);
+        if (isPublish)
+        {
+            var database = builder.AddAzureSqlServer("sql")
+                .AddDatabase("tomeshelfdb");
+
+            api = builder.AddProject<Projects.Tomeshelf_Api>("api")
+                .WithExternalHttpEndpoints()
+                .WithHttpHealthCheck("/health")
+                .WithReference(database)
+                .WaitFor(database);
+        }
+        else
+        {
+            var database = builder.AddSqlServer("sql")
+                .WithDataVolume()
+                .WithEnvironment("ACCEPT_EULA", "Y")
+                .AddDatabase("tomeshelfdb");
+
+            api = builder.AddProject<Projects.Tomeshelf_Api>("api")
+                .WithExternalHttpEndpoints()
+                .WithHttpHealthCheck("/health")
+                .WithReference(database)
+                .WaitFor(database);
+        }
 
         builder.AddProject<Projects.Tomeshelf_Web>("web")
             .WithExternalHttpEndpoints()
@@ -55,5 +74,6 @@ internal class Program
         }
 
         builder.Build().Run();
+
     }
 }
