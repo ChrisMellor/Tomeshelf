@@ -1,15 +1,11 @@
+using FakeItEasy;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using FakeItEasy;
-using FluentAssertions;
 using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Api.Controllers;
-using Tomeshelf.Api.Enums;
-using Tomeshelf.Application.Contracts;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
@@ -44,11 +40,15 @@ public class ComicConController_GetByCity_Tests
 
         var ev = new Domain.Entities.ComicCon.Event
         {
-            ExternalId = Guid.NewGuid().ToString(), Name = "Event", Slug = "2025-london"
+            ExternalId = Guid.NewGuid().ToString(),
+            Name = "Event",
+            Slug = "2025-london"
         };
         var p = new Domain.Entities.ComicCon.Person
         {
-            ExternalId = Guid.NewGuid().ToString(), FirstName = "Ada", LastName = "Lovelace"
+            ExternalId = Guid.NewGuid().ToString(),
+            FirstName = "Ada",
+            LastName = "Lovelace"
         };
         db.Events.Add(ev);
         db.People.Add(p);

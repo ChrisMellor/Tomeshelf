@@ -38,7 +38,7 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 }
             }
         };
-        
+
         // Act
         await sut.UpsertAsync(evt1);
 
@@ -96,7 +96,7 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 }
             }
         };
-        
+
         // Act
         await sut.UpsertAsync(evt1);
 

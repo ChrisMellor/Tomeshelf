@@ -4,7 +4,6 @@ using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Web.Models.ComicCon;
 using Tomeshelf.Web.Services;
 
 namespace Tomeshelf.Web.Tests.Services.GuestsApiTests;

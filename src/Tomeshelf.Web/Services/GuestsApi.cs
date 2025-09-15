@@ -6,8 +6,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Web.Models.ComicCon;
 using Tomeshelf.Web.Models;
+using Tomeshelf.Web.Models.ComicCon;
 
 namespace Tomeshelf.Web.Services;
 

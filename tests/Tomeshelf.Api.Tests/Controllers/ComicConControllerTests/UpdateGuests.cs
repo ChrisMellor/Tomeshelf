@@ -1,8 +1,8 @@
+using FakeItEasy;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using FakeItEasy;
-using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.Threading;

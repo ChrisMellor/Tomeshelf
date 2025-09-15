@@ -1,6 +1,6 @@
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using FluentAssertions;
 using System;
 using System.Threading.Tasks;
 using Tomeshelf.Domain.Entities.ComicCon;

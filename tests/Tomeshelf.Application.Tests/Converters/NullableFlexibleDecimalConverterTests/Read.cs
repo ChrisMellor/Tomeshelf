@@ -23,7 +23,7 @@ public class NullableFlexibleDecimalConverter_Read_Tests
         reader.Read();
         reader.Read();
         var converter = new NullableFlexibleDecimalConverter();
-        
+
         // Act
         decimal? value = converter.Read(ref reader, typeof(decimal?), _opts);
         // Assert
@@ -38,7 +38,7 @@ public class NullableFlexibleDecimalConverter_Read_Tests
         var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
         reader.Read(); reader.Read(); reader.Read();
         var converter = new NullableFlexibleDecimalConverter();
-        
+
         // Act
         var value = converter.Read(ref reader, typeof(decimal?), _opts);
 
@@ -54,7 +54,7 @@ public class NullableFlexibleDecimalConverter_Read_Tests
         var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
         reader.Read(); reader.Read(); reader.Read();
         var converter = new NullableFlexibleDecimalConverter();
-        
+
         // Act
         var value = converter.Read(ref reader, typeof(decimal?), _opts);
 
@@ -70,7 +70,7 @@ public class NullableFlexibleDecimalConverter_Read_Tests
         var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
         reader.Read(); reader.Read(); reader.Read();
         var converter = new NullableFlexibleDecimalConverter();
-        
+
         // Act
         var value = converter.Read(ref reader, typeof(decimal?), _opts);
 
@@ -86,7 +86,7 @@ public class NullableFlexibleDecimalConverter_Read_Tests
         var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
         reader.Read(); reader.Read(); reader.Read();
         var converter = new NullableFlexibleDecimalConverter();
-        
+
         // Act
         var value = converter.Read(ref reader, typeof(decimal?), _opts);
 
