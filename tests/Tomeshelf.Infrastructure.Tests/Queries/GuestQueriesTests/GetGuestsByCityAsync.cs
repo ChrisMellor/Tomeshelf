@@ -15,6 +15,7 @@ public class GuestQueriesGetGuestsByCityAsyncTests
     [Fact]
     public async Task GetGuestsByCityAsync_GroupsByDate()
     {
+        // Arrange
         var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         using var db = new TomeshelfDbContext(dbOptions);
@@ -32,8 +33,10 @@ public class GuestQueriesGetGuestsByCityAsyncTests
 
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
 
+        // Act
         var groups = await queries.GetGuestsByCityAsync("London", TestContext.Current.CancellationToken);
 
+        // Assert
         groups.Should().NotBeEmpty();
         groups.Sum(group => group.Items.Count).Should().BeGreaterThanOrEqualTo(2);
     }
@@ -41,14 +44,16 @@ public class GuestQueriesGetGuestsByCityAsyncTests
     [Fact]
     public async Task GetGuestsByCityAsync_EmptyCity_ReturnsEmpty()
     {
+        // Arrange
         var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         using var db = new TomeshelfDbContext(dbOptions);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
 
+        // Act
         var groups = await queries.GetGuestsByCityAsync("   ", TestContext.Current.CancellationToken);
 
+        // Assert
         groups.Should().BeEmpty();
     }
 }
-

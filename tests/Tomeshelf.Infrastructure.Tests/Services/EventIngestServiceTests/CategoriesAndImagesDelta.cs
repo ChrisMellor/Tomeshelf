@@ -15,6 +15,7 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
     [Fact]
     public async Task UpsertAsync_ReplacesImages_AndSynchronizesCategories()
     {
+        // Arrange
         var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         using var db = new TomeshelfDbContext(dbOptions);
@@ -37,6 +38,8 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 }
             }
         };
+        
+        // Act
         await sut.UpsertAsync(evt1);
 
         var evt2 = new EventDto
@@ -59,6 +62,7 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
 
         await sut.UpsertAsync(evt2);
 
+        // Assert
         var person = await db.People.Include(p => p.Images).Include(p => p.Categories).ThenInclude(pc => pc.Category)
             .SingleAsync(p => p.ExternalId == "P1", TestContext.Current.CancellationToken);
         person.Images.Should().HaveCount(1);
@@ -70,6 +74,7 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
     [Fact]
     public async Task UpsertAsync_AddsAndUpdatesSchedules_AndVenueLocations()
     {
+        // Arrange
         var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         using var db = new TomeshelfDbContext(dbOptions);
@@ -91,6 +96,8 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 }
             }
         };
+        
+        // Act
         await sut.UpsertAsync(evt1);
 
         var evt2 = new EventDto
@@ -115,6 +122,7 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
 
         await sut.UpsertAsync(evt2);
 
+        // Assert
         var ea = await db.EventAppearances.Include(e => e.Schedules).ThenInclude(s => s.VenueLocation)
             .SingleAsync(a => a.Person.ExternalId == "P1" && a.Event.Slug == "2025-london", TestContext.Current.CancellationToken);
         ea.Schedules.Should().HaveCount(2);
@@ -123,4 +131,3 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
         ea.Schedules.Single(s => s.ExternalId == "S2").VenueLocation.Should().BeNull();
     }
 }
-

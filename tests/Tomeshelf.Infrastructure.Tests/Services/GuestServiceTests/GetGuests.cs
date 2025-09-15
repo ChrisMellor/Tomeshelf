@@ -73,8 +73,10 @@ public class GuestServiceTests
 
         var sut = new GuestService(guestsClient, options, NullLogger<GuestService>.Instance, ingest);
 
-        // Act & Assert
+        // Act
         Func<Task> actMissingCity = async () => await sut.GetGuestsAsync("UnknownCity", CancellationToken.None);
+
+        // Assert
         await actMissingCity.Should().ThrowAsync<ApplicationException>();
     }
 
@@ -98,8 +100,10 @@ public class GuestServiceTests
 
         var sut = new GuestService(guestsClient, options, NullLogger<GuestService>.Instance, ingest);
 
-        // Act & Assert
+        // Act
         Func<Task> actNullClient = async () => await sut.GetGuestsAsync(city, CancellationToken.None);
+
+        // Assert
         await actNullClient.Should().ThrowAsync<ApplicationException>();
     }
 

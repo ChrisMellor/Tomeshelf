@@ -14,6 +14,7 @@ public class GuestQueriesGetGuestsAsyncTests
     [Fact]
     public async Task GetGuestsAsync_SearchFiltersResults()
     {
+        // Arrange
         var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         using var db = new TomeshelfDbContext(dbOptions);
@@ -30,10 +31,11 @@ public class GuestQueriesGetGuestsAsyncTests
 
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
 
+        // Act
         var (filteredItems, total) = await queries.GetGuestsAsync("2025-london", null, "Ada", 1, 10, TestContext.Current.CancellationToken);
 
+        // Assert
         total.Should().Be(1);
         filteredItems.Should().ContainSingle(i => i.FirstName == "Ada");
     }
 }
-

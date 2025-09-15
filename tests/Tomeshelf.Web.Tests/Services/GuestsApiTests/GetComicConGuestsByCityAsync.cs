@@ -84,8 +84,10 @@ public class GuestsApiTests
         var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
         var api = new GuestsApi(http, NullLogger<GuestsApi>.Instance);
 
-        // Act & Assert
+        // Act
         Func<Task> act = async () => await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
+
+        // Assert
         await act.Should().ThrowAsync<HttpRequestException>();
     }
 

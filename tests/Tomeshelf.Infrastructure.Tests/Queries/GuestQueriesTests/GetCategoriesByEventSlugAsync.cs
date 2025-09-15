@@ -14,19 +14,23 @@ public class GuestQueries_GetCategoriesByEventSlugAsync_Tests
     [Fact]
     public async Task GetCategoriesByEventSlugAsync_ReturnsEmpty_WhenEventNotFound()
     {
+        // Arrange
         var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         using var db = new TomeshelfDbContext(dbOptions);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
 
+        // Act
         var cats = await queries.GetCategoriesByEventSlugAsync("missing", TestContext.Current.CancellationToken);
 
+        // Assert
         cats.Should().BeEmpty();
     }
 
     [Fact]
     public async Task GetCategoriesByEventSlugAsync_ReturnsDistinctSorted()
     {
+        // Arrange
         var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         using var db = new TomeshelfDbContext(dbOptions);
@@ -43,11 +47,13 @@ public class GuestQueries_GetCategoriesByEventSlugAsync_Tests
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
+
+        // Act
         var cats = await queries.GetCategoriesByEventSlugAsync("2025-london", TestContext.Current.CancellationToken);
 
+        // Assert
         cats.Should().HaveCount(2);
         cats.Should().ContainEquivalentOf(("A", "Alpha"));
         cats.Should().ContainEquivalentOf(("B", "Beta"));
     }
 }
-
