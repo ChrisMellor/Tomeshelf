@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Api.Enums;
+using Tomeshelf.Api.Services;
 using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
 
@@ -20,6 +22,8 @@ public class ComicConController : ControllerBase
     private readonly ILogger<ComicConController> _logger;
     private readonly IGuestService _guestService;
     private readonly GuestQueries _queries;
+    private readonly IGuestsCache _cache;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ComicConController"/> class.
@@ -27,11 +31,15 @@ public class ComicConController : ControllerBase
     /// <param name="guestService">Domain service for updating guests.</param>
     /// <param name="queries">Read-only guest queries.</param>
     /// <param name="logger">Logger instance.</param>
-    public ComicConController(IGuestService guestService, GuestQueries queries, ILogger<ComicConController> logger)
+    /// <param name="cache">In-memory guests cache.</param>
+    /// <param name="scopeFactory">Factory for creating scopes for background cache warmup.</param>
+    public ComicConController(IGuestService guestService, GuestQueries queries, ILogger<ComicConController> logger, IGuestsCache cache, IServiceScopeFactory scopeFactory)
     {
         _guestService = guestService;
         _queries = queries;
         _logger = logger;
+        _cache = cache;
+        _scopeFactory = scopeFactory;
     }
 
     /// <summary>
@@ -53,6 +61,10 @@ public class ComicConController : ControllerBase
                 case City.Birmingham:
                     var cityName = city.ToString();
                     var newGuests = await _guestService.GetGuestsAsync(cityName, cancellationToken);
+
+                    var groups = await _queries.GetGuestsByCityAsync(cityName, cancellationToken);
+                    var total = groups.Sum(g => g.Items.Count);
+                    _cache.Set(cityName, new GuestsSnapshot(cityName, total, groups, DateTimeOffset.UtcNow));
 
                     return Ok(newGuests);
                 default:
@@ -89,15 +101,38 @@ public class ComicConController : ControllerBase
         }
 
         using var scope = _logger.BeginScope(new { City = city });
-        _logger.LogInformation("Fetching guests by city");
+        _logger.LogInformation("Fetching guests by city (using cache if available)");
         var started = DateTimeOffset.UtcNow;
 
-        var groups = await _queries.GetGuestsByCityAsync(city, cancellationToken);
-        var total = groups.Sum(g => g.Items.Count);
+        if (_cache.TryGet(city, out var snapshot))
+        {
+            var durationHit = DateTimeOffset.UtcNow - started;
+            _logger.LogInformation("Cache hit for {City} -> {Total} guests in {Duration}ms", city, snapshot.Total, (int)durationHit.TotalMilliseconds);
+            return Ok(new { city = snapshot.City, total = snapshot.Total, groups = snapshot.Groups });
+        }
 
-        var duration = DateTimeOffset.UtcNow - started;
-        _logger.LogInformation("Returning {Total} guests in {Duration}ms", total, (int)duration.TotalMilliseconds);
+        _logger.LogInformation("Cache miss for {City}; scheduling background warmup and returning 202", city);
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                using var s = _scopeFactory.CreateScope();
+                var queries = s.ServiceProvider.GetRequiredService<GuestQueries>();
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                var gs = await queries.GetGuestsByCityAsync(city, cts.Token);
+                var t = gs.Sum(g => g.Items.Count);
+                var cache = s.ServiceProvider.GetRequiredService<IGuestsCache>();
+                cache.Set(city, new GuestsSnapshot(city, t, gs, DateTimeOffset.UtcNow));
+                _logger.LogInformation("Cache warmup completed for {City}: {Total} guests", city, t);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Cache warmup failed for {City}", city);
+            }
+        });
 
-        return Ok(new { city, total, groups });
+        Response.Headers["Retry-After"] = "10";
+
+        return StatusCode(202, new { city, total = 0, groups = Array.Empty<object>(), status = "warming" });
     }
 }

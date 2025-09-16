@@ -1,4 +1,4 @@
-@using Tomeshelf.Web.Models.ComicCon
+﻿@using Tomeshelf.Web.Models.ComicCon
 @model IReadOnlyList<GuestsGroupModel>
 @{
     ViewData["Title"] = "Guests by City";
@@ -29,7 +29,14 @@
         </div>
     </div>
 
-    @if (total == 0 || !Model.Any())
+    @{ var warming = (bool)(ViewBag.WarmingUp ?? false); }
+    @if (warming)
+    {
+        <div class="alert alert-info" role="alert">
+            Warming up data for @city... Please refresh in a few seconds.
+        </div>
+    }
+    @if (!warming && (total == 0 || !Model.Any()))
     {
         <div class="text-muted py-5 text-center">No guests found.</div>
     }

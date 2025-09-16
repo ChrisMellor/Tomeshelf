@@ -35,20 +35,9 @@ public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGue
     /// <exception cref="InvalidOperationException">Thrown when the response payload is empty.</exception>
     public async Task<(IReadOnlyList<GuestsGroupModel> Groups, int Total)> GetComicConGuestsByCityAsync(string city, CancellationToken cancellationToken)
     {
-        var url = $"api/ComicCon/Guests/City?city={Uri.EscapeDataString(city)}";
+        var result = await GetComicConGuestsByCityResultAsync(city, cancellationToken);
 
-        var started = DateTimeOffset.UtcNow;
-        using var res = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-        var duration = DateTimeOffset.UtcNow - started;
-        _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)res.StatusCode, (int)duration.TotalMilliseconds);
-        res.EnsureSuccessStatusCode();
-
-        await using var s = await res.Content.ReadAsStreamAsync(cancellationToken);
-        var env = await JsonSerializer.DeserializeAsync<GroupedEnvelope>(s, Json, cancellationToken)
-                  ?? throw new InvalidOperationException("Empty payload");
-        _logger.LogInformation("Parsed groups={Groups} total={Total}", env.Groups?.Count ?? 0, env.Total);
-
-        return (env.Groups ?? [], env.Total);
+        return (result.Groups, result.Total);
     }
 
     private sealed class GroupedEnvelope
@@ -60,7 +49,25 @@ public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGue
 
     public async Task<GuestsByCityResult> GetComicConGuestsByCityResultAsync(string city, CancellationToken cancellationToken)
     {
-        var (groups, total) = await GetComicConGuestsByCityAsync(city, cancellationToken);
-        return new GuestsByCityResult(groups, total);
+        var url = $"api/ComicCon/Guests/City?city={Uri.EscapeDataString(city)}";
+        var started = DateTimeOffset.UtcNow;
+        using var res = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        var duration = DateTimeOffset.UtcNow - started;
+        _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)res.StatusCode, (int)duration.TotalMilliseconds);
+
+        if ((int)res.StatusCode == 202)
+        {
+            _logger.LogInformation("API indicates cache warming for {City}", city);
+            return new GuestsByCityResult(new List<GuestsGroupModel>(), 0, true);
+        }
+
+        res.EnsureSuccessStatusCode();
+
+        await using var s = await res.Content.ReadAsStreamAsync(cancellationToken);
+        var env = await JsonSerializer.DeserializeAsync<GroupedEnvelope>(s, Json, cancellationToken)
+                  ?? throw new InvalidOperationException("Empty payload");
+        _logger.LogInformation("Parsed groups={Groups} total={Total}", env.Groups?.Count ?? 0, env.Total);
+
+        return new GuestsByCityResult(env.Groups ?? new List<GuestsGroupModel>(), env.Total, false);
     }
 }

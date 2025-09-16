@@ -74,6 +74,5 @@ internal class Program
         }
 
         builder.Build().Run();
-
     }
 }

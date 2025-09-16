@@ -27,14 +27,17 @@ public class Program
 
         builder.AddServiceDefaults();
 
-        builder.Services.AddHttpLogging(o =>
+        if (builder.Environment.IsDevelopment())
         {
-            o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod |
-                               HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration |
-                               HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
-            o.RequestHeaders.Add("User-Agent");
-            o.MediaTypeOptions.AddText("text/html");
-        });
+            builder.Services.AddHttpLogging(o =>
+            {
+                o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod |
+                                   HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration |
+                                   HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
+                o.RequestHeaders.Add("User-Agent");
+                o.MediaTypeOptions.AddText("text/html");
+            });
+        }
 
         builder.Services.AddControllersWithViews();
         builder.Services.AddAuthorization();
@@ -42,7 +45,6 @@ public class Program
 
         builder.Services.AddHttpClient<IGuestsApi, GuestsApi>(client =>
         {
-            // Prefer .NET Aspire service discovery in Development; otherwise allow config override.
             var configured = builder.Configuration["Services:ApiBase"];
             var useDiscovery = builder.Environment.IsDevelopment() || string.IsNullOrWhiteSpace(configured);
             client.BaseAddress = new Uri(useDiscovery ? "http://api" : configured);
@@ -71,7 +73,10 @@ public class Program
         app.UseRequestLocalization(locOptions);
 
         app.UseHttpsRedirection();
-        app.UseHttpLogging();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseHttpLogging();
+        }
         app.UseRouting();
 
         app.UseAuthorization();

@@ -10,12 +10,19 @@ namespace Tomeshelf.Infrastructure.Persistence;
 public class TomeshelfDbContext(DbContextOptions<TomeshelfDbContext> options) : DbContext(options)
 {
     public DbSet<Event> Events => Set<Event>();
+
     public DbSet<Person> People => Set<Person>();
+
     public DbSet<PersonImage> PersonImages => Set<PersonImage>();
+
     public DbSet<Category> Categories => Set<Category>();
+
     public DbSet<PersonCategory> PersonCategories => Set<PersonCategory>();
+
     public DbSet<EventAppearance> EventAppearances => Set<EventAppearance>();
+
     public DbSet<Schedule> Schedules => Set<Schedule>();
+
     public DbSet<VenueLocation> VenueLocations => Set<VenueLocation>();
 
     /// <summary>

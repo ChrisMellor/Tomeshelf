@@ -2,9 +2,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Api.Enums;
+using Tomeshelf.Api.Services;
+using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
 
 namespace Tomeshelf.Api.Hosted;
@@ -63,8 +66,16 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
                 _logger.LogInformation("Updating guests for {CityName}", city);
 
                 using var scope = _scopeFactory.CreateScope();
+                var cityName = city.ToString();
+
                 var guestService = scope.ServiceProvider.GetRequiredService<IGuestService>();
-                await guestService.GetGuestsAsync(city.ToString(), cancellationToken);
+                await guestService.GetGuestsAsync(cityName, cancellationToken);
+
+                var queries = scope.ServiceProvider.GetRequiredService<GuestQueries>();
+                var groups = await queries.GetGuestsByCityAsync(cityName, cancellationToken);
+                var total = groups.Sum(g => g.Items.Count);
+                var cache = scope.ServiceProvider.GetRequiredService<IGuestsCache>();
+                cache.Set(cityName, new GuestsSnapshot(cityName, total, groups, DateTimeOffset.UtcNow));
             }
             catch (Exception ex)
             {
