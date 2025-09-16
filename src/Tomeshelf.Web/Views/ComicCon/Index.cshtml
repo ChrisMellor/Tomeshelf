@@ -48,7 +48,7 @@
                 var group = Model[i];
                 var dayName = culture.DateTimeFormat.GetDayName(group.CreatedDate.DayOfWeek);
                 var monthName = culture.DateTimeFormat.GetMonthName(group.CreatedDate.Month);
-                var title = $"{dayName} - {ord(group.CreatedDate.Day)} {monthName}";
+                var title = $"Added on {dayName} - {ord(group.CreatedDate.Day)} {monthName}";
                 var id = $"acc-{group.CreatedDate:yyyyMMdd}-{i}";
                 var isOpen = i == 0;
                 var btnClass = isOpen ? "accordion-button" : "accordion-button collapsed";
