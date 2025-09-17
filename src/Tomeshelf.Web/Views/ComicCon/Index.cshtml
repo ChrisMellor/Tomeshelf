@@ -69,7 +69,13 @@
                                     var lastInitial = string.IsNullOrWhiteSpace(g.LastName) ? "" : g.LastName.Substring(0, 1).ToUpperInvariant();
                                     var initials = (firstInitial + lastInitial);
                                     DateTime removedDate;
-                                    var removedDateText = DateTime.TryParse(g.RemovedAt, out removedDate) ? removedDate.ToString("yyyy-MM-dd") : "";
+                                    string removedDateText = "";
+                                    if (DateTime.TryParse(g.RemovedAt, out removedDate))
+                                    {
+                                        var removedDayName = culture.DateTimeFormat.GetDayName(removedDate.DayOfWeek);
+                                        var removedMonthName = culture.DateTimeFormat.GetMonthName(removedDate.Month);
+                                        removedDateText = $"Removed on {removedDayName} - {ord(removedDate.Day)} {removedMonthName}";
+                                    }
                                     <div class="col">
                                         <div class="card guest-card h-100 border-danger border-1 shadow-sm">
                                             <div class="position-relative ratio ratio-4x3 guest-img">
@@ -86,7 +92,7 @@
                                                 <h2 class="h6 card-title mb-1 text-truncate" title="@displayName">@displayName</h2>
                                                 @if (!string.IsNullOrEmpty(removedDateText))
                                                 {
-                                                    <div class="small text-danger mb-2">Removed @removedDateText</div>
+                                                    <div class="small text-danger mb-2">@removedDateText</div>
                                                 }
                                                 <div class="mt-auto"></div>
                                             </div>
