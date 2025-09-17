@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,7 +92,29 @@ public class EventIngestService(TomeshelfDbContext context)
     private static void UpdatePersonProperties(Person person, PersonDto data)
     {
         person.Uid = data.Uid;
-        person.PubliclyVisible = data.PubliclyVisible;
+        var wasVisible = person.PubliclyVisible;
+
+        // Derive visibility: some sources signal cancellations via a global category named "Canceled"/"Cancelled".
+        var isCanceledCategory = (data.GlobalCategories ?? [])
+            .Any(c => !string.IsNullOrWhiteSpace(c.Name) &&
+                      (string.Equals(c.Name.Trim(), "Canceled", StringComparison.OrdinalIgnoreCase) ||
+                       string.Equals(c.Name.Trim(), "Cancelled", StringComparison.OrdinalIgnoreCase)));
+
+        var desiredVisible = data.PubliclyVisible && !isCanceledCategory;
+        person.PubliclyVisible = desiredVisible;
+
+        if (!desiredVisible && person.RemovedUtc is null)
+        {
+            // Mark removal when transitioning from visible, or when a cancellation category is present on first ingest.
+            if (wasVisible || isCanceledCategory)
+            {
+                person.RemovedUtc = DateTime.UtcNow;
+            }
+        }
+        if (!wasVisible && desiredVisible)
+        {
+            person.RemovedUtc = null;
+        }
         person.FirstName = data.FirstName ?? "";
         person.LastName = data.LastName ?? "";
         person.AltName = data.AltName;
