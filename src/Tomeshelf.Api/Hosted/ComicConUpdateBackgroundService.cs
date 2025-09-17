@@ -2,15 +2,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Api.Enums;
+using Tomeshelf.Api.Services;
+using Tomeshelf.Infrastructure.Persistence;
+using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
 
 namespace Tomeshelf.Api.Hosted;
 
 /// <summary>
 /// Background service that periodically refreshes Comic Con guests from the external API.
+/// Ensures the database is reachable before attempting the first upsert.
 /// </summary>
 public sealed class ComicConUpdateBackgroundService : BackgroundService
 {
@@ -37,7 +42,23 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
     {
         _logger.LogInformation("ComicCon update background service started");
 
-        var timer = new PeriodicTimer(TimeSpan.FromHours(1));
+        try
+        {
+            await WaitForDatabaseAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) { }
+
+        try
+        {
+            await RunOnceAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Initial ComicCon update pass failed; will retry on schedule");
+        }
+
+        using var timer = new PeriodicTimer(TimeSpan.FromHours(1));
         try
         {
             while (await timer.WaitForNextTickAsync(cancellationToken))
@@ -63,13 +84,62 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
                 _logger.LogInformation("Updating guests for {CityName}", city);
 
                 using var scope = _scopeFactory.CreateScope();
+                var cityName = city.ToString();
+
                 var guestService = scope.ServiceProvider.GetRequiredService<IGuestService>();
-                await guestService.GetGuestsAsync(city.ToString(), cancellationToken);
+                await guestService.GetGuestsAsync(cityName, cancellationToken);
+
+                var queries = scope.ServiceProvider.GetRequiredService<GuestQueries>();
+                var groups = await queries.GetGuestsByCityAsync(cityName, cancellationToken);
+                var total = groups.Sum(g => g.Items.Count);
+                var cache = scope.ServiceProvider.GetRequiredService<IGuestsCache>();
+                cache.Set(cityName, new GuestsSnapshot(cityName, total, groups, DateTimeOffset.UtcNow));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to update guests for {CityName}", city);
             }
+        }
+    }
+
+    /// <summary>
+    /// Polls until the database is reachable, with exponential backoff and logs.
+    /// </summary>
+    private async Task WaitForDatabaseAsync(CancellationToken cancellationToken)
+    {
+        var delay = TimeSpan.FromSeconds(1);
+        var maxDelay = TimeSpan.FromSeconds(15);
+        var attempts = 0;
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            attempts++;
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<TomeshelfDbContext>();
+                if (await db.Database.CanConnectAsync(cancellationToken))
+                {
+                    _logger.LogInformation("Database reachable after {Attempts} attempt(s)", attempts);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex, "Database not ready (attempt {Attempt}); retrying in {Delay}s", attempts, (int)delay.TotalSeconds);
+            }
+
+            try
+            {
+                await Task.Delay(delay, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+
+            var nextMs = Math.Min(delay.TotalMilliseconds * 1.5, maxDelay.TotalMilliseconds);
+            delay = TimeSpan.FromMilliseconds(nextMs);
         }
     }
 }

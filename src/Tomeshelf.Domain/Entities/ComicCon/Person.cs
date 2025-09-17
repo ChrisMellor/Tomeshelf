@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Tomeshelf.Domain.Entities.ComicCon;
@@ -35,4 +35,5 @@ public class Person
 
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedUtc { get; set; }
+    public DateTime? RemovedUtc { get; set; }
 }

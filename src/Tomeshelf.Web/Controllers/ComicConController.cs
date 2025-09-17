@@ -19,14 +19,15 @@ public class ComicConController(IGuestsApi api) : Controller
     public async Task<IActionResult> Index([FromRoute] string city, CancellationToken cancellationToken = default)
     {
         var sw = System.Diagnostics.Stopwatch.StartNew();
-        var (groups, total) = await api.GetComicConGuestsByCityAsync(city, cancellationToken);
+        var result = await api.GetComicConGuestsByCityResultAsync(city, cancellationToken);
         sw.Stop();
 
         ViewBag.City = city;
-        ViewBag.Total = total;
+        ViewBag.Total = result.Total;
+        ViewBag.WarmingUp = result.WarmingUp;
         ViewBag.ElapsedMs = sw.ElapsedMilliseconds;
 
-        return View("Index", groups);
+        return View("Index", result.Groups);
     }
 
 

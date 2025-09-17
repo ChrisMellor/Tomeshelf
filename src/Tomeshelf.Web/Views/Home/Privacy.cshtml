@@ -1,6 +1,111 @@
-﻿@{
+@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<h1 class="mb-3">@ViewData["Title"]</h1>
+<p class="text-muted">Last updated: @DateTime.UtcNow.ToString("yyyy-MM-dd")</p>
+
+<p class="lead">
+    Tomeshelf is a small application that displays publicly available Comic Con guest information.
+    We do not run user accounts, and we do not sell or share personal information.
+    This page explains what limited data is processed when you use the site and API.
+    If anything here is unclear, please reach out via the project's GitHub issues.
+    This policy applies to the Tomeshelf website and, where noted, the API.
+    It does not apply to third-party sites that Tomeshelf links to.
+    <br />
+    <small class="text-muted"><a href="https://github.com/ChrisMellor/Tomeshelf">Project repository</a></small>
+  </p>
+
+<hr />
+
+<section class="mb-4">
+  <h2 class="h4">Summary</h2>
+  <ul>
+    <li>No user accounts; no direct collection of names, emails, or similar identifiers.</li>
+    <li>No advertising, analytics beacons, or third-party tracking scripts.</li>
+    <li>Essential server logs are kept for reliability and security.</li>
+    <li>Public data about Comic Con guests is fetched from external sources.</li>
+  </ul>
+  </section>
+
+<section class="mb-4">
+  <h2 class="h4">Information We Process</h2>
+  <p>
+    When you browse the site, our servers may record standard web request information to operate the
+    service and keep it secure. This includes:
+  </p>
+  <ul>
+    <li>Request details such as URL, HTTP method, timestamp, and response status code.</li>
+    <li>Technical metadata such as IP address and user-agent supplied by your browser.</li>
+    <li>Diagnostic timing data (e.g., request duration) used to monitor performance.</li>
+  </ul>
+  <p>
+    In development environments, additional HTTP request/response header logging may be enabled to
+    help diagnose issues. This detailed diagnostic logging is not intended for production deployments.
+  </p>
+</section>
+
+<section class="mb-4">
+  <h2 class="h4">Cookies</h2>
+  <p>
+    Tomeshelf does not use cookies for tracking or advertising. The site may set strictly necessary
+    cookies required for security or basic functionality of the web framework. These cookies, if present,
+    do not track you across other websites.
+  </p>
+</section>
+
+<section class="mb-4">
+  <h2 class="h4">Telemetry and Metrics</h2>
+  <p>
+    The application includes optional observability (tracing/metrics) for reliability and capacity planning.
+    When enabled by the operator, this data helps understand system health (e.g., request counts, latency,
+    error rates) and is not used to profile individual users. Identifiers are limited to technical metadata
+    required to operate the service.
+  </p>
+</section>
+
+<section class="mb-4">
+  <h2 class="h4">Data Sources and Sharing</h2>
+  <p>
+    Tomeshelf fetches public guest data from external Comic Con sources. We do not send your personal data to
+    those sources when retrieving public information. Server logs and telemetry may be processed by the hosting
+    platform or infrastructure providers strictly to operate the service.
+  </p>
+  <p>
+    We do not sell personal information. We may disclose limited log information if required by law or to
+    protect the security and integrity of the service.
+  </p>
+</section>
+
+<section class="mb-4">
+  <h2 class="h4">Retention</h2>
+  <p>
+    Diagnostic logs and metrics, when collected, are retained only as long as necessary for troubleshooting,
+    security, and service operations, after which they are deleted or aggregated.
+  </p>
+</section>
+
+<section class="mb-4">
+  <h2 class="h4">Your Choices</h2>
+  <ul>
+    <li>You may browse the site without providing personal information.</li>
+    <li>You can configure your browser to block non-essential cookies.</li>
+    <li>If you run your own instance of Tomeshelf, you control any logging and telemetry settings.</li>
+  </ul>
+</section>
+
+<section class="mb-4">
+  <h2 class="h4">Changes to This Policy</h2>
+  <p>
+    We may update this policy from time to time. Material changes will be reflected on this page with an
+    updated date.
+  </p>
+</section>
+
+<section class="mb-4">
+  <h2 class="h4">Contact</h2>
+  <p>
+    Questions or concerns? Please open an issue on the project repository:
+    <a href="https://github.com/ChrisMellor/Tomeshelf" target="_blank" rel="noopener">github.com/ChrisMellor/Tomeshelf</a>.
+  </p>
+</section>

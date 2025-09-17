@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -119,7 +119,8 @@ public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> lo
                 Snapchat = x.Person.Snapchat,
                 DeviantArt = x.Person.DeviantArt,
                 Tumblr = x.Person.Tumblr,
-                Category = null,
+                    RemovedAt = x.Person.RemovedUtc.HasValue ? x.Person.RemovedUtc.Value.ToString("o") : null,
+                    Category = null,
                 DaysAtShow = x.EventAppearance.DaysAtShow,
                 BoothNumber = x.EventAppearance.BoothNumber,
                 AutographAmount = x.EventAppearance.AutographAmount,
@@ -252,6 +253,7 @@ public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> lo
                     Snapchat = x.Person.Snapchat,
                     DeviantArt = x.Person.DeviantArt,
                     Tumblr = x.Person.Tumblr,
+                    RemovedAt = x.Person.RemovedUtc.HasValue ? x.Person.RemovedUtc.Value.ToString("o") : null,
                     Category = null,
                     DaysAtShow = x.EventAppearance.DaysAtShow,
                     BoothNumber = x.EventAppearance.BoothNumber,
