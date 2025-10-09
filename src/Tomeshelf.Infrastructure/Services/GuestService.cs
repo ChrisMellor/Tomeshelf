@@ -17,9 +17,9 @@ namespace Tomeshelf.Infrastructure.Services;
 public class GuestService : IGuestService
 {
     private readonly IGuestsClient _guestsClient;
-    private readonly IOptions<ComicConOptions> _options;
     private readonly ILogger<GuestService> _logger;
     private readonly EventIngestService _ingest;
+    private readonly IReadOnlyDictionary<string, Guid> _cityKeyMap;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GuestService"/> class.
@@ -35,9 +35,11 @@ public class GuestService : IGuestService
         EventIngestService ingest)
     {
         _guestsClient = guestsClient;
-        _options = options;
         _logger = logger;
         _ingest = ingest;
+        _cityKeyMap = options.Value.ComicCon
+            .GroupBy(location => location.City, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(grouping => grouping.Key, grouping => grouping.First().Key, StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -73,11 +75,7 @@ public class GuestService : IGuestService
     /// <exception cref="ApplicationException">Thrown when the city is not present in configuration.</exception>
     private Guid GetKeyFromConfig(string city)
     {
-        var map = _options.Value.ComicCon
-            .GroupBy(location => location.City, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(grouping => grouping.Key, grouping => grouping.First().Key, StringComparer.OrdinalIgnoreCase);
-
-        if (!map.TryGetValue(city, out var comicConKey))
+        if (!_cityKeyMap.TryGetValue(city, out var comicConKey))
         {
             _logger.LogError("No Comic Con configured for city {City}", city);
             throw new ApplicationException($"No Comic Con configured for city: '{city}'.");

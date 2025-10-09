@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Application.Contracts;
+using Tomeshelf.Domain.Entities.ComicCon;
 using Tomeshelf.Infrastructure.Persistence;
 
 namespace Tomeshelf.Infrastructure.Queries;
@@ -51,88 +52,32 @@ public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> lo
             return (Array.Empty<PersonDto>(), 0);
         }
 
-        var query = _db.EventAppearances.AsNoTracking()
-            .Where(eventAppearance => eventAppearance.EventId == eventId)
-            .Select(eventAppearance => new
-            {
-                EventAppearance = eventAppearance,
-                Person = eventAppearance.Person,
-                Categories = eventAppearance.Person.Categories.Select(personCategory => personCategory.Category),
-                Img = eventAppearance.Person.Images
-                    .OrderByDescending(i => i.Id)
-                    .Select(personImage => new ImageSetDto { Big = personImage.Big, Med = personImage.Med, Small = personImage.Small, Thumb = personImage.Thumb })
-                    .FirstOrDefault(),
-                Schedules = eventAppearance.Schedules.OrderBy(s => s.StartTimeUtc).Select(s => new ScheduleDto
-                {
-                    Id = s.ExternalId,
-                    Title = s.Title,
-                    Description = s.Description,
-                    StartTime = s.StartTimeUtc.ToString("o"),
-                    EndTime = s.EndTimeUtc.HasValue ? s.EndTimeUtc.Value.ToString("o") : null,
-                    NoEndTime = s.NoEndTime,
-                    Location = s.Location,
-                    VenueLocation = s.VenueLocation == null ? null : new VenueLocationDto
-                    {
-                        Id = s.VenueLocation.ExternalId,
-                        Name = s.VenueLocation.Name
-                    }
-                })
-            });
+        var baseQuery = _db.EventAppearances.AsNoTracking()
+            .Where(eventAppearance => eventAppearance.EventId == eventId);
 
         if (!string.IsNullOrWhiteSpace(day))
         {
-            query = query.Where(x => x.EventAppearance.DaysAtShow != null && x.EventAppearance.DaysAtShow.Contains(day!));
+            baseQuery = baseQuery.Where(a => a.DaysAtShow != null && a.DaysAtShow.Contains(day!));
         }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
             var s = search.Trim();
-            query = query.Where(x =>
-                (x.Person.FirstName + " " + x.Person.LastName).Contains(s) ||
-                (x.Person.KnownFor ?? "").Contains(s));
+            baseQuery = baseQuery.Where(a =>
+                (a.Person.FirstName + " " + a.Person.LastName).Contains(s) ||
+                (a.Person.KnownFor ?? "").Contains(s));
         }
 
-        var total = await query.CountAsync(cancellationToken);
+        var total = await baseQuery.CountAsync(cancellationToken);
 
-        var items = await query
-            .OrderBy(x => x.Person.LastName).ThenBy(x => x.Person.FirstName)
+        var ordered = baseQuery
+            .OrderBy(a => a.Person.LastName)
+            .ThenBy(a => a.Person.FirstName)
             .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .Select(x => new PersonDto
-            {
-                Id = x.Person.ExternalId,
-                Uid = x.Person.Uid,
-                PubliclyVisible = x.Person.PubliclyVisible,
-                FirstName = x.Person.FirstName,
-                LastName = x.Person.LastName,
-                AltName = x.Person.AltName,
-                Bio = x.Person.Bio,
-                KnownFor = x.Person.KnownFor,
-                ProfileUrl = x.Person.ProfileUrl,
-                ProfileUrlLabel = x.Person.ProfileUrlLabel,
-                VideoLink = x.Person.VideoLink,
-                Twitter = x.Person.Twitter,
-                Facebook = x.Person.Facebook,
-                Instagram = x.Person.Instagram,
-                YouTube = x.Person.YouTube,
-                Twitch = x.Person.Twitch,
-                Snapchat = x.Person.Snapchat,
-                DeviantArt = x.Person.DeviantArt,
-                Tumblr = x.Person.Tumblr,
-                    RemovedAt = x.Person.RemovedUtc.HasValue ? x.Person.RemovedUtc.Value.ToString("o") : null,
-                    Category = null,
-                DaysAtShow = x.EventAppearance.DaysAtShow,
-                BoothNumber = x.EventAppearance.BoothNumber,
-                AutographAmount = x.EventAppearance.AutographAmount,
-                PhotoOpAmount = x.EventAppearance.PhotoOpAmount,
-                PhotoOpTableAmount = x.EventAppearance.PhotoOpTableAmount,
-                PeopleCategories = null,
-                GlobalCategories = x.Categories
-                    .Select(c => new CategoryDto { Id = c.ExternalId, Name = c.Name, Color = null })
-                    .ToList(),
-                Images = x.Img == null ? new List<ImageSetDto>() : new List<ImageSetDto> { x.Img },
-                Schedules = x.Schedules.ToList()
-            })
+            .Take(pageSize);
+
+        var items = await ProjectPeople(ordered)
+            .Select(x => x.Person)
             .ToListAsync(cancellationToken);
 
         var duration = DateTimeOffset.UtcNow - started;
@@ -198,80 +143,15 @@ public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> lo
         _logger.LogInformation("Querying guests by city like pattern {Pattern}", like);
 
         var baseQuery = _db.EventAppearances.AsNoTracking()
-            .Where(a => EF.Functions.Like(a.Event.Slug, like))
-            .Select(a => new
-            {
-                PersonCreated = a.Person.CreatedUtc,
-                EventAppearance = a,
-                Person = a.Person,
-                Categories = a.Person.Categories.Select(pc => pc.Category),
-                Img = a.Person.Images
-                    .OrderByDescending(i => i.Id)
-                    .Select(personImage => new ImageSetDto { Big = personImage.Big, Med = personImage.Med, Small = personImage.Small, Thumb = personImage.Thumb })
-                    .FirstOrDefault(),
-                Schedules = a.Schedules.OrderBy(s => s.StartTimeUtc).Select(s => new ScheduleDto
-                {
-                    Id = s.ExternalId,
-                    Title = s.Title,
-                    Description = s.Description,
-                    StartTime = s.StartTimeUtc.ToString("o"),
-                    EndTime = s.EndTimeUtc.HasValue ? s.EndTimeUtc.Value.ToString("o") : null,
-                    NoEndTime = s.NoEndTime,
-                    Location = s.Location,
-                    VenueLocation = s.VenueLocation == null ? null : new VenueLocationDto
-                    {
-                        Id = s.VenueLocation.ExternalId,
-                        Name = s.VenueLocation.Name
-                    }
-                })
-            });
+            .Where(a => EF.Functions.Like(a.Event.Slug, like));
 
         var qStart = DateTimeOffset.UtcNow;
-        var rows = await baseQuery
-            .OrderByDescending(x => x.Person.CreatedUtc)
-            .Select(x => new
-            {
-                Date = x.PersonCreated.Date,
-                Person = new PersonDto
-                {
-                    Id = x.Person.ExternalId,
-                    Uid = x.Person.Uid,
-                    PubliclyVisible = x.Person.PubliclyVisible,
-                    FirstName = x.Person.FirstName,
-                    LastName = x.Person.LastName,
-                    AltName = x.Person.AltName,
-                    Bio = x.Person.Bio,
-                    KnownFor = x.Person.KnownFor,
-                    ProfileUrl = x.Person.ProfileUrl,
-                    ProfileUrlLabel = x.Person.ProfileUrlLabel,
-                    VideoLink = x.Person.VideoLink,
-                    Twitter = x.Person.Twitter,
-                    Facebook = x.Person.Facebook,
-                    Instagram = x.Person.Instagram,
-                    YouTube = x.Person.YouTube,
-                    Twitch = x.Person.Twitch,
-                    Snapchat = x.Person.Snapchat,
-                    DeviantArt = x.Person.DeviantArt,
-                    Tumblr = x.Person.Tumblr,
-                    RemovedAt = x.Person.RemovedUtc.HasValue ? x.Person.RemovedUtc.Value.ToString("o") : null,
-                    Category = null,
-                    DaysAtShow = x.EventAppearance.DaysAtShow,
-                    BoothNumber = x.EventAppearance.BoothNumber,
-                    AutographAmount = x.EventAppearance.AutographAmount,
-                    PhotoOpAmount = x.EventAppearance.PhotoOpAmount,
-                    PhotoOpTableAmount = x.EventAppearance.PhotoOpTableAmount,
-                    PeopleCategories = null,
-                    GlobalCategories = x.Categories
-                        .Select(c => new CategoryDto { Id = c.ExternalId, Name = c.Name, Color = null })
-                        .ToList(),
-                    Images = x.Img == null ? new List<ImageSetDto>() : new List<ImageSetDto> { x.Img },
-                    Schedules = x.Schedules.ToList()
-                }
-            })
+        var rows = await ProjectPeople(baseQuery)
+            .OrderByDescending(x => x.CreatedUtc)
             .ToListAsync(cancellationToken);
 
         var groups = rows
-            .GroupBy(x => x.Date)
+            .GroupBy(x => x.CreatedUtc.Date)
             .OrderByDescending(g => g.Key)
             .Select(g => new GuestsGroupResult(g.Key, g.Select(r => r.Person).ToList()))
             .ToList();
@@ -282,4 +162,69 @@ public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> lo
 
         return groups;
     }
+
+    private static IQueryable<PersonRow> ProjectPeople(IQueryable<EventAppearance> source)
+    {
+        return source.Select(a => new PersonRow(
+            a.Person.CreatedUtc,
+            new PersonDto
+            {
+                Id = a.Person.ExternalId,
+                Uid = a.Person.Uid,
+                PubliclyVisible = a.Person.PubliclyVisible,
+                FirstName = a.Person.FirstName,
+                LastName = a.Person.LastName,
+                AltName = a.Person.AltName,
+                Bio = a.Person.Bio,
+                KnownFor = a.Person.KnownFor,
+                ProfileUrl = a.Person.ProfileUrl,
+                ProfileUrlLabel = a.Person.ProfileUrlLabel,
+                VideoLink = a.Person.VideoLink,
+                Twitter = a.Person.Twitter,
+                Facebook = a.Person.Facebook,
+                Instagram = a.Person.Instagram,
+                YouTube = a.Person.YouTube,
+                Twitch = a.Person.Twitch,
+                Snapchat = a.Person.Snapchat,
+                DeviantArt = a.Person.DeviantArt,
+                Tumblr = a.Person.Tumblr,
+                RemovedAt = a.Person.RemovedUtc.HasValue ? a.Person.RemovedUtc.Value.ToString("o") : null,
+                Category = null,
+                DaysAtShow = a.DaysAtShow,
+                BoothNumber = a.BoothNumber,
+                AutographAmount = a.AutographAmount,
+                PhotoOpAmount = a.PhotoOpAmount,
+                PhotoOpTableAmount = a.PhotoOpTableAmount,
+                PeopleCategories = null,
+                GlobalCategories = a.Person.Categories
+                    .Select(pc => pc.Category)
+                    .Select(c => new CategoryDto { Id = c.ExternalId, Name = c.Name, Color = null })
+                    .ToList(),
+                Images = a.Person.Images
+                    .OrderByDescending(i => i.Id)
+                    .Select(personImage => new ImageSetDto { Big = personImage.Big, Med = personImage.Med, Small = personImage.Small, Thumb = personImage.Thumb })
+                    .Take(1)
+                    .ToList(),
+                Schedules = a.Schedules
+                    .OrderBy(s => s.StartTimeUtc)
+                    .Select(s => new ScheduleDto
+                    {
+                        Id = s.ExternalId,
+                        Title = s.Title,
+                        Description = s.Description,
+                        StartTime = s.StartTimeUtc.ToString("o"),
+                        EndTime = s.EndTimeUtc.HasValue ? s.EndTimeUtc.Value.ToString("o") : null,
+                        NoEndTime = s.NoEndTime,
+                        Location = s.Location,
+                        VenueLocation = s.VenueLocation == null ? null : new VenueLocationDto
+                        {
+                            Id = s.VenueLocation.ExternalId,
+                            Name = s.VenueLocation.Name
+                        }
+                    })
+                    .ToList()
+            }));
+    }
+
+    private sealed record PersonRow(DateTime CreatedUtc, PersonDto Person);
 }

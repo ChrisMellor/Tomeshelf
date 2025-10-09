@@ -136,10 +136,42 @@ public class EventIngestService(TomeshelfDbContext context)
 
     private static void SyncPersonImages(Person person, List<ImageSetDto> images)
     {
-        person.Images.Clear();
-        foreach (var img in images ?? [])
+        var desired = (images ?? [])
+            .Select(img => (Key: BuildImageKey(img), Payload: img))
+            .ToList();
+
+        var existingGroups = person.Images
+            .GroupBy(BuildImageKey, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => new Queue<PersonImage>(group), StringComparer.OrdinalIgnoreCase);
+
+        foreach (var entry in desired)
         {
-            person.Images.Add(new PersonImage { Big = img.Big, Med = img.Med, Small = img.Small, Thumb = img.Thumb });
+            if (existingGroups.TryGetValue(entry.Key, out var queue) && queue.Count > 0)
+            {
+                var image = queue.Dequeue();
+                image.Big = entry.Payload.Big;
+                image.Med = entry.Payload.Med;
+                image.Small = entry.Payload.Small;
+                image.Thumb = entry.Payload.Thumb;
+            }
+            else
+            {
+                person.Images.Add(new PersonImage
+                {
+                    Big = entry.Payload.Big,
+                    Med = entry.Payload.Med,
+                    Small = entry.Payload.Small,
+                    Thumb = entry.Payload.Thumb
+                });
+            }
+        }
+
+        var removals = existingGroups.Values
+            .SelectMany(q => q)
+            .ToList();
+        foreach (var leftover in removals)
+        {
+            person.Images.Remove(leftover);
         }
     }
 
@@ -265,5 +297,36 @@ public class EventIngestService(TomeshelfDbContext context)
     {
         var dto = DateTimeOffset.Parse(value, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal);
         return dto.UtcDateTime;
+    }
+
+    private static string BuildImageKey(ImageSetDto image) =>
+        BuildImageKey(image.Big, image.Med, image.Small, image.Thumb);
+
+    private static string BuildImageKey(PersonImage image) =>
+        BuildImageKey(image.Big, image.Med, image.Small, image.Thumb);
+
+    private static string BuildImageKey(string big, string med, string small, string thumb)
+    {
+        if (!string.IsNullOrWhiteSpace(thumb))
+        {
+            return $"thumb:{thumb}";
+        }
+
+        if (!string.IsNullOrWhiteSpace(small))
+        {
+            return $"small:{small}";
+        }
+
+        if (!string.IsNullOrWhiteSpace(med))
+        {
+            return $"med:{med}";
+        }
+
+        if (!string.IsNullOrWhiteSpace(big))
+        {
+            return $"big:{big}";
+        }
+
+        return "__empty__";
     }
 }
