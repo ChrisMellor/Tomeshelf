@@ -55,12 +55,6 @@ public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGue
         var duration = DateTimeOffset.UtcNow - started;
         _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)res.StatusCode, (int)duration.TotalMilliseconds);
 
-        if ((int)res.StatusCode == 202)
-        {
-            _logger.LogInformation("API indicates cache warming for {City}", city);
-            return new GuestsByCityResult(new List<GuestsGroupModel>(), 0, true);
-        }
-
         res.EnsureSuccessStatusCode();
 
         await using var s = await res.Content.ReadAsStreamAsync(cancellationToken);
@@ -68,6 +62,6 @@ public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGue
                   ?? throw new InvalidOperationException("Empty payload");
         _logger.LogInformation("Parsed groups={Groups} total={Total}", env.Groups?.Count ?? 0, env.Total);
 
-        return new GuestsByCityResult(env.Groups ?? new List<GuestsGroupModel>(), env.Total, false);
+        return new GuestsByCityResult(env.Groups ?? new List<GuestsGroupModel>(), env.Total);
     }
 }

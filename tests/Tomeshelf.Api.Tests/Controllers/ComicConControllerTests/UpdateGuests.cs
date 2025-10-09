@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Api.Controllers;
 using Tomeshelf.Api.Enums;
+using Tomeshelf.Api.Services;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;
@@ -28,7 +29,8 @@ public class ComicConControllerUpdateGuestsTests
         using var db = new TomeshelfDbContext(new DbContextOptionsBuilder<TomeshelfDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
-        var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance);
+        var cache = A.Fake<IGuestsCache>();
+        var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance, cache);
 
         // Act
         var result = await controller.UpdateGuests(City.London, TestContext.Current.CancellationToken);
@@ -47,7 +49,8 @@ public class ComicConControllerUpdateGuestsTests
         using var db = new TomeshelfDbContext(new DbContextOptionsBuilder<TomeshelfDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
-        var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance);
+        var cache = A.Fake<IGuestsCache>();
+        var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance, cache);
 
         // Act
         var result = await controller.UpdateGuests(City.Birmingham, TestContext.Current.CancellationToken);

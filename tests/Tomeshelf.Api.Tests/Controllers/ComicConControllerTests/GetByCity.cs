@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Threading.Tasks;
 using Tomeshelf.Api.Controllers;
+using Tomeshelf.Api.Services;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
@@ -22,7 +23,8 @@ public class ComicConControllerGetByCityTests
         using var db = new TomeshelfDbContext(new DbContextOptionsBuilder<TomeshelfDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
-        var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance);
+        var cache = A.Fake<IGuestsCache>();
+        var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance, cache);
 
         // Act
         var result = await controller.GetByCity(string.Empty, TestContext.Current.CancellationToken);
@@ -57,7 +59,8 @@ public class ComicConControllerGetByCityTests
 
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
         var svc = A.Fake<IGuestService>();
-        var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance);
+        var cache = A.Fake<IGuestsCache>();
+        var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance, cache);
 
         // Act
         var result = await controller.GetByCity("London", TestContext.Current.CancellationToken);

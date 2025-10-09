@@ -68,7 +68,6 @@ public static class Program
         builder.Services.AddInfrastructure();
         builder.Services.AddSingleton<Services.IGuestsCache, Services.GuestsCache>();
         builder.Services.AddHostedService<Hosted.ComicConUpdateBackgroundService>();
-        builder.Services.AddHostedService<Hosted.CacheWarmupHostedService>();
 
         builder.AddSqlServerDbContext<TomeshelfDbContext>("tomeshelfdb");
 
