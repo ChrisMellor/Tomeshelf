@@ -36,7 +36,9 @@ public class NullableFlexibleDecimalConverterReadTests
         // Arrange
         var json = "{\"v\": 123.45}";
         var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
-        reader.Read(); reader.Read(); reader.Read();
+        reader.Read();
+        reader.Read();
+        reader.Read();
         var converter = new NullableFlexibleDecimalConverter();
 
         // Act
@@ -52,7 +54,9 @@ public class NullableFlexibleDecimalConverterReadTests
         // Arrange
         var json = "{\"v\": \"£1,234.50\"}";
         var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
-        reader.Read(); reader.Read(); reader.Read();
+        reader.Read();
+        reader.Read();
+        reader.Read();
         var converter = new NullableFlexibleDecimalConverter();
 
         // Act
@@ -68,7 +72,9 @@ public class NullableFlexibleDecimalConverterReadTests
         // Arrange
         var json = "{\"v\": \"  \"}";
         var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
-        reader.Read(); reader.Read(); reader.Read();
+        reader.Read();
+        reader.Read();
+        reader.Read();
         var converter = new NullableFlexibleDecimalConverter();
 
         // Act
@@ -84,7 +90,9 @@ public class NullableFlexibleDecimalConverterReadTests
         // Arrange
         var json = "{\"v\": \"abc\"}";
         var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
-        reader.Read(); reader.Read(); reader.Read();
+        reader.Read();
+        reader.Read();
+        reader.Read();
         var converter = new NullableFlexibleDecimalConverter();
 
         // Act

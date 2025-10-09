@@ -96,4 +96,5 @@ public sealed record PersonModel
     [JsonPropertyName("schedules")]
     public List<ScheduleModel> Schedules { get; init; } = [];
     [JsonPropertyName("removed_at")]
-    public string RemovedAt { get; init; }}
+    public string RemovedAt { get; init; }
+}

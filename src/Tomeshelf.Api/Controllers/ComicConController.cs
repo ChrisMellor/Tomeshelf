@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
@@ -13,7 +12,7 @@ using Tomeshelf.Infrastructure.Services;
 namespace Tomeshelf.Api.Controllers;
 
 /// <summary>
-/// API endpoints for updating and querying Comic Con guests.
+/// Exposes endpoints for refreshing Comic Con guests and serving cached results.
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
@@ -23,7 +22,6 @@ public class ComicConController : ControllerBase
     private readonly IGuestService _guestService;
     private readonly GuestQueries _queries;
     private readonly IGuestsCache _cache;
-    private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ComicConController"/> class.
@@ -32,21 +30,19 @@ public class ComicConController : ControllerBase
     /// <param name="queries">Read-only guest queries.</param>
     /// <param name="logger">Logger instance.</param>
     /// <param name="cache">In-memory guests cache.</param>
-    /// <param name="scopeFactory">Factory for creating scopes for background cache warmup.</param>
-    public ComicConController(IGuestService guestService, GuestQueries queries, ILogger<ComicConController> logger, IGuestsCache cache, IServiceScopeFactory scopeFactory)
+    public ComicConController(IGuestService guestService, GuestQueries queries, ILogger<ComicConController> logger, IGuestsCache cache)
     {
         _guestService = guestService;
         _queries = queries;
         _logger = logger;
         _cache = cache;
-        _scopeFactory = scopeFactory;
     }
 
     /// <summary>
-    /// Triggers an on-demand refresh of guests for the given city and returns the updated people.
+    /// Refreshes guests for the specified city, persists them, updates the cache, and returns the latest people list.
     /// </summary>
     /// <param name="city">The city to refresh (enum value).</param>
-    /// <param name="cancellationToken">Cancellation token for the operation.</param>>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>An <see cref="IActionResult"/> with the updated guests or an error.</returns>
     [HttpPost("Guests/City", Name = "UpdateLatestGuests")]
     public async Task<IActionResult> UpdateGuests([FromQuery] City city, CancellationToken cancellationToken = default)
@@ -87,7 +83,7 @@ public class ComicConController : ControllerBase
     }
 
     /// <summary>
-    /// Returns grouped guests and totals for a given city slug.
+    /// Returns grouped guests and totals for a city, serving from cache when available and refreshing snapshots on demand.
     /// </summary>
     /// <param name="city">City name to query (e.g., "london").</param>
     /// <param name="cancellationToken">Cancellation token for the query.</param>
@@ -111,28 +107,21 @@ public class ComicConController : ControllerBase
             return Ok(new { city = snapshot.City, total = snapshot.Total, groups = snapshot.Groups });
         }
 
-        _logger.LogInformation("Cache miss for {City}; scheduling background warmup and returning 202", city);
-        _ = Task.Run(async () =>
+        try
         {
-            try
-            {
-                using var s = _scopeFactory.CreateScope();
-                var queries = s.ServiceProvider.GetRequiredService<GuestQueries>();
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-                var gs = await queries.GetGuestsByCityAsync(city, cts.Token);
-                var t = gs.Sum(g => g.Items.Count);
-                var cache = s.ServiceProvider.GetRequiredService<IGuestsCache>();
-                cache.Set(city, new GuestsSnapshot(city, t, gs, DateTimeOffset.UtcNow));
-                _logger.LogInformation("Cache warmup completed for {City}: {Total} guests", city, t);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Cache warmup failed for {City}", city);
-            }
-        });
+            var groups = await _queries.GetGuestsByCityAsync(city, cancellationToken);
+            var total = groups.Sum(g => g.Items.Count);
+            var generatedUtc = DateTimeOffset.UtcNow;
+            _cache.Set(city, new GuestsSnapshot(city, total, groups, generatedUtc));
+            var durationMiss = DateTimeOffset.UtcNow - started;
+            _logger.LogInformation("Cache miss for {City}; refreshed snapshot with {Total} guests in {Duration}ms", city, total, (int)durationMiss.TotalMilliseconds);
 
-        Response.Headers["Retry-After"] = "10";
-
-        return StatusCode(202, new { city, total = 0, groups = Array.Empty<object>(), status = "warming" });
+            return Ok(new { city, total, groups });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to fetch guests for {City}", city);
+            return StatusCode(500, new { message = "Failed to load guests." });
+        }
     }
 }

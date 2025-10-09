@@ -7,15 +7,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Api.Enums;
 using Tomeshelf.Api.Services;
-using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
 
 namespace Tomeshelf.Api.Hosted;
 
 /// <summary>
-/// Background service that periodically refreshes Comic Con guests from the external API.
-/// Ensures the database is reachable before attempting the first upsert.
+/// Background service that refreshes Comic Con guests on an hourly schedule.
+/// Each run performs the upsert and cache refresh directly without additional
+/// warmup delays. No immediate run occurs at startup.
 /// </summary>
 public sealed class ComicConUpdateBackgroundService : BackgroundService
 {
@@ -23,10 +23,10 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
-    /// Initializes a new instance of the background service.
+    /// Initializes the scheduled background updater.
     /// </summary>
     /// <param name="scopeFactory">Factory to create DI scopes for resolving scoped services.</param>
-    /// <param name="logger">Logger.</param>
+    /// <param name="logger">Logger used for diagnostic output.</param>
     public ComicConUpdateBackgroundService(IServiceScopeFactory scopeFactory, ILogger<ComicConUpdateBackgroundService> logger)
     {
         _scopeFactory = scopeFactory;
@@ -34,7 +34,9 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
     }
 
     /// <summary>
-    /// Runs the background loop that schedules hourly updates and invokes a single update pass.
+    /// Runs the scheduling loop that triggers updates at the start of every hour
+    /// (server local time). Each scheduled run executes immediately once the delay
+    /// elapses.
     /// </summary>
     /// <param name="cancellationToken">Token that signals service shutdown.</param>
     /// <exception cref="OperationCanceledException">Thrown when the host is shutting down.</exception>
@@ -44,26 +46,37 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
 
         try
         {
-            await WaitForDatabaseAsync(cancellationToken);
-        }
-        catch (OperationCanceledException) { }
-
-        try
-        {
-            await RunOnceAsync(cancellationToken);
-        }
-        catch (OperationCanceledException) { }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Initial ComicCon update pass failed; will retry on schedule");
-        }
-
-        using var timer = new PeriodicTimer(TimeSpan.FromHours(1));
-        try
-        {
-            while (await timer.WaitForNextTickAsync(cancellationToken))
+            while (!cancellationToken.IsCancellationRequested)
             {
-                await RunOnceAsync(cancellationToken);
+                var now = DateTimeOffset.Now;
+                var local = now.LocalDateTime;
+                var nextHour = local.AddHours(1);
+                var nextRun = new DateTimeOffset(nextHour);
+                var delay = nextRun - now;
+
+                _logger.LogInformation("Next ComicCon update scheduled at {NextRunLocal}", nextRun.LocalDateTime);
+
+                try
+                {
+                    await Task.Delay(delay, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+
+                try
+                {
+                    await RunOnceAsync(cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Scheduled ComicCon update failed at {RunTime}", DateTimeOffset.Now.LocalDateTime);
+                }
             }
         }
         catch (OperationCanceledException) { }
@@ -72,7 +85,8 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
     }
 
     /// <summary>
-    /// Performs a single update pass for all configured cities.
+    /// Performs a single update pass for all configured cities. Fetches latest
+    /// guests, upserts to the DB and refreshes the in-memory cache.
     /// </summary>
     /// <param name="cancellationToken">Cancellation token for the update operation.</param>
     private async Task RunOnceAsync(CancellationToken cancellationToken)
@@ -102,44 +116,4 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
         }
     }
 
-    /// <summary>
-    /// Polls until the database is reachable, with exponential backoff and logs.
-    /// </summary>
-    private async Task WaitForDatabaseAsync(CancellationToken cancellationToken)
-    {
-        var delay = TimeSpan.FromSeconds(1);
-        var maxDelay = TimeSpan.FromSeconds(15);
-        var attempts = 0;
-
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            attempts++;
-            try
-            {
-                using var scope = _scopeFactory.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<TomeshelfDbContext>();
-                if (await db.Database.CanConnectAsync(cancellationToken))
-                {
-                    _logger.LogInformation("Database reachable after {Attempts} attempt(s)", attempts);
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation(ex, "Database not ready (attempt {Attempt}); retrying in {Delay}s", attempts, (int)delay.TotalSeconds);
-            }
-
-            try
-            {
-                await Task.Delay(delay, cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-
-            var nextMs = Math.Min(delay.TotalMilliseconds * 1.5, maxDelay.TotalMilliseconds);
-            delay = TimeSpan.FromMilliseconds(nextMs);
-        }
-    }
 }

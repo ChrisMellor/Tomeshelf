@@ -24,7 +24,6 @@ public class ComicConController(IGuestsApi api) : Controller
 
         ViewBag.City = city;
         ViewBag.Total = result.Total;
-        ViewBag.WarmingUp = result.WarmingUp;
         ViewBag.ElapsedMs = sw.ElapsedMilliseconds;
 
         return View("Index", result.Groups);

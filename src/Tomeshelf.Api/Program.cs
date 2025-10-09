@@ -26,6 +26,7 @@ public static class Program
     /// Configures services, runs migrations, and starts the web server.
     /// </summary>
     /// <param name="args">Command-line arguments.</param>
+    /// <returns>A task that completes when the web host shuts down.</returns>
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -68,7 +69,6 @@ public static class Program
         builder.Services.AddInfrastructure();
         builder.Services.AddSingleton<Services.IGuestsCache, Services.GuestsCache>();
         builder.Services.AddHostedService<Hosted.ComicConUpdateBackgroundService>();
-        builder.Services.AddHostedService<Hosted.CacheWarmupHostedService>();
 
         builder.AddSqlServerDbContext<TomeshelfDbContext>("tomeshelfdb");
 
