@@ -1,24 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.0" />
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.5.1" />
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+	<OutputType>Exe</OutputType>
 	  <TargetFramework>net9.0</TargetFramework>
 	  <UserSecretsId>f60973c0-5a1a-4287-a8c2-c6ccd279ecaf</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Tomeshelf.Api\Tomeshelf.Api.csproj" />
-    <ProjectReference Include="..\Tomeshelf.Web\Tomeshelf.Web.csproj" />
+	<ProjectReference Include="..\Tomeshelf.Api\Tomeshelf.Api.csproj" />
+	<ProjectReference Include="..\Tomeshelf.Web\Tomeshelf.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.2" />
-    <PackageReference Include="Aspire.Hosting.Azure" Version="9.4.2" />
-    <PackageReference Include="Aspire.Hosting.Azure.Sql" Version="9.4.2" />
-    <PackageReference Include="Aspire.Hosting.Docker" Version="9.4.1-preview.1.25408.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.4" />
+	<PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.1" />
+	<PackageReference Include="Aspire.Hosting.Azure" Version="9.5.1" />
+	<PackageReference Include="Aspire.Hosting.Azure.Sql" Version="9.5.1" />
+	<PackageReference Include="Aspire.Hosting.Docker" Version="9.4.1-preview.1.25408.4" />
+	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.6" />
   </ItemGroup>
 
 </Project>
