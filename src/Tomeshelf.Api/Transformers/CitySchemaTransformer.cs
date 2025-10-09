@@ -19,7 +19,7 @@ public class CitySchemaTransformer : IOpenApiSchemaTransformer
     /// </summary>
     /// <param name="schema">The schema to mutate when the target type matches.</param>
     /// <param name="context">Provides the target JSON type.</param>
-    /// <param name="cancellationToken">Cancellation cancellationToken for the transformer pipeline.</param>
+    /// <param name="cancellationToken">Cancellation token for the transformer pipeline.</param>
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken)
     {
         var type = context.JsonTypeInfo.Type;

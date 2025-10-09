@@ -12,7 +12,7 @@ using Tomeshelf.Infrastructure.Services;
 namespace Tomeshelf.Api.Controllers;
 
 /// <summary>
-/// API endpoints for updating and querying Comic Con guests.
+/// Exposes endpoints for refreshing Comic Con guests and serving cached results.
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
@@ -39,7 +39,7 @@ public class ComicConController : ControllerBase
     }
 
     /// <summary>
-    /// Triggers an on-demand refresh of guests for the given city and returns the updated people.
+    /// Refreshes guests for the specified city, persists them, updates the cache, and returns the latest people list.
     /// </summary>
     /// <param name="city">The city to refresh (enum value).</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
@@ -83,7 +83,7 @@ public class ComicConController : ControllerBase
     }
 
     /// <summary>
-    /// Returns grouped guests and totals for a given city slug.
+    /// Returns grouped guests and totals for a city, serving from cache when available and refreshing snapshots on demand.
     /// </summary>
     /// <param name="city">City name to query (e.g., "london").</param>
     /// <param name="cancellationToken">Cancellation token for the query.</param>

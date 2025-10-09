@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Web.Models;
@@ -25,5 +28,11 @@ public interface IGuestsApi
     /// <summary>
     /// Retrieves Comic Con guests for a given city from the API and returns a typed result model.
     /// </summary>
+    /// <param name="city">City name to query.</param>
+    /// <param name="cancellationToken">Cancellation token for the request.</param>
+    /// <returns>The parsed response payload.</returns>
+    /// <exception cref="HttpRequestException">Thrown when the HTTP response is unsuccessful.</exception>
+    /// <exception cref="JsonException">Thrown when the response body cannot be parsed.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the response payload is empty.</exception>
     Task<GuestsByCityResult> GetComicConGuestsByCityResultAsync(string city, CancellationToken cancellationToken);
 }

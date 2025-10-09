@@ -47,6 +47,15 @@ public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGue
         public List<GuestsGroupModel> Groups { get; set; }
     }
 
+    /// <summary>
+    /// Calls the API to retrieve Comic Con guests for a city and returns the parsed response model.
+    /// </summary>
+    /// <param name="city">City name to query.</param>
+    /// <param name="cancellationToken">Cancellation token for the request.</param>
+    /// <returns>The deserialized API payload.</returns>
+    /// <exception cref="HttpRequestException">Thrown when the HTTP response is unsuccessful.</exception>
+    /// <exception cref="JsonException">Thrown when the response body cannot be parsed.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the response payload is empty.</exception>
     public async Task<GuestsByCityResult> GetComicConGuestsByCityResultAsync(string city, CancellationToken cancellationToken)
     {
         var url = $"api/ComicCon/Guests/City?city={Uri.EscapeDataString(city)}";

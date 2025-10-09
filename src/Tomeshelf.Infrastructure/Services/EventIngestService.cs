@@ -11,7 +11,7 @@ using Tomeshelf.Infrastructure.Persistence;
 namespace Tomeshelf.Infrastructure.Services;
 
 /// <summary>
-/// Handles ingesting event payloads into the database (upserts people, categories, schedules).
+/// Handles ingesting event payloads into the database by upserting events, people, appearances, categories, images, schedules, and venue locations.
 /// </summary>
 /// <param name="context">EF Core database context.</param>
 public class EventIngestService(TomeshelfDbContext context)
@@ -48,6 +48,13 @@ public class EventIngestService(TomeshelfDbContext context)
         return await context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Retrieves an existing event by external id or creates a new tracked instance and updates its core properties.
+    /// </summary>
+    /// <param name="dto">Incoming event payload.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The tracked <see cref="Event"/> entity.</returns>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
     private async Task<Event> UpsertEventAsync(EventDto dto, CancellationToken ct)
     {
         var entity = await context.Events.SingleOrDefaultAsync(x => x.ExternalId == dto.EventId, ct);
@@ -65,36 +72,59 @@ public class EventIngestService(TomeshelfDbContext context)
         return entity;
     }
 
+    /// <summary>
+    /// Builds a cache of categories referenced in the payload, reusing previously tracked entities when available.
+    /// </summary>
+    /// <param name="dto">Incoming event payload.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A dictionary keyed by external category id.</returns>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
     private async Task<Dictionary<string, Category>> BuildCategoryCacheAsync(EventDto dto, CancellationToken ct)
     {
         var allCatIds = dto.People.SelectMany(p => p.GlobalCategories ?? [])
-            .Select(c => c.Id).Distinct().ToList();
+            .Select(c => c.Id)
+            .Distinct()
+            .ToList();
+
         var cache = await context.Categories
             .Where(c => allCatIds.Contains(c.ExternalId))
             .ToDictionaryAsync(c => c.ExternalId, c => c, ct);
         return cache;
     }
 
+    /// <summary>
+    /// Retrieves an existing person (including images and categories) or creates a new tracked instance.
+    /// </summary>
+    /// <param name="externalId">External person identifier.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The tracked <see cref="Person"/> entity.</returns>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
     private async Task<Person> GetOrCreatePersonAsync(string externalId, CancellationToken ct)
     {
         var person = await context.People
             .Include(x => x.Images)
             .Include(x => x.Categories).ThenInclude(pc => pc.Category)
             .SingleOrDefaultAsync(x => x.ExternalId == externalId, ct);
+
         if (person is null)
         {
             person = new Person { ExternalId = externalId };
             context.People.Add(person);
         }
+
         return person;
     }
 
+    /// <summary>
+    /// Updates mutable person fields and derives visibility/removal metadata from the incoming DTO.
+    /// </summary>
+    /// <param name="person">Tracked person entity to update.</param>
+    /// <param name="data">Incoming person payload.</param>
     private static void UpdatePersonProperties(Person person, PersonDto data)
     {
         person.Uid = data.Uid;
         var wasVisible = person.PubliclyVisible;
 
-        // Derive visibility: some sources signal cancellations via a global category named "Canceled"/"Cancelled".
         var isCanceledCategory = (data.GlobalCategories ?? [])
             .Any(c => !string.IsNullOrWhiteSpace(c.Name) &&
                       (string.Equals(c.Name.Trim(), "Canceled", StringComparison.OrdinalIgnoreCase) ||
@@ -105,7 +135,6 @@ public class EventIngestService(TomeshelfDbContext context)
 
         if (!desiredVisible && person.RemovedUtc is null)
         {
-            // Mark removal when transitioning from visible, or when a cancellation category is present on first ingest.
             if (wasVisible || isCanceledCategory)
             {
                 person.RemovedUtc = DateTime.UtcNow;
@@ -134,6 +163,11 @@ public class EventIngestService(TomeshelfDbContext context)
         person.UpdatedUtc ??= DateTime.UtcNow;
     }
 
+    /// <summary>
+    /// Synchronises the person's images collection to match the incoming payload while preserving existing entities when possible.
+    /// </summary>
+    /// <param name="person">Tracked person entity.</param>
+    /// <param name="images">Incoming image descriptors.</param>
     private static void SyncPersonImages(Person person, List<ImageSetDto> images)
     {
         var desired = (images ?? [])
@@ -175,6 +209,11 @@ public class EventIngestService(TomeshelfDbContext context)
         }
     }
 
+    /// <summary>
+    /// Ensures categories referenced in the payload exist in the shared cache, creating new entities when required.
+    /// </summary>
+    /// <param name="categories">Incoming category descriptors.</param>
+    /// <param name="cache">Cache used to reuse tracked entities.</param>
     private void EnsureCategories(List<CategoryDto> categories, Dictionary<string, Category> cache)
     {
         foreach (var c in categories ?? [])
@@ -183,11 +222,22 @@ public class EventIngestService(TomeshelfDbContext context)
         }
     }
 
+    /// <summary>
+    /// Aligns the person's category links with the payload, removing stale links and adding missing ones.
+    /// </summary>
+    /// <param name="person">Tracked person entity.</param>
+    /// <param name="categories">Incoming category descriptors.</param>
+    /// <param name="cache">Category cache for resolving entities.</param>
     private static void SyncPersonCategories(Person person, List<CategoryDto> categories, Dictionary<string, Category> cache)
     {
-        var desired = (categories ?? []).Select(c => c.Id).ToHashSet();
+        var desired = (categories ?? []).Select(c => c.Id)
+            .ToHashSet();
+
         person.Categories.RemoveWhere(link => !desired.Contains(link.Category.ExternalId));
-        var existing = person.Categories.Select(x => x.Category.ExternalId).ToHashSet();
+
+        var existing = person.Categories.Select(x => x.Category.ExternalId)
+            .ToHashSet();
+
         foreach (var id in desired.Except(existing))
         {
             var category = cache[id];
@@ -195,9 +245,17 @@ public class EventIngestService(TomeshelfDbContext context)
         }
     }
 
+    /// <summary>
+    /// Retrieves or creates an <see cref="EventAppearance"/> for the given event/person pair.
+    /// </summary>
+    /// <param name="eventEntity">Tracked event entity.</param>
+    /// <param name="person">Tracked person entity.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The tracked <see cref="EventAppearance"/>.</returns>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
     private async Task<EventAppearance> GetOrCreateAppearanceAsync(Event eventEntity, Person person, CancellationToken ct)
     {
-        EventAppearance? appearance = null;
+        EventAppearance appearance = null;
 
         if (eventEntity.Id > 0 && person.Id > 0)
         {
@@ -215,6 +273,11 @@ public class EventIngestService(TomeshelfDbContext context)
         return appearance;
     }
 
+    /// <summary>
+    /// Updates mutable appearance fields from the incoming payload.
+    /// </summary>
+    /// <param name="a">Tracked appearance entity.</param>
+    /// <param name="data">Incoming person payload.</param>
     private static void UpdateAppearanceProperties(EventAppearance a, PersonDto data)
     {
         a.DaysAtShow = data.DaysAtShow;
@@ -224,6 +287,14 @@ public class EventIngestService(TomeshelfDbContext context)
         a.PhotoOpTableAmount = data.PhotoOpTableAmount;
     }
 
+    /// <summary>
+    /// Synchronises child schedule entities for the provided appearance.
+    /// </summary>
+    /// <param name="a">Tracked appearance entity.</param>
+    /// <param name="schedules">Incoming schedules payload.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <exception cref="FormatException">Thrown when the schedule payload contains invalid timestamps.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
     private async Task SyncSchedulesAsync(EventAppearance a, List<ScheduleDto> schedules, CancellationToken ct)
     {
         var byId = a.Schedules.ToDictionary(s => s.ExternalId);
@@ -299,12 +370,30 @@ public class EventIngestService(TomeshelfDbContext context)
         return dto.UtcDateTime;
     }
 
+    /// <summary>
+    /// Builds a key used to compare incoming image payloads.
+    /// </summary>
+    /// <param name="image">Incoming image payload.</param>
+    /// <returns>A deterministic key representing the image URLs.</returns>
     private static string BuildImageKey(ImageSetDto image) =>
         BuildImageKey(image.Big, image.Med, image.Small, image.Thumb);
 
+    /// <summary>
+    /// Builds a key used to compare tracked image entities.
+    /// </summary>
+    /// <param name="image">Tracked image entity.</param>
+    /// <returns>A deterministic key representing the image URLs.</returns>
     private static string BuildImageKey(PersonImage image) =>
         BuildImageKey(image.Big, image.Med, image.Small, image.Thumb);
 
+    /// <summary>
+    /// Derives a shared image key from the provided URLs.
+    /// </summary>
+    /// <param name="big">URL for the big image.</param>
+    /// <param name="med">URL for the medium image.</param>
+    /// <param name="small">URL for the small image.</param>
+    /// <param name="thumb">URL for the thumbnail image.</param>
+    /// <returns>A deterministic key representing the image URLs.</returns>
     private static string BuildImageKey(string big, string med, string small, string thumb)
     {
         if (!string.IsNullOrWhiteSpace(thumb))

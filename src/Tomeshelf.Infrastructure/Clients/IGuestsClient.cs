@@ -16,6 +16,7 @@ public interface IGuestsClient
     /// Fetches the latest Comic Con event guests for the provided key.
     /// </summary>
     /// <param name="key">The event/city API key.</param>
+    /// <param name="cancellationToken">Token used to abort the HTTP request.</param>
     /// <returns>The event DTO, or null if no body was returned.</returns>
     /// <exception cref="HttpRequestException">Thrown when the HTTP request fails.</exception>
     /// <exception cref="Exception">Thrown when the API returns a non-success status code.</exception>

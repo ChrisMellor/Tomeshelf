@@ -47,6 +47,7 @@ public class GuestService : IGuestService
     /// using the external client, persists the data, and returns the people list.
     /// </summary>
     /// <param name="city">City name matching configuration.</param>
+    /// <param name="cancellationToken">Token used to cancel the downstream HTTP call and ingest.</param>
     /// <returns>The list of people returned by the external API (possibly empty).</returns>
     /// <exception cref="ApplicationException">Thrown when the city is not configured or no guests are returned.</exception>
     /// <exception cref="HttpRequestException">Thrown when the external request fails.</exception>

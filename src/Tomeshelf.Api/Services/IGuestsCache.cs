@@ -9,10 +9,25 @@ namespace Tomeshelf.Api.Services;
 /// </summary>
 public interface IGuestsCache
 {
+    /// <summary>
+    /// Attempts to retrieve a cached snapshot for the specified city.
+    /// </summary>
+    /// <param name="city">City name key.</param>
+    /// <param name="snapshot">When successful, receives the cached snapshot.</param>
+    /// <returns><c>true</c> when a snapshot exists; otherwise, <c>false</c>.</returns>
     bool TryGet(string city, out GuestsSnapshot snapshot);
 
+    /// <summary>
+    /// Stores or replaces the cached snapshot for the provided city.
+    /// </summary>
+    /// <param name="city">City name key.</param>
+    /// <param name="snapshot">Snapshot to cache.</param>
     void Set(string city, GuestsSnapshot snapshot);
 
+    /// <summary>
+    /// Removes any cached snapshot for the provided city.
+    /// </summary>
+    /// <param name="city">City name key.</param>
     void Remove(string city);
 }
 

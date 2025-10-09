@@ -26,7 +26,7 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
     /// Initializes the scheduled background updater.
     /// </summary>
     /// <param name="scopeFactory">Factory to create DI scopes for resolving scoped services.</param>
-    /// <param name="logger">Logger.</param>
+    /// <param name="logger">Logger used for diagnostic output.</param>
     public ComicConUpdateBackgroundService(IServiceScopeFactory scopeFactory, ILogger<ComicConUpdateBackgroundService> logger)
     {
         _scopeFactory = scopeFactory;
