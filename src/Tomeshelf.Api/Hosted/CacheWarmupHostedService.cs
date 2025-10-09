@@ -44,7 +44,11 @@ public sealed class CacheWarmupHostedService : IHostedService
         {
             foreach (var city in new[] { City.London, City.Birmingham })
             {
-                if (stoppingToken.IsCancellationRequested) break;
+                if (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 await WarmCityAsync(city.ToString(), stoppingToken);
             }
         }

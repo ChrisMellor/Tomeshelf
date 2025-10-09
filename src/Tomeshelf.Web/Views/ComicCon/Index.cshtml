@@ -12,7 +12,10 @@
             return d.ToString(culture);
         }
         var rem100 = d % 100;
-        if (rem100 >= 11 && rem100 <= 13) return d + "th";
+        if (rem100 >= 11 && rem100 <= 13)
+        {
+            return d + "th";
+        }
         return (d % 10) switch { 1 => d + "st", 2 => d + "nd", 3 => d + "rd", _ => d + "th" };
     };
     var removed = Model?.SelectMany(g => g.Items).Where(p => p != null && p.PubliclyVisible == false).GroupBy(p => p.Id).Select(g => g.First()).ToList();
