@@ -163,11 +163,12 @@ public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> lo
         return groups;
     }
 
-    private static IQueryable<PersonRow> ProjectPeople(IQueryable<EventAppearance> source)
+    private static IQueryable<PersonProjection> ProjectPeople(IQueryable<EventAppearance> source)
     {
-        return source.Select(a => new PersonRow(
-            a.Person.CreatedUtc,
-            new PersonDto
+        return source.Select(a => new PersonProjection
+        {
+            CreatedUtc = a.Person.CreatedUtc,
+            Person = new PersonDto
             {
                 Id = a.Person.ExternalId,
                 Uid = a.Person.Uid,
@@ -223,8 +224,14 @@ public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> lo
                         }
                     })
                     .ToList()
-            }));
+            }
+        });
     }
 
-    private sealed record PersonRow(DateTime CreatedUtc, PersonDto Person);
+    private sealed class PersonProjection
+    {
+        public DateTime CreatedUtc { get; init; }
+
+        public PersonDto Person { get; init; } = default!;
+    }
 }
