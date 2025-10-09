@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Web.Controllers;
+using Tomeshelf.Web.Models;
 using Tomeshelf.Web.Models.ComicCon;
 using Tomeshelf.Web.Services;
 
@@ -18,8 +19,9 @@ public class ComicConControllerTests
         // Arrange
         var api = A.Fake<IGuestsApi>();
         var groups = new List<GuestsGroupModel> { new GuestsGroupModel { Items = new List<PersonModel>() } };
-        A.CallTo(() => api.GetComicConGuestsByCityAsync("London", A<CancellationToken>._))
-           .Returns((groups, 1));
+        var resultModel = new GuestsByCityResult(groups, 1);
+        A.CallTo(() => api.GetComicConGuestsByCityResultAsync("London", A<CancellationToken>._))
+           .Returns(resultModel);
 
         var controller = new ComicConController(api);
 
