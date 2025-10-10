@@ -2,6 +2,9 @@
 
 [![Build (main)](https://github.com/ChrisMellor/Tomeshelf/actions/workflows/dotnet-ci.yml/badge.svg?branch=main)](https://github.com/ChrisMellor/Tomeshelf/actions/workflows/dotnet-ci.yml?query=branch%3Amain)
 [![Tests (main)](https://img.shields.io/github/actions/workflow/status/ChrisMellor/Tomeshelf/dotnet-ci.yml?branch=main&label=tests)](https://github.com/ChrisMellor/Tomeshelf/actions/workflows/dotnet-ci.yml?query=branch%3Amain)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=chrismellor_Tomeshelf&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=chrismellor_Tomeshelf)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=chrismellor_Tomeshelf&metric=coverage)](https://sonarcloud.io/summary/new_code?id=chrismellor_Tomeshelf)
+[![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=chrismellor_Tomeshelf&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=chrismellor_Tomeshelf)
 
 Tomeshelf is a small .NET 9 that pulls Comic Con guest data from an external API, stores it in SQL Server via EF Core, and exposes the data through an HTTP API and a simple MVC web UI. It uses .NET Aspire to orchestrate the app (API + Web + SQL) in development, with OpenTelemetry and health checks wired in.
 
@@ -139,18 +142,6 @@ In Development, visit the API root for Swagger UI.
   - Update DB: `dotnet ef database update -s src/Tomeshelf.Api -p src/Tomeshelf.Infrastructure`
 
 The API applies pending migrations automatically on startup.
-
-## Static Analysis
-
-- CI integrates with [SonarCloud](https://sonarcloud.io/) via the dotnet SonarScanner. Configure repository secrets before the workflow can push analyses:
-  - `SONAR_TOKEN` – a SonarCloud user token with *Execute Analysis* permission.
-  - `SONAR_ORG` – the SonarCloud organisation key (e.g., `chrismellor`).
-  - `SONAR_PROJECT_KEY` – the project key created in SonarCloud (commonly `<org>_<repo>`).
-- The GitHub Actions pipeline calls:
-  1. `dotnet sonarscanner begin` prior to build/test, wiring in the OpenCover report produced by Coverlet.
-  2. `dotnet build` and `dotnet test` with coverage.
-  3. `dotnet sonarscanner end` to publish metrics.
-- If the secrets are not present, the Sonar steps are skipped automatically so forks and local branches can still run CI without access to the organisation.
 
 ## Observability
 
