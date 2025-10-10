@@ -1,9 +1,23 @@
 # Tomeshelf
+Tomeshelf is a small .NET 9 that pulls Comic Con guest data from an external API, stores it in SQL Server via EF Core, and exposes the data through an HTTP API and a simple MVC web UI. It uses .NET Aspire to orchestrate the app (API + Web + SQL) in development, with OpenTelemetry and health checks wired in.
 
+## Status
 [![Build (main)](https://github.com/ChrisMellor/Tomeshelf/actions/workflows/dotnet-ci.yml/badge.svg?branch=main)](https://github.com/ChrisMellor/Tomeshelf/actions/workflows/dotnet-ci.yml?query=branch%3Amain)
 [![Tests (main)](https://img.shields.io/github/actions/workflow/status/ChrisMellor/Tomeshelf/dotnet-ci.yml?branch=main&label=tests)](https://github.com/ChrisMellor/Tomeshelf/actions/workflows/dotnet-ci.yml?query=branch%3Amain)
 
-Tomeshelf is a small .NET 9 that pulls Comic Con guest data from an external API, stores it in SQL Server via EF Core, and exposes the data through an HTTP API and a simple MVC web UI. It uses .NET Aspire to orchestrate the app (API + Web + SQL) in development, with OpenTelemetry and health checks wired in.
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ChrisMellor_Tomeshelf&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ChrisMellor_Tomeshelf)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ChrisMellor_Tomeshelf&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=ChrisMellor_Tomeshelf)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ChrisMellor_Tomeshelf&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=ChrisMellor_Tomeshelf)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ChrisMellor_Tomeshelf&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=ChrisMellor_Tomeshelf)
+
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ChrisMellor_Tomeshelf&metric=bugs)](https://sonarcloud.io/summary/new_code?id=ChrisMellor_Tomeshelf)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ChrisMellor_Tomeshelf&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=ChrisMellor_Tomeshelf)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=ChrisMellor_Tomeshelf&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=ChrisMellor_Tomeshelf)
+
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ChrisMellor_Tomeshelf&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ChrisMellor_Tomeshelf)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=ChrisMellor_Tomeshelf&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=ChrisMellor_Tomeshelf)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=ChrisMellor_Tomeshelf&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=ChrisMellor_Tomeshelf)
+
 
 **Highlights**
 
@@ -132,6 +146,7 @@ In Development, visit the API root for Swagger UI.
 - CI on main: see latest runs and artifacts
   - https://github.com/ChrisMellor/Tomeshelf/actions/workflows/dotnet-ci.yml?query=branch%3Amain
   - The CI uploads `coverage-results` (Coverlet) for each run
+- Static analysis: provide `SONAR_TOKEN`, `SONAR_ORG`, and `SONAR_PROJECT_KEY` secrets to enable the SonarCloud scan in CI
 - Apply migrations (if creating new ones):
 
   - Add migration: `dotnet ef migrations add Name -s src/Tomeshelf.Api -p src/Tomeshelf.Infrastructure`
