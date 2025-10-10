@@ -132,12 +132,25 @@ In Development, visit the API root for Swagger UI.
 - CI on main: see latest runs and artifacts
   - https://github.com/ChrisMellor/Tomeshelf/actions/workflows/dotnet-ci.yml?query=branch%3Amain
   - The CI uploads `coverage-results` (Coverlet) for each run
+- Static analysis: provide `SONAR_TOKEN`, `SONAR_ORG`, and `SONAR_PROJECT_KEY` secrets to enable the SonarCloud scan in CI
 - Apply migrations (if creating new ones):
 
   - Add migration: `dotnet ef migrations add Name -s src/Tomeshelf.Api -p src/Tomeshelf.Infrastructure`
   - Update DB: `dotnet ef database update -s src/Tomeshelf.Api -p src/Tomeshelf.Infrastructure`
 
 The API applies pending migrations automatically on startup.
+
+## Static Analysis
+
+- CI integrates with [SonarCloud](https://sonarcloud.io/) via the dotnet SonarScanner. Configure repository secrets before the workflow can push analyses:
+  - `SONAR_TOKEN` – a SonarCloud user token with *Execute Analysis* permission.
+  - `SONAR_ORG` – the SonarCloud organisation key (e.g., `chrismellor`).
+  - `SONAR_PROJECT_KEY` – the project key created in SonarCloud (commonly `<org>_<repo>`).
+- The GitHub Actions pipeline calls:
+  1. `dotnet sonarscanner begin` prior to build/test, wiring in the OpenCover report produced by Coverlet.
+  2. `dotnet build` and `dotnet test` with coverage.
+  3. `dotnet sonarscanner end` to publish metrics.
+- If the secrets are not present, the Sonar steps are skipped automatically so forks and local branches can still run CI without access to the organisation.
 
 ## Observability
 

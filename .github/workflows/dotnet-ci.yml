@@ -9,9 +9,29 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_ORG: ${{ secrets.SONAR_ORG }}
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Cache SonarCloud scanner
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages/sonarscanner.dotnet
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -19,8 +39,19 @@ jobs:
           dotnet-version: |
             9.0.x
 
+      - name: Install SonarScanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner || dotnet tool update --global dotnet-sonarscanner
+
       - name: Restore
         run: dotnet restore Tomeshelf.sln
+
+      - name: Begin SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        if: env.SONAR_TOKEN != ''
+        run: |
+          dotnet sonarscanner begin /k:"${SONAR_PROJECT_KEY}" /o:"${SONAR_ORG}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${SONAR_TOKEN}" /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml"
 
       - name: Build
         run: dotnet build --no-restore -c Release Tomeshelf.sln
@@ -33,9 +64,17 @@ jobs:
             --results-directory TestResults \
             Tomeshelf.sln
 
+      - name: End SonarCloud analysis
+        if: always()
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -n "$SONAR_TOKEN" ]; then
+            dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
+          fi
+
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-results
           path: TestResults
-
