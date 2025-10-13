@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 
-namespace Tomeshelf.Api.Services;
+namespace Tomeshelf.ComicConApi.Services;
 
 /// <summary>
 /// Thread-safe in-memory implementation of <see cref="IGuestsCache"/>.

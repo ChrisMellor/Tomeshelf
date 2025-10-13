@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Threading.Tasks;
-using Tomeshelf.Api.Controllers;
-using Tomeshelf.Api.Services;
+using Tomeshelf.ComicConApi.Controllers;
+using Tomeshelf.ComicConApi.Services;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
 
-namespace Tomeshelf.Api.Tests.Controllers.ComicConControllerTests;
+namespace Tomeshelf.ComicConApi.Tests.Controllers.ComicConControllerTests;
 
 public class ComicConControllerGetByCityTests
 {

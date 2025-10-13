@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Tomeshelf.Api\Tomeshelf.Api.csproj" />
+    <ProjectReference Include="..\..\src\Tomeshelf.Api\Tomeshelf.ComicConApi.csproj" />
     <ProjectReference Include="..\..\src\Tomeshelf.Infrastructure\Tomeshelf.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Tomeshelf.Application\Tomeshelf.Application.csproj" />
   </ItemGroup>

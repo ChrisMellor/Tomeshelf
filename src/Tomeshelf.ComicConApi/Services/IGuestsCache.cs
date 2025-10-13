@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Tomeshelf.Infrastructure.Queries;
 
-namespace Tomeshelf.Api.Services;
+namespace Tomeshelf.ComicConApi.Services;
 
 /// <summary>
 /// In-memory cache for guests-by-city snapshots served by the API.

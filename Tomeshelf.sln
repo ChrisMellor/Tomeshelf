@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36327.8
+VisualStudioVersion = 17.14.36518.9 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.AppHost", "src\Tomeshelf.AppHost\Tomeshelf.AppHost.csproj", "{12AE4B0E-AFBF-4783-9F8E-3AB91AA2D122}"
 EndProject
@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Web", "src\Tomeshelf.Web\Tomeshelf.Web.csproj", "{E12C7D7F-3BD5-3A71-B824-98B088C320BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Api", "src\Tomeshelf.Api\Tomeshelf.Api.csproj", "{EF6856B8-2858-C4D1-96BB-9E1D5526C3B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.ComicConApi", "src\Tomeshelf.Api\Tomeshelf.ComicConApi.csproj", "{EF6856B8-2858-C4D1-96BB-9E1D5526C3B5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Domain", "src\Tomeshelf.Domain\Tomeshelf.Domain.csproj", "{F1A5B39D-64C6-45B9-A38E-250D4147BC22}"
 EndProject
@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Infrastructure", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Api.Tests", "tests\Tomeshelf.Api.Tests\Tomeshelf.Api.Tests.csproj", "{B66F2DE6-0957-4C8F-86E8-964229BD227A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.ComicConApi.Tests", "tests\Tomeshelf.Api.Tests\Tomeshelf.ComicConApi.Tests.csproj", "{B66F2DE6-0957-4C8F-86E8-964229BD227A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Web.Tests", "tests\Tomeshelf.Web.Tests\Tomeshelf.Web.Tests.csproj", "{2A31F818-51AC-40E0-9D6F-8B8568366908}"
 EndProject

@@ -1,4 +1,4 @@
-﻿namespace Tomeshelf.Api.Enums;
+﻿namespace Tomeshelf.ComicConApi.Enums;
 
 public enum City
 {

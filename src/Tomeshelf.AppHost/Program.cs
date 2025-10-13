@@ -37,7 +37,7 @@ internal class Program
             var database = builder.AddAzureSqlServer("sql")
                 .AddDatabase("tomeshelfdb");
 
-            api = builder.AddProject<Projects.Tomeshelf_Api>("api")
+            api = builder.AddProject<Projects.Tomeshelf_ComicConApi>("ComicConApi")
                 .WithExternalHttpEndpoints()
                 .WithHttpHealthCheck("/health")
                 .WithReference(database)
@@ -50,7 +50,7 @@ internal class Program
                 .WithEnvironment("ACCEPT_EULA", "Y")
                 .AddDatabase("tomeshelfdb");
 
-            api = builder.AddProject<Projects.Tomeshelf_Api>("api")
+            api = builder.AddProject<Projects.Tomeshelf_ComicConApi>("ComicConApi")
                 .WithExternalHttpEndpoints()
                 .WithHttpHealthCheck("/health")
                 .WithReference(database)

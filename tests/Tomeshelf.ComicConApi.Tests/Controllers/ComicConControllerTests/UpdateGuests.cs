@@ -7,15 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Api.Controllers;
-using Tomeshelf.Api.Enums;
-using Tomeshelf.Api.Services;
 using Tomeshelf.Application.Contracts;
+using Tomeshelf.ComicConApi.Controllers;
+using Tomeshelf.ComicConApi.Enums;
+using Tomeshelf.ComicConApi.Services;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
 
-namespace Tomeshelf.Api.Tests.Controllers.ComicConControllerTests;
+namespace Tomeshelf.ComicConApi.Tests.Controllers.ComicConControllerTests;
 
 public class ComicConControllerUpdateGuestsTests
 {

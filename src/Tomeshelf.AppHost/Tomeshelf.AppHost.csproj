@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<ProjectReference Include="..\Tomeshelf.Api\Tomeshelf.Api.csproj" />
+	<ProjectReference Include="..\Tomeshelf.Api\Tomeshelf.ComicConApi.csproj" />
 	<ProjectReference Include="..\Tomeshelf.Web\Tomeshelf.Web.csproj" />
   </ItemGroup>
 

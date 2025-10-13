@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Api.Enums;
+using Tomeshelf.ComicConApi.Enums;
 
-namespace Tomeshelf.Api.Transformers;
+namespace Tomeshelf.ComicConApi.Transformers;
 
 /// <summary>
 /// OpenAPI schema transformer that renders the City enum as string values.

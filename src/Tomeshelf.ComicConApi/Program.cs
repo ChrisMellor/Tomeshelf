@@ -10,11 +10,13 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Tomeshelf.Api.Transformers;
 using Tomeshelf.Application.Options;
+using Tomeshelf.ComicConApi.Hosted;
+using Tomeshelf.ComicConApi.Services;
 using Tomeshelf.Infrastructure;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.ServiceDefaults;
 
-namespace Tomeshelf.Api;
+namespace Tomeshelf.ComicConApi;
 
 /// <summary>
 /// API application entry point and configuration.
@@ -67,8 +69,8 @@ public static class Program
             .ValidateDataAnnotations();
 
         builder.Services.AddInfrastructure();
-        builder.Services.AddSingleton<Services.IGuestsCache, Services.GuestsCache>();
-        builder.Services.AddHostedService<Hosted.ComicConUpdateBackgroundService>();
+        builder.Services.AddSingleton<IGuestsCache, GuestsCache>();
+        builder.Services.AddHostedService<ComicConUpdateBackgroundService>();
 
         builder.AddSqlServerDbContext<TomeshelfDbContext>("tomeshelfdb");
 
