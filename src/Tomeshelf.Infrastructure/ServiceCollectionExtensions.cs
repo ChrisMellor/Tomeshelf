@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<EventIngestService>();
         services.AddHttpClient<IGuestsClient, GuestsClient>();
         services.AddTransient<IGuestService, GuestService>();
+
         return services;
     }
 
@@ -35,8 +36,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<BundleIngestService>();
         services.AddHttpClient<IHumbleBundleScraper, HumbleBundleScraper>(client =>
         {
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "Tomeshelf/1.0 (+https://github.com/ChrisMellor/Tomeshelf)");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf/1.0 (+https://github.com/ChrisMellor/Tomeshelf)");
         });
 
         return services;
@@ -51,6 +51,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<TomeshelfComicConDbContext>(options => options.UseSqlServer(connectionString));
+
         return services.AddInfrastructure();
     }
 }

@@ -20,20 +20,28 @@ public sealed class NullableFlexibleDecimalConverter : JsonConverter<decimal?>
     /// <returns>The parsed decimal value, or null when absent/invalid.</returns>
     public override decimal? Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.Null) return null;
+        if (reader.TokenType == JsonTokenType.Null)
+            return null;
 
-        if (reader.TokenType == JsonTokenType.Number) return reader.GetDecimal();
+        if (reader.TokenType == JsonTokenType.Number)
+            return reader.GetDecimal();
 
         if (reader.TokenType == JsonTokenType.String)
         {
-            var s = reader.GetString()?.Trim();
-            if (string.IsNullOrEmpty(s)) return null;
+            var s = reader.GetString()
+                         ?.Trim();
 
-            s = s.Replace(",", "").Replace("£", "").Replace("$", "").Replace("€", "").Trim();
-            decimal? result = decimal.TryParse(s, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign,
-                CultureInfo.InvariantCulture, out var d)
-                ? d
-                : null;
+            if (string.IsNullOrEmpty(s))
+                return null;
+
+            s = s.Replace(",", "")
+                 .Replace("£", "")
+                 .Replace("$", "")
+                 .Replace("€", "")
+                 .Trim();
+            decimal? result = decimal.TryParse(s, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var d)
+                    ? d
+                    : null;
 
             return result;
         }

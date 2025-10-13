@@ -16,19 +16,22 @@ public class GuestQueriesGetGuestsByCityAsyncTests
     public async Task GetGuestsByCityAsync_GroupsByDate()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                          .ToString())
+                                                                                 .Options;
         using var db = new TomeshelfComicConDbContext(dbOptions);
 
-        var ev = new Event { ExternalId = Guid.NewGuid().ToString(), Name = "Event", Slug = "2025-london" };
+        var ev = new Event
+        {
+                ExternalId = Guid.NewGuid()
+                                 .ToString(),
+                Name = "Event", Slug = "2025-london"
+        };
         db.Events.Add(ev);
         var p1 = new Person { ExternalId = "P1", FirstName = "Ada", LastName = "Lovelace" };
         var p2 = new Person { ExternalId = "P2", FirstName = "Grace", LastName = "Hopper" };
         db.People.AddRange(p1, p2);
-        db.EventAppearances.AddRange(
-            new EventAppearance { Event = ev, Person = p1 },
-            new EventAppearance { Event = ev, Person = p2 }
-        );
+        db.EventAppearances.AddRange(new EventAppearance { Event = ev, Person = p1 }, new EventAppearance { Event = ev, Person = p2 });
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
@@ -37,16 +40,20 @@ public class GuestQueriesGetGuestsByCityAsyncTests
         var groups = await queries.GetGuestsByCityAsync("London", TestContext.Current.CancellationToken);
 
         // Assert
-        groups.Should().NotBeEmpty();
-        groups.Sum(group => group.Items.Count).Should().BeGreaterThanOrEqualTo(2);
+        groups.Should()
+              .NotBeEmpty();
+        groups.Sum(group => group.Items.Count)
+              .Should()
+              .BeGreaterThanOrEqualTo(2);
     }
 
     [Fact]
     public async Task GetGuestsByCityAsync_EmptyCity_ReturnsEmpty()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                          .ToString())
+                                                                                 .Options;
         using var db = new TomeshelfComicConDbContext(dbOptions);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
 
@@ -54,6 +61,7 @@ public class GuestQueriesGetGuestsByCityAsyncTests
         var groups = await queries.GetGuestsByCityAsync("   ", TestContext.Current.CancellationToken);
 
         // Assert
-        groups.Should().BeEmpty();
+        groups.Should()
+              .BeEmpty();
     }
 }

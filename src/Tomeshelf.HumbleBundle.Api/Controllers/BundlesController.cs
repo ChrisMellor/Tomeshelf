@@ -19,8 +19,7 @@ public sealed class BundlesController : ControllerBase
     private readonly BundleQueries _queries;
     private readonly IHumbleBundleScraper _scraper;
 
-    public BundlesController(BundleQueries queries, IHumbleBundleScraper scraper, BundleIngestService ingest,
-        ILogger<BundlesController> logger)
+    public BundlesController(BundleQueries queries, IHumbleBundleScraper scraper, BundleIngestService ingest, ILogger<BundlesController> logger)
     {
         _queries = queries;
         _scraper = scraper;
@@ -35,15 +34,13 @@ public sealed class BundlesController : ControllerBase
     /// <param name="cancellationToken">Request cancellation token.</param>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<BundleResponse>), 200)]
-    public async Task<ActionResult<IReadOnlyList<BundleResponse>>> GetBundles([FromQuery] bool includeExpired = false,
-        CancellationToken cancellationToken = default)
+    public async Task<ActionResult<IReadOnlyList<BundleResponse>>> GetBundles([FromQuery] bool includeExpired = false, CancellationToken cancellationToken = default)
     {
         var dtos = await _queries.GetBundlesAsync(includeExpired, cancellationToken);
         var now = DateTimeOffset.UtcNow;
 
-        var result = dtos
-            .Select(dto => BundleResponse.FromDto(dto, now))
-            .ToList();
+        var result = dtos.Select(dto => BundleResponse.FromDto(dto, now))
+                         .ToList();
 
         return Ok(result);
     }
@@ -54,25 +51,14 @@ public sealed class BundlesController : ControllerBase
     /// <param name="cancellationToken">Request cancellation token.</param>
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(RefreshBundlesResponse), 200)]
-    public async Task<ActionResult<RefreshBundlesResponse>> RefreshBundles(
-        CancellationToken cancellationToken = default)
+    public async Task<ActionResult<RefreshBundlesResponse>> RefreshBundles(CancellationToken cancellationToken = default)
     {
         var scraped = await _scraper.ScrapeAsync(cancellationToken);
         var ingestResult = await _ingest.UpsertAsync(scraped, cancellationToken);
 
-        _logger.LogInformation(
-            "Bundles refresh completed via API call - processed {Processed} bundles (created: {Created}, updated: {Updated}, unchanged: {Unchanged})",
-            ingestResult.Processed,
-            ingestResult.Created,
-            ingestResult.Updated,
-            ingestResult.Unchanged);
+        _logger.LogInformation("Bundles refresh completed via API call - processed {Processed} bundles (created: {Created}, updated: {Updated}, unchanged: {Unchanged})", ingestResult.Processed, ingestResult.Created, ingestResult.Updated, ingestResult.Unchanged);
 
-        return Ok(new RefreshBundlesResponse(
-            ingestResult.Created,
-            ingestResult.Updated,
-            ingestResult.Unchanged,
-            ingestResult.Processed,
-            ingestResult.ObservedAtUtc));
+        return Ok(new RefreshBundlesResponse(ingestResult.Created, ingestResult.Updated, ingestResult.Unchanged, ingestResult.Processed, ingestResult.ObservedAtUtc));
     }
 
     /// <summary>
@@ -95,24 +81,7 @@ public sealed class BundlesController : ControllerBase
     /// <param name="LastUpdatedUtc">Last time metadata changed.</param>
     /// <param name="SecondsRemaining">Seconds remaining until expiry, when applicable.</param>
     /// <param name="GeneratedUtc">Timestamp when this projection was generated.</param>
-    public sealed record BundleResponse(
-        string MachineName,
-        string Category,
-        string Stamp,
-        string Title,
-        string ShortName,
-        string Url,
-        string TileImageUrl,
-        string TileLogoUrl,
-        string HeroImageUrl,
-        string ShortDescription,
-        DateTimeOffset? StartsAt,
-        DateTimeOffset? EndsAt,
-        DateTimeOffset FirstSeenUtc,
-        DateTimeOffset LastSeenUtc,
-        DateTimeOffset LastUpdatedUtc,
-        double? SecondsRemaining,
-        DateTimeOffset GeneratedUtc)
+    public sealed record BundleResponse(string MachineName, string Category, string Stamp, string Title, string ShortName, string Url, string TileImageUrl, string TileLogoUrl, string HeroImageUrl, string ShortDescription, DateTimeOffset? StartsAt, DateTimeOffset? EndsAt, DateTimeOffset FirstSeenUtc, DateTimeOffset LastSeenUtc, DateTimeOffset LastUpdatedUtc, double? SecondsRemaining, DateTimeOffset GeneratedUtc)
     {
         public static BundleResponse FromDto(BundleDto dto, DateTimeOffset now)
         {
@@ -120,27 +89,11 @@ public sealed class BundlesController : ControllerBase
             if (dto.EndsAt.HasValue)
             {
                 var remaining = dto.EndsAt.Value - now;
-                if (remaining > TimeSpan.Zero) secondsRemaining = remaining.TotalSeconds;
+                if (remaining > TimeSpan.Zero)
+                    secondsRemaining = remaining.TotalSeconds;
             }
 
-            return new BundleResponse(
-                dto.MachineName,
-                dto.Category,
-                dto.Stamp,
-                dto.Title,
-                dto.ShortName,
-                dto.Url,
-                dto.TileImageUrl,
-                dto.TileLogoUrl,
-                dto.HeroImageUrl,
-                dto.ShortDescription,
-                dto.StartsAt,
-                dto.EndsAt,
-                dto.FirstSeenUtc,
-                dto.LastSeenUtc,
-                dto.LastUpdatedUtc,
-                secondsRemaining,
-                dto.GeneratedUtc);
+            return new BundleResponse(dto.MachineName, dto.Category, dto.Stamp, dto.Title, dto.ShortName, dto.Url, dto.TileImageUrl, dto.TileLogoUrl, dto.HeroImageUrl, dto.ShortDescription, dto.StartsAt, dto.EndsAt, dto.FirstSeenUtc, dto.LastSeenUtc, dto.LastUpdatedUtc, secondsRemaining, dto.GeneratedUtc);
         }
     }
 
@@ -152,10 +105,5 @@ public sealed class BundlesController : ControllerBase
     /// <param name="Unchanged">Bundles left unchanged.</param>
     /// <param name="Processed">Total bundles processed.</param>
     /// <param name="ObservedAtUtc">Observation timestamp supplied by the ingest.</param>
-    public sealed record RefreshBundlesResponse(
-        int Created,
-        int Updated,
-        int Unchanged,
-        int Processed,
-        DateTimeOffset ObservedAtUtc);
+    public sealed record RefreshBundlesResponse(int Created, int Updated, int Unchanged, int Processed, DateTimeOffset ObservedAtUtc);
 }

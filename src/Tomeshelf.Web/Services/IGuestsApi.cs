@@ -23,8 +23,7 @@ public interface IGuestsApi
     /// <exception cref="HttpRequestException">Thrown when the HTTP response is unsuccessful.</exception>
     /// <exception cref="JsonException">Thrown when the response body cannot be parsed.</exception>
     /// <exception cref="InvalidOperationException">Thrown when the response payload is empty.</exception>
-    Task<(IReadOnlyList<GuestsGroupModel> Groups, int Total)> GetComicConGuestsByCityAsync(string city,
-        CancellationToken cancellationToken);
+    Task<(IReadOnlyList<GuestsGroupModel> Groups, int Total)> GetComicConGuestsByCityAsync(string city, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Retrieves Comic Con guests for a given city from the API and returns a typed result model.

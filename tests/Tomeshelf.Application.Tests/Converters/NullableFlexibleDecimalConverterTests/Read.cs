@@ -8,7 +8,7 @@ public class NullableFlexibleDecimalConverterReadTests
 {
     private readonly JsonSerializerOptions _opts = new(JsonSerializerDefaults.Web)
     {
-        Converters = { new NullableFlexibleDecimalConverter() }
+            Converters = { new NullableFlexibleDecimalConverter() }
     };
 
     private static string Wrap(object value)
@@ -31,7 +31,8 @@ public class NullableFlexibleDecimalConverterReadTests
         // Act
         var value = converter.Read(ref reader, typeof(decimal?), _opts);
         // Assert
-        value.Should().BeNull();
+        value.Should()
+             .BeNull();
     }
 
     [Fact]
@@ -49,7 +50,8 @@ public class NullableFlexibleDecimalConverterReadTests
         var value = converter.Read(ref reader, typeof(decimal?), _opts);
 
         // Assert
-        value.Should().Be(123.45m);
+        value.Should()
+             .Be(123.45m);
     }
 
     [Fact]
@@ -67,7 +69,8 @@ public class NullableFlexibleDecimalConverterReadTests
         var value = converter.Read(ref reader, typeof(decimal?), _opts);
 
         // Assert
-        value.Should().Be(1234.50m);
+        value.Should()
+             .Be(1234.50m);
     }
 
     [Fact]
@@ -85,7 +88,8 @@ public class NullableFlexibleDecimalConverterReadTests
         var value = converter.Read(ref reader, typeof(decimal?), _opts);
 
         // Assert
-        value.Should().BeNull();
+        value.Should()
+             .BeNull();
     }
 
     [Fact]
@@ -103,6 +107,7 @@ public class NullableFlexibleDecimalConverterReadTests
         var value = converter.Read(ref reader, typeof(decimal?), _opts);
 
         // Assert
-        value.Should().BeNull();
+        value.Should()
+             .BeNull();
     }
 }

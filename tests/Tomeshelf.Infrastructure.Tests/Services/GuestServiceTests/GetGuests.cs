@@ -25,26 +25,27 @@ public class GuestServiceTests
         var key = Guid.NewGuid();
         var options = Options.Create(new ComicConOptions
         {
-            ComicCon = new List<Location> { new() { City = city, Key = key } }
+                ComicCon = new List<Location> { new() { City = city, Key = key } }
         });
 
-        var peopleFaker = new Faker<PersonDto>()
-            .RuleFor(p => p.Id, f => f.Random.Uuid().ToString())
-            .RuleFor(p => p.FirstName, f => f.Name.FirstName())
-            .RuleFor(p => p.LastName, f => f.Name.LastName());
+        var peopleFaker = new Faker<PersonDto>().RuleFor(p => p.Id, f => f.Random.Uuid()
+                                                                          .ToString())
+                                                .RuleFor(p => p.FirstName, f => f.Name.FirstName())
+                                                .RuleFor(p => p.LastName, f => f.Name.LastName());
         var evt = new EventDto
         {
-            EventId = Guid.NewGuid().ToString(),
-            EventName = "Test Event",
-            EventSlug = "2025-london",
-            People = peopleFaker.Generate(3)
+                EventId = Guid.NewGuid()
+                              .ToString(),
+                EventName = "Test Event",
+                EventSlug = "2025-london",
+                People = peopleFaker.Generate(3)
         };
 
         IGuestsClient guestsClient = new FakeGuestsClient(evt);
 
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                          .ToString())
+                                                                                 .Options;
         using var db = new TomeshelfComicConDbContext(dbOptions);
         var ingest = new EventIngestService(db);
         var logger = NullLogger<GuestService>.Instance;
@@ -55,8 +56,10 @@ public class GuestServiceTests
         var result = await sut.GetGuestsAsync(city, CancellationToken.None);
 
         // Assert
-        result.Should().NotBeNull();
-        result.Should().HaveCount(3);
+        result.Should()
+              .NotBeNull();
+        result.Should()
+              .HaveCount(3);
     }
 
     [Fact]
@@ -65,9 +68,9 @@ public class GuestServiceTests
         // Arrange
         var options = Options.Create(new ComicConOptions());
         IGuestsClient guestsClient = new FakeGuestsClient(null);
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                          .ToString())
+                                                                                 .Options;
         using var db = new TomeshelfComicConDbContext(dbOptions);
         var ingest = new EventIngestService(db);
 
@@ -77,7 +80,8 @@ public class GuestServiceTests
         Func<Task> actMissingCity = async () => await sut.GetGuestsAsync("UnknownCity", CancellationToken.None);
 
         // Assert
-        await actMissingCity.Should().ThrowAsync<ApplicationException>();
+        await actMissingCity.Should()
+                            .ThrowAsync<ApplicationException>();
     }
 
     [Fact]
@@ -88,13 +92,13 @@ public class GuestServiceTests
         var key = Guid.NewGuid();
         var options = Options.Create(new ComicConOptions
         {
-            ComicCon = new List<Location> { new() { City = city, Key = key } }
+                ComicCon = new List<Location> { new() { City = city, Key = key } }
         });
         IGuestsClient guestsClient = new FakeGuestsClient(null);
 
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                          .ToString())
+                                                                                 .Options;
         using var db = new TomeshelfComicConDbContext(dbOptions);
         var ingest = new EventIngestService(db);
 
@@ -104,7 +108,8 @@ public class GuestServiceTests
         Func<Task> actNullClient = async () => await sut.GetGuestsAsync(city, CancellationToken.None);
 
         // Assert
-        await actNullClient.Should().ThrowAsync<ApplicationException>();
+        await actNullClient.Should()
+                           .ThrowAsync<ApplicationException>();
     }
 
     [Fact]
@@ -113,9 +118,9 @@ public class GuestServiceTests
         // Arrange
         var options = Options.Create(new ComicConOptions());
         IGuestsClient guestsClient = new FakeGuestsClient(null);
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                          .ToString())
+                                                                                 .Options;
         using var db = new TomeshelfComicConDbContext(dbOptions);
         var ingest = new EventIngestService(db);
 
@@ -125,7 +130,8 @@ public class GuestServiceTests
         Func<Task> act = async () => await sut.GetGuestsAsync("   ", CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<ApplicationException>();
+        await act.Should()
+                 .ThrowAsync<ApplicationException>();
     }
 
     [Fact]
@@ -135,13 +141,13 @@ public class GuestServiceTests
         var key = Guid.NewGuid();
         var options = Options.Create(new ComicConOptions
         {
-            ComicCon = new List<Location> { new() { City = "London", Key = key } }
+                ComicCon = new List<Location> { new() { City = "London", Key = key } }
         });
         var evt = new EventDto { EventId = "E", EventName = "N", EventSlug = "s", People = new List<PersonDto>() };
         IGuestsClient guestsClient = new FakeGuestsClient(evt);
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                          .ToString())
+                                                                                 .Options;
         using var db = new TomeshelfComicConDbContext(dbOptions);
         var ingest = new EventIngestService(db);
         var sut = new GuestService(guestsClient, options, NullLogger<GuestService>.Instance, ingest);
@@ -150,7 +156,8 @@ public class GuestServiceTests
         var people = await sut.GetGuestsAsync("london", CancellationToken.None);
 
         // Assert
-        people.Should().NotBeNull();
+        people.Should()
+              .NotBeNull();
     }
 
     private sealed class FakeGuestsClient : IGuestsClient

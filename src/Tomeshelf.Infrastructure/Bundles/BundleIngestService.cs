@@ -30,23 +30,21 @@ public sealed class BundleIngestService
     /// <param name="bundles">Bundles scraped from the Humble Bundle listing.</param>
     /// <param name="cancellationToken">Token used to cancel the database operation.</param>
     /// <returns>Summary of the ingest operation.</returns>
-    public async Task<BundleIngestResult> UpsertAsync(IReadOnlyList<ScrapedBundle> bundles,
-        CancellationToken cancellationToken = default)
+    public async Task<BundleIngestResult> UpsertAsync(IReadOnlyList<ScrapedBundle> bundles, CancellationToken cancellationToken = default)
     {
         if (bundles.Count == 0)
         {
             _logger.LogInformation("Bundle ingest skipped - no bundles were scraped.");
+
             return new BundleIngestResult(0, 0, 0, 0, DateTimeOffset.UtcNow);
         }
 
-        var machineNames = bundles
-            .Select(b => b.MachineName)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        var machineNames = bundles.Select(b => b.MachineName)
+                                  .Distinct(StringComparer.OrdinalIgnoreCase)
+                                  .ToList();
 
-        var existing = await _dbContext.Bundles
-            .Where(b => machineNames.Contains(b.MachineName))
-            .ToDictionaryAsync(b => b.MachineName, StringComparer.OrdinalIgnoreCase, cancellationToken);
+        var existing = await _dbContext.Bundles.Where(b => machineNames.Contains(b.MachineName))
+                                       .ToDictionaryAsync(b => b.MachineName, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
         var counters = new IngestCounters();
 
@@ -58,8 +56,8 @@ public sealed class BundleIngestService
             {
                 entity = new Bundle
                 {
-                    MachineName = scraped.MachineName,
-                    FirstSeenUtc = scraped.ObservedUtc
+                        MachineName = scraped.MachineName,
+                        FirstSeenUtc = scraped.ObservedUtc
                 };
                 _dbContext.Bundles.Add(entity);
                 existing[scraped.MachineName] = entity;
@@ -73,7 +71,8 @@ public sealed class BundleIngestService
             if (changed)
             {
                 entity.LastUpdatedUtc = scraped.ObservedUtc;
-                if (!isNew) counters.Updated++;
+                if (!isNew)
+                    counters.Updated++;
             }
             else
             {
@@ -84,14 +83,9 @@ public sealed class BundleIngestService
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         var observedAt = bundles.Max(b => b.ObservedUtc);
-        _logger.LogInformation(
-            "Bundle ingest complete - Created={Created}, Updated={Updated}, Unchanged={Unchanged}",
-            counters.Created,
-            counters.Updated,
-            counters.Unchanged);
+        _logger.LogInformation("Bundle ingest complete - Created={Created}, Updated={Updated}, Unchanged={Unchanged}", counters.Created, counters.Updated, counters.Unchanged);
 
-        return new BundleIngestResult(counters.Created, counters.Updated, counters.Unchanged, bundles.Count,
-            observedAt);
+        return new BundleIngestResult(counters.Created, counters.Updated, counters.Unchanged, bundles.Count, observedAt);
     }
 
     private static bool UpdateEntity(Bundle entity, ScrapedBundle scraped)
@@ -106,8 +100,7 @@ public sealed class BundleIngestService
         changed |= SetIfDifferent(entity.TileImageUrl, scraped.TileImageUrl, value => entity.TileImageUrl = value);
         changed |= SetIfDifferent(entity.TileLogoUrl, scraped.TileLogoUrl, value => entity.TileLogoUrl = value);
         changed |= SetIfDifferent(entity.HeroImageUrl, scraped.HeroImageUrl, value => entity.HeroImageUrl = value);
-        changed |= SetIfDifferent(entity.ShortDescription, scraped.ShortDescription,
-            value => entity.ShortDescription = value);
+        changed |= SetIfDifferent(entity.ShortDescription, scraped.ShortDescription, value => entity.ShortDescription = value);
 
         if (entity.StartsAt != scraped.StartsAt)
         {
@@ -129,6 +122,7 @@ public sealed class BundleIngestService
         if (!string.Equals(current, updated, StringComparison.Ordinal))
         {
             setter(updated);
+
             return true;
         }
 
@@ -138,7 +132,9 @@ public sealed class BundleIngestService
     private sealed class IngestCounters
     {
         public int Created { get; set; }
+
         public int Updated { get; set; }
+
         public int Unchanged { get; set; }
     }
 }

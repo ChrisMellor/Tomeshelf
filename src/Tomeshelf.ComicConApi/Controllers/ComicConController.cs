@@ -30,8 +30,7 @@ public class ComicConController : ControllerBase
     /// <param name="queries">Read-only guest queries.</param>
     /// <param name="logger">Logger instance.</param>
     /// <param name="cache">In-memory guests cache.</param>
-    public ComicConController(IGuestService guestService, GuestQueries queries, ILogger<ComicConController> logger,
-        IGuestsCache cache)
+    public ComicConController(IGuestService guestService, GuestQueries queries, ILogger<ComicConController> logger, IGuestsCache cache)
     {
         _guestService = guestService;
         _queries = queries;
@@ -89,8 +88,7 @@ public class ComicConController : ControllerBase
     /// <param name="cancellationToken">Cancellation token for the query.</param>
     /// <returns>An <see cref="ActionResult" /> containing city, total and groups.</returns>
     [HttpGet("Guests/City")]
-    public async Task<ActionResult<object>> GetByCity([FromQuery] string city,
-        CancellationToken cancellationToken = default)
+    public async Task<ActionResult<object>> GetByCity([FromQuery] string city, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(city))
             return BadRequest(new { message = "Missing required 'city' query parameter." });
@@ -102,8 +100,8 @@ public class ComicConController : ControllerBase
         if (_cache.TryGet(city, out var snapshot))
         {
             var durationHit = DateTimeOffset.UtcNow - started;
-            _logger.LogInformation("Cache hit for {City} -> {Total} guests in {Duration}ms", city, snapshot.Total,
-                (int)durationHit.TotalMilliseconds);
+            _logger.LogInformation("Cache hit for {City} -> {Total} guests in {Duration}ms", city, snapshot.Total, (int)durationHit.TotalMilliseconds);
+
             return Ok(new { city = snapshot.City, total = snapshot.Total, groups = snapshot.Groups });
         }
 
@@ -114,14 +112,14 @@ public class ComicConController : ControllerBase
             var generatedUtc = DateTimeOffset.UtcNow;
             _cache.Set(city, new GuestsSnapshot(city, total, groups, generatedUtc));
             var durationMiss = DateTimeOffset.UtcNow - started;
-            _logger.LogInformation("Cache miss for {City}; refreshed snapshot with {Total} guests in {Duration}ms",
-                city, total, (int)durationMiss.TotalMilliseconds);
+            _logger.LogInformation("Cache miss for {City}; refreshed snapshot with {Total} guests in {Duration}ms", city, total, (int)durationMiss.TotalMilliseconds);
 
             return Ok(new { city, total, groups });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to fetch guests for {City}", city);
+
             return StatusCode(500, new { message = "Failed to load guests." });
         }
     }

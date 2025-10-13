@@ -54,8 +54,7 @@ public static class Extensions
     /// </summary>
     /// <param name="builder">The host application builder.</param>
     /// <returns>The same builder for chaining.</returns>
-    public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder)
-        where TBuilder : IHostApplicationBuilder
+    public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
         builder.Logging.AddOpenTelemetry(logging =>
         {
@@ -64,23 +63,18 @@ public static class Extensions
         });
 
         builder.Services.AddOpenTelemetry()
-            .WithMetrics(metrics =>
-            {
-                metrics.AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddRuntimeInstrumentation();
-            })
-            .WithTracing(tracing =>
-            {
-                AspNetCoreInstrumentationTracerProviderBuilderExtensions.AddAspNetCoreInstrumentation(
-                        tracing.AddSource(builder.Environment.ApplicationName), tracing =>
-                            tracing.Filter = context =>
-                                !context.Request.Path.StartsWithSegments(HealthEndpointPath)
-                                && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
-                    )
-                    //.AddGrpcClientInstrumentation()
-                    .AddHttpClientInstrumentation();
-            });
+               .WithMetrics(metrics =>
+                {
+                    metrics.AddAspNetCoreInstrumentation()
+                           .AddHttpClientInstrumentation()
+                           .AddRuntimeInstrumentation();
+                })
+               .WithTracing(tracing =>
+                {
+                    AspNetCoreInstrumentationTracerProviderBuilderExtensions.AddAspNetCoreInstrumentation(tracing.AddSource(builder.Environment.ApplicationName), tracing => tracing.Filter = context => !context.Request.Path.StartsWithSegments(HealthEndpointPath) && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath))
+                                                                             //.AddGrpcClientInstrumentation()
+                                                                            .AddHttpClientInstrumentation();
+                });
 
         builder.AddOpenTelemetryExporters();
 
@@ -92,12 +86,13 @@ public static class Extensions
     /// </summary>
     /// <param name="builder">The host application builder.</param>
     /// <returns>The same builder for chaining.</returns>
-    private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder)
-        where TBuilder : IHostApplicationBuilder
+    private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
         var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
 
-        if (useOtlpExporter) builder.Services.AddOpenTelemetry().UseOtlpExporter();
+        if (useOtlpExporter)
+            builder.Services.AddOpenTelemetry()
+                   .UseOtlpExporter();
 
         //if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
         //{
@@ -113,11 +108,12 @@ public static class Extensions
     /// </summary>
     /// <param name="builder">The host application builder.</param>
     /// <returns>The same builder for chaining.</returns>
-    public static TBuilder AddDefaultHealthChecks<TBuilder>(this TBuilder builder)
-        where TBuilder : IHostApplicationBuilder
+    public static TBuilder AddDefaultHealthChecks<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
         builder.Services.AddHealthChecks()
-            .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+               .AddCheck("self", () => HealthCheckResult.Healthy(), [
+                        "live"
+                ]);
 
         return builder;
     }
@@ -135,7 +131,7 @@ public static class Extensions
 
             app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
             {
-                Predicate = r => r.Tags.Contains("live")
+                    Predicate = r => r.Tags.Contains("live")
             });
         }
 

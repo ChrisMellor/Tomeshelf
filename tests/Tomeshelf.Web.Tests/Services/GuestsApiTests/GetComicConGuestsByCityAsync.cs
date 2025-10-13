@@ -18,17 +18,17 @@ public class GuestsApiTests
         // Arrange
         var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent("{ invalid", Encoding.UTF8, "application/json")
+                Content = new StringContent("{ invalid", Encoding.UTF8, "application/json")
         });
         var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
         var api = new GuestsApi(http, NullLogger<GuestsApi>.Instance);
 
         // Act
-        Func<Task> act = async () =>
-            await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
+        Func<Task> act = async () => await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
 
         // Assert
-        await act.Should().ThrowAsync<JsonException>();
+        await act.Should()
+                 .ThrowAsync<JsonException>();
     }
 
     [Fact]
@@ -37,17 +37,17 @@ public class GuestsApiTests
         // Arrange
         var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent("", Encoding.UTF8, "application/json")
+                Content = new StringContent("", Encoding.UTF8, "application/json")
         });
         var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
         var api = new GuestsApi(http, NullLogger<GuestsApi>.Instance);
 
         // Act
-        Func<Task> act = async () =>
-            await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
+        Func<Task> act = async () => await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
 
         // Assert
-        await act.Should().ThrowAsync<JsonException>();
+        await act.Should()
+                 .ThrowAsync<JsonException>();
     }
 
     [Fact]
@@ -56,14 +56,11 @@ public class GuestsApiTests
         // Arrange
         var handler = new StubHandler(request =>
         {
-            var json = "{" +
-                       "\"city\":\"London\",\"total\":1,\"groups\":[{" +
-                       "\"createdDate\":\"2025-01-01T00:00:00Z\",\"items\":[{" +
-                       "\"id\":\"1\",\"first_name\":\"Ada\",\"last_name\":\"Lovelace\",\"images\":[]" +
-                       "}]}]}";
+            var json = "{" + "\"city\":\"London\",\"total\":1,\"groups\":[{" + "\"createdDate\":\"2025-01-01T00:00:00Z\",\"items\":[{" + "\"id\":\"1\",\"first_name\":\"Ada\",\"last_name\":\"Lovelace\",\"images\":[]" + "}]}]}";
+
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
+                    Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
         });
         var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
@@ -73,10 +70,14 @@ public class GuestsApiTests
         var (groups, total) = await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
 
         // Assert
-        total.Should().Be(1);
-        groups.Should().ContainSingle();
-        var firstPerson = groups[0].Items[0];
-        firstPerson.Should().BeEquivalentTo(new { FirstName = "Ada", LastName = "Lovelace" });
+        total.Should()
+             .Be(1);
+        groups.Should()
+              .ContainSingle();
+        var firstPerson = groups[0]
+               .Items[0];
+        firstPerson.Should()
+                   .BeEquivalentTo(new { FirstName = "Ada", LastName = "Lovelace" });
     }
 
     [Fact]
@@ -88,11 +89,11 @@ public class GuestsApiTests
         var api = new GuestsApi(http, NullLogger<GuestsApi>.Instance);
 
         // Act
-        Func<Task> act = async () =>
-            await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
+        Func<Task> act = async () => await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
 
         // Assert
-        await act.Should().ThrowAsync<HttpRequestException>();
+        await act.Should()
+                 .ThrowAsync<HttpRequestException>();
     }
 
     private sealed class StubHandler : HttpMessageHandler
@@ -104,8 +105,7 @@ public class GuestsApiTests
             _responder = responder;
         }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-            CancellationToken cancellationToken)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             return Task.FromResult(_responder(request));
         }

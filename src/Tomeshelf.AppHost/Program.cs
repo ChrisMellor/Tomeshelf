@@ -26,43 +26,45 @@ internal class Program
 
         if (!isPublish)
             builder.AddDockerComposeEnvironment("metrics")
-                .WithDashboard(rb => rb.WithHostPort(18888));
+                   .WithDashboard(rb => rb.WithHostPort(18888));
 
         var database = builder.AddSqlServer("sql")
-            .WithDataVolume()
-            .WithEnvironment("ACCEPT_EULA", "Y");
+                              .WithDataVolume()
+                              .WithEnvironment("ACCEPT_EULA", "Y");
 
         var tomeshelfDb = database.AddDatabase("tomeshelfdb");
         var humbleBundleDb = database.AddDatabase("bundlesdb");
 
         var comicConApi = builder.AddProject<Tomeshelf_ComicConApi>("ComicConApi")
-            .WithExternalHttpEndpoints()
-            .WithHttpHealthCheck("/health")
-            .WithReference(tomeshelfDb)
-            .WaitFor(tomeshelfDb);
+                                 .WithExternalHttpEndpoints()
+                                 .WithHttpHealthCheck("/health")
+                                 .WithReference(tomeshelfDb)
+                                 .WaitFor(tomeshelfDb);
 
         var humbleBundleApi = builder.AddProject<Tomeshelf_HumbleBundle_Api>("HumbleBundleApi")
-            .WithExternalHttpEndpoints()
-            .WithHttpHealthCheck("/health")
-            .WithReference(humbleBundleDb)
-            .WaitFor(humbleBundleDb);
+                                     .WithExternalHttpEndpoints()
+                                     .WithHttpHealthCheck("/health")
+                                     .WithReference(humbleBundleDb)
+                                     .WaitFor(humbleBundleDb);
 
         builder.AddProject<Tomeshelf_Web>("web")
-            .WithExternalHttpEndpoints()
-            .WithHttpHealthCheck("/health")
-            .WithReference(comicConApi)
-            .WaitFor(comicConApi)
-            .WithReference(humbleBundleApi)
-            .WaitFor(humbleBundleApi);
+               .WithExternalHttpEndpoints()
+               .WithHttpHealthCheck("/health")
+               .WithReference(comicConApi)
+               .WaitFor(comicConApi)
+               .WithReference(humbleBundleApi)
+               .WaitFor(humbleBundleApi);
 
-        var sites = builder.Configuration
-            .GetSection("ComicCon")
-            .Get<List<ComicConSite>>() ?? [];
+        var sites = builder.Configuration.GetSection("ComicCon")
+                           .Get<List<ComicConSite>>() ??
+                    [];
 
         for (var i = 0; i < sites.Count; i++)
             comicConApi.WithEnvironment($"ComicCon__{i}__City", sites[i].City)
-                .WithEnvironment($"ComicCon__{i}__Key", sites[i].Key.ToString());
+                       .WithEnvironment($"ComicCon__{i}__Key", sites[i]
+                                                              .Key.ToString());
 
-        builder.Build().Run();
+        builder.Build()
+               .Run();
     }
 }

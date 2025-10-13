@@ -38,9 +38,4 @@ public interface IGuestsCache
 /// <param name="Total">Total number of guests across all groups.</param>
 /// <param name="Groups">Date-grouped results.</param>
 /// <param name="GeneratedUtc">When the snapshot was generated (UTC).</param>
-public sealed record GuestsSnapshot(
-    string City,
-    int Total,
-    IReadOnlyList<GuestQueries.GuestsGroupResult> Groups,
-    DateTimeOffset GeneratedUtc
-);
+public sealed record GuestsSnapshot(string City, int Total, IReadOnlyList<GuestQueries.GuestsGroupResult> Groups, DateTimeOffset GeneratedUtc);

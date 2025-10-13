@@ -27,8 +27,7 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
     /// </summary>
     /// <param name="scopeFactory">Factory to create DI scopes for resolving scoped services.</param>
     /// <param name="logger">Logger used for diagnostic output.</param>
-    public ComicConUpdateBackgroundService(IServiceScopeFactory scopeFactory,
-        ILogger<ComicConUpdateBackgroundService> logger)
+    public ComicConUpdateBackgroundService(IServiceScopeFactory scopeFactory, ILogger<ComicConUpdateBackgroundService> logger)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
@@ -76,14 +75,11 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Scheduled ComicCon update failed at {RunTime}",
-                        DateTimeOffset.Now.LocalDateTime);
+                    _logger.LogError(ex, "Scheduled ComicCon update failed at {RunTime}", DateTimeOffset.Now.LocalDateTime);
                 }
             }
         }
-        catch (OperationCanceledException)
-        {
-        }
+        catch (OperationCanceledException) { }
 
         _logger.LogInformation("ComicCon update background service stopping");
     }

@@ -28,10 +28,7 @@ public class Program
         if (builder.Environment.IsDevelopment())
             builder.Services.AddHttpLogging(o =>
             {
-                o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod |
-                                  HttpLoggingFields.RequestQuery | HttpLoggingFields.ResponseStatusCode |
-                                  HttpLoggingFields.Duration | HttpLoggingFields.RequestHeaders |
-                                  HttpLoggingFields.ResponseHeaders;
+                o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestQuery | HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration | HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
                 o.RequestHeaders.Add("User-Agent");
                 o.MediaTypeOptions.AddText("application/json");
                 o.RequestBodyLogLimit = 0;
@@ -39,8 +36,8 @@ public class Program
             });
 
         builder.Services.AddProblemDetails()
-            .AddOpenApi()
-            .AddControllers();
+               .AddOpenApi()
+               .AddControllers();
 
         builder.Services.AddAuthorization();
 
@@ -68,7 +65,8 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-        if (app.Environment.IsDevelopment()) app.UseHttpLogging();
+        if (app.Environment.IsDevelopment())
+            app.UseHttpLogging();
         app.UseAuthorization();
         app.MapControllers();
 
@@ -78,7 +76,7 @@ public class Program
         {
             using var scope = app.Services.CreateScope();
             var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
-                .CreateLogger("Migrations");
+                              .CreateLogger("Migrations");
             logger.LogInformation("Starting database migrations...");
             var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfBundlesDbContext>();
             await dbContext.Database.MigrateAsync();

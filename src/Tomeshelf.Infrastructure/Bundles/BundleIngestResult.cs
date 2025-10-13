@@ -10,9 +10,4 @@ namespace Tomeshelf.Infrastructure.Bundles;
 /// <param name="Unchanged">Number of bundles that were unchanged.</param>
 /// <param name="Processed">Total number of bundles processed.</param>
 /// <param name="ObservedAtUtc">Timestamp representing the newest observation in the batch.</param>
-public sealed record BundleIngestResult(
-    int Created,
-    int Updated,
-    int Unchanged,
-    int Processed,
-    DateTimeOffset ObservedAtUtc);
+public sealed record BundleIngestResult(int Created, int Updated, int Unchanged, int Processed, DateTimeOffset ObservedAtUtc);

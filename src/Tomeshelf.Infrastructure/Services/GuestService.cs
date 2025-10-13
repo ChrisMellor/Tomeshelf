@@ -28,18 +28,14 @@ public class GuestService : IGuestService
     /// <param name="options">Options containing Comic Con mappings.</param>
     /// <param name="logger">Logger instance.</param>
     /// <param name="ingest">Service that persists event data.</param>
-    public GuestService(
-        IGuestsClient guestsClient,
-        IOptions<ComicConOptions> options,
-        ILogger<GuestService> logger,
-        EventIngestService ingest)
+    public GuestService(IGuestsClient guestsClient, IOptions<ComicConOptions> options, ILogger<GuestService> logger, EventIngestService ingest)
     {
         _guestsClient = guestsClient;
         _logger = logger;
         _ingest = ingest;
-        _cityKeyMap = options.Value.ComicCon
-            .GroupBy(location => location.City, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(grouping => grouping.Key, grouping => grouping.First().Key, StringComparer.OrdinalIgnoreCase);
+        _cityKeyMap = options.Value.ComicCon.GroupBy(location => location.City, StringComparer.OrdinalIgnoreCase)
+                             .ToDictionary(grouping => grouping.Key, grouping => grouping.First()
+                                                                                         .Key, StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -59,14 +55,15 @@ public class GuestService : IGuestService
         if (evt is null)
         {
             _logger.LogWarning("No guests found for Comic Con with key {ComicConKey}", comicConKey);
+
             throw new ApplicationException($"No guests found for Comic Con key: '{comicConKey}'.");
         }
 
         var changed = await _ingest.UpsertAsync(evt, cancellationToken);
-        _logger.LogInformation("Upserted event {Slug} with {Count} people; changed={Changed}", evt.EventSlug,
-            evt.People?.Count ?? 0, changed);
+        _logger.LogInformation("Upserted event {Slug} with {Count} people; changed={Changed}", evt.EventSlug, evt.People?.Count ?? 0, changed);
 
-        return evt.People ?? [];
+        return evt.People ??
+               [];
     }
 
     /// <summary>
@@ -80,6 +77,7 @@ public class GuestService : IGuestService
         if (!_cityKeyMap.TryGetValue(city, out var comicConKey))
         {
             _logger.LogError("No Comic Con configured for city {City}", city);
+
             throw new ApplicationException($"No Comic Con configured for city: '{city}'.");
         }
 

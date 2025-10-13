@@ -27,37 +27,22 @@ public sealed class BundleQueries
     /// <param name="includeExpired">When <c>true</c>, returns all bundles including expired ones.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Collection of bundle DTOs.</returns>
-    public async Task<IReadOnlyList<BundleDto>> GetBundlesAsync(bool includeExpired,
-        CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<BundleDto>> GetBundlesAsync(bool includeExpired, CancellationToken cancellationToken = default)
     {
         var now = DateTimeOffset.UtcNow;
 
         var query = _dbContext.Bundles.AsNoTracking();
-        if (!includeExpired) query = query.Where(b => !b.EndsAt.HasValue || b.EndsAt >= now);
+        if (!includeExpired)
+            query = query.Where(b => !b.EndsAt.HasValue || b.EndsAt >= now);
 
         var generatedAt = DateTimeOffset.UtcNow;
 
-        return await query
-            .OrderBy(b => b.EndsAt.HasValue ? 0 : 1)
-            .ThenBy(b => b.EndsAt)
-            .ThenBy(b => b.Title)
-            .Select(b => new BundleDto(
-                b.MachineName,
-                b.Category,
-                b.Stamp,
-                b.Title,
-                b.ShortName,
-                b.Url,
-                b.TileImageUrl,
-                b.TileLogoUrl,
-                b.HeroImageUrl,
-                b.ShortDescription,
-                b.StartsAt,
-                b.EndsAt,
-                b.FirstSeenUtc,
-                b.LastSeenUtc,
-                b.LastUpdatedUtc,
-                generatedAt))
-            .ToListAsync(cancellationToken);
+        return await query.OrderBy(b => b.EndsAt.HasValue
+                                           ? 0
+                                           : 1)
+                          .ThenBy(b => b.EndsAt)
+                          .ThenBy(b => b.Title)
+                          .Select(b => new BundleDto(b.MachineName, b.Category, b.Stamp, b.Title, b.ShortName, b.Url, b.TileImageUrl, b.TileLogoUrl, b.HeroImageUrl, b.ShortDescription, b.StartsAt, b.EndsAt, b.FirstSeenUtc, b.LastSeenUtc, b.LastUpdatedUtc, generatedAt))
+                          .ToListAsync(cancellationToken);
     }
 }

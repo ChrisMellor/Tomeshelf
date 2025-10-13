@@ -21,7 +21,8 @@ public class NullableFlexibleDecimalConverterWriteTests
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
-        json.Should().Be("null");
+        json.Should()
+            .Be("null");
     }
 
     [Fact]
@@ -38,6 +39,7 @@ public class NullableFlexibleDecimalConverterWriteTests
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
-        json.Should().Be("12.34");
+        json.Should()
+            .Be("12.34");
     }
 }

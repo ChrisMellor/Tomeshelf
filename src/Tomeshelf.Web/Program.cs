@@ -30,9 +30,7 @@ public class Program
         if (builder.Environment.IsDevelopment())
             builder.Services.AddHttpLogging(o =>
             {
-                o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod |
-                                  HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration |
-                                  HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
+                o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod | HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration | HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
                 o.RequestHeaders.Add("User-Agent");
                 o.MediaTypeOptions.AddText("text/html");
             });
@@ -42,54 +40,54 @@ public class Program
         builder.Services.AddLocalization();
 
         builder.Services.AddHttpClient<IGuestsApi, GuestsApi>(client =>
-        {
-            var configured = builder.Configuration["Services:ApiBase"];
+                {
+                    var configured = builder.Configuration["Services:ApiBase"];
 
-            if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
-            {
-                if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
-                    throw new InvalidOperationException("Invalid URI in configuration setting 'Services:ApiBase'.");
+                    if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+                    {
+                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:ApiBase'.");
 
-                client.BaseAddress = configuredUri;
-            }
-            else
-            {
-                client.BaseAddress = new Uri("https://ComicConApi");
-            }
+                        client.BaseAddress = configuredUri;
+                    }
+                    else
+                    {
+                        client.BaseAddress = new Uri("https://ComicConApi");
+                    }
 
-            client.DefaultRequestVersion = HttpVersion.Version11;
-            client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
-            client.Timeout = TimeSpan.FromSeconds(100);
-        }).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-        {
-            AutomaticDecompression = DecompressionMethods.None
-        });
+                    client.DefaultRequestVersion = HttpVersion.Version11;
+                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                    client.Timeout = TimeSpan.FromSeconds(100);
+                })
+               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+                {
+                        AutomaticDecompression = DecompressionMethods.None
+                });
 
         builder.Services.AddHttpClient<IBundlesApi, BundlesApi>(client =>
-        {
-            var configured = builder.Configuration["Services:HumbleBundleApiBase"];
+                {
+                    var configured = builder.Configuration["Services:HumbleBundleApiBase"];
 
-            if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
-            {
-                if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
-                    throw new InvalidOperationException(
-                        "Invalid URI in configuration setting 'Services:HumbleBundleApiBase'.");
+                    if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+                    {
+                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:HumbleBundleApiBase'.");
 
-                client.BaseAddress = configuredUri;
-            }
-            else
-            {
-                client.BaseAddress = new Uri("https://HumbleBundleApi");
-            }
+                        client.BaseAddress = configuredUri;
+                    }
+                    else
+                    {
+                        client.BaseAddress = new Uri("https://HumbleBundleApi");
+                    }
 
-            client.DefaultRequestVersion = HttpVersion.Version11;
-            client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
-            client.Timeout = TimeSpan.FromSeconds(100);
-        }).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-        {
-            AutomaticDecompression = DecompressionMethods.None
-        });
-
+                    client.DefaultRequestVersion = HttpVersion.Version11;
+                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                    client.Timeout = TimeSpan.FromSeconds(100);
+                })
+               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+                {
+                        AutomaticDecompression = DecompressionMethods.None
+                });
 
         var app = builder.Build();
 
@@ -100,23 +98,21 @@ public class Program
         }
 
         var supportedCultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
-        var locOptions = new RequestLocalizationOptions()
-            .SetDefaultCulture("en-GB")
-            .AddSupportedCultures(Array.ConvertAll(supportedCultures, c => c.Name))
-            .AddSupportedUICultures(Array.ConvertAll(supportedCultures, c => c.Name));
+        var locOptions = new RequestLocalizationOptions().SetDefaultCulture("en-GB")
+                                                         .AddSupportedCultures(Array.ConvertAll(supportedCultures, c => c.Name))
+                                                         .AddSupportedUICultures(Array.ConvertAll(supportedCultures, c => c.Name));
         app.UseRequestLocalization(locOptions);
 
         app.UseHttpsRedirection();
-        if (app.Environment.IsDevelopment()) app.UseHttpLogging();
+        if (app.Environment.IsDevelopment())
+            app.UseHttpLogging();
         app.UseRouting();
 
         app.UseAuthorization();
 
         app.MapStaticAssets();
-        app.MapControllerRoute(
-                "default",
-                "{controller=Home}/{action=Index}/{id?}")
-            .WithStaticAssets();
+        app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}")
+           .WithStaticAssets();
 
         app.MapDefaultEndpoints();
 

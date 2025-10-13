@@ -18,17 +18,4 @@ namespace Tomeshelf.Infrastructure.Bundles;
 /// <param name="StartsAt">Start date/time (UTC) when provided.</param>
 /// <param name="EndsAt">End date/time (UTC) when provided.</param>
 /// <param name="ObservedUtc">When the scraper captured this bundle.</param>
-public sealed record ScrapedBundle(
-    string MachineName,
-    string Category,
-    string Stamp,
-    string Title,
-    string ShortName,
-    string Url,
-    string TileImageUrl,
-    string TileLogoUrl,
-    string HeroImageUrl,
-    string ShortDescription,
-    DateTimeOffset? StartsAt,
-    DateTimeOffset? EndsAt,
-    DateTimeOffset ObservedUtc);
+public sealed record ScrapedBundle(string MachineName, string Category, string Stamp, string Title, string ShortName, string Url, string TileImageUrl, string TileLogoUrl, string HeroImageUrl, string ShortDescription, DateTimeOffset? StartsAt, DateTimeOffset? EndsAt, DateTimeOffset ObservedUtc);

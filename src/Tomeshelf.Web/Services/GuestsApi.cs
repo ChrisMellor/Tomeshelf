@@ -20,7 +20,7 @@ public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGue
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
-        NumberHandling = JsonNumberHandling.AllowReadingFromString
+            NumberHandling = JsonNumberHandling.AllowReadingFromString
     };
 
     private readonly ILogger<GuestsApi> _logger = logger;
@@ -34,8 +34,7 @@ public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGue
     /// <exception cref="HttpRequestException">Thrown when the HTTP response is unsuccessful.</exception>
     /// <exception cref="JsonException">Thrown when the response body cannot be parsed.</exception>
     /// <exception cref="InvalidOperationException">Thrown when the response payload is empty.</exception>
-    public async Task<(IReadOnlyList<GuestsGroupModel> Groups, int Total)> GetComicConGuestsByCityAsync(string city,
-        CancellationToken cancellationToken)
+    public async Task<(IReadOnlyList<GuestsGroupModel> Groups, int Total)> GetComicConGuestsByCityAsync(string city, CancellationToken cancellationToken)
     {
         var result = await GetComicConGuestsByCityResultAsync(city, cancellationToken);
 
@@ -51,21 +50,18 @@ public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGue
     /// <exception cref="HttpRequestException">Thrown when the HTTP response is unsuccessful.</exception>
     /// <exception cref="JsonException">Thrown when the response body cannot be parsed.</exception>
     /// <exception cref="InvalidOperationException">Thrown when the response payload is empty.</exception>
-    public async Task<GuestsByCityResult> GetComicConGuestsByCityResultAsync(string city,
-        CancellationToken cancellationToken)
+    public async Task<GuestsByCityResult> GetComicConGuestsByCityResultAsync(string city, CancellationToken cancellationToken)
     {
         var url = $"api/ComicCon/Guests/City?city={Uri.EscapeDataString(city)}";
         var started = DateTimeOffset.UtcNow;
         using var res = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         var duration = DateTimeOffset.UtcNow - started;
-        _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)res.StatusCode,
-            (int)duration.TotalMilliseconds);
+        _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)res.StatusCode, (int)duration.TotalMilliseconds);
 
         res.EnsureSuccessStatusCode();
 
         await using var s = await res.Content.ReadAsStreamAsync(cancellationToken);
-        var env = await JsonSerializer.DeserializeAsync<GroupedEnvelope>(s, Json, cancellationToken)
-                  ?? throw new InvalidOperationException("Empty payload");
+        var env = await JsonSerializer.DeserializeAsync<GroupedEnvelope>(s, Json, cancellationToken) ?? throw new InvalidOperationException("Empty payload");
         _logger.LogInformation("Parsed groups={Groups} total={Total}", env.Groups?.Count ?? 0, env.Total);
 
         return new GuestsByCityResult(env.Groups ?? new List<GuestsGroupModel>(), env.Total);
@@ -74,7 +70,9 @@ public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGue
     private sealed class GroupedEnvelope
     {
         public string City { get; set; }
+
         public int Total { get; set; }
+
         public List<GuestsGroupModel> Groups { get; set; }
     }
 }

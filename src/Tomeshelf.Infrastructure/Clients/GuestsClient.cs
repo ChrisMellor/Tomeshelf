@@ -45,8 +45,8 @@ public class GuestsClient : IGuestsClient
 
         await using var s = await response.Content.ReadAsStreamAsync(cancellationToken);
         var guests = await JsonSerializer.DeserializeAsync<EventDto>(s, cancellationToken: cancellationToken);
-        _logger.LogInformation("Fetched guests payload ({Length} bytes)",
-            response.Content.Headers.ContentLength?.ToString() ?? "?");
+        _logger.LogInformation("Fetched guests payload ({Length} bytes)", response.Content.Headers.ContentLength?.ToString() ?? "?");
+
         return guests!;
     }
 }

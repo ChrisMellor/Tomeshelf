@@ -84,14 +84,15 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
     private async Task<Dictionary<string, Category>> BuildCategoryCacheAsync(EventDto dto, CancellationToken ct)
     {
-        var allCatIds = dto.People.SelectMany(p => p.GlobalCategories ?? [])
-            .Select(c => c.Id)
-            .Distinct()
-            .ToList();
+        var allCatIds = dto.People.SelectMany(p => p.GlobalCategories ??
+                                                   [])
+                           .Select(c => c.Id)
+                           .Distinct()
+                           .ToList();
 
-        var cache = await context.Categories
-            .Where(c => allCatIds.Contains(c.ExternalId))
-            .ToDictionaryAsync(c => c.ExternalId, c => c, ct);
+        var cache = await context.Categories.Where(c => allCatIds.Contains(c.ExternalId))
+                                 .ToDictionaryAsync(c => c.ExternalId, c => c, ct);
+
         return cache;
     }
 
@@ -104,10 +105,10 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
     private async Task<Person> GetOrCreatePersonAsync(string externalId, CancellationToken ct)
     {
-        var person = await context.People
-            .Include(x => x.Images)
-            .Include(x => x.Categories).ThenInclude(pc => pc.Category)
-            .SingleOrDefaultAsync(x => x.ExternalId == externalId, ct);
+        var person = await context.People.Include(x => x.Images)
+                                  .Include(x => x.Categories)
+                                  .ThenInclude(pc => pc.Category)
+                                  .SingleOrDefaultAsync(x => x.ExternalId == externalId, ct);
 
         if (person is null)
         {
@@ -128,10 +129,8 @@ public class EventIngestService(TomeshelfComicConDbContext context)
         person.Uid = data.Uid;
         var wasVisible = person.PubliclyVisible;
 
-        var isCanceledCategory = (data.GlobalCategories ?? [])
-            .Any(c => !string.IsNullOrWhiteSpace(c.Name) &&
-                      (string.Equals(c.Name.Trim(), "Canceled", StringComparison.OrdinalIgnoreCase) ||
-                       string.Equals(c.Name.Trim(), "Cancelled", StringComparison.OrdinalIgnoreCase)));
+        var isCanceledCategory = (data.GlobalCategories ??
+                                  []).Any(c => !string.IsNullOrWhiteSpace(c.Name) && (string.Equals(c.Name.Trim(), "Canceled", StringComparison.OrdinalIgnoreCase) || string.Equals(c.Name.Trim(), "Cancelled", StringComparison.OrdinalIgnoreCase)));
 
         var desiredVisible = data.PubliclyVisible && !isCanceledCategory;
         person.PubliclyVisible = desiredVisible;
@@ -140,7 +139,8 @@ public class EventIngestService(TomeshelfComicConDbContext context)
             if (wasVisible || isCanceledCategory)
                 person.RemovedUtc = DateTime.UtcNow;
 
-        if (!wasVisible && desiredVisible) person.RemovedUtc = null;
+        if (!wasVisible && desiredVisible)
+            person.RemovedUtc = null;
         person.FirstName = data.FirstName ?? "";
         person.LastName = data.LastName ?? "";
         person.AltName = data.AltName;
@@ -168,13 +168,12 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <param name="images">Incoming image descriptors.</param>
     private static void SyncPersonImages(Person person, List<ImageSetDto> images)
     {
-        var desired = (images ?? [])
-            .Select(img => (Key: BuildImageKey(img), Payload: img))
-            .ToList();
+        var desired = (images ??
+                       []).Select(img => (Key: BuildImageKey(img), Payload: img))
+                          .ToList();
 
-        var existingGroups = person.Images
-            .GroupBy(BuildImageKey, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(group => group.Key, group => new Queue<PersonImage>(group), StringComparer.OrdinalIgnoreCase);
+        var existingGroups = person.Images.GroupBy(BuildImageKey, StringComparer.OrdinalIgnoreCase)
+                                   .ToDictionary(group => group.Key, group => new Queue<PersonImage>(group), StringComparer.OrdinalIgnoreCase);
 
         foreach (var entry in desired)
             if (existingGroups.TryGetValue(entry.Key, out var queue) && queue.Count > 0)
@@ -189,17 +188,17 @@ public class EventIngestService(TomeshelfComicConDbContext context)
             {
                 person.Images.Add(new PersonImage
                 {
-                    Big = entry.Payload.Big,
-                    Med = entry.Payload.Med,
-                    Small = entry.Payload.Small,
-                    Thumb = entry.Payload.Thumb
+                        Big = entry.Payload.Big,
+                        Med = entry.Payload.Med,
+                        Small = entry.Payload.Small,
+                        Thumb = entry.Payload.Thumb
                 });
             }
 
-        var removals = existingGroups.Values
-            .SelectMany(q => q)
-            .ToList();
-        foreach (var leftover in removals) person.Images.Remove(leftover);
+        var removals = existingGroups.Values.SelectMany(q => q)
+                                     .ToList();
+        foreach (var leftover in removals)
+            person.Images.Remove(leftover);
     }
 
     /// <summary>
@@ -209,7 +208,9 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <param name="cache">Cache used to reuse tracked entities.</param>
     private void EnsureCategories(List<CategoryDto> categories, Dictionary<string, Category> cache)
     {
-        foreach (var c in categories ?? []) GetOrAddCategory(c.Id, c.Name, cache, context);
+        foreach (var c in categories ??
+                          [])
+            GetOrAddCategory(c.Id, c.Name, cache, context);
     }
 
     /// <summary>
@@ -218,16 +219,16 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <param name="person">Tracked person entity.</param>
     /// <param name="categories">Incoming category descriptors.</param>
     /// <param name="cache">Category cache for resolving entities.</param>
-    private static void SyncPersonCategories(Person person, List<CategoryDto> categories,
-        Dictionary<string, Category> cache)
+    private static void SyncPersonCategories(Person person, List<CategoryDto> categories, Dictionary<string, Category> cache)
     {
-        var desired = (categories ?? []).Select(c => c.Id)
-            .ToHashSet();
+        var desired = (categories ??
+                       []).Select(c => c.Id)
+                          .ToHashSet();
 
         person.Categories.RemoveWhere(link => !desired.Contains(link.Category.ExternalId));
 
         var existing = person.Categories.Select(x => x.Category.ExternalId)
-            .ToHashSet();
+                             .ToHashSet();
 
         foreach (var id in desired.Except(existing))
         {
@@ -244,15 +245,13 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The tracked <see cref="EventAppearance" />.</returns>
     /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
-    private async Task<EventAppearance> GetOrCreateAppearanceAsync(Event eventEntity, Person person,
-        CancellationToken ct)
+    private async Task<EventAppearance> GetOrCreateAppearanceAsync(Event eventEntity, Person person, CancellationToken ct)
     {
         EventAppearance appearance = null;
 
         if (eventEntity.Id > 0 && person.Id > 0)
-            appearance = await context.EventAppearances
-                .Include(x => x.Schedules)
-                .SingleOrDefaultAsync(x => x.EventId == eventEntity.Id && x.PersonId == person.Id, ct);
+            appearance = await context.EventAppearances.Include(x => x.Schedules)
+                                      .SingleOrDefaultAsync(x => x.EventId == eventEntity.Id && x.PersonId == person.Id, ct);
 
         if (appearance is null)
         {
@@ -288,7 +287,8 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     private async Task SyncSchedulesAsync(EventAppearance a, List<ScheduleDto> schedules, CancellationToken ct)
     {
         var byId = a.Schedules.ToDictionary(s => s.ExternalId);
-        foreach (var sd in schedules ?? [])
+        foreach (var sd in schedules ??
+                           [])
         {
             if (!byId.TryGetValue(sd.Id, out var s))
             {
@@ -299,14 +299,15 @@ public class EventIngestService(TomeshelfComicConDbContext context)
             s.Title = sd.Title;
             s.Description = sd.Description;
             s.StartTimeUtc = ParseAsUtc(sd.StartTime);
-            s.EndTimeUtc = string.IsNullOrWhiteSpace(sd.EndTime) ? null : ParseAsUtc(sd.EndTime);
+            s.EndTimeUtc = string.IsNullOrWhiteSpace(sd.EndTime)
+                    ? null
+                    : ParseAsUtc(sd.EndTime);
             s.NoEndTime = sd.NoEndTime;
             s.Location = sd.Location;
 
             if (sd.VenueLocation is not null)
             {
-                var vl = await context.VenueLocations.SingleOrDefaultAsync(x => x.ExternalId == sd.VenueLocation.Id,
-                    ct);
+                var vl = await context.VenueLocations.SingleOrDefaultAsync(x => x.ExternalId == sd.VenueLocation.Id, ct);
                 if (vl is null)
                 {
                     vl = new VenueLocation { ExternalId = sd.VenueLocation.Id, Name = sd.VenueLocation.Name };
@@ -335,8 +336,7 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <param name="categoryCache">Cache of categories indexed by external id.</param>
     /// <param name="comicConDbContext">EF Core comicConDbContext used to add new entities.</param>
     /// <returns>The resolved <see cref="Category" />.</returns>
-    private Category GetOrAddCategory(string id, string name, Dictionary<string, Category> categoryCache,
-        TomeshelfComicConDbContext comicConDbContext)
+    private Category GetOrAddCategory(string id, string name, Dictionary<string, Category> categoryCache, TomeshelfComicConDbContext comicConDbContext)
     {
         if (categoryCache.TryGetValue(id, out var existing))
         {
@@ -360,6 +360,7 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     private static DateTime ParseAsUtc(string value)
     {
         var dto = DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+
         return dto.UtcDateTime;
     }
 
@@ -393,13 +394,17 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <returns>A deterministic key representing the image URLs.</returns>
     private static string BuildImageKey(string big, string med, string small, string thumb)
     {
-        if (!string.IsNullOrWhiteSpace(thumb)) return $"thumb:{thumb}";
+        if (!string.IsNullOrWhiteSpace(thumb))
+            return $"thumb:{thumb}";
 
-        if (!string.IsNullOrWhiteSpace(small)) return $"small:{small}";
+        if (!string.IsNullOrWhiteSpace(small))
+            return $"small:{small}";
 
-        if (!string.IsNullOrWhiteSpace(med)) return $"med:{med}";
+        if (!string.IsNullOrWhiteSpace(med))
+            return $"med:{med}";
 
-        if (!string.IsNullOrWhiteSpace(big)) return $"big:{big}";
+        if (!string.IsNullOrWhiteSpace(big))
+            return $"big:{big}";
 
         return "__empty__";
     }

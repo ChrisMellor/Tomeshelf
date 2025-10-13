@@ -21,8 +21,9 @@ public class ComicConControllerGetByCityTests
     {
         // Arrange
         var svc = A.Fake<IGuestService>();
-        using var db = new TomeshelfComicConDbContext(new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+        using var db = new TomeshelfComicConDbContext(new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                                                        .ToString())
+                                                                                                               .Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
         var cache = A.Fake<IGuestsCache>();
         var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance, cache);
@@ -31,27 +32,31 @@ public class ComicConControllerGetByCityTests
         var result = await controller.GetByCity(string.Empty, TestContext.Current.CancellationToken);
 
         // Assert
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
+        result.Result.Should()
+              .BeOfType<BadRequestObjectResult>();
     }
 
     [Fact]
     public async Task GetByCity_ReturnsOk_WithTotal()
     {
         // Arrange
-        using var db = new TomeshelfComicConDbContext(new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+        using var db = new TomeshelfComicConDbContext(new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                                                        .ToString())
+                                                                                                               .Options);
 
         var ev = new Event
         {
-            ExternalId = Guid.NewGuid().ToString(),
-            Name = "Event",
-            Slug = "2025-london"
+                ExternalId = Guid.NewGuid()
+                                 .ToString(),
+                Name = "Event",
+                Slug = "2025-london"
         };
         var p = new Person
         {
-            ExternalId = Guid.NewGuid().ToString(),
-            FirstName = "Ada",
-            LastName = "Lovelace"
+                ExternalId = Guid.NewGuid()
+                                 .ToString(),
+                FirstName = "Ada",
+                LastName = "Lovelace"
         };
         db.Events.Add(ev);
         db.People.Add(p);
@@ -67,10 +72,11 @@ public class ComicConControllerGetByCityTests
         var result = await controller.GetByCity("London", TestContext.Current.CancellationToken);
 
         // Assert
-        result.Result.Should().BeOfType<OkObjectResult>();
+        result.Result.Should()
+              .BeOfType<OkObjectResult>();
         var okResult = (OkObjectResult)result.Result!;
         var okPayload = okResult.Value!;
         okPayload.Should()
-            .BeEquivalentTo(new { city = "London", total = 1 }, options => options.ExcludingMissingMembers());
+                 .BeEquivalentTo(new { city = "London", total = 1 }, options => options.ExcludingMissingMembers());
     }
 }

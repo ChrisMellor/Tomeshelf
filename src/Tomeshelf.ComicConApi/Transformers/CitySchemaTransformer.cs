@@ -20,18 +20,18 @@ public class CitySchemaTransformer : IOpenApiSchemaTransformer
     /// <param name="schema">The schema to mutate when the target type matches.</param>
     /// <param name="context">Provides the target JSON type.</param>
     /// <param name="cancellationToken">Cancellation token for the transformer pipeline.</param>
-    public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context,
-        CancellationToken cancellationToken)
+    public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken)
     {
         var type = context.JsonTypeInfo.Type;
 
-        if (type != typeof(City)) return Task.CompletedTask;
+        if (type != typeof(City))
+            return Task.CompletedTask;
 
         schema.Type = "string";
         schema.Format = null;
         schema.Enum = Enum.GetNames<City>()
-            .Select(n => (IOpenApiAny)new OpenApiString(n))
-            .ToList();
+                          .Select(n => (IOpenApiAny)new OpenApiString(n))
+                          .ToList();
 
         return Task.CompletedTask;
     }

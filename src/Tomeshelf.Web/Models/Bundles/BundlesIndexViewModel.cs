@@ -10,12 +10,17 @@ namespace Tomeshelf.Web.Models.Bundles;
 public sealed class BundlesIndexViewModel
 {
     public required IReadOnlyList<BundlesCategoryGroup> ActiveBundles { get; init; }
+
     public required IReadOnlyList<BundleViewModel> ExpiredBundles { get; init; }
+
     public bool IncludeExpired { get; init; }
+
     public DateTimeOffset DataTimestampUtc { get; init; }
 
     public int TotalBundles => (ActiveBundles?.Sum(group => group.Bundles.Count) ?? 0) +
-                               (IncludeExpired ? ExpiredBundles?.Count ?? 0 : 0);
+                               (IncludeExpired
+                                       ? ExpiredBundles?.Count ?? 0
+                                       : 0);
 }
 
 /// <summary>
