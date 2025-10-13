@@ -1,19 +1,19 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 using Tomeshelf.Web.Models;
 
 namespace Tomeshelf.Web.Controllers;
 
 /// <summary>
-/// MVC controller for site home and informational pages.
+///     MVC controller for site home and informational pages.
 /// </summary>
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HomeController"/> class.
+    ///     Initializes a new instance of the <see cref="HomeController" /> class.
     /// </summary>
     /// <param name="logger">Logger instance.</param>
     public HomeController(ILogger<HomeController> logger)
@@ -22,7 +22,7 @@ public class HomeController : Controller
     }
 
     /// <summary>
-    /// Renders the home page.
+    ///     Renders the home page.
     /// </summary>
     /// <returns>The home view.</returns>
     public IActionResult Index()
@@ -31,7 +31,7 @@ public class HomeController : Controller
     }
 
     /// <summary>
-    /// Renders the privacy policy page.
+    ///     Renders the privacy policy page.
     /// </summary>
     /// <returns>The privacy view.</returns>
     public IActionResult Privacy()
@@ -40,7 +40,7 @@ public class HomeController : Controller
     }
 
     /// <summary>
-    /// Renders the error page with current request identifier.
+    ///     Renders the error page with current request identifier.
     /// </summary>
     /// <returns>The error view.</returns>
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

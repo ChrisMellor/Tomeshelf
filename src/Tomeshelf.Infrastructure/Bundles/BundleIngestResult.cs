@@ -3,7 +3,7 @@ using System;
 namespace Tomeshelf.Infrastructure.Bundles;
 
 /// <summary>
-/// Summary of a bundle ingest operation.
+///     Summary of a bundle ingest operation.
 /// </summary>
 /// <param name="Created">Number of bundles newly created.</param>
 /// <param name="Updated">Number of bundles updated.</param>

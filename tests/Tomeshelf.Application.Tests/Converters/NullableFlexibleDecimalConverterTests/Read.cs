@@ -1,5 +1,6 @@
-using FluentAssertions;
+using System.Text;
 using System.Text.Json;
+using FluentAssertions;
 
 namespace Tomeshelf.Application.Tests.Converters.NullableFlexibleDecimalConverterTests;
 
@@ -10,7 +11,10 @@ public class NullableFlexibleDecimalConverterReadTests
         Converters = { new NullableFlexibleDecimalConverter() }
     };
 
-    private static string Wrap(object value) => JsonSerializer.Serialize(new { v = value });
+    private static string Wrap(object value)
+    {
+        return JsonSerializer.Serialize(new { v = value });
+    }
 
     [Fact]
     public void Read_Null_ReturnsNull()
@@ -18,14 +22,14 @@ public class NullableFlexibleDecimalConverterReadTests
         // Arrange
         var json = "{\"v\":null}";
         var doc = JsonDocument.Parse(json);
-        var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
         reader.Read();
         reader.Read();
         reader.Read();
         var converter = new NullableFlexibleDecimalConverter();
 
         // Act
-        decimal? value = converter.Read(ref reader, typeof(decimal?), _opts);
+        var value = converter.Read(ref reader, typeof(decimal?), _opts);
         // Assert
         value.Should().BeNull();
     }
@@ -35,7 +39,7 @@ public class NullableFlexibleDecimalConverterReadTests
     {
         // Arrange
         var json = "{\"v\": 123.45}";
-        var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
         reader.Read();
         reader.Read();
         reader.Read();
@@ -53,7 +57,7 @@ public class NullableFlexibleDecimalConverterReadTests
     {
         // Arrange
         var json = "{\"v\": \"£1,234.50\"}";
-        var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
         reader.Read();
         reader.Read();
         reader.Read();
@@ -71,7 +75,7 @@ public class NullableFlexibleDecimalConverterReadTests
     {
         // Arrange
         var json = "{\"v\": \"  \"}";
-        var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
         reader.Read();
         reader.Read();
         reader.Read();
@@ -89,7 +93,7 @@ public class NullableFlexibleDecimalConverterReadTests
     {
         // Arrange
         var json = "{\"v\": \"abc\"}";
-        var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(json));
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
         reader.Read();
         reader.Read();
         reader.Read();

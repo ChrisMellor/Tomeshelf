@@ -1,17 +1,17 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Domain.Entities.HumbleBundle;
 using Tomeshelf.Infrastructure.Persistence;
 
 namespace Tomeshelf.Infrastructure.Bundles;
 
 /// <summary>
-/// Persists scraped Humble Bundle listings by upserting bundle entities.
+///     Persists scraped Humble Bundle listings by upserting bundle entities.
 /// </summary>
 public sealed class BundleIngestService
 {
@@ -25,12 +25,13 @@ public sealed class BundleIngestService
     }
 
     /// <summary>
-    /// Upserts the provided bundle collection and returns ingest statistics.
+    ///     Upserts the provided bundle collection and returns ingest statistics.
     /// </summary>
     /// <param name="bundles">Bundles scraped from the Humble Bundle listing.</param>
     /// <param name="cancellationToken">Token used to cancel the database operation.</param>
     /// <returns>Summary of the ingest operation.</returns>
-    public async Task<BundleIngestResult> UpsertAsync(IReadOnlyList<ScrapedBundle> bundles, CancellationToken cancellationToken = default)
+    public async Task<BundleIngestResult> UpsertAsync(IReadOnlyList<ScrapedBundle> bundles,
+        CancellationToken cancellationToken = default)
     {
         if (bundles.Count == 0)
         {
@@ -72,10 +73,7 @@ public sealed class BundleIngestService
             if (changed)
             {
                 entity.LastUpdatedUtc = scraped.ObservedUtc;
-                if (!isNew)
-                {
-                    counters.Updated++;
-                }
+                if (!isNew) counters.Updated++;
             }
             else
             {
@@ -92,7 +90,8 @@ public sealed class BundleIngestService
             counters.Updated,
             counters.Unchanged);
 
-        return new BundleIngestResult(counters.Created, counters.Updated, counters.Unchanged, bundles.Count, observedAt);
+        return new BundleIngestResult(counters.Created, counters.Updated, counters.Unchanged, bundles.Count,
+            observedAt);
     }
 
     private static bool UpdateEntity(Bundle entity, ScrapedBundle scraped)
@@ -107,7 +106,8 @@ public sealed class BundleIngestService
         changed |= SetIfDifferent(entity.TileImageUrl, scraped.TileImageUrl, value => entity.TileImageUrl = value);
         changed |= SetIfDifferent(entity.TileLogoUrl, scraped.TileLogoUrl, value => entity.TileLogoUrl = value);
         changed |= SetIfDifferent(entity.HeroImageUrl, scraped.HeroImageUrl, value => entity.HeroImageUrl = value);
-        changed |= SetIfDifferent(entity.ShortDescription, scraped.ShortDescription, value => entity.ShortDescription = value);
+        changed |= SetIfDifferent(entity.ShortDescription, scraped.ShortDescription,
+            value => entity.ShortDescription = value);
 
         if (entity.StartsAt != scraped.StartsAt)
         {

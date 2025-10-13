@@ -1,21 +1,25 @@
+@using System.Globalization
+@using System.Net
 @using Tomeshelf.Web.Models.ComicCon
-@model IReadOnlyList<GuestsGroupModel>
+@model IReadOnlyList<Tomeshelf.Web.Models.ComicCon.GuestsGroupModel>
 @{
     ViewData["Title"] = "Guests by City";
     var city = (string)ViewBag.City;
     var total = (int)ViewBag.Total;
-    var culture = System.Globalization.CultureInfo.CurrentCulture;
+    var culture = CultureInfo.CurrentCulture;
     Func<int, string> ord = d =>
     {
         if (!string.Equals(culture.TwoLetterISOLanguageName, "en", StringComparison.OrdinalIgnoreCase))
         {
             return d.ToString(culture);
         }
+
         var rem100 = d % 100;
         if (rem100 >= 11 && rem100 <= 13)
         {
             return d + "th";
         }
+
         return (d % 10) switch { 1 => d + "st", 2 => d + "nd", 3 => d + "rd", _ => d + "th" };
     };
     var removed = Model?.SelectMany(g => g.Items).Where(p => p != null && p.PubliclyVisible == false).GroupBy(p => p.Id).Select(g => g.First()).ToList();
@@ -63,21 +67,22 @@
                                     var imgUrl = img?.Med ?? img?.Big ?? img?.Small ?? img?.Thumb;
                                     var firstInitial = string.IsNullOrWhiteSpace(g.FirstName) ? "" : g.FirstName.Substring(0, 1).ToUpperInvariant();
                                     var lastInitial = string.IsNullOrWhiteSpace(g.LastName) ? "" : g.LastName.Substring(0, 1).ToUpperInvariant();
-                                    var initials = (firstInitial + lastInitial);
+                                    var initials = firstInitial + lastInitial;
                                     DateTime removedDate;
-                                    string removedDateText = "";
+                                    var removedDateText = "";
                                     if (DateTime.TryParse(g.RemovedAt, out removedDate))
                                     {
                                         var removedDayName = culture.DateTimeFormat.GetDayName(removedDate.DayOfWeek);
                                         var removedMonthName = culture.DateTimeFormat.GetMonthName(removedDate.Month);
                                         removedDateText = $"Removed on {removedDayName} - {ord(removedDate.Day)} {removedMonthName}";
                                     }
+
                                     <div class="col">
                                         <div class="card guest-card h-100 border-danger border-1 shadow-sm">
                                             <div class="position-relative ratio ratio-4x3 guest-img">
                                                 @if (!string.IsNullOrEmpty(imgUrl))
                                                 {
-                                                    <img src="@imgUrl" loading="lazy" class="object-fit-contain img-thumbnail" alt="@displayName" />
+                                                    <img src="@imgUrl" loading="lazy" class="object-fit-contain img-thumbnail" alt="@displayName"/>
                                                 }
                                                 else
                                                 {
@@ -104,12 +109,16 @@
             {
                 var group = Model[i];
                 var itemsVisible = group.Items?.Where(p => p != null && p.PubliclyVisible).ToList() ?? new List<PersonModel>();
-                if (itemsVisible.Count == 0) { continue; }
+                if (itemsVisible.Count == 0)
+                {
+                    continue;
+                }
+
                 var dayName = culture.DateTimeFormat.GetDayName(group.CreatedDate.DayOfWeek);
                 var monthName = culture.DateTimeFormat.GetMonthName(group.CreatedDate.Month);
                 var title = $"Added on {dayName} - {ord(group.CreatedDate.Day)} {monthName}";
                 var id = $"acc-{group.CreatedDate:yyyyMMdd}-{i}";
-                var isOpen = (removed == null || removed.Count == 0) ? i == 0 : false;
+                var isOpen = removed == null || removed.Count == 0 ? i == 0 : false;
                 var btnClass = isOpen ? "accordion-button" : "accordion-button collapsed";
                 var expanded = isOpen ? "true" : "false";
                 var collapseClass = isOpen ? "accordion-collapse collapse show" : "accordion-collapse collapse";
@@ -130,14 +139,14 @@
                                     var imgUrl = img?.Med ?? img?.Big ?? img?.Small ?? img?.Thumb;
                                     var firstInitial = string.IsNullOrWhiteSpace(g.FirstName) ? "" : g.FirstName.Substring(0, 1).ToUpperInvariant();
                                     var lastInitial = string.IsNullOrWhiteSpace(g.LastName) ? "" : g.LastName.Substring(0, 1).ToUpperInvariant();
-                                    var initials = (firstInitial + lastInitial);
+                                    var initials = firstInitial + lastInitial;
 
                                     <div class="col">
                                         <div class="card guest-card h-100 border-0 shadow-sm">
                                             <div class="position-relative ratio ratio-4x3 guest-img">
                                                 @if (!string.IsNullOrEmpty(imgUrl))
                                                 {
-                                                    <img src="@imgUrl" loading="lazy" class="object-fit-contain img-thumbnail" alt="@displayName" />
+                                                    <img src="@imgUrl" loading="lazy" class="object-fit-contain img-thumbnail" alt="@displayName"/>
                                                 }
                                                 else
                                                 {
@@ -157,30 +166,32 @@
                                                     }
                                                 </div>
                                                 @{
-                                                    var knownForText = string.IsNullOrWhiteSpace(g.KnownFor) ? null : System.Net.WebUtility.HtmlDecode(g.KnownFor);
+                                                    var knownForText = string.IsNullOrWhiteSpace(g.KnownFor) ? null : WebUtility.HtmlDecode(g.KnownFor);
                                                 }
                                                 @if (!string.IsNullOrWhiteSpace(knownForText))
                                                 {
-                                                    <p class="card-text small mb-2 text-clamp-2" title="@knownForText"><span class="text-muted">Known for:</span> @knownForText</p>
+                                                    <p class="card-text small mb-2 text-clamp-2" title="@knownForText">
+                                                        <span class="text-muted">Known for:</span> @knownForText
+                                                    </p>
                                                 }
                                                 <div class="mb-2 d-flex flex-wrap gap-1">
                                                     @foreach (var c in (g.GlobalCategories ?? [])
-                                                        .Where(c => !string.IsNullOrWhiteSpace(c.Name)
-                                                            && !string.Equals(c.Name.Trim(), "Canceled", System.StringComparison.OrdinalIgnoreCase)
-                                                            && !string.Equals(c.Name.Trim(), "Cancelled", System.StringComparison.OrdinalIgnoreCase))
-                                                        .Take(3))
+                                                              .Where(c => !string.IsNullOrWhiteSpace(c.Name)
+                                                                          && !string.Equals(c.Name.Trim(), "Canceled", StringComparison.OrdinalIgnoreCase)
+                                                                          && !string.Equals(c.Name.Trim(), "Cancelled", StringComparison.OrdinalIgnoreCase))
+                                                              .Take(3))
                                                     {
-                                                        <span class="badge rounded-pill text-bg-light border">@System.Net.WebUtility.HtmlDecode(c.Name)</span>
+                                                        <span class="badge rounded-pill text-bg-light border">@WebUtility.HtmlDecode(c.Name)</span>
                                                     }
                                                 </div>
                                                 <div class="mt-auto d-flex flex-wrap gap-3 small text-muted">
                                                     @if (g.AutographAmount is not null)
                                                     {
-                                                        <div title="Autograph amount">Autograph: @g.AutographAmount?.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("en-GB"))</div>
+                                                        <div title="Autograph amount">Autograph: @g.AutographAmount?.ToString("C0", CultureInfo.GetCultureInfo("en-GB"))</div>
                                                     }
                                                     @if (g.PhotoOpAmount is not null)
                                                     {
-                                                        <div title="Photo op amount">Photo Op: @g.PhotoOpAmount?.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("en-GB"))</div>
+                                                        <div title="Photo op amount">Photo Op: @g.PhotoOpAmount?.ToString("C0", CultureInfo.GetCultureInfo("en-GB"))</div>
                                                     }
                                                 </div>
                                                 @if (!string.IsNullOrWhiteSpace(g.ProfileUrl))
@@ -204,20 +215,23 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const container = document.getElementById('guestGroups');
-            const expandBtn = document.getElementById('expand-all');
-            const collapseBtn = document.getElementById('collapse-all');
-            if (!container) return;
-            const getCollapses = () => Array.from(container.querySelectorAll('.accordion-collapse'));
-            expandBtn?.addEventListener('click', function (e) {
-                e.preventDefault();
-                getCollapses().forEach(el => new bootstrap.Collapse(el, { toggle: false }).show());
+        document.addEventListener('DOMContentLoaded',
+            function() {
+                const container = document.getElementById('guestGroups');
+                const expandBtn = document.getElementById('expand-all');
+                const collapseBtn = document.getElementById('collapse-all');
+                if (!container) return;
+                const getCollapses = () => Array.from(container.querySelectorAll('.accordion-collapse'));
+                expandBtn?.addEventListener('click',
+                    function(e) {
+                        e.preventDefault();
+                        getCollapses().forEach(el => new bootstrap.Collapse(el, { toggle: false }).show());
+                    });
+                collapseBtn?.addEventListener('click',
+                    function(e) {
+                        e.preventDefault();
+                        getCollapses().forEach(el => new bootstrap.Collapse(el, { toggle: false }).hide());
+                    });
             });
-            collapseBtn?.addEventListener('click', function (e) {
-                e.preventDefault();
-                getCollapses().forEach(el => new bootstrap.Collapse(el, { toggle: false }).hide());
-            });
-        });
     </script>
 }

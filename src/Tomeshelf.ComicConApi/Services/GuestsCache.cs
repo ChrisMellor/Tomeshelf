@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 namespace Tomeshelf.ComicConApi.Services;
 
 /// <summary>
-/// Thread-safe in-memory implementation of <see cref="IGuestsCache"/>.
+///     Thread-safe in-memory implementation of <see cref="IGuestsCache" />.
 /// </summary>
 public sealed class GuestsCache : IGuestsCache
 {

@@ -2,7 +2,12 @@
 @{
     ViewData["Title"] = "Humble Bundle Tracker";
     var generatedLocal = Model.DataTimestampUtc.ToLocalTime();
-    string ToggleText(bool includeExpired) => includeExpired ? "Hide expired bundles" : "Show expired bundles";
+
+    string ToggleText(bool includeExpired)
+    {
+        return includeExpired ? "Hide expired bundles" : "Show expired bundles";
+    }
+
     var activeCount = Model.ActiveBundles.Sum(group => group.Bundles.Count);
 }
 
@@ -74,7 +79,7 @@ else
                                         <div class="card bundle-card h-100 shadow-sm">
                                             @if (!string.IsNullOrWhiteSpace(bundle.TileImageUrl))
                                             {
-                                                <img src="@bundle.TileImageUrl" class="card-img-top bundle-card__image" alt="@bundle.Title" loading="lazy" />
+                                                <img src="@bundle.TileImageUrl" class="card-img-top bundle-card__image" alt="@bundle.Title" loading="lazy"/>
                                             }
                                             <div class="card-body d-flex flex-column">
                                                 <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
@@ -132,37 +137,38 @@ else
         <div class="table-responsive">
             <table class="table table-sm align-middle table-striped">
                 <thead class="table-light">
-                    <tr>
-                        <th scope="col">Bundle</th>
-                        <th scope="col">Category</th>
-                        <th scope="col">Ended</th>
-                        <th scope="col">Ran For</th>
-                    </tr>
+                <tr>
+                    <th scope="col">Bundle</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Ended</th>
+                    <th scope="col">Ran For</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @foreach (var bundle in Model.ExpiredBundles)
-                    {
-                        <tr>
-                            <td>
-                                <a href="@bundle.Url" target="_blank" rel="noopener">@bundle.Title</a>
-                                @if (!string.IsNullOrWhiteSpace(bundle.ShortDescription))
+                @foreach (var bundle in Model.ExpiredBundles)
+                {
+                    <tr>
+                        <td>
+                            <a href="@bundle.Url" target="_blank" rel="noopener">@bundle.Title</a>
+                            @if (!string.IsNullOrWhiteSpace(bundle.ShortDescription))
+                            {
+                                <div class="text-muted small">@bundle.ShortDescription</div>
+                            }
+                        </td>
+                        <td class="text-uppercase text-muted small">@(string.IsNullOrWhiteSpace(bundle.Category) ? bundle.Stamp : bundle.Category)</td>
+                        <td>@bundle.EndsAt?.ToLocalTime().ToString("f")</td>
+                        <td>
+                            @{
+                                if (bundle.StartsAt.HasValue && bundle.EndsAt.HasValue)
                                 {
-                                    <div class="text-muted small">@bundle.ShortDescription</div>
+                                    var span = bundle.EndsAt.Value - bundle.StartsAt.Value;
+                                    @FormatRemaining(span)
+                                    ;
                                 }
-                            </td>
-                            <td class="text-uppercase text-muted small">@(string.IsNullOrWhiteSpace(bundle.Category) ? bundle.Stamp : bundle.Category)</td>
-                            <td>@bundle.EndsAt?.ToLocalTime().ToString("f")</td>
-                            <td>
-                                @{
-                                    if (bundle.StartsAt.HasValue && bundle.EndsAt.HasValue)
-                                    {
-                                        var span = bundle.EndsAt.Value - bundle.StartsAt.Value;
-                                        @FormatRemaining(span);
-                                    }
-                                }
-                            </td>
-                        </tr>
-                    }
+                            }
+                        </td>
+                    </tr>
+                }
                 </tbody>
             </table>
         </div>
@@ -170,6 +176,7 @@ else
 }
 
 @functions {
+
     private static string FormatRemaining(TimeSpan duration)
     {
         duration = duration < TimeSpan.Zero ? TimeSpan.Zero : duration;
@@ -190,4 +197,5 @@ else
 
         return $"{duration.Seconds}s";
     }
+
 }

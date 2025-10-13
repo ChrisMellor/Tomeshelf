@@ -1,9 +1,11 @@
-using FluentAssertions;
-using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Tomeshelf.Web.Services;
 
 namespace Tomeshelf.Web.Tests.Services.GuestsApiTests;
@@ -14,52 +16,54 @@ public class GuestsApiTests
     public async Task GetComicConGuestsByCityAsync_InvalidJson_ThrowsJsonException()
     {
         // Arrange
-        var handler = new StubHandler((_) => new HttpResponseMessage(HttpStatusCode.OK)
+        var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent("{ invalid", System.Text.Encoding.UTF8, "application/json")
+            Content = new StringContent("{ invalid", Encoding.UTF8, "application/json")
         });
         var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
         var api = new GuestsApi(http, NullLogger<GuestsApi>.Instance);
 
         // Act
-        Func<Task> act = async () => await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
+        Func<Task> act = async () =>
+            await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
 
         // Assert
-        await act.Should().ThrowAsync<System.Text.Json.JsonException>();
+        await act.Should().ThrowAsync<JsonException>();
     }
 
     [Fact]
     public async Task GetComicConGuestsByCityAsync_EmptyBody_ThrowsJsonException()
     {
         // Arrange
-        var handler = new StubHandler((_) => new HttpResponseMessage(HttpStatusCode.OK)
+        var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent("", System.Text.Encoding.UTF8, "application/json")
+            Content = new StringContent("", Encoding.UTF8, "application/json")
         });
         var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
         var api = new GuestsApi(http, NullLogger<GuestsApi>.Instance);
 
         // Act
-        Func<Task> act = async () => await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
+        Func<Task> act = async () =>
+            await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
 
         // Assert
-        await act.Should().ThrowAsync<System.Text.Json.JsonException>();
+        await act.Should().ThrowAsync<JsonException>();
     }
 
     [Fact]
     public async Task GetComicConGuestsByCityAsync_ParsesResponse()
     {
         // Arrange
-        var handler = new StubHandler((request) =>
+        var handler = new StubHandler(request =>
         {
             var json = "{" +
-                "\"city\":\"London\",\"total\":1,\"groups\":[{" +
-                "\"createdDate\":\"2025-01-01T00:00:00Z\",\"items\":[{" +
-                "\"id\":\"1\",\"first_name\":\"Ada\",\"last_name\":\"Lovelace\",\"images\":[]" +
-                "}]}]}";
+                       "\"city\":\"London\",\"total\":1,\"groups\":[{" +
+                       "\"createdDate\":\"2025-01-01T00:00:00Z\",\"items\":[{" +
+                       "\"id\":\"1\",\"first_name\":\"Ada\",\"last_name\":\"Lovelace\",\"images\":[]" +
+                       "}]}]}";
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
         });
         var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
@@ -79,12 +83,13 @@ public class GuestsApiTests
     public async Task GetComicConGuestsByCityAsync_ThrowsOnNonSuccess()
     {
         // Arrange
-        var handler = new StubHandler((_) => new HttpResponseMessage(HttpStatusCode.BadGateway));
+        var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.BadGateway));
         var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
         var api = new GuestsApi(http, NullLogger<GuestsApi>.Instance);
 
         // Act
-        Func<Task> act = async () => await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
+        Func<Task> act = async () =>
+            await api.GetComicConGuestsByCityAsync("London", TestContext.Current.CancellationToken);
 
         // Assert
         await act.Should().ThrowAsync<HttpRequestException>();
@@ -93,8 +98,16 @@ public class GuestsApiTests
     private sealed class StubHandler : HttpMessageHandler
     {
         private readonly Func<HttpRequestMessage, HttpResponseMessage> _responder;
-        public StubHandler(Func<HttpRequestMessage, HttpResponseMessage> responder) => _responder = responder;
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-            => Task.FromResult(_responder(request));
+
+        public StubHandler(Func<HttpRequestMessage, HttpResponseMessage> responder)
+        {
+            _responder = responder;
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_responder(request));
+        }
     }
 }

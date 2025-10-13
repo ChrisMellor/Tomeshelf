@@ -1,12 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.ComicConApi.Controllers;
 using Tomeshelf.ComicConApi.Enums;
@@ -45,7 +45,8 @@ public class ComicConControllerUpdateGuestsTests
     {
         // Arrange
         var svc = A.Fake<IGuestService>();
-        A.CallTo(() => svc.GetGuestsAsync("Birmingham", A<CancellationToken>._)).Throws(new ApplicationException("nope"));
+        A.CallTo(() => svc.GetGuestsAsync("Birmingham", A<CancellationToken>._))
+            .Throws(new ApplicationException("nope"));
         using var db = new TomeshelfComicConDbContext(new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
@@ -60,4 +61,3 @@ public class ComicConControllerUpdateGuestsTests
         A.CallTo(() => svc.GetGuestsAsync("Birmingham", A<CancellationToken>._)).MustHaveHappenedOnceExactly();
     }
 }
-

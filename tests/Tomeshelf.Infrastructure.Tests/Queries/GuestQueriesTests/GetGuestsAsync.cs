@@ -1,8 +1,8 @@
+using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Threading.Tasks;
 using Tomeshelf.Domain.Entities.ComicCon;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;
@@ -32,7 +32,8 @@ public class GuestQueriesGetGuestsAsyncTests
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
 
         // Act
-        var (filteredItems, total) = await queries.GetGuestsAsync("2025-london", null, "Ada", 1, 10, TestContext.Current.CancellationToken);
+        var (filteredItems, total) =
+            await queries.GetGuestsAsync("2025-london", null, "Ada", 1, 10, TestContext.Current.CancellationToken);
 
         // Assert
         total.Should().Be(1);

@@ -1,10 +1,10 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure.Clients;
@@ -12,17 +12,17 @@ using Tomeshelf.Infrastructure.Clients;
 namespace Tomeshelf.Infrastructure.Services;
 
 /// <summary>
-/// Domain service orchestrating retrieval and persistence of Comic Con guests.
+///     Domain service orchestrating retrieval and persistence of Comic Con guests.
 /// </summary>
 public class GuestService : IGuestService
 {
-    private readonly IGuestsClient _guestsClient;
-    private readonly ILogger<GuestService> _logger;
-    private readonly EventIngestService _ingest;
     private readonly IReadOnlyDictionary<string, Guid> _cityKeyMap;
+    private readonly IGuestsClient _guestsClient;
+    private readonly EventIngestService _ingest;
+    private readonly ILogger<GuestService> _logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GuestService"/> class.
+    ///     Initializes a new instance of the <see cref="GuestService" /> class.
     /// </summary>
     /// <param name="guestsClient">External API client for guests.</param>
     /// <param name="options">Options containing Comic Con mappings.</param>
@@ -43,8 +43,8 @@ public class GuestService : IGuestService
     }
 
     /// <summary>
-    /// Retrieves the latest guests for the configured Comic Con in the given city
-    /// using the external client, persists the data, and returns the people list.
+    ///     Retrieves the latest guests for the configured Comic Con in the given city
+    ///     using the external client, persists the data, and returns the people list.
     /// </summary>
     /// <param name="city">City name matching configuration.</param>
     /// <param name="cancellationToken">Token used to cancel the downstream HTTP call and ingest.</param>
@@ -63,13 +63,14 @@ public class GuestService : IGuestService
         }
 
         var changed = await _ingest.UpsertAsync(evt, cancellationToken);
-        _logger.LogInformation("Upserted event {Slug} with {Count} people; changed={Changed}", evt.EventSlug, evt.People?.Count ?? 0, changed);
+        _logger.LogInformation("Upserted event {Slug} with {Count} people; changed={Changed}", evt.EventSlug,
+            evt.People?.Count ?? 0, changed);
 
         return evt.People ?? [];
     }
 
     /// <summary>
-    /// Resolves the Comic Con key (GUID) for the specified city from configuration.
+    ///     Resolves the Comic Con key (GUID) for the specified city from configuration.
     /// </summary>
     /// <param name="city">City name to resolve.</param>
     /// <returns>The configured Comic Con key.</returns>

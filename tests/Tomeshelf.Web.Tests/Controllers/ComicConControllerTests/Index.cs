@@ -1,9 +1,9 @@
-using FakeItEasy;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using FakeItEasy;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models;
 using Tomeshelf.Web.Models.ComicCon;
@@ -18,10 +18,10 @@ public class ComicConControllerTests
     {
         // Arrange
         var api = A.Fake<IGuestsApi>();
-        var groups = new List<GuestsGroupModel> { new GuestsGroupModel { Items = new List<PersonModel>() } };
+        var groups = new List<GuestsGroupModel> { new() { Items = new List<PersonModel>() } };
         var resultModel = new GuestsByCityResult(groups, 1);
         A.CallTo(() => api.GetComicConGuestsByCityResultAsync("London", A<CancellationToken>._))
-           .Returns(resultModel);
+            .Returns(resultModel);
 
         var controller = new ComicConController(api);
 

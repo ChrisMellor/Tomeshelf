@@ -3,7 +3,7 @@ using System;
 namespace Tomeshelf.Infrastructure.Bundles;
 
 /// <summary>
-/// Lightweight representation of a bundle parsed from the Humble Bundle listing page.
+///     Lightweight representation of a bundle parsed from the Humble Bundle listing page.
 /// </summary>
 /// <param name="MachineName">Stable machine-readable identifier.</param>
 /// <param name="Category">Top-level category (books/games/software/etc.).</param>

@@ -1,8 +1,8 @@
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Services;
@@ -27,14 +27,14 @@ public class CancellationCategorySetsRemovedTests
             EventSlug = "2025-london",
             People = new List<PersonDto>
             {
-                new PersonDto
+                new()
                 {
                     Id = "P-C1",
                     Uid = "U1",
                     PubliclyVisible = true,
                     FirstName = "Test",
                     LastName = "Person",
-                    GlobalCategories = new List<CategoryDto>{ new(){ Id = "X", Name = "Canceled" } }
+                    GlobalCategories = new List<CategoryDto> { new() { Id = "X", Name = "Canceled" } }
                 }
             }
         };
@@ -64,14 +64,14 @@ public class CancellationCategorySetsRemovedTests
             EventSlug = "2025-london",
             People = new List<PersonDto>
             {
-                new PersonDto
+                new()
                 {
                     Id = "P-C2",
                     Uid = "U2",
                     PubliclyVisible = true,
                     FirstName = "Test",
                     LastName = "Person",
-                    GlobalCategories = new List<CategoryDto>{ new(){ Id = "X", Name = "Canceled" } }
+                    GlobalCategories = new List<CategoryDto> { new() { Id = "X", Name = "Canceled" } }
                 }
             }
         };
@@ -84,7 +84,7 @@ public class CancellationCategorySetsRemovedTests
             EventSlug = "2025-london",
             People = new List<PersonDto>
             {
-                new PersonDto
+                new()
                 {
                     Id = "P-C2",
                     Uid = "U2",
@@ -105,4 +105,3 @@ public class CancellationCategorySetsRemovedTests
         person.RemovedUtc.Should().BeNull();
     }
 }
-

@@ -1,7 +1,6 @@
+using System.Collections.Generic;
+using Tomeshelf.Web.Models.ComicCon;
+
 namespace Tomeshelf.Web.Models;
 
-using ComicCon;
-using System.Collections.Generic;
-
 public sealed record GuestsByCityResult(IReadOnlyList<GuestsGroupModel> Groups, int Total);
-

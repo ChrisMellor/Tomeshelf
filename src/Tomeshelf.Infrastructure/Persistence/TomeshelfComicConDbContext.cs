@@ -4,7 +4,7 @@ using Tomeshelf.Domain.Entities.ComicCon;
 namespace Tomeshelf.Infrastructure.Persistence;
 
 /// <summary>
-/// EF Core database context for Tomeshelf's ComicCon domain entities.
+///     EF Core database context for Tomeshelf's ComicCon domain entities.
 /// </summary>
 /// <param name="options">DbContext options configured by DI.</param>
 public class TomeshelfComicConDbContext(DbContextOptions<TomeshelfComicConDbContext> options) : DbContext(options)
@@ -26,7 +26,7 @@ public class TomeshelfComicConDbContext(DbContextOptions<TomeshelfComicConDbCont
     public DbSet<VenueLocation> VenueLocations => Set<VenueLocation>();
 
     /// <summary>
-    /// Configures EF Core model conventions, relationships and constraints for domain entities.
+    ///     Configures EF Core model conventions, relationships and constraints for domain entities.
     /// </summary>
     /// <param name="modelBuilder">The model builder used to configure mappings.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)

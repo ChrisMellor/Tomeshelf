@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Services;
 
 namespace Tomeshelf.Web.Controllers;
@@ -9,16 +10,16 @@ namespace Tomeshelf.Web.Controllers;
 public class ComicConController(IGuestsApi api) : Controller
 {
     /// <summary>
-    /// Displays Comic Con guests for the specified city.
-    /// Fetches grouped guests from the API and renders the Index view.
+    ///     Displays Comic Con guests for the specified city.
+    ///     Fetches grouped guests from the API and renders the Index view.
     /// </summary>
     /// <param name="city">City name to query (e.g., "London").</param>
     /// <param name="cancellationToken">Cancellation token for the HTTP call.</param>
-    /// <returns>An <see cref="IActionResult"/> that renders the guests view.</returns>
+    /// <returns>An <see cref="IActionResult" /> that renders the guests view.</returns>
     [HttpGet("city/{city}/guests")]
     public async Task<IActionResult> Index([FromRoute] string city, CancellationToken cancellationToken = default)
     {
-        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var sw = Stopwatch.StartNew();
         var result = await api.GetComicConGuestsByCityResultAsync(city, cancellationToken);
         sw.Stop();
 
@@ -28,6 +29,4 @@ public class ComicConController(IGuestsApi api) : Controller
 
         return View("Index", result.Groups);
     }
-
-
 }

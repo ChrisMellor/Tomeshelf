@@ -1,12 +1,13 @@
+using System;
+using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Threading.Tasks;
 using Tomeshelf.ComicConApi.Controllers;
 using Tomeshelf.ComicConApi.Services;
+using Tomeshelf.Domain.Entities.ComicCon;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
@@ -40,13 +41,13 @@ public class ComicConControllerGetByCityTests
         using var db = new TomeshelfComicConDbContext(new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
-        var ev = new Domain.Entities.ComicCon.Event
+        var ev = new Event
         {
             ExternalId = Guid.NewGuid().ToString(),
             Name = "Event",
             Slug = "2025-london"
         };
-        var p = new Domain.Entities.ComicCon.Person
+        var p = new Person
         {
             ExternalId = Guid.NewGuid().ToString(),
             FirstName = "Ada",
@@ -54,7 +55,7 @@ public class ComicConControllerGetByCityTests
         };
         db.Events.Add(ev);
         db.People.Add(p);
-        db.EventAppearances.Add(new Domain.Entities.ComicCon.EventAppearance { Event = ev, Person = p });
+        db.EventAppearances.Add(new EventAppearance { Event = ev, Person = p });
         await db.SaveChangesAsync();
 
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
@@ -69,8 +70,7 @@ public class ComicConControllerGetByCityTests
         result.Result.Should().BeOfType<OkObjectResult>();
         var okResult = (OkObjectResult)result.Result!;
         var okPayload = okResult.Value!;
-        okPayload.Should().BeEquivalentTo(new { city = "London", total = 1 }, options => options.ExcludingMissingMembers());
+        okPayload.Should()
+            .BeEquivalentTo(new { city = "London", total = 1 }, options => options.ExcludingMissingMembers());
     }
-
 }
-

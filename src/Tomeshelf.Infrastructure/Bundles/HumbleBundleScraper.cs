@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,11 +7,12 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Tomeshelf.Infrastructure.Bundles;
 
 /// <summary>
-/// Scrapes the public Humble Bundle listing page to extract current bundles.
+///     Scrapes the public Humble Bundle listing page to extract current bundles.
 /// </summary>
 public sealed class HumbleBundleScraper : IHumbleBundleScraper
 {
@@ -32,7 +32,8 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
         var started = DateTimeOffset.UtcNow;
         _logger.LogInformation("Scraping Humble Bundle listings from {Uri}", BundlesUri);
 
-        using var response = await _httpClient.GetAsync(BundlesUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        using var response =
+            await _httpClient.GetAsync(BundlesUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
@@ -46,49 +47,41 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
         var bundles = new List<ScrapedBundle>();
 
         if (document.RootElement.TryGetProperty("data", out var dataElement))
-        {
             foreach (var categoryProperty in dataElement.EnumerateObject())
             {
                 var category = categoryProperty.Name;
-                if (categoryProperty.Value.TryGetProperty("mosaic", out var mosaics) && mosaics.ValueKind == JsonValueKind.Array)
-                {
+                if (categoryProperty.Value.TryGetProperty("mosaic", out var mosaics) &&
+                    mosaics.ValueKind == JsonValueKind.Array)
                     foreach (var mosaic in mosaics.EnumerateArray())
                     {
-                        if (!mosaic.TryGetProperty("products", out var products) || products.ValueKind != JsonValueKind.Array)
-                        {
-                            continue;
-                        }
+                        if (!mosaic.TryGetProperty("products", out var products) ||
+                            products.ValueKind != JsonValueKind.Array) continue;
 
                         foreach (var product in products.EnumerateArray())
                         {
-                            if (!TryCreateBundle(product, category, now, out var bundle))
-                            {
-                                continue;
-                            }
+                            if (!TryCreateBundle(product, category, now, out var bundle)) continue;
 
                             bundles.Add(bundle);
                         }
                     }
-                }
             }
-        }
 
         var duration = DateTimeOffset.UtcNow - started;
-        _logger.LogInformation("Scraped {Count} Humble Bundle listings in {Duration}ms", bundles.Count, (int)duration.TotalMilliseconds);
+        _logger.LogInformation("Scraped {Count} Humble Bundle listings in {Duration}ms", bundles.Count,
+            (int)duration.TotalMilliseconds);
 
         return bundles;
     }
 
-    private static bool TryCreateBundle(JsonElement product, string category, DateTimeOffset observedUtc, out ScrapedBundle bundle)
+    private static bool TryCreateBundle(JsonElement product, string category, DateTimeOffset observedUtc,
+        out ScrapedBundle bundle)
     {
         bundle = default!;
 
         if (!product.TryGetProperty("machine_name", out var machineElement) ||
             machineElement.ValueKind != JsonValueKind.String ||
             string.IsNullOrWhiteSpace(machineElement.GetString()))
-        {
             return false;
-        }
 
         var machineName = machineElement.GetString()!;
         var stamp = GetString(product, "tile_stamp") ?? string.Empty;
@@ -126,15 +119,9 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
 
     private static string BuildAbsoluteUrl(string relative)
     {
-        if (string.IsNullOrWhiteSpace(relative))
-        {
-            return SiteBaseUri.ToString();
-        }
+        if (string.IsNullOrWhiteSpace(relative)) return SiteBaseUri.ToString();
 
-        if (Uri.TryCreate(relative, UriKind.Absolute, out var absolute))
-        {
-            return absolute.ToString();
-        }
+        if (Uri.TryCreate(relative, UriKind.Absolute, out var absolute)) return absolute.ToString();
 
         return new Uri(SiteBaseUri, relative.TrimStart('/')).ToString();
     }
@@ -153,15 +140,10 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
     private static DateTimeOffset? ParseDateTime(JsonElement element, string propertyName)
     {
         var text = GetString(element, propertyName);
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return null;
-        }
+        if (string.IsNullOrWhiteSpace(text)) return null;
 
-        if (DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var parsed))
-        {
-            return parsed;
-        }
+        if (DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var parsed)) return parsed;
 
         return null;
     }
@@ -171,9 +153,7 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
         const string marker = "{\"userOptions\":";
         var start = html.IndexOf(marker, StringComparison.Ordinal);
         if (start < 0)
-        {
             throw new InvalidOperationException("Unable to locate Humble Bundle JSON payload in the HTML response.");
-        }
 
         var span = html.AsSpan(start);
         var depth = 0;
@@ -192,10 +172,7 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
 
             if (ch == '\\')
             {
-                if (inString)
-                {
-                    escape = true;
-                }
+                if (inString) escape = true;
                 continue;
             }
 
@@ -205,10 +182,7 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
                 continue;
             }
 
-            if (inString)
-            {
-                continue;
-            }
+            if (inString) continue;
 
             if (ch == '{')
             {
@@ -219,10 +193,7 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
             if (ch == '}')
             {
                 depth--;
-                if (depth == 0)
-                {
-                    return span[..(i + 1)].ToString();
-                }
+                if (depth == 0) return span[..(i + 1)].ToString();
             }
         }
 

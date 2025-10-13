@@ -1,8 +1,8 @@
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Services;
@@ -27,7 +27,11 @@ public class EventIngestServiceTests
             EventSlug = "2025-london",
             People = new List<PersonDto>
             {
-                new PersonDto{ Id = Guid.NewGuid().ToString(), FirstName = "Ada", LastName = "Lovelace", Images = [], GlobalCategories = [] }
+                new()
+                {
+                    Id = Guid.NewGuid().ToString(), FirstName = "Ada", LastName = "Lovelace", Images = [],
+                    GlobalCategories = []
+                }
             }
         };
 

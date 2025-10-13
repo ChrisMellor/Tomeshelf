@@ -1,10 +1,10 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Domain.Entities.ComicCon;
 using Tomeshelf.Infrastructure.Persistence;
@@ -12,16 +12,15 @@ using Tomeshelf.Infrastructure.Persistence;
 namespace Tomeshelf.Infrastructure.Queries;
 
 /// <summary>
-/// Read-only query operations for guests, categories and groupings.
+///     Read-only query operations for guests, categories and groupings.
 /// </summary>
-
 public sealed class GuestQueries
 {
     private readonly TomeshelfComicConDbContext _comicConDb;
     private readonly ILogger<GuestQueries> _logger;
 
     /// <summary>
-    /// Constructor with dependencies injected.
+    ///     Constructor with dependencies injected.
     /// </summary>
     /// <param name="comicConDb">EF Core DbContext.</param>
     /// <param name="logger">Logger instance.</param>
@@ -32,8 +31,8 @@ public sealed class GuestQueries
     }
 
     /// <summary>
-    /// Queries guests for a given event slug with optional day and text filters and paging.
-    /// Returns items projected to DTOs and the total count before paging.
+    ///     Queries guests for a given event slug with optional day and text filters and paging.
+    ///     Returns items projected to DTOs and the total count before paging.
     /// </summary>
     /// <param name="eventSlug">Event slug to match.</param>
     /// <param name="day">Optional day filter (exact match within DaysAtShow).</param>
@@ -43,12 +42,14 @@ public sealed class GuestQueries
     /// <param name="cancellationToken">Cancellation token for the query.</param>
     /// <returns>A tuple of items and total row count.</returns>
     /// <exception cref="OperationCanceledException">Thrown if the query is canceled.</exception>
-    public async Task<(IReadOnlyList<PersonDto> Items, int Total)> GetGuestsAsync(string eventSlug, string day = null, string search = null, int page = 1, int pageSize = 24, CancellationToken cancellationToken = default)
+    public async Task<(IReadOnlyList<PersonDto> Items, int Total)> GetGuestsAsync(string eventSlug, string day = null,
+        string search = null, int page = 1, int pageSize = 24, CancellationToken cancellationToken = default)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
-        _logger.LogInformation("Querying guests for event {EventSlug} (page={Page}, size={Size})", eventSlug, page, pageSize);
+        _logger.LogInformation("Querying guests for event {EventSlug} (page={Page}, size={Size})", eventSlug, page,
+            pageSize);
         var started = DateTimeOffset.UtcNow;
 
         var eventId = await _comicConDb.Events
@@ -66,9 +67,7 @@ public sealed class GuestQueries
             .Where(eventAppearance => eventAppearance.EventId == eventId);
 
         if (!string.IsNullOrWhiteSpace(day))
-        {
             baseQuery = baseQuery.Where(a => a.DaysAtShow != null && a.DaysAtShow.Contains(day!));
-        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -91,19 +90,21 @@ public sealed class GuestQueries
             .ToListAsync(cancellationToken);
 
         var duration = DateTimeOffset.UtcNow - started;
-        _logger.LogInformation("Guests query for {EventSlug} returned {Count} items (total={Total}) in {Duration}ms", eventSlug, items.Count, total, (int)duration.TotalMilliseconds);
+        _logger.LogInformation("Guests query for {EventSlug} returned {Count} items (total={Total}) in {Duration}ms",
+            eventSlug, items.Count, total, (int)duration.TotalMilliseconds);
 
         return (items, total);
     }
 
     /// <summary>
-    /// Returns distinct categories linked to people for a given event slug.
+    ///     Returns distinct categories linked to people for a given event slug.
     /// </summary>
     /// <param name="slug">Event slug.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A list of category id-name pairs.</returns>
     /// <exception cref="OperationCanceledException">Thrown if the query is canceled.</exception>
-    public async Task<IReadOnlyList<(string Id, string Name)>> GetCategoriesByEventSlugAsync(string slug, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<(string Id, string Name)>> GetCategoriesByEventSlugAsync(string slug,
+        CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Querying categories for event {EventSlug}", slug);
         var eventId = await _comicConDb.Events.Where(e => e.Slug == slug)
@@ -131,16 +132,15 @@ public sealed class GuestQueries
         return list;
     }
 
-    public sealed record GuestsGroupResult(DateTime CreatedDate, IReadOnlyList<PersonDto> Items);
-
     /// <summary>
-    /// Returns guests grouped by creation date for events whose slug contains the given city.
+    ///     Returns guests grouped by creation date for events whose slug contains the given city.
     /// </summary>
     /// <param name="city">City name fragment to search in the event slug.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A list of date-based groups with guest items.</returns>
     /// <exception cref="OperationCanceledException">Thrown if the query is canceled.</exception>
-    public async Task<IReadOnlyList<GuestsGroupResult>> GetGuestsByCityAsync(string city, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<GuestsGroupResult>> GetGuestsByCityAsync(string city,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(city))
         {
@@ -168,7 +168,8 @@ public sealed class GuestQueries
 
         var took = DateTimeOffset.UtcNow - qStart;
         var total = groups.Sum(g => g.Items.Count);
-        _logger.LogInformation("GuestsByCity for {City} returned {Groups} day-groups, {Total} guests in {Duration}ms", city, groups.Count, total, (int)took.TotalMilliseconds);
+        _logger.LogInformation("GuestsByCity for {City} returned {Groups} day-groups, {Total} guests in {Duration}ms",
+            city, groups.Count, total, (int)took.TotalMilliseconds);
 
         return groups;
     }
@@ -213,7 +214,11 @@ public sealed class GuestQueries
                     .ToList(),
                 Images = a.Person.Images
                     .OrderByDescending(i => i.Id)
-                    .Select(personImage => new ImageSetDto { Big = personImage.Big, Med = personImage.Med, Small = personImage.Small, Thumb = personImage.Thumb })
+                    .Select(personImage => new ImageSetDto
+                    {
+                        Big = personImage.Big, Med = personImage.Med, Small = personImage.Small,
+                        Thumb = personImage.Thumb
+                    })
                     .Take(1)
                     .ToList(),
                 Schedules = a.Schedules
@@ -227,16 +232,20 @@ public sealed class GuestQueries
                         EndTime = s.EndTimeUtc.HasValue ? s.EndTimeUtc.Value.ToString("o") : null,
                         NoEndTime = s.NoEndTime,
                         Location = s.Location,
-                        VenueLocation = s.VenueLocation == null ? null : new VenueLocationDto
-                        {
-                            Id = s.VenueLocation.ExternalId,
-                            Name = s.VenueLocation.Name
-                        }
+                        VenueLocation = s.VenueLocation == null
+                            ? null
+                            : new VenueLocationDto
+                            {
+                                Id = s.VenueLocation.ExternalId,
+                                Name = s.VenueLocation.Name
+                            }
                     })
                     .ToList()
             }
         });
     }
+
+    public sealed record GuestsGroupResult(DateTime CreatedDate, IReadOnlyList<PersonDto> Items);
 
     private sealed class PersonProjection
     {

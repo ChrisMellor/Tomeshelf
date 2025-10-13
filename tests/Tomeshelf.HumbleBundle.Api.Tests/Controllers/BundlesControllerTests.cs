@@ -1,13 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Tomeshelf.Domain.Entities.HumbleBundle;
 using Tomeshelf.HumbleBundle.Api.Controllers;
 using Tomeshelf.Infrastructure.Bundles;
@@ -26,6 +25,11 @@ public sealed class BundlesControllerTests : IDisposable
             .Options;
 
         _dbContext = new TomeshelfBundlesDbContext(options);
+    }
+
+    public void Dispose()
+    {
+        _dbContext?.Dispose();
     }
 
     [Fact]
@@ -47,7 +51,7 @@ public sealed class BundlesControllerTests : IDisposable
                 EndsAt = now.AddDays(3),
                 FirstSeenUtc = now.AddDays(-2),
                 LastSeenUtc = now,
-                LastUpdatedUtc = now,
+                LastUpdatedUtc = now
             },
             new Bundle
             {
@@ -62,7 +66,7 @@ public sealed class BundlesControllerTests : IDisposable
                 EndsAt = now.AddDays(-2),
                 FirstSeenUtc = now.AddDays(-11),
                 LastSeenUtc = now.AddDays(-2),
-                LastUpdatedUtc = now.AddDays(-2),
+                LastUpdatedUtc = now.AddDays(-2)
             });
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -76,7 +80,7 @@ public sealed class BundlesControllerTests : IDisposable
             NullLogger<BundlesController>.Instance);
 
         // Act
-        var actionResult = await controller.GetBundles(includeExpired: false, TestContext.Current.CancellationToken);
+        var actionResult = await controller.GetBundles(false, TestContext.Current.CancellationToken);
 
         // Assert
         var okResult = actionResult.Result.Should().BeOfType<OkObjectResult>().Subject;
@@ -103,7 +107,7 @@ public sealed class BundlesControllerTests : IDisposable
                 EndsAt = now.AddDays(5),
                 FirstSeenUtc = now.AddDays(-2),
                 LastSeenUtc = now,
-                LastUpdatedUtc = now,
+                LastUpdatedUtc = now
             },
             new Bundle
             {
@@ -116,7 +120,7 @@ public sealed class BundlesControllerTests : IDisposable
                 EndsAt = now.AddDays(-1),
                 FirstSeenUtc = now.AddDays(-11),
                 LastSeenUtc = now.AddDays(-1),
-                LastUpdatedUtc = now.AddDays(-1),
+                LastUpdatedUtc = now.AddDays(-1)
             });
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -130,7 +134,7 @@ public sealed class BundlesControllerTests : IDisposable
             NullLogger<BundlesController>.Instance);
 
         // Act
-        var actionResult = await controller.GetBundles(includeExpired: true, TestContext.Current.CancellationToken);
+        var actionResult = await controller.GetBundles(true, TestContext.Current.CancellationToken);
 
         // Assert
         var okResult = actionResult.Result.Should().BeOfType<OkObjectResult>().Subject;
@@ -149,19 +153,19 @@ public sealed class BundlesControllerTests : IDisposable
         var scrapedBundles = new List<ScrapedBundle>
         {
             new(
-                MachineName: "refreshed_bundle",
-                Category: "games",
-                Stamp: "bundle",
-                Title: "Refreshed Bundle",
-                ShortName: "Refreshed",
-                Url: "https://humblebundle.com/refreshed",
-                TileImageUrl: "https://img/refreshed.png",
-                TileLogoUrl: "https://img/refreshed-logo.png",
-                HeroImageUrl: "https://img/refreshed-hero.png",
-                ShortDescription: "Fresh content",
-                StartsAt: observed.AddDays(-1),
-                EndsAt: observed.AddDays(6),
-                ObservedUtc: observed)
+                "refreshed_bundle",
+                "games",
+                "bundle",
+                "Refreshed Bundle",
+                "Refreshed",
+                "https://humblebundle.com/refreshed",
+                "https://img/refreshed.png",
+                "https://img/refreshed-logo.png",
+                "https://img/refreshed-hero.png",
+                "Fresh content",
+                observed.AddDays(-1),
+                observed.AddDays(6),
+                observed)
         };
 
         A.CallTo(() => scraper.ScrapeAsync(A<CancellationToken>.Ignored))
@@ -192,10 +196,5 @@ public sealed class BundlesControllerTests : IDisposable
             b => b.MachineName == "refreshed_bundle",
             TestContext.Current.CancellationToken);
         bundle.Title.Should().Be("Refreshed Bundle");
-    }
-
-    public void Dispose()
-    {
-        _dbContext?.Dispose();
     }
 }

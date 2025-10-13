@@ -1,12 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Bogus;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure.Clients;
@@ -25,7 +25,7 @@ public class GuestServiceTests
         var key = Guid.NewGuid();
         var options = Options.Create(new ComicConOptions
         {
-            ComicCon = new List<Location> { new Location { City = city, Key = key } }
+            ComicCon = new List<Location> { new() { City = city, Key = key } }
         });
 
         var peopleFaker = new Faker<PersonDto>()
@@ -43,7 +43,7 @@ public class GuestServiceTests
         IGuestsClient guestsClient = new FakeGuestsClient(evt);
 
         var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         using var db = new TomeshelfComicConDbContext(dbOptions);
         var ingest = new EventIngestService(db);
@@ -88,7 +88,7 @@ public class GuestServiceTests
         var key = Guid.NewGuid();
         var options = Options.Create(new ComicConOptions
         {
-            ComicCon = new List<Location> { new Location { City = city, Key = key } }
+            ComicCon = new List<Location> { new() { City = city, Key = key } }
         });
         IGuestsClient guestsClient = new FakeGuestsClient(null);
 
@@ -135,7 +135,7 @@ public class GuestServiceTests
         var key = Guid.NewGuid();
         var options = Options.Create(new ComicConOptions
         {
-            ComicCon = new List<Location> { new Location { City = "London", Key = key } }
+            ComicCon = new List<Location> { new() { City = "London", Key = key } }
         });
         var evt = new EventDto { EventId = "E", EventName = "N", EventSlug = "s", People = new List<PersonDto>() };
         IGuestsClient guestsClient = new FakeGuestsClient(evt);
@@ -156,7 +156,15 @@ public class GuestServiceTests
     private sealed class FakeGuestsClient : IGuestsClient
     {
         private readonly EventDto _response;
-        public FakeGuestsClient(EventDto response) => _response = response;
-        public Task<EventDto> GetLatestGuestsAsync(Guid key, CancellationToken cancellationToken = default) => Task.FromResult(_response);
+
+        public FakeGuestsClient(EventDto response)
+        {
+            _response = response;
+        }
+
+        public Task<EventDto> GetLatestGuestsAsync(Guid key, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(_response);
+        }
     }
 }

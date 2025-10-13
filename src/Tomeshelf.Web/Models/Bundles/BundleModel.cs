@@ -3,7 +3,7 @@ using System;
 namespace Tomeshelf.Web.Models.Bundles;
 
 /// <summary>
-/// DTO mirrored from the Humble Bundle API response.
+///     DTO mirrored from the Humble Bundle API response.
 /// </summary>
 public sealed class BundleModel
 {

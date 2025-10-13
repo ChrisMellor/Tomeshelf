@@ -6,12 +6,12 @@ using Tomeshelf.Application.Contracts;
 namespace Tomeshelf.Infrastructure.Services;
 
 /// <summary>
-/// Abstraction for retrieving and persisting event guests by city.
+///     Abstraction for retrieving and persisting event guests by city.
 /// </summary>
 public interface IGuestService
 {
     /// <summary>
-    /// Retrieves and persists the latest guests for the specified city.
+    ///     Retrieves and persists the latest guests for the specified city.
     /// </summary>
     /// <param name="city">City name to query (must be configured).</param>
     /// <param name="cancellationToken">Token used to cancel the in-flight ingest.</param>

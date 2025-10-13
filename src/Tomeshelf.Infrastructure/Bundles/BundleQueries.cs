@@ -1,16 +1,16 @@
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Infrastructure.Persistence;
 
 namespace Tomeshelf.Infrastructure.Bundles;
 
 /// <summary>
-/// Query helpers for retrieving Humble Bundle listings.
+///     Query helpers for retrieving Humble Bundle listings.
 /// </summary>
 public sealed class BundleQueries
 {
@@ -22,20 +22,18 @@ public sealed class BundleQueries
     }
 
     /// <summary>
-    /// Returns the most recent bundle listings, optionally filtering out expired bundles.
+    ///     Returns the most recent bundle listings, optionally filtering out expired bundles.
     /// </summary>
     /// <param name="includeExpired">When <c>true</c>, returns all bundles including expired ones.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Collection of bundle DTOs.</returns>
-    public async Task<IReadOnlyList<BundleDto>> GetBundlesAsync(bool includeExpired, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<BundleDto>> GetBundlesAsync(bool includeExpired,
+        CancellationToken cancellationToken = default)
     {
         var now = DateTimeOffset.UtcNow;
 
         var query = _dbContext.Bundles.AsNoTracking();
-        if (!includeExpired)
-        {
-            query = query.Where(b => !b.EndsAt.HasValue || b.EndsAt >= now);
-        }
+        if (!includeExpired) query = query.Where(b => !b.EndsAt.HasValue || b.EndsAt >= now);
 
         var generatedAt = DateTimeOffset.UtcNow;
 

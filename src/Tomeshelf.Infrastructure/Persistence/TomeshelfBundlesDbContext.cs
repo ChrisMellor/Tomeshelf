@@ -4,13 +4,13 @@ using Tomeshelf.Domain.Entities.HumbleBundle;
 namespace Tomeshelf.Infrastructure.Persistence;
 
 /// <summary>
-/// EF Core database context for Tomeshelf's bundle domain entities.
+///     EF Core database context for Tomeshelf's bundle domain entities.
 /// </summary>
 /// <param name="options">DbContext options configured by DI.</param>
 public class TomeshelfBundlesDbContext(DbContextOptions<TomeshelfBundlesDbContext> options) : DbContext(options)
 {
     /// <summary>
-    /// Catalog of Humble Bundle listings captured from the public site.
+    ///     Catalog of Humble Bundle listings captured from the public site.
     /// </summary>
     public DbSet<Bundle> Bundles => Set<Bundle>();
 

@@ -8,12 +8,12 @@ using Tomeshelf.Application.Contracts;
 namespace Tomeshelf.Infrastructure.Clients;
 
 /// <summary>
-/// Abstraction over the external Comic Con People API client.
+///     Abstraction over the external Comic Con People API client.
 /// </summary>
 public interface IGuestsClient
 {
     /// <summary>
-    /// Fetches the latest Comic Con event guests for the provided key.
+    ///     Fetches the latest Comic Con event guests for the provided key.
     /// </summary>
     /// <param name="key">The event/city API key.</param>
     /// <param name="cancellationToken">Token used to abort the HTTP request.</param>

@@ -3,7 +3,7 @@ using System;
 namespace Tomeshelf.Application.Contracts;
 
 /// <summary>
-/// Read model returned by the Humble Bundle API describing a bundle listing.
+///     Read model returned by the Humble Bundle API describing a bundle listing.
 /// </summary>
 public sealed record BundleDto(
     string MachineName,

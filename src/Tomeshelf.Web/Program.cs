@@ -1,24 +1,24 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Tomeshelf.ServiceDefaults;
 using Tomeshelf.Web.Services;
 
 namespace Tomeshelf.Web;
 
 /// <summary>
-/// Web application entry point and configuration.
+///     Web application entry point and configuration.
 /// </summary>
 public class Program
 {
     /// <summary>
-    /// Application entry point for the MVC web host.
-    /// Configures services and starts the web server.
+    ///     Application entry point for the MVC web host.
+    ///     Configures services and starts the web server.
     /// </summary>
     /// <param name="args">Command-line arguments.</param>
     public static void Main(string[] args)
@@ -28,16 +28,14 @@ public class Program
         builder.AddServiceDefaults();
 
         if (builder.Environment.IsDevelopment())
-        {
             builder.Services.AddHttpLogging(o =>
             {
                 o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod |
-                                   HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration |
-                                   HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
+                                  HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration |
+                                  HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
                 o.RequestHeaders.Add("User-Agent");
                 o.MediaTypeOptions.AddText("text/html");
             });
-        }
 
         builder.Services.AddControllersWithViews();
         builder.Services.AddAuthorization();
@@ -50,9 +48,7 @@ public class Program
             if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
             {
                 if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
-                {
                     throw new InvalidOperationException("Invalid URI in configuration setting 'Services:ApiBase'.");
-                }
 
                 client.BaseAddress = configuredUri;
             }
@@ -76,9 +72,8 @@ public class Program
             if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
             {
                 if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
-                {
-                    throw new InvalidOperationException("Invalid URI in configuration setting 'Services:HumbleBundleApiBase'.");
-                }
+                    throw new InvalidOperationException(
+                        "Invalid URI in configuration setting 'Services:HumbleBundleApiBase'.");
 
                 client.BaseAddress = configuredUri;
             }
@@ -112,18 +107,15 @@ public class Program
         app.UseRequestLocalization(locOptions);
 
         app.UseHttpsRedirection();
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseHttpLogging();
-        }
+        if (app.Environment.IsDevelopment()) app.UseHttpLogging();
         app.UseRouting();
 
         app.UseAuthorization();
 
         app.MapStaticAssets();
         app.MapControllerRoute(
-            name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}")
+                "default",
+                "{controller=Home}/{action=Index}/{id?}")
             .WithStaticAssets();
 
         app.MapDefaultEndpoints();

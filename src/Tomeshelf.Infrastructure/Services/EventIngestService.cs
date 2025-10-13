@@ -1,9 +1,10 @@
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Domain.Entities.ComicCon;
 using Tomeshelf.Infrastructure.Persistence;
@@ -11,14 +12,15 @@ using Tomeshelf.Infrastructure.Persistence;
 namespace Tomeshelf.Infrastructure.Services;
 
 /// <summary>
-/// Handles ingesting event payloads into the database by upserting events, people, appearances, categories, images, schedules, and venue locations.
+///     Handles ingesting event payloads into the database by upserting events, people, appearances, categories, images,
+///     schedules, and venue locations.
 /// </summary>
 /// <param name="context">EF Core database context.</param>
 public class EventIngestService(TomeshelfComicConDbContext context)
 {
     /// <summary>
-    /// Inserts or updates the event and all related people, categories, images and schedules.
-    /// Creates new entities when missing and updates existing ones, then saves the changes.
+    ///     Inserts or updates the event and all related people, categories, images and schedules.
+    ///     Creates new entities when missing and updates existing ones, then saves the changes.
     /// </summary>
     /// <param name="eventData">The source event payload to persist.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
@@ -49,11 +51,11 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     }
 
     /// <summary>
-    /// Retrieves an existing event by external id or creates a new tracked instance and updates its core properties.
+    ///     Retrieves an existing event by external id or creates a new tracked instance and updates its core properties.
     /// </summary>
     /// <param name="dto">Incoming event payload.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>The tracked <see cref="Event"/> entity.</returns>
+    /// <returns>The tracked <see cref="Event" /> entity.</returns>
     /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
     private async Task<Event> UpsertEventAsync(EventDto dto, CancellationToken ct)
     {
@@ -69,11 +71,12 @@ public class EventIngestService(TomeshelfComicConDbContext context)
             entity.Slug = dto.EventSlug;
             entity.UpdatedUtc = DateTime.UtcNow;
         }
+
         return entity;
     }
 
     /// <summary>
-    /// Builds a cache of categories referenced in the payload, reusing previously tracked entities when available.
+    ///     Builds a cache of categories referenced in the payload, reusing previously tracked entities when available.
     /// </summary>
     /// <param name="dto">Incoming event payload.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -93,11 +96,11 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     }
 
     /// <summary>
-    /// Retrieves an existing person (including images and categories) or creates a new tracked instance.
+    ///     Retrieves an existing person (including images and categories) or creates a new tracked instance.
     /// </summary>
     /// <param name="externalId">External person identifier.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>The tracked <see cref="Person"/> entity.</returns>
+    /// <returns>The tracked <see cref="Person" /> entity.</returns>
     /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
     private async Task<Person> GetOrCreatePersonAsync(string externalId, CancellationToken ct)
     {
@@ -116,7 +119,7 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     }
 
     /// <summary>
-    /// Updates mutable person fields and derives visibility/removal metadata from the incoming DTO.
+    ///     Updates mutable person fields and derives visibility/removal metadata from the incoming DTO.
     /// </summary>
     /// <param name="person">Tracked person entity to update.</param>
     /// <param name="data">Incoming person payload.</param>
@@ -134,16 +137,10 @@ public class EventIngestService(TomeshelfComicConDbContext context)
         person.PubliclyVisible = desiredVisible;
 
         if (!desiredVisible && person.RemovedUtc is null)
-        {
             if (wasVisible || isCanceledCategory)
-            {
                 person.RemovedUtc = DateTime.UtcNow;
-            }
-        }
-        if (!wasVisible && desiredVisible)
-        {
-            person.RemovedUtc = null;
-        }
+
+        if (!wasVisible && desiredVisible) person.RemovedUtc = null;
         person.FirstName = data.FirstName ?? "";
         person.LastName = data.LastName ?? "";
         person.AltName = data.AltName;
@@ -164,7 +161,8 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     }
 
     /// <summary>
-    /// Synchronises the person's images collection to match the incoming payload while preserving existing entities when possible.
+    ///     Synchronises the person's images collection to match the incoming payload while preserving existing entities when
+    ///     possible.
     /// </summary>
     /// <param name="person">Tracked person entity.</param>
     /// <param name="images">Incoming image descriptors.</param>
@@ -179,7 +177,6 @@ public class EventIngestService(TomeshelfComicConDbContext context)
             .ToDictionary(group => group.Key, group => new Queue<PersonImage>(group), StringComparer.OrdinalIgnoreCase);
 
         foreach (var entry in desired)
-        {
             if (existingGroups.TryGetValue(entry.Key, out var queue) && queue.Count > 0)
             {
                 var image = queue.Dequeue();
@@ -198,37 +195,31 @@ public class EventIngestService(TomeshelfComicConDbContext context)
                     Thumb = entry.Payload.Thumb
                 });
             }
-        }
 
         var removals = existingGroups.Values
             .SelectMany(q => q)
             .ToList();
-        foreach (var leftover in removals)
-        {
-            person.Images.Remove(leftover);
-        }
+        foreach (var leftover in removals) person.Images.Remove(leftover);
     }
 
     /// <summary>
-    /// Ensures categories referenced in the payload exist in the shared cache, creating new entities when required.
+    ///     Ensures categories referenced in the payload exist in the shared cache, creating new entities when required.
     /// </summary>
     /// <param name="categories">Incoming category descriptors.</param>
     /// <param name="cache">Cache used to reuse tracked entities.</param>
     private void EnsureCategories(List<CategoryDto> categories, Dictionary<string, Category> cache)
     {
-        foreach (var c in categories ?? [])
-        {
-            GetOrAddCategory(c.Id, c.Name, cache, context);
-        }
+        foreach (var c in categories ?? []) GetOrAddCategory(c.Id, c.Name, cache, context);
     }
 
     /// <summary>
-    /// Aligns the person's category links with the payload, removing stale links and adding missing ones.
+    ///     Aligns the person's category links with the payload, removing stale links and adding missing ones.
     /// </summary>
     /// <param name="person">Tracked person entity.</param>
     /// <param name="categories">Incoming category descriptors.</param>
     /// <param name="cache">Category cache for resolving entities.</param>
-    private static void SyncPersonCategories(Person person, List<CategoryDto> categories, Dictionary<string, Category> cache)
+    private static void SyncPersonCategories(Person person, List<CategoryDto> categories,
+        Dictionary<string, Category> cache)
     {
         var desired = (categories ?? []).Select(c => c.Id)
             .ToHashSet();
@@ -246,23 +237,22 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     }
 
     /// <summary>
-    /// Retrieves or creates an <see cref="EventAppearance"/> for the given event/person pair.
+    ///     Retrieves or creates an <see cref="EventAppearance" /> for the given event/person pair.
     /// </summary>
     /// <param name="eventEntity">Tracked event entity.</param>
     /// <param name="person">Tracked person entity.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>The tracked <see cref="EventAppearance"/>.</returns>
+    /// <returns>The tracked <see cref="EventAppearance" />.</returns>
     /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
-    private async Task<EventAppearance> GetOrCreateAppearanceAsync(Event eventEntity, Person person, CancellationToken ct)
+    private async Task<EventAppearance> GetOrCreateAppearanceAsync(Event eventEntity, Person person,
+        CancellationToken ct)
     {
         EventAppearance appearance = null;
 
         if (eventEntity.Id > 0 && person.Id > 0)
-        {
             appearance = await context.EventAppearances
                 .Include(x => x.Schedules)
                 .SingleOrDefaultAsync(x => x.EventId == eventEntity.Id && x.PersonId == person.Id, ct);
-        }
 
         if (appearance is null)
         {
@@ -274,7 +264,7 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     }
 
     /// <summary>
-    /// Updates mutable appearance fields from the incoming payload.
+    ///     Updates mutable appearance fields from the incoming payload.
     /// </summary>
     /// <param name="a">Tracked appearance entity.</param>
     /// <param name="data">Incoming person payload.</param>
@@ -288,7 +278,7 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     }
 
     /// <summary>
-    /// Synchronises child schedule entities for the provided appearance.
+    ///     Synchronises child schedule entities for the provided appearance.
     /// </summary>
     /// <param name="a">Tracked appearance entity.</param>
     /// <param name="schedules">Incoming schedules payload.</param>
@@ -315,7 +305,8 @@ public class EventIngestService(TomeshelfComicConDbContext context)
 
             if (sd.VenueLocation is not null)
             {
-                var vl = await context.VenueLocations.SingleOrDefaultAsync(x => x.ExternalId == sd.VenueLocation.Id, ct);
+                var vl = await context.VenueLocations.SingleOrDefaultAsync(x => x.ExternalId == sd.VenueLocation.Id,
+                    ct);
                 if (vl is null)
                 {
                     vl = new VenueLocation { ExternalId = sd.VenueLocation.Id, Name = sd.VenueLocation.Name };
@@ -325,6 +316,7 @@ public class EventIngestService(TomeshelfComicConDbContext context)
                 {
                     vl.Name = sd.VenueLocation.Name;
                 }
+
                 s.VenueLocation = vl;
             }
             else
@@ -335,15 +327,16 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     }
 
     /// <summary>
-    /// Gets an existing category from the cache or creates and tracks a new one.
-    /// Ensures the category name is updated to the latest value.
+    ///     Gets an existing category from the cache or creates and tracks a new one.
+    ///     Ensures the category name is updated to the latest value.
     /// </summary>
     /// <param name="id">External category identifier.</param>
     /// <param name="name">Current category display name.</param>
     /// <param name="categoryCache">Cache of categories indexed by external id.</param>
     /// <param name="comicConDbContext">EF Core comicConDbContext used to add new entities.</param>
-    /// <returns>The resolved <see cref="Category"/>.</returns>
-    private Category GetOrAddCategory(string id, string name, Dictionary<string, Category> categoryCache, TomeshelfComicConDbContext comicConDbContext)
+    /// <returns>The resolved <see cref="Category" />.</returns>
+    private Category GetOrAddCategory(string id, string name, Dictionary<string, Category> categoryCache,
+        TomeshelfComicConDbContext comicConDbContext)
     {
         if (categoryCache.TryGetValue(id, out var existing))
         {
@@ -360,34 +353,38 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     }
 
     /// <summary>
-    /// Parses a date-time string and returns the UTC DateTime.
+    ///     Parses a date-time string and returns the UTC DateTime.
     /// </summary>
     /// <param name="value">The date-time string representation.</param>
-    /// <returns>A UTC <see cref="DateTime"/>.</returns>
+    /// <returns>A UTC <see cref="DateTime" />.</returns>
     private static DateTime ParseAsUtc(string value)
     {
-        var dto = DateTimeOffset.Parse(value, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal);
+        var dto = DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
         return dto.UtcDateTime;
     }
 
     /// <summary>
-    /// Builds a key used to compare incoming image payloads.
+    ///     Builds a key used to compare incoming image payloads.
     /// </summary>
     /// <param name="image">Incoming image payload.</param>
     /// <returns>A deterministic key representing the image URLs.</returns>
-    private static string BuildImageKey(ImageSetDto image) =>
-        BuildImageKey(image.Big, image.Med, image.Small, image.Thumb);
+    private static string BuildImageKey(ImageSetDto image)
+    {
+        return BuildImageKey(image.Big, image.Med, image.Small, image.Thumb);
+    }
 
     /// <summary>
-    /// Builds a key used to compare tracked image entities.
+    ///     Builds a key used to compare tracked image entities.
     /// </summary>
     /// <param name="image">Tracked image entity.</param>
     /// <returns>A deterministic key representing the image URLs.</returns>
-    private static string BuildImageKey(PersonImage image) =>
-        BuildImageKey(image.Big, image.Med, image.Small, image.Thumb);
+    private static string BuildImageKey(PersonImage image)
+    {
+        return BuildImageKey(image.Big, image.Med, image.Small, image.Thumb);
+    }
 
     /// <summary>
-    /// Derives a shared image key from the provided URLs.
+    ///     Derives a shared image key from the provided URLs.
     /// </summary>
     /// <param name="big">URL for the big image.</param>
     /// <param name="med">URL for the medium image.</param>
@@ -396,25 +393,13 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <returns>A deterministic key representing the image URLs.</returns>
     private static string BuildImageKey(string big, string med, string small, string thumb)
     {
-        if (!string.IsNullOrWhiteSpace(thumb))
-        {
-            return $"thumb:{thumb}";
-        }
+        if (!string.IsNullOrWhiteSpace(thumb)) return $"thumb:{thumb}";
 
-        if (!string.IsNullOrWhiteSpace(small))
-        {
-            return $"small:{small}";
-        }
+        if (!string.IsNullOrWhiteSpace(small)) return $"small:{small}";
 
-        if (!string.IsNullOrWhiteSpace(med))
-        {
-            return $"med:{med}";
-        }
+        if (!string.IsNullOrWhiteSpace(med)) return $"med:{med}";
 
-        if (!string.IsNullOrWhiteSpace(big))
-        {
-            return $"big:{big}";
-        }
+        if (!string.IsNullOrWhiteSpace(big)) return $"big:{big}";
 
         return "__empty__";
     }

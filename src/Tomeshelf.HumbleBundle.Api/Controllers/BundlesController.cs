@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Infrastructure.Bundles;
 
@@ -14,12 +14,13 @@ namespace Tomeshelf.HumbleBundle.Api.Controllers;
 [Route("bundles")]
 public sealed class BundlesController : ControllerBase
 {
-    private readonly BundleQueries _queries;
-    private readonly IHumbleBundleScraper _scraper;
     private readonly BundleIngestService _ingest;
     private readonly ILogger<BundlesController> _logger;
+    private readonly BundleQueries _queries;
+    private readonly IHumbleBundleScraper _scraper;
 
-    public BundlesController(BundleQueries queries, IHumbleBundleScraper scraper, BundleIngestService ingest, ILogger<BundlesController> logger)
+    public BundlesController(BundleQueries queries, IHumbleBundleScraper scraper, BundleIngestService ingest,
+        ILogger<BundlesController> logger)
     {
         _queries = queries;
         _scraper = scraper;
@@ -28,13 +29,14 @@ public sealed class BundlesController : ControllerBase
     }
 
     /// <summary>
-    /// Returns bundles captured from HumbleBundle.com. Includes remaining time until expiry.
+    ///     Returns bundles captured from HumbleBundle.com. Includes remaining time until expiry.
     /// </summary>
     /// <param name="includeExpired">Set to true to include expired bundles.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<BundleResponse>), 200)]
-    public async Task<ActionResult<IReadOnlyList<BundleResponse>>> GetBundles([FromQuery] bool includeExpired = false, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<IReadOnlyList<BundleResponse>>> GetBundles([FromQuery] bool includeExpired = false,
+        CancellationToken cancellationToken = default)
     {
         var dtos = await _queries.GetBundlesAsync(includeExpired, cancellationToken);
         var now = DateTimeOffset.UtcNow;
@@ -47,12 +49,13 @@ public sealed class BundlesController : ControllerBase
     }
 
     /// <summary>
-    /// Scrapes the Humble Bundle listing page and persists the latest data.
+    ///     Scrapes the Humble Bundle listing page and persists the latest data.
     /// </summary>
     /// <param name="cancellationToken">Request cancellation token.</param>
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(RefreshBundlesResponse), 200)]
-    public async Task<ActionResult<RefreshBundlesResponse>> RefreshBundles(CancellationToken cancellationToken = default)
+    public async Task<ActionResult<RefreshBundlesResponse>> RefreshBundles(
+        CancellationToken cancellationToken = default)
     {
         var scraped = await _scraper.ScrapeAsync(cancellationToken);
         var ingestResult = await _ingest.UpsertAsync(scraped, cancellationToken);
@@ -73,7 +76,7 @@ public sealed class BundlesController : ControllerBase
     }
 
     /// <summary>
-    /// API model returned by the GET endpoint, enriched with computed remaining time.
+    ///     API model returned by the GET endpoint, enriched with computed remaining time.
     /// </summary>
     /// <param name="MachineName">Stable identifier.</param>
     /// <param name="Category">Bundle category.</param>
@@ -117,10 +120,7 @@ public sealed class BundlesController : ControllerBase
             if (dto.EndsAt.HasValue)
             {
                 var remaining = dto.EndsAt.Value - now;
-                if (remaining > TimeSpan.Zero)
-                {
-                    secondsRemaining = remaining.TotalSeconds;
-                }
+                if (remaining > TimeSpan.Zero) secondsRemaining = remaining.TotalSeconds;
             }
 
             return new BundleResponse(
@@ -145,7 +145,7 @@ public sealed class BundlesController : ControllerBase
     }
 
     /// <summary>
-    /// Summary returned after invoking the refresh endpoint.
+    ///     Summary returned after invoking the refresh endpoint.
     /// </summary>
     /// <param name="Created">Bundles created during the ingest.</param>
     /// <param name="Updated">Bundles updated during the ingest.</param>

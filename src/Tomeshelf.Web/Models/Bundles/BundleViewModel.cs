@@ -3,7 +3,7 @@ using System;
 namespace Tomeshelf.Web.Models.Bundles;
 
 /// <summary>
-/// View model describing a bundle for the MVC view.
+///     View model describing a bundle for the MVC view.
 /// </summary>
 public sealed class BundleViewModel
 {

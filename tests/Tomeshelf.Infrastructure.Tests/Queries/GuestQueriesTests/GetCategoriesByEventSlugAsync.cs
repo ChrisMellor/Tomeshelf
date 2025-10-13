@@ -1,8 +1,8 @@
+using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Threading.Tasks;
 using Tomeshelf.Domain.Entities.ComicCon;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;
@@ -42,7 +42,8 @@ public class GuestQueriesGetCategoriesByEventSlugAsyncTests
         db.Events.Add(ev);
         db.People.Add(p);
         db.Categories.AddRange(c1, c2);
-        db.PersonCategories.AddRange(new PersonCategory { Person = p, Category = c1 }, new PersonCategory { Person = p, Category = c2 });
+        db.PersonCategories.AddRange(new PersonCategory { Person = p, Category = c1 },
+            new PersonCategory { Person = p, Category = c2 });
         db.EventAppearances.Add(new EventAppearance { Event = ev, Person = p });
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
