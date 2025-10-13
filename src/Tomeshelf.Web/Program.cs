@@ -69,6 +69,32 @@ public class Program
             AutomaticDecompression = DecompressionMethods.None
         });
 
+        builder.Services.AddHttpClient<IBundlesApi, BundlesApi>(client =>
+        {
+            var configured = builder.Configuration["Services:HumbleBundleApiBase"];
+
+            if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+            {
+                if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                {
+                    throw new InvalidOperationException("Invalid URI in configuration setting 'Services:HumbleBundleApiBase'.");
+                }
+
+                client.BaseAddress = configuredUri;
+            }
+            else
+            {
+                client.BaseAddress = new Uri("https://HumbleBundleApi");
+            }
+
+            client.DefaultRequestVersion = HttpVersion.Version11;
+            client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+            client.Timeout = TimeSpan.FromSeconds(100);
+        }).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+        {
+            AutomaticDecompression = DecompressionMethods.None
+        });
+
 
         var app = builder.Build();
 
