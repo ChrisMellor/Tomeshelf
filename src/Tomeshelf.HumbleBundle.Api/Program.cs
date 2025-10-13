@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using Tomeshelf.Infrastructure;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.ServiceDefaults;
 
@@ -32,6 +33,7 @@ public class Program
         }
 
         builder.Services.AddProblemDetails()
+            .AddOpenApi()
             .AddControllers();
 
         builder.Services.AddAuthorization();
@@ -42,6 +44,7 @@ public class Program
         });
 
         builder.AddSqlServerDbContext<TomeshelfBundlesDbContext>("bundlesdb");
+        builder.Services.AddBundleInfrastructure();
 
         var app = builder.Build();
 
@@ -54,7 +57,7 @@ public class Program
             app.UseSwaggerUI(options =>
             {
                 options.RoutePrefix = string.Empty;
-                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf - Humble Bundle - API v1");
+                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf API v1");
             });
         }
 

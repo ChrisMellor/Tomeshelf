@@ -21,6 +21,23 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
+    /// Registers Humble Bundle scraping and query services.
+    /// </summary>
+    /// <param name="services">The DI service collection.</param>
+    /// <returns>The same service collection for chaining.</returns>
+    public static IServiceCollection AddBundleInfrastructure(this IServiceCollection services)
+    {
+        services.AddScoped<Bundles.BundleQueries>();
+        services.AddScoped<Bundles.BundleIngestService>();
+        services.AddHttpClient<Bundles.IHumbleBundleScraper, Bundles.HumbleBundleScraper>(client =>
+        {
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf/1.0 (+https://github.com/ChrisMellor/Tomeshelf)");
+        });
+
+        return services;
+    }
+
+    /// <summary>
     /// Registers infrastructure services and configures the EF Core DbContext (classic overload).
     /// </summary>
     /// <param name="services">The DI service collection.</param>
