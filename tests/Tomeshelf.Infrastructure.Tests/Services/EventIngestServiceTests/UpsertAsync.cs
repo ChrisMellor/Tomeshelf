@@ -29,11 +29,13 @@ public class EventIngestServiceTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = Guid.NewGuid()
                                          .ToString(),
-                                FirstName = "Ada", LastName = "Lovelace", Images =
+                                FirstName = "Ada",
+                                LastName = "Lovelace",
+                                Images =
                                         [],
                                 GlobalCategories =
                                         []
@@ -76,7 +78,11 @@ public class EventIngestServiceTests
         };
         await sut.UpsertAsync(evt);
 
-        var updated = evt with { EventName = "New Name", EventSlug = "new-slug" };
+        var updated = evt with
+        {
+                EventName = "New Name",
+                EventSlug = "new-slug"
+        };
 
         // Act
         await sut.UpsertAsync(updated);

@@ -28,14 +28,21 @@ public class CancellationCategorySetsRemovedTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P-C1",
                                 Uid = "U1",
                                 PubliclyVisible = true,
                                 FirstName = "Test",
                                 LastName = "Person",
-                                GlobalCategories = new List<CategoryDto> { new() { Id = "X", Name = "Canceled" } }
+                                GlobalCategories = new List<CategoryDto>
+                                {
+                                        new CategoryDto
+                                        {
+                                                Id = "X",
+                                                Name = "Canceled"
+                                        }
+                                }
                         }
                 }
         };
@@ -68,14 +75,21 @@ public class CancellationCategorySetsRemovedTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P-C2",
                                 Uid = "U2",
                                 PubliclyVisible = true,
                                 FirstName = "Test",
                                 LastName = "Person",
-                                GlobalCategories = new List<CategoryDto> { new() { Id = "X", Name = "Canceled" } }
+                                GlobalCategories = new List<CategoryDto>
+                                {
+                                        new CategoryDto
+                                        {
+                                                Id = "X",
+                                                Name = "Canceled"
+                                        }
+                                }
                         }
                 }
         };
@@ -88,7 +102,7 @@ public class CancellationCategorySetsRemovedTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P-C2",
                                 Uid = "U2",

@@ -10,6 +10,8 @@ internal static class EntityFrameworkExtensions
     {
         foreach (var item in set.Where(predicate)
                                 .ToList())
+        {
             set.Remove(item);
+        }
     }
 }

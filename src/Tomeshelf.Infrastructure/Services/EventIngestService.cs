@@ -62,7 +62,12 @@ public class EventIngestService(TomeshelfComicConDbContext context)
         var entity = await context.Events.SingleOrDefaultAsync(x => x.ExternalId == dto.EventId, ct);
         if (entity is null)
         {
-            entity = new Event { ExternalId = dto.EventId, Name = dto.EventName, Slug = dto.EventSlug };
+            entity = new Event
+            {
+                    ExternalId = dto.EventId,
+                    Name = dto.EventName,
+                    Slug = dto.EventSlug
+            };
             context.Events.Add(entity);
         }
         else
@@ -136,11 +141,18 @@ public class EventIngestService(TomeshelfComicConDbContext context)
         person.PubliclyVisible = desiredVisible;
 
         if (!desiredVisible && person.RemovedUtc is null)
+        {
             if (wasVisible || isCanceledCategory)
+            {
                 person.RemovedUtc = DateTime.UtcNow;
+            }
+        }
 
         if (!wasVisible && desiredVisible)
+        {
             person.RemovedUtc = null;
+        }
+
         person.FirstName = data.FirstName ?? "";
         person.LastName = data.LastName ?? "";
         person.AltName = data.AltName;
@@ -176,7 +188,8 @@ public class EventIngestService(TomeshelfComicConDbContext context)
                                    .ToDictionary(group => group.Key, group => new Queue<PersonImage>(group), StringComparer.OrdinalIgnoreCase);
 
         foreach (var entry in desired)
-            if (existingGroups.TryGetValue(entry.Key, out var queue) && queue.Count > 0)
+        {
+            if (existingGroups.TryGetValue(entry.Key, out var queue) && (queue.Count > 0))
             {
                 var image = queue.Dequeue();
                 image.Big = entry.Payload.Big;
@@ -194,11 +207,14 @@ public class EventIngestService(TomeshelfComicConDbContext context)
                         Thumb = entry.Payload.Thumb
                 });
             }
+        }
 
         var removals = existingGroups.Values.SelectMany(q => q)
                                      .ToList();
         foreach (var leftover in removals)
+        {
             person.Images.Remove(leftover);
+        }
     }
 
     /// <summary>
@@ -210,7 +226,9 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     {
         foreach (var c in categories ??
                           [])
+        {
             GetOrAddCategory(c.Id, c.Name, cache, context);
+        }
     }
 
     /// <summary>
@@ -233,7 +251,11 @@ public class EventIngestService(TomeshelfComicConDbContext context)
         foreach (var id in desired.Except(existing))
         {
             var category = cache[id];
-            person.Categories.Add(new PersonCategory { Person = person, Category = category });
+            person.Categories.Add(new PersonCategory
+            {
+                    Person = person,
+                    Category = category
+            });
         }
     }
 
@@ -249,13 +271,19 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     {
         EventAppearance appearance = null;
 
-        if (eventEntity.Id > 0 && person.Id > 0)
+        if ((eventEntity.Id > 0) && (person.Id > 0))
+        {
             appearance = await context.EventAppearances.Include(x => x.Schedules)
-                                      .SingleOrDefaultAsync(x => x.EventId == eventEntity.Id && x.PersonId == person.Id, ct);
+                                      .SingleOrDefaultAsync(x => (x.EventId == eventEntity.Id) && (x.PersonId == person.Id), ct);
+        }
 
         if (appearance is null)
         {
-            appearance = new EventAppearance { Event = eventEntity, Person = person };
+            appearance = new EventAppearance
+            {
+                    Event = eventEntity,
+                    Person = person
+            };
             context.EventAppearances.Add(appearance);
         }
 
@@ -292,7 +320,11 @@ public class EventIngestService(TomeshelfComicConDbContext context)
         {
             if (!byId.TryGetValue(sd.Id, out var s))
             {
-                s = new Schedule { EventAppearance = a, ExternalId = sd.Id };
+                s = new Schedule
+                {
+                        EventAppearance = a,
+                        ExternalId = sd.Id
+                };
                 a.Schedules.Add(s);
             }
 
@@ -310,7 +342,11 @@ public class EventIngestService(TomeshelfComicConDbContext context)
                 var vl = await context.VenueLocations.SingleOrDefaultAsync(x => x.ExternalId == sd.VenueLocation.Id, ct);
                 if (vl is null)
                 {
-                    vl = new VenueLocation { ExternalId = sd.VenueLocation.Id, Name = sd.VenueLocation.Name };
+                    vl = new VenueLocation
+                    {
+                            ExternalId = sd.VenueLocation.Id,
+                            Name = sd.VenueLocation.Name
+                    };
                     context.VenueLocations.Add(vl);
                 }
                 else
@@ -345,7 +381,11 @@ public class EventIngestService(TomeshelfComicConDbContext context)
             return existing;
         }
 
-        var category = new Category { ExternalId = id, Name = name };
+        var category = new Category
+        {
+                ExternalId = id,
+                Name = name
+        };
         comicConDbContext.Categories.Add(category);
         categoryCache[id] = category;
 
@@ -395,16 +435,24 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     private static string BuildImageKey(string big, string med, string small, string thumb)
     {
         if (!string.IsNullOrWhiteSpace(thumb))
+        {
             return $"thumb:{thumb}";
+        }
 
         if (!string.IsNullOrWhiteSpace(small))
+        {
             return $"small:{small}";
+        }
 
         if (!string.IsNullOrWhiteSpace(med))
+        {
             return $"med:{med}";
+        }
 
         if (!string.IsNullOrWhiteSpace(big))
+        {
             return $"big:{big}";
+        }
 
         return "__empty__";
     }

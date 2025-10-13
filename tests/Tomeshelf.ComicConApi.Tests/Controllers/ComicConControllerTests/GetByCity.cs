@@ -60,7 +60,11 @@ public class ComicConControllerGetByCityTests
         };
         db.Events.Add(ev);
         db.People.Add(p);
-        db.EventAppearances.Add(new EventAppearance { Event = ev, Person = p });
+        db.EventAppearances.Add(new EventAppearance
+        {
+                Event = ev,
+                Person = p
+        });
         await db.SaveChangesAsync();
 
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
@@ -77,6 +81,10 @@ public class ComicConControllerGetByCityTests
         var okResult = (OkObjectResult)result.Result!;
         var okPayload = okResult.Value!;
         okPayload.Should()
-                 .BeEquivalentTo(new { city = "London", total = 1 }, options => options.ExcludingMissingMembers());
+                 .BeEquivalentTo(new
+                  {
+                          city = "London",
+                          total = 1
+                  }, options => options.ExcludingMissingMembers());
     }
 }

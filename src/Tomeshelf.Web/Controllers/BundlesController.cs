@@ -25,7 +25,7 @@ public sealed class BundlesController(IBundlesApi api) : Controller
         var viewModels = bundles.Select(bundle =>
                                  {
                                      var timeRemaining = CalculateRemaining(bundle.EndsAt, now);
-                                     var isExpired = bundle.EndsAt.HasValue && bundle.EndsAt.Value <= now;
+                                     var isExpired = bundle.EndsAt.HasValue && (bundle.EndsAt.Value <= now);
 
                                      return new BundleViewModel
                                      {
@@ -87,7 +87,9 @@ public sealed class BundlesController(IBundlesApi api) : Controller
     private static TimeSpan? CalculateRemaining(DateTimeOffset? endsAt, DateTimeOffset now)
     {
         if (!endsAt.HasValue)
+        {
             return null;
+        }
 
         var remaining = endsAt.Value - now;
 
@@ -108,7 +110,9 @@ public sealed class BundlesController(IBundlesApi api) : Controller
     private static string Capitalize(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
+        {
             return "Other";
+        }
 
         return char.ToUpperInvariant(value[0]) + value[1..];
     }

@@ -72,7 +72,9 @@ public sealed class BundleIngestService
             {
                 entity.LastUpdatedUtc = scraped.ObservedUtc;
                 if (!isNew)
+                {
                     counters.Updated++;
+                }
             }
             else
             {

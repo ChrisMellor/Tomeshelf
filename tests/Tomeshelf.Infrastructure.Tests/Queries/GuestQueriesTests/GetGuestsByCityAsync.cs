@@ -25,13 +25,32 @@ public class GuestQueriesGetGuestsByCityAsyncTests
         {
                 ExternalId = Guid.NewGuid()
                                  .ToString(),
-                Name = "Event", Slug = "2025-london"
+                Name = "Event",
+                Slug = "2025-london"
         };
         db.Events.Add(ev);
-        var p1 = new Person { ExternalId = "P1", FirstName = "Ada", LastName = "Lovelace" };
-        var p2 = new Person { ExternalId = "P2", FirstName = "Grace", LastName = "Hopper" };
+        var p1 = new Person
+        {
+                ExternalId = "P1",
+                FirstName = "Ada",
+                LastName = "Lovelace"
+        };
+        var p2 = new Person
+        {
+                ExternalId = "P2",
+                FirstName = "Grace",
+                LastName = "Hopper"
+        };
         db.People.AddRange(p1, p2);
-        db.EventAppearances.AddRange(new EventAppearance { Event = ev, Person = p1 }, new EventAppearance { Event = ev, Person = p2 });
+        db.EventAppearances.AddRange(new EventAppearance
+        {
+                Event = ev,
+                Person = p1
+        }, new EventAppearance
+        {
+                Event = ev,
+                Person = p2
+        });
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);

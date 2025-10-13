@@ -152,7 +152,7 @@ else
     </section>
 }
 
-@if (Model.IncludeExpired && Model.ExpiredBundles.Count > 0)
+@if (Model.IncludeExpired && (Model.ExpiredBundles.Count > 0))
 {
     <section class="mt-5">
         <h2 class="h4 mb-3">Expired Bundles</h2>

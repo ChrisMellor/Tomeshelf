@@ -25,7 +25,9 @@ public class CitySchemaTransformer : IOpenApiSchemaTransformer
         var type = context.JsonTypeInfo.Type;
 
         if (type != typeof(City))
+        {
             return Task.CompletedTask;
+        }
 
         schema.Type = "string";
         schema.Format = null;

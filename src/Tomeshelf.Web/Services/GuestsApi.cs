@@ -18,10 +18,7 @@ namespace Tomeshelf.Web.Services;
 /// <param name="logger">Logger for request/response telemetry.</param>
 public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGuestsApi
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
-    {
-            NumberHandling = JsonNumberHandling.AllowReadingFromString
-    };
+    private static readonly JsonSerializerOptions Json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { NumberHandling = JsonNumberHandling.AllowReadingFromString };
 
     private readonly ILogger<GuestsApi> _logger = logger;
 

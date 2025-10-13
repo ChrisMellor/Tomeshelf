@@ -33,7 +33,9 @@ public sealed class BundleQueries
 
         var query = _dbContext.Bundles.AsNoTracking();
         if (!includeExpired)
-            query = query.Where(b => !b.EndsAt.HasValue || b.EndsAt >= now);
+        {
+            query = query.Where(b => !b.EndsAt.HasValue || (b.EndsAt >= now));
+        }
 
         var generatedAt = DateTimeOffset.UtcNow;
 

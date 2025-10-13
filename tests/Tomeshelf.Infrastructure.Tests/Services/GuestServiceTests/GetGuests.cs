@@ -25,7 +25,14 @@ public class GuestServiceTests
         var key = Guid.NewGuid();
         var options = Options.Create(new ComicConOptions
         {
-                ComicCon = new List<Location> { new() { City = city, Key = key } }
+                ComicCon = new List<Location>
+                {
+                        new Location
+                        {
+                                City = city,
+                                Key = key
+                        }
+                }
         });
 
         var peopleFaker = new Faker<PersonDto>().RuleFor(p => p.Id, f => f.Random.Uuid()
@@ -92,7 +99,14 @@ public class GuestServiceTests
         var key = Guid.NewGuid();
         var options = Options.Create(new ComicConOptions
         {
-                ComicCon = new List<Location> { new() { City = city, Key = key } }
+                ComicCon = new List<Location>
+                {
+                        new Location
+                        {
+                                City = city,
+                                Key = key
+                        }
+                }
         });
         IGuestsClient guestsClient = new FakeGuestsClient(null);
 
@@ -141,9 +155,22 @@ public class GuestServiceTests
         var key = Guid.NewGuid();
         var options = Options.Create(new ComicConOptions
         {
-                ComicCon = new List<Location> { new() { City = "London", Key = key } }
+                ComicCon = new List<Location>
+                {
+                        new Location
+                        {
+                                City = "London",
+                                Key = key
+                        }
+                }
         });
-        var evt = new EventDto { EventId = "E", EventName = "N", EventSlug = "s", People = new List<PersonDto>() };
+        var evt = new EventDto
+        {
+                EventId = "E",
+                EventName = "N",
+                EventSlug = "s",
+                People = new List<PersonDto>()
+        };
         IGuestsClient guestsClient = new FakeGuestsClient(evt);
         var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
                                                                                                           .ToString())

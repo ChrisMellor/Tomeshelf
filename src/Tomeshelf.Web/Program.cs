@@ -28,12 +28,14 @@ public class Program
         builder.AddServiceDefaults();
 
         if (builder.Environment.IsDevelopment())
+        {
             builder.Services.AddHttpLogging(o =>
             {
                 o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod | HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration | HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
                 o.RequestHeaders.Add("User-Agent");
                 o.MediaTypeOptions.AddText("text/html");
             });
+        }
 
         builder.Services.AddControllersWithViews();
         builder.Services.AddAuthorization();
@@ -46,7 +48,9 @@ public class Program
                     if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
                     {
                         if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                        {
                             throw new InvalidOperationException("Invalid URI in configuration setting 'Services:ApiBase'.");
+                        }
 
                         client.BaseAddress = configuredUri;
                     }
@@ -59,10 +63,7 @@ public class Program
                     client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
                     client.Timeout = TimeSpan.FromSeconds(100);
                 })
-               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-                {
-                        AutomaticDecompression = DecompressionMethods.None
-                });
+               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
 
         builder.Services.AddHttpClient<IBundlesApi, BundlesApi>(client =>
                 {
@@ -71,7 +72,9 @@ public class Program
                     if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
                     {
                         if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                        {
                             throw new InvalidOperationException("Invalid URI in configuration setting 'Services:HumbleBundleApiBase'.");
+                        }
 
                         client.BaseAddress = configuredUri;
                     }
@@ -84,10 +87,7 @@ public class Program
                     client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
                     client.Timeout = TimeSpan.FromSeconds(100);
                 })
-               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-                {
-                        AutomaticDecompression = DecompressionMethods.None
-                });
+               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
 
         var app = builder.Build();
 
@@ -105,7 +105,10 @@ public class Program
 
         app.UseHttpsRedirection();
         if (app.Environment.IsDevelopment())
+        {
             app.UseHttpLogging();
+        }
+
         app.UseRouting();
 
         app.UseAuthorization();

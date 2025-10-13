@@ -16,10 +16,7 @@ public class GuestsApiTests
     public async Task GetComicConGuestsByCityAsync_InvalidJson_ThrowsJsonException()
     {
         // Arrange
-        var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
-        {
-                Content = new StringContent("{ invalid", Encoding.UTF8, "application/json")
-        });
+        var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{ invalid", Encoding.UTF8, "application/json") });
         var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
         var api = new GuestsApi(http, NullLogger<GuestsApi>.Instance);
 
@@ -35,10 +32,7 @@ public class GuestsApiTests
     public async Task GetComicConGuestsByCityAsync_EmptyBody_ThrowsJsonException()
     {
         // Arrange
-        var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
-        {
-                Content = new StringContent("", Encoding.UTF8, "application/json")
-        });
+        var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("", Encoding.UTF8, "application/json") });
         var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
         var api = new GuestsApi(http, NullLogger<GuestsApi>.Instance);
 
@@ -58,10 +52,7 @@ public class GuestsApiTests
         {
             var json = "{" + "\"city\":\"London\",\"total\":1,\"groups\":[{" + "\"createdDate\":\"2025-01-01T00:00:00Z\",\"items\":[{" + "\"id\":\"1\",\"first_name\":\"Ada\",\"last_name\":\"Lovelace\",\"images\":[]" + "}]}]}";
 
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                    Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
         });
         var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
         var api = new GuestsApi(http, NullLogger<GuestsApi>.Instance);
@@ -77,7 +68,11 @@ public class GuestsApiTests
         var firstPerson = groups[0]
                .Items[0];
         firstPerson.Should()
-                   .BeEquivalentTo(new { FirstName = "Ada", LastName = "Lovelace" });
+                   .BeEquivalentTo(new
+                    {
+                            FirstName = "Ada",
+                            LastName = "Lovelace"
+                    });
     }
 
     [Fact]

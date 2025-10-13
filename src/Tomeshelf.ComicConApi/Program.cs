@@ -39,6 +39,7 @@ public static class Program
         builder.AddServiceDefaults();
 
         if (builder.Environment.IsDevelopment())
+        {
             builder.Services.AddHttpLogging(o =>
             {
                 o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestQuery | HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration | HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
@@ -47,6 +48,7 @@ public static class Program
                 o.RequestBodyLogLimit = 0;
                 o.ResponseBodyLogLimit = 0;
             });
+        }
 
         builder.Services.AddProblemDetails()
                .AddOpenApi(options =>
@@ -93,7 +95,10 @@ public static class Program
 
         app.UseHttpsRedirection();
         if (app.Environment.IsDevelopment())
+        {
             app.UseHttpLogging();
+        }
+
         app.UseAuthorization();
         app.MapControllers();
 

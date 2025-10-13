@@ -106,7 +106,11 @@ public class TomeshelfComicConDbContext(DbContextOptions<TomeshelfComicConDbCont
 
         modelBuilder.Entity<PersonCategory>(pc =>
         {
-            pc.HasKey(x => new { x.PersonId, x.CategoryId });
+            pc.HasKey(x => new
+            {
+                    x.PersonId,
+                    x.CategoryId
+            });
             pc.HasOne(x => x.Person)
               .WithMany(p => p.Categories)
               .HasForeignKey(x => x.PersonId);
@@ -123,7 +127,11 @@ public class TomeshelfComicConDbContext(DbContextOptions<TomeshelfComicConDbCont
             a.HasOne(x => x.Person)
              .WithMany(p => p.Appearances)
              .HasForeignKey(x => x.PersonId);
-            a.HasIndex(x => new { x.EventId, x.PersonId })
+            a.HasIndex(x => new
+              {
+                      x.EventId,
+                      x.PersonId
+              })
              .IsUnique();
             a.Property(x => x.DaysAtShow)
              .HasMaxLength(50);
@@ -148,7 +156,11 @@ public class TomeshelfComicConDbContext(DbContextOptions<TomeshelfComicConDbCont
 
         modelBuilder.Entity<Schedule>(s =>
         {
-            s.HasIndex(x => new { x.EventAppearanceId, x.ExternalId })
+            s.HasIndex(x => new
+              {
+                      x.EventAppearanceId,
+                      x.ExternalId
+              })
              .IsUnique();
             s.Property(x => x.Title)
              .HasMaxLength(300)

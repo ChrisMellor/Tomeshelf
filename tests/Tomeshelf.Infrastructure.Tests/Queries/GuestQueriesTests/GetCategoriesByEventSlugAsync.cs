@@ -38,15 +38,45 @@ public class GuestQueriesGetCategoriesByEventSlugAsyncTests
                                                                                  .Options;
         using var db = new TomeshelfComicConDbContext(dbOptions);
 
-        var ev = new Event { ExternalId = "E1", Name = "Event", Slug = "2025-london" };
-        var p = new Person { ExternalId = "P1", FirstName = "A", LastName = "B" };
-        var c1 = new Category { ExternalId = "A", Name = "Alpha" };
-        var c2 = new Category { ExternalId = "B", Name = "Beta" };
+        var ev = new Event
+        {
+                ExternalId = "E1",
+                Name = "Event",
+                Slug = "2025-london"
+        };
+        var p = new Person
+        {
+                ExternalId = "P1",
+                FirstName = "A",
+                LastName = "B"
+        };
+        var c1 = new Category
+        {
+                ExternalId = "A",
+                Name = "Alpha"
+        };
+        var c2 = new Category
+        {
+                ExternalId = "B",
+                Name = "Beta"
+        };
         db.Events.Add(ev);
         db.People.Add(p);
         db.Categories.AddRange(c1, c2);
-        db.PersonCategories.AddRange(new PersonCategory { Person = p, Category = c1 }, new PersonCategory { Person = p, Category = c2 });
-        db.EventAppearances.Add(new EventAppearance { Event = ev, Person = p });
+        db.PersonCategories.AddRange(new PersonCategory
+        {
+                Person = p,
+                Category = c1
+        }, new PersonCategory
+        {
+                Person = p,
+                Category = c2
+        });
+        db.EventAppearances.Add(new EventAppearance
+        {
+                Event = ev,
+                Person = p
+        });
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);

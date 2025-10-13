@@ -21,10 +21,14 @@ public sealed class NullableFlexibleDecimalConverter : JsonConverter<decimal?>
     public override decimal? Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Null)
+        {
             return null;
+        }
 
         if (reader.TokenType == JsonTokenType.Number)
+        {
             return reader.GetDecimal();
+        }
 
         if (reader.TokenType == JsonTokenType.String)
         {
@@ -32,7 +36,9 @@ public sealed class NullableFlexibleDecimalConverter : JsonConverter<decimal?>
                          ?.Trim();
 
             if (string.IsNullOrEmpty(s))
+            {
                 return null;
+            }
 
             s = s.Replace(",", "")
                  .Replace("£", "")
@@ -58,8 +64,12 @@ public sealed class NullableFlexibleDecimalConverter : JsonConverter<decimal?>
     public override void Write(Utf8JsonWriter writer, decimal? value, JsonSerializerOptions options)
     {
         if (value is null)
+        {
             writer.WriteNullValue();
+        }
         else
+        {
             writer.WriteNumberValue(value.Value);
+        }
     }
 }

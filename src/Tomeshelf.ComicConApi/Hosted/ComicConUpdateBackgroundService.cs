@@ -92,6 +92,7 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
     private async Task RunOnceAsync(CancellationToken cancellationToken)
     {
         foreach (var city in new[] { City.London, City.Birmingham })
+        {
             try
             {
                 _logger.LogInformation("Updating guests for {CityName}", city);
@@ -112,5 +113,6 @@ public sealed class ComicConUpdateBackgroundService : BackgroundService
             {
                 _logger.LogError(ex, "Failed to update guests for {CityName}", city);
             }
+        }
     }
 }

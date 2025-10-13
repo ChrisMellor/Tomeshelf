@@ -29,13 +29,34 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P1",
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
-                                Images = new List<ImageSetDto> { new() { Big = "b1", Med = "m1", Small = "s1", Thumb = "t1" } },
-                                GlobalCategories = new List<CategoryDto> { new() { Id = "A", Name = "Alpha" }, new() { Id = "B", Name = "Beta" } }
+                                Images = new List<ImageSetDto>
+                                {
+                                        new ImageSetDto
+                                        {
+                                                Big = "b1",
+                                                Med = "m1",
+                                                Small = "s1",
+                                                Thumb = "t1"
+                                        }
+                                },
+                                GlobalCategories = new List<CategoryDto>
+                                {
+                                        new CategoryDto
+                                        {
+                                                Id = "A",
+                                                Name = "Alpha"
+                                        },
+                                        new CategoryDto
+                                        {
+                                                Id = "B",
+                                                Name = "Beta"
+                                        }
+                                }
                         }
                 }
         };
@@ -50,13 +71,34 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P1",
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
-                                Images = new List<ImageSetDto> { new() { Big = "b2", Med = "m2", Small = "s2", Thumb = "t2" } },
-                                GlobalCategories = new List<CategoryDto> { new() { Id = "B", Name = "Beta" }, new() { Id = "C", Name = "Gamma" } }
+                                Images = new List<ImageSetDto>
+                                {
+                                        new ImageSetDto
+                                        {
+                                                Big = "b2",
+                                                Med = "m2",
+                                                Small = "s2",
+                                                Thumb = "t2"
+                                        }
+                                },
+                                GlobalCategories = new List<CategoryDto>
+                                {
+                                        new CategoryDto
+                                        {
+                                                Id = "B",
+                                                Name = "Beta"
+                                        },
+                                        new CategoryDto
+                                        {
+                                                Id = "C",
+                                                Name = "Gamma"
+                                        }
+                                }
                         }
                 }
         };
@@ -97,18 +139,27 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P1",
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
                                 Schedules = new List<ScheduleDto>
                                 {
-                                        new()
+                                        new ScheduleDto
                                         {
-                                                Id = "S1", Title = "Talk", Description = "Desc", StartTime = "2025-01-01T10:00:00Z",
-                                                EndTime = "2025-01-01T11:00:00Z", NoEndTime = false, Location = "Room A",
-                                                VenueLocation = new VenueLocationDto { Id = "V1", Name = "Hall" }
+                                                Id = "S1",
+                                                Title = "Talk",
+                                                Description = "Desc",
+                                                StartTime = "2025-01-01T10:00:00Z",
+                                                EndTime = "2025-01-01T11:00:00Z",
+                                                NoEndTime = false,
+                                                Location = "Room A",
+                                                VenueLocation = new VenueLocationDto
+                                                {
+                                                        Id = "V1",
+                                                        Name = "Hall"
+                                                }
                                         }
                                 }
                         }
@@ -125,23 +176,36 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P1",
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
                                 Schedules = new List<ScheduleDto>
                                 {
-                                        new()
+                                        new ScheduleDto
                                         {
-                                                Id = "S1", Title = "Talk Updated", Description = "D2", StartTime = "2025-01-01T10:00:00Z",
-                                                EndTime = "2025-01-01T11:00:00Z", NoEndTime = false, Location = "Room A",
-                                                VenueLocation = new VenueLocationDto { Id = "V1", Name = "Hall Updated" }
+                                                Id = "S1",
+                                                Title = "Talk Updated",
+                                                Description = "D2",
+                                                StartTime = "2025-01-01T10:00:00Z",
+                                                EndTime = "2025-01-01T11:00:00Z",
+                                                NoEndTime = false,
+                                                Location = "Room A",
+                                                VenueLocation = new VenueLocationDto
+                                                {
+                                                        Id = "V1",
+                                                        Name = "Hall Updated"
+                                                }
                                         },
-                                        new()
+                                        new ScheduleDto
                                         {
-                                                Id = "S2", Title = "Panel", Description = "P", StartTime = "2025-01-01T12:00:00Z",
-                                                NoEndTime = true, Location = "Room B"
+                                                Id = "S2",
+                                                Title = "Panel",
+                                                Description = "P",
+                                                StartTime = "2025-01-01T12:00:00Z",
+                                                NoEndTime = true,
+                                                Location = "Room B"
                                         }
                                 }
                         }
@@ -153,7 +217,7 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
         // Assert
         var ea = await db.EventAppearances.Include(e => e.Schedules)
                          .ThenInclude(s => s.VenueLocation)
-                         .SingleAsync(a => a.Person.ExternalId == "P1" && a.Event.Slug == "2025-london", TestContext.Current.CancellationToken);
+                         .SingleAsync(a => (a.Person.ExternalId == "P1") && (a.Event.Slug == "2025-london"), TestContext.Current.CancellationToken);
         ea.Schedules.Should()
           .HaveCount(2);
         ea.Schedules.Single(s => s.ExternalId == "S1")

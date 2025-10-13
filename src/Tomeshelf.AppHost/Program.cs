@@ -25,8 +25,10 @@ internal class Program
         var isPublish = builder.ExecutionContext.IsPublishMode;
 
         if (!isPublish)
+        {
             builder.AddDockerComposeEnvironment("metrics")
                    .WithDashboard(rb => rb.WithHostPort(18888));
+        }
 
         var database = builder.AddSqlServer("sql")
                               .WithDataVolume()
@@ -60,9 +62,11 @@ internal class Program
                     [];
 
         for (var i = 0; i < sites.Count; i++)
+        {
             comicConApi.WithEnvironment($"ComicCon__{i}__City", sites[i].City)
                        .WithEnvironment($"ComicCon__{i}__Key", sites[i]
                                                               .Key.ToString());
+        }
 
         builder.Build()
                .Run();

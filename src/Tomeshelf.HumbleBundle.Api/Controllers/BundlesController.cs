@@ -90,7 +90,9 @@ public sealed class BundlesController : ControllerBase
             {
                 var remaining = dto.EndsAt.Value - now;
                 if (remaining > TimeSpan.Zero)
+                {
                     secondsRemaining = remaining.TotalSeconds;
+                }
             }
 
             return new BundleResponse(dto.MachineName, dto.Category, dto.Stamp, dto.Title, dto.ShortName, dto.Url, dto.TileImageUrl, dto.TileLogoUrl, dto.HeroImageUrl, dto.ShortDescription, dto.StartsAt, dto.EndsAt, dto.FirstSeenUtc, dto.LastSeenUtc, dto.LastUpdatedUtc, secondsRemaining, dto.GeneratedUtc);

@@ -15,7 +15,7 @@
         }
 
         var rem100 = d % 100;
-        if (rem100 >= 11 && rem100 <= 13)
+        if ((rem100 >= 11) && (rem100 <= 13))
         {
             return d + "th";
         }
@@ -29,7 +29,7 @@
         };
     };
     var removed = Model?.SelectMany(g => g.Items)
-                        .Where(p => p != null && p.PubliclyVisible == false)
+                        .Where(p => (p != null) && (p.PubliclyVisible == false))
                         .GroupBy(p => p.Id)
                         .Select(g => g.First())
                         .ToList();
@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    @if (total == 0 || !Model.Any())
+    @if ((total == 0) || !Model.Any())
     {
         <div class="text-muted py-5 text-center">No guests found.</div>
     }
@@ -129,7 +129,7 @@
             @for (var i = 0; i < Model.Count; i++)
             {
                 var group = Model[i];
-                var itemsVisible = group.Items?.Where(p => p != null && p.PubliclyVisible)
+                var itemsVisible = group.Items?.Where(p => (p != null) && p.PubliclyVisible)
                                         .ToList() ??
                                    new List<PersonModel>();
                 if (itemsVisible.Count == 0)
@@ -141,7 +141,7 @@
                 var monthName = culture.DateTimeFormat.GetMonthName(group.CreatedDate.Month);
                 var title = $"Added on {dayName} - {ord(group.CreatedDate.Day)} {monthName}";
                 var id = $"acc-{group.CreatedDate:yyyyMMdd}-{i}";
-                var isOpen = removed == null || removed.Count == 0
+                var isOpen = (removed == null) || (removed.Count == 0)
                         ? i == 0
                         : false;
                 var btnClass = isOpen

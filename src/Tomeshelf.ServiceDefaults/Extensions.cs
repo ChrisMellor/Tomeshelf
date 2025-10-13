@@ -91,8 +91,10 @@ public static class Extensions
         var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
 
         if (useOtlpExporter)
+        {
             builder.Services.AddOpenTelemetry()
                    .UseOtlpExporter();
+        }
 
         //if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
         //{
@@ -129,10 +131,7 @@ public static class Extensions
         {
             app.MapHealthChecks(HealthEndpointPath);
 
-            app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
-            {
-                    Predicate = r => r.Tags.Contains("live")
-            });
+            app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions { Predicate = r => r.Tags.Contains("live") });
         }
 
         return app;

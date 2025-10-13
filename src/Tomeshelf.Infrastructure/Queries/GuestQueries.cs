@@ -65,7 +65,9 @@ public sealed class GuestQueries
                                    .Where(eventAppearance => eventAppearance.EventId == eventId);
 
         if (!string.IsNullOrWhiteSpace(day))
-            baseQuery = baseQuery.Where(a => a.DaysAtShow != null && a.DaysAtShow.Contains(day!));
+        {
+            baseQuery = baseQuery.Where(a => (a.DaysAtShow != null) && a.DaysAtShow.Contains(day!));
+        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -115,7 +117,11 @@ public sealed class GuestQueries
                                     .SelectMany(a => a.Person.Categories.Select(pc => pc.Category))
                                     .Distinct()
                                     .OrderBy(c => c.Name)
-                                    .Select(c => new { c.ExternalId, c.Name })
+                                    .Select(c => new
+                                     {
+                                             c.ExternalId,
+                                             c.Name
+                                     })
                                     .ToListAsync(cancellationToken);
 
         var list = cats.Select(c => (c.ExternalId, c.Name))
@@ -202,12 +208,19 @@ public sealed class GuestQueries
                         PhotoOpTableAmount = a.PhotoOpTableAmount,
                         PeopleCategories = null,
                         GlobalCategories = a.Person.Categories.Select(pc => pc.Category)
-                                            .Select(c => new CategoryDto { Id = c.ExternalId, Name = c.Name, Color = null })
+                                            .Select(c => new CategoryDto
+                                             {
+                                                     Id = c.ExternalId,
+                                                     Name = c.Name,
+                                                     Color = null
+                                             })
                                             .ToList(),
                         Images = a.Person.Images.OrderByDescending(i => i.Id)
                                   .Select(personImage => new ImageSetDto
                                    {
-                                           Big = personImage.Big, Med = personImage.Med, Small = personImage.Small,
+                                           Big = personImage.Big,
+                                           Med = personImage.Med,
+                                           Small = personImage.Small,
                                            Thumb = personImage.Thumb
                                    })
                                   .Take(1)

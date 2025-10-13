@@ -18,7 +18,7 @@ public class ComicConControllerTests
     {
         // Arrange
         var api = A.Fake<IGuestsApi>();
-        var groups = new List<GuestsGroupModel> { new() { Items = new List<PersonModel>() } };
+        var groups = new List<GuestsGroupModel> { new GuestsGroupModel { Items = new List<PersonModel>() } };
         var resultModel = new GuestsByCityResult(groups, 1);
         A.CallTo(() => api.GetComicConGuestsByCityResultAsync("London", A<CancellationToken>._))
          .Returns(resultModel);

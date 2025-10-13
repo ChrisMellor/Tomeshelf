@@ -91,7 +91,9 @@ public class ComicConController : ControllerBase
     public async Task<ActionResult<object>> GetByCity([FromQuery] string city, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(city))
+        {
             return BadRequest(new { message = "Missing required 'city' query parameter." });
+        }
 
         using var scope = _logger.BeginScope(new { City = city });
         _logger.LogInformation("Fetching guests by city (using cache if available)");
@@ -102,7 +104,12 @@ public class ComicConController : ControllerBase
             var durationHit = DateTimeOffset.UtcNow - started;
             _logger.LogInformation("Cache hit for {City} -> {Total} guests in {Duration}ms", city, snapshot.Total, (int)durationHit.TotalMilliseconds);
 
-            return Ok(new { city = snapshot.City, total = snapshot.Total, groups = snapshot.Groups });
+            return Ok(new
+            {
+                    city = snapshot.City,
+                    total = snapshot.Total,
+                    groups = snapshot.Groups
+            });
         }
 
         try
@@ -114,7 +121,12 @@ public class ComicConController : ControllerBase
             var durationMiss = DateTimeOffset.UtcNow - started;
             _logger.LogInformation("Cache miss for {City}; refreshed snapshot with {Total} guests in {Duration}ms", city, total, (int)durationMiss.TotalMilliseconds);
 
-            return Ok(new { city, total, groups });
+            return Ok(new
+            {
+                    city,
+                    total,
+                    groups
+            });
         }
         catch (Exception ex)
         {

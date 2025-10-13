@@ -14,12 +14,13 @@ namespace Tomeshelf.Web.Services;
 /// </summary>
 public sealed class BundlesApi(HttpClient http, ILogger<BundlesApi> logger) : IBundlesApi
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<BundleModel>> GetBundlesAsync(bool includeExpired, CancellationToken cancellationToken)
     {
-        var url = $"bundles?includeExpired={includeExpired.ToString().ToLowerInvariant()}";
+        var url = $"bundles?includeExpired={includeExpired.ToString()
+                                                          .ToLowerInvariant()}";
         var started = DateTimeOffset.UtcNow;
 
         using var response = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
