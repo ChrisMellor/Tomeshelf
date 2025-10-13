@@ -14,12 +14,22 @@ namespace Tomeshelf.Infrastructure.Queries;
 /// <summary>
 /// Read-only query operations for guests, categories and groupings.
 /// </summary>
-/// <param name="db">EF Core DbContext.</param>
-/// <param name="logger">Logger instance.</param>
-public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> logger)
+
+public sealed class GuestQueries
 {
-    private readonly TomeshelfDbContext _db = db;
-    private readonly ILogger<GuestQueries> _logger = logger;
+    private readonly TomeshelfComicConDbContext _comicConDb;
+    private readonly ILogger<GuestQueries> _logger;
+
+    /// <summary>
+    /// Constructor with dependencies injected.
+    /// </summary>
+    /// <param name="comicConDb">EF Core DbContext.</param>
+    /// <param name="logger">Logger instance.</param>
+    public GuestQueries(TomeshelfComicConDbContext comicConDb, ILogger<GuestQueries> logger)
+    {
+        _comicConDb = comicConDb;
+        _logger = logger;
+    }
 
     /// <summary>
     /// Queries guests for a given event slug with optional day and text filters and paging.
@@ -41,7 +51,7 @@ public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> lo
         _logger.LogInformation("Querying guests for event {EventSlug} (page={Page}, size={Size})", eventSlug, page, pageSize);
         var started = DateTimeOffset.UtcNow;
 
-        var eventId = await _db.Events
+        var eventId = await _comicConDb.Events
             .Where(e => e.Slug == eventSlug)
             .Select(e => e.Id)
             .SingleOrDefaultAsync(cancellationToken);
@@ -52,7 +62,7 @@ public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> lo
             return (Array.Empty<PersonDto>(), 0);
         }
 
-        var baseQuery = _db.EventAppearances.AsNoTracking()
+        var baseQuery = _comicConDb.EventAppearances.AsNoTracking()
             .Where(eventAppearance => eventAppearance.EventId == eventId);
 
         if (!string.IsNullOrWhiteSpace(day))
@@ -96,7 +106,7 @@ public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> lo
     public async Task<IReadOnlyList<(string Id, string Name)>> GetCategoriesByEventSlugAsync(string slug, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Querying categories for event {EventSlug}", slug);
-        var eventId = await _db.Events.Where(e => e.Slug == slug)
+        var eventId = await _comicConDb.Events.Where(e => e.Slug == slug)
             .Select(e => e.Id)
             .SingleOrDefaultAsync(cancellationToken);
 
@@ -107,7 +117,7 @@ public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> lo
             return Array.Empty<(string, string)>();
         }
 
-        var cats = await _db.EventAppearances
+        var cats = await _comicConDb.EventAppearances
             .Where(a => a.EventId == eventId)
             .SelectMany(a => a.Person.Categories.Select(pc => pc.Category))
             .Distinct()
@@ -142,7 +152,7 @@ public sealed class GuestQueries(TomeshelfDbContext db, ILogger<GuestQueries> lo
         var like = $"%{city}%";
         _logger.LogInformation("Querying guests by city like pattern {Pattern}", like);
 
-        var baseQuery = _db.EventAppearances.AsNoTracking()
+        var baseQuery = _comicConDb.EventAppearances.AsNoTracking()
             .Where(a => EF.Functions.Like(a.Event.Slug, like));
 
         var qStart = DateTimeOffset.UtcNow;

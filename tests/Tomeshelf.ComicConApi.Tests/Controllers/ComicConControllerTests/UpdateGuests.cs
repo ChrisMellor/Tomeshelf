@@ -26,7 +26,7 @@ public class ComicConControllerUpdateGuestsTests
         var svc = A.Fake<IGuestService>();
         A.CallTo(() => svc.GetGuestsAsync("London", A<CancellationToken>._)).Returns(new List<PersonDto>());
 
-        using var db = new TomeshelfDbContext(new DbContextOptionsBuilder<TomeshelfDbContext>()
+        using var db = new TomeshelfComicConDbContext(new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
         var cache = A.Fake<IGuestsCache>();
@@ -46,7 +46,7 @@ public class ComicConControllerUpdateGuestsTests
         // Arrange
         var svc = A.Fake<IGuestService>();
         A.CallTo(() => svc.GetGuestsAsync("Birmingham", A<CancellationToken>._)).Throws(new ApplicationException("nope"));
-        using var db = new TomeshelfDbContext(new DbContextOptionsBuilder<TomeshelfDbContext>()
+        using var db = new TomeshelfComicConDbContext(new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
         var cache = A.Fake<IGuestsCache>();

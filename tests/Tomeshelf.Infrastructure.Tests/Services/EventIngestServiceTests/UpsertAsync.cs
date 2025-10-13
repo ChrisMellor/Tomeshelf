@@ -15,9 +15,9 @@ public class EventIngestServiceTests
     public async Task UpsertAsync_InsertsNewEventAndPeople()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        using var db = new TomeshelfDbContext(dbOptions);
+        using var db = new TomeshelfComicConDbContext(dbOptions);
         var sut = new EventIngestService(db);
 
         var evt = new EventDto
@@ -46,9 +46,9 @@ public class EventIngestServiceTests
     public async Task UpsertAsync_UpdatesExistingEvent()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        using var db = new TomeshelfDbContext(dbOptions);
+        using var db = new TomeshelfComicConDbContext(dbOptions);
         var sut = new EventIngestService(db);
 
         var evt = new EventDto

@@ -16,9 +16,9 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
     public async Task UpsertAsync_ReplacesImages_AndSynchronizesCategories()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        using var db = new TomeshelfDbContext(dbOptions);
+        using var db = new TomeshelfComicConDbContext(dbOptions);
         var sut = new EventIngestService(db);
 
         var evt1 = new EventDto
@@ -75,9 +75,9 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
     public async Task UpsertAsync_AddsAndUpdatesSchedules_AndVenueLocations()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        using var db = new TomeshelfDbContext(dbOptions);
+        using var db = new TomeshelfComicConDbContext(dbOptions);
         var sut = new EventIngestService(db);
 
         var evt1 = new EventDto

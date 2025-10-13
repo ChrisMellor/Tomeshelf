@@ -28,7 +28,7 @@ public static class ServiceCollectionExtensions
     /// <returns>The same service collection for chaining.</returns>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
     {
-        services.AddDbContext<TomeshelfDbContext>(options => options.UseSqlServer(connectionString));
+        services.AddDbContext<TomeshelfComicConDbContext>(options => options.UseSqlServer(connectionString));
         return services.AddInfrastructure();
     }
 }

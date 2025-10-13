@@ -16,9 +16,9 @@ public class GuestQueriesGetGuestsByCityAsyncTests
     public async Task GetGuestsByCityAsync_GroupsByDate()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        using var db = new TomeshelfDbContext(dbOptions);
+        using var db = new TomeshelfComicConDbContext(dbOptions);
 
         var ev = new Event { ExternalId = Guid.NewGuid().ToString(), Name = "Event", Slug = "2025-london" };
         db.Events.Add(ev);
@@ -45,9 +45,9 @@ public class GuestQueriesGetGuestsByCityAsyncTests
     public async Task GetGuestsByCityAsync_EmptyCity_ReturnsEmpty()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        using var db = new TomeshelfDbContext(dbOptions);
+        using var db = new TomeshelfComicConDbContext(dbOptions);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
 
         // Act

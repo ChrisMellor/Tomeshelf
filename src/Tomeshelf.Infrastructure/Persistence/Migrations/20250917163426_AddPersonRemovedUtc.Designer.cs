@@ -11,7 +11,7 @@ using Tomeshelf.Infrastructure.Persistence;
 
 namespace Tomeshelf.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(TomeshelfDbContext))]
+    [DbContext(typeof(TomeshelfComicConDbContext))]
     [Migration("20250917163426_AddPersonRemovedUtc")]
     partial class AddPersonRemovedUtc
     {

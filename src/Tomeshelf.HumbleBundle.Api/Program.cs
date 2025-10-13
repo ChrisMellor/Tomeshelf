@@ -1,34 +1,13 @@
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Tomeshelf.Application.Options;
-using Tomeshelf.ComicConApi.Hosted;
-using Tomeshelf.ComicConApi.Services;
-using Tomeshelf.ComicConApi.Transformers;
-using Tomeshelf.Infrastructure;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.ServiceDefaults;
 
-namespace Tomeshelf.ComicConApi;
+namespace Tomeshelf.HumbleBundle.Api;
 
-/// <summary>
-/// API application entry point and configuration.
-/// </summary>
-public static class Program
+public class Program
 {
-    /// <summary>
-    /// Application entry point for the API host.
-    /// Configures services, runs migrations, and starts the web server.
-    /// </summary>
-    /// <param name="args">Command-line arguments.</param>
-    /// <returns>A task that completes when the web host shuts down.</returns>
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -53,9 +32,7 @@ public static class Program
         }
 
         builder.Services.AddProblemDetails()
-            .AddOpenApi(options => { options.AddSchemaTransformer(new CitySchemaTransformer()); })
-            .AddControllers()
-            .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+            .AddControllers();
 
         builder.Services.AddAuthorization();
 
@@ -64,15 +41,7 @@ public static class Program
             options.SerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
         });
 
-        builder.Services.AddOptions<ComicConOptions>()
-            .Bind(builder.Configuration)
-            .ValidateDataAnnotations();
-
-        builder.Services.AddInfrastructure();
-        builder.Services.AddSingleton<IGuestsCache, GuestsCache>();
-        builder.Services.AddHostedService<ComicConUpdateBackgroundService>();
-
-        builder.AddSqlServerDbContext<TomeshelfComicConDbContext>("tomeshelfdb");
+        builder.AddSqlServerDbContext<TomeshelfBundlesDbContext>("bundlesdb");
 
         var app = builder.Build();
 
@@ -85,7 +54,7 @@ public static class Program
             app.UseSwaggerUI(options =>
             {
                 options.RoutePrefix = string.Empty;
-                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf API v1");
+                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf - Humble Bundle - API v1");
             });
         }
 
@@ -105,7 +74,7 @@ public static class Program
             var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
                 .CreateLogger("Migrations");
             logger.LogInformation("Starting database migrations...");
-            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfComicConDbContext>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfBundlesDbContext>();
             await dbContext.Database.MigrateAsync();
             logger.LogInformation("Database migrations completed successfully.");
 
@@ -115,7 +84,7 @@ public static class Program
         if (app.Environment.IsDevelopment())
         {
             using var scope = app.Services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfComicConDbContext>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfBundlesDbContext>();
             await dbContext.Database.MigrateAsync();
         }
 

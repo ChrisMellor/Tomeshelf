@@ -15,9 +15,9 @@ public class CancellationCategorySetsRemovedTests
     public async Task UpsertAsync_CanceledCategory_MarksNotVisible_AndSetsRemovedUtc()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        using var db = new TomeshelfDbContext(dbOptions);
+        using var db = new TomeshelfComicConDbContext(dbOptions);
         var sut = new EventIngestService(db);
 
         var evt = new EventDto
@@ -52,9 +52,9 @@ public class CancellationCategorySetsRemovedTests
     public async Task UpsertAsync_RemovedCanceledCategory_MakesVisible_AndClearsRemovedUtc()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        using var db = new TomeshelfDbContext(dbOptions);
+        using var db = new TomeshelfComicConDbContext(dbOptions);
         var sut = new EventIngestService(db);
 
         var evt1 = new EventDto

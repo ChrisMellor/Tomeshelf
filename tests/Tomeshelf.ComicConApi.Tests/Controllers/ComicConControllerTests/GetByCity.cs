@@ -20,7 +20,7 @@ public class ComicConControllerGetByCityTests
     {
         // Arrange
         var svc = A.Fake<IGuestService>();
-        using var db = new TomeshelfDbContext(new DbContextOptionsBuilder<TomeshelfDbContext>()
+        using var db = new TomeshelfComicConDbContext(new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
         var cache = A.Fake<IGuestsCache>();
@@ -37,7 +37,7 @@ public class ComicConControllerGetByCityTests
     public async Task GetByCity_ReturnsOk_WithTotal()
     {
         // Arrange
-        using var db = new TomeshelfDbContext(new DbContextOptionsBuilder<TomeshelfDbContext>()
+        using var db = new TomeshelfComicConDbContext(new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
         var ev = new Domain.Entities.ComicCon.Event

@@ -15,9 +15,9 @@ public class GuestQueriesGetGuestsAsyncTests
     public async Task GetGuestsAsync_SearchFiltersResults()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        using var db = new TomeshelfDbContext(dbOptions);
+        using var db = new TomeshelfComicConDbContext(dbOptions);
         var ev = new Event { ExternalId = "E1", Name = "Event", Slug = "2025-london" };
         db.Events.Add(ev);
         var ada = new Person { ExternalId = "P1", FirstName = "Ada", LastName = "Lovelace", KnownFor = "Math" };

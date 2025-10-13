@@ -4,10 +4,10 @@ using Tomeshelf.Domain.Entities.ComicCon;
 namespace Tomeshelf.Infrastructure.Persistence;
 
 /// <summary>
-/// EF Core database context for Tomeshelf domain entities.
+/// EF Core database context for Tomeshelf's ComicCon domain entities.
 /// </summary>
 /// <param name="options">DbContext options configured by DI.</param>
-public class TomeshelfDbContext(DbContextOptions<TomeshelfDbContext> options) : DbContext(options)
+public class TomeshelfComicConDbContext(DbContextOptions<TomeshelfComicConDbContext> options) : DbContext(options)
 {
     public DbSet<Event> Events => Set<Event>();
 
@@ -108,6 +108,6 @@ public class TomeshelfDbContext(DbContextOptions<TomeshelfDbContext> options) : 
             s.HasOne(x => x.VenueLocation).WithMany(v => v.Schedules).HasForeignKey(x => x.VenueLocationId);
         });
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TomeshelfDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TomeshelfComicConDbContext).Assembly);
     }
 }

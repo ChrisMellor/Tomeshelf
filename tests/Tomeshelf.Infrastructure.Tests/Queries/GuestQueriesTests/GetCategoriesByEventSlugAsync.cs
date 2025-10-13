@@ -15,9 +15,9 @@ public class GuestQueriesGetCategoriesByEventSlugAsyncTests
     public async Task GetCategoriesByEventSlugAsync_ReturnsEmpty_WhenEventNotFound()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        using var db = new TomeshelfDbContext(dbOptions);
+        using var db = new TomeshelfComicConDbContext(dbOptions);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
 
         // Act
@@ -31,9 +31,9 @@ public class GuestQueriesGetCategoriesByEventSlugAsyncTests
     public async Task GetCategoriesByEventSlugAsync_ReturnsDistinctSorted()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfDbContext>()
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        using var db = new TomeshelfDbContext(dbOptions);
+        using var db = new TomeshelfComicConDbContext(dbOptions);
 
         var ev = new Event { ExternalId = "E1", Name = "Event", Slug = "2025-london" };
         var p = new Person { ExternalId = "P1", FirstName = "A", LastName = "B" };

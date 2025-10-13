@@ -1,5 +1,4 @@
 using Aspire.Hosting;
-using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using Tomeshelf.AppHost.Records;
@@ -30,38 +29,32 @@ internal class Program
                 .WithDashboard(rb => rb.WithHostPort(18888));
         }
 
-        IResourceBuilder<ProjectResource> api;
-
-        if (isPublish)
-        {
-            var database = builder.AddAzureSqlServer("sql")
-                .AddDatabase("tomeshelfdb");
-
-            api = builder.AddProject<Projects.Tomeshelf_ComicConApi>("ComicConApi")
-                .WithExternalHttpEndpoints()
-                .WithHttpHealthCheck("/health")
-                .WithReference(database)
-                .WaitFor(database);
-        }
-        else
-        {
-            var database = builder.AddSqlServer("sql")
+        var database = builder.AddSqlServer("sql")
                 .WithDataVolume()
-                .WithEnvironment("ACCEPT_EULA", "Y")
-                .AddDatabase("tomeshelfdb");
+                .WithEnvironment("ACCEPT_EULA", "Y");
 
-            api = builder.AddProject<Projects.Tomeshelf_ComicConApi>("ComicConApi")
+        var tomeshelfDb = database.AddDatabase("tomeshelfdb");
+        var humbleBundleDb = database.AddDatabase("bundlesdb");
+
+        var comicConApi = builder.AddProject<Projects.Tomeshelf_ComicConApi>("ComicConApi")
                 .WithExternalHttpEndpoints()
                 .WithHttpHealthCheck("/health")
-                .WithReference(database)
-                .WaitFor(database);
-        }
+                .WithReference(tomeshelfDb)
+                .WaitFor(tomeshelfDb);
+
+        var humbleBundleApi = builder.AddProject<Projects.Tomeshelf_HumbleBundle_Api>("HumbleBundleApi")
+            .WithExternalHttpEndpoints()
+            .WithHttpHealthCheck("/health")
+            .WithReference(humbleBundleDb)
+            .WaitFor(humbleBundleDb);
 
         builder.AddProject<Projects.Tomeshelf_Web>("web")
             .WithExternalHttpEndpoints()
             .WithHttpHealthCheck("/health")
-            .WithReference(api)
-            .WaitFor(api);
+            .WithReference(comicConApi)
+            .WaitFor(comicConApi)
+            .WithReference(humbleBundleApi)
+            .WaitFor(humbleBundleApi);
 
         var sites = builder.Configuration
             .GetSection("ComicCon")
@@ -69,7 +62,7 @@ internal class Program
 
         for (var i = 0; i < sites.Count; i++)
         {
-            api.WithEnvironment($"ComicCon__{i}__City", sites[i].City)
+            comicConApi.WithEnvironment($"ComicCon__{i}__City", sites[i].City)
                 .WithEnvironment($"ComicCon__{i}__Key", sites[i].Key.ToString());
         }
 

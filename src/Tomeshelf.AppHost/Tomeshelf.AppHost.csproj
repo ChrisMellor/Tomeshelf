@@ -9,7 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<ProjectReference Include="..\Tomeshelf.Api\Tomeshelf.ComicConApi.csproj" />
+	<ProjectReference Include="..\Tomeshelf.HumbleBundle.Api\Tomeshelf.HumbleBundle.Api.csproj" />
+	<ProjectReference Include="..\Tomeshelf.ComicConApi\Tomeshelf.ComicConApi.csproj" />
 	<ProjectReference Include="..\Tomeshelf.Web\Tomeshelf.Web.csproj" />
   </ItemGroup>
 

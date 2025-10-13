@@ -14,7 +14,7 @@ namespace Tomeshelf.Infrastructure.Services;
 /// Handles ingesting event payloads into the database by upserting events, people, appearances, categories, images, schedules, and venue locations.
 /// </summary>
 /// <param name="context">EF Core database context.</param>
-public class EventIngestService(TomeshelfDbContext context)
+public class EventIngestService(TomeshelfComicConDbContext context)
 {
     /// <summary>
     /// Inserts or updates the event and all related people, categories, images and schedules.
@@ -341,9 +341,9 @@ public class EventIngestService(TomeshelfDbContext context)
     /// <param name="id">External category identifier.</param>
     /// <param name="name">Current category display name.</param>
     /// <param name="categoryCache">Cache of categories indexed by external id.</param>
-    /// <param name="dbContext">EF Core dbContext used to add new entities.</param>
+    /// <param name="comicConDbContext">EF Core comicConDbContext used to add new entities.</param>
     /// <returns>The resolved <see cref="Category"/>.</returns>
-    private Category GetOrAddCategory(string id, string name, Dictionary<string, Category> categoryCache, TomeshelfDbContext dbContext)
+    private Category GetOrAddCategory(string id, string name, Dictionary<string, Category> categoryCache, TomeshelfComicConDbContext comicConDbContext)
     {
         if (categoryCache.TryGetValue(id, out var existing))
         {
@@ -353,7 +353,7 @@ public class EventIngestService(TomeshelfDbContext context)
         }
 
         var category = new Category { ExternalId = id, Name = name };
-        dbContext.Categories.Add(category);
+        comicConDbContext.Categories.Add(category);
         categoryCache[id] = category;
 
         return category;
