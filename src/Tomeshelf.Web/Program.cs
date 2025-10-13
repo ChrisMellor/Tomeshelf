@@ -46,8 +46,21 @@ public class Program
         builder.Services.AddHttpClient<IGuestsApi, GuestsApi>(client =>
         {
             var configured = builder.Configuration["Services:ApiBase"];
-            var useDiscovery = builder.Environment.IsDevelopment() || string.IsNullOrWhiteSpace(configured);
-            client.BaseAddress = new Uri(useDiscovery ? "http://api" : configured);
+
+            if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+            {
+                if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                {
+                    throw new InvalidOperationException("Invalid URI in configuration setting 'Services:ApiBase'.");
+                }
+
+                client.BaseAddress = configuredUri;
+            }
+            else
+            {
+                client.BaseAddress = new Uri("https://ComicConApi");
+            }
+
             client.DefaultRequestVersion = HttpVersion.Version11;
             client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
             client.Timeout = TimeSpan.FromSeconds(100);
