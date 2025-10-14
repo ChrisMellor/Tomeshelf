@@ -1,0 +1,229 @@
+@model BundlesIndexViewModel
+@{
+    ViewData["Title"] = "Humble Bundle Tracker";
+    var generatedLocal = Model.DataTimestampUtc.ToLocalTime();
+
+    string ToggleText(bool includeExpired)
+    {
+        return includeExpired
+                ? "Hide expired bundles"
+                : "Show expired bundles";
+    }
+
+    var activeCount = Model.ActiveBundles.Sum(group => group.Bundles.Count);
+}
+
+<section class="bundles-header">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div>
+            <h1 class="mb-1">Humble Bundle Tracker</h1>
+            <p class="text-muted mb-0">
+                Data captured @generatedLocal.ToString("f") (local time)
+                <span class="d-block d-md-inline">
+                    &mdash; @activeCount active bundle@(activeCount == 1
+                                                                ? ""
+                                                                : "s")
+                </span>
+                @if (Model.IncludeExpired)
+                {
+                    <span class="d-block d-md-inline">
+                        &mdash; @Model.ExpiredBundles.Count expired bundle@(Model.ExpiredBundles.Count == 1
+                                                                                    ? ""
+                                                                                    : "s")
+                    </span>
+                }
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" asp-action="Index" asp-route-includeExpired="@(!Model.IncludeExpired)">
+                <i class="bi @(Model.IncludeExpired
+                                       ? "bi-eye-slash"
+                                       : "bi-eye") me-1">
+                </i>@ToggleText(Model.IncludeExpired)
+            </a>
+        </div>
+    </div>
+</section>
+
+@if (activeCount == 0)
+{
+    <div class="alert alert-info mt-4">
+        <i class="bi bi-info-circle me-2"></i>
+        No active bundles are available right now. Check back soon or try showing expired bundles.
+    </div>
+}
+else
+{
+    <section class="mt-4">
+        <div class="accordion" id="bundlesAccordion">
+            @for (var i = 0; i < Model.ActiveBundles.Count; i++)
+            {
+                var group = Model.ActiveBundles[i];
+                if (group.Bundles.Count == 0)
+                {
+                    continue;
+                }
+
+                var headingId = $"bundleGroupHeading{i}";
+                var collapseId = $"bundleGroupCollapse{i}";
+                var isFirst = i == 0;
+
+                <div class="accordion-item mb-3 shadow-sm rounded-3">
+                    <h2 class="accordion-header" id="@headingId">
+                        <button class="accordion-button d-flex align-items-center gap-3 @(isFirst
+                                                                                                  ? string.Empty
+                                                                                                  : "collapsed")"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#@collapseId"
+                                aria-expanded="@(isFirst.ToString()
+                                                        .ToLowerInvariant())"
+                                aria-controls="@collapseId">
+                            <span class="fw-semibold">@group.Category</span>
+                            <span class="badge rounded-pill text-bg-primary">
+                                @group.Bundles.Count bundle@(group.Bundles.Count == 1
+                                                                     ? ""
+                                                                     : "s")
+                            </span>
+                        </button>
+                    </h2>
+                    <div id="@collapseId"
+                         class="accordion-collapse collapse @(isFirst
+                                                                      ? "show"
+                                                                      : string.Empty)"
+                         aria-labelledby="@headingId"
+                         data-bs-parent="#bundlesAccordion">
+                        <div class="accordion-body">
+                            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                                @foreach (var bundle in group.Bundles)
+                                {
+                                    <div class="col">
+                                        <div class="card bundle-card h-100 shadow-sm">
+                                            @if (!string.IsNullOrWhiteSpace(bundle.TileImageUrl))
+                                            {
+                                                <img src="@bundle.TileImageUrl" class="card-img-top bundle-card__image" alt="@bundle.Title" loading="lazy"/>
+                                            }
+                                            <div class="card-body d-flex flex-column">
+                                                <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                                    <span class="badge text-uppercase bundle-card__badge">@group.Category</span>
+                                                    @if (bundle.TimeRemaining is TimeSpan remaining)
+                                                    {
+                                                        <span class="badge bg-danger-subtle text-danger d-inline-flex align-items-center gap-1">
+                                                            <i class="bi bi-hourglass-split"></i>@FormatRemaining(remaining)
+                                                        </span>
+                                                    }
+                                                    else if (bundle.EndsAt.HasValue)
+                                                    {
+                                                        <span class="badge bg-warning-subtle text-warning d-inline-flex align-items-center gap-1">
+                                                            <i class="bi bi-calendar2-week"></i>Ends @bundle.EndsAt.Value.ToLocalTime().ToString("g")
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-success-subtle text-success d-inline-flex align-items-center gap-1">
+                                                            <i class="bi bi-infinity"></i>Ongoing
+                                                        </span>
+                                                    }
+                                                </div>
+                                                <h3 class="card-title h5">
+                                                    <a href="@bundle.Url" target="_blank" rel="noopener" class="stretched-link text-decoration-none">@bundle.Title</a>
+                                                </h3>
+                                                @if (!string.IsNullOrWhiteSpace(bundle.ShortDescription))
+                                                {
+                                                    <p class="card-text text-muted small mb-3">@bundle.ShortDescription</p>
+                                                }
+                                                <div class="mt-auto small text-muted">
+                                                    @if (bundle.StartsAt.HasValue)
+                                                    {
+                                                        <div><i class="bi bi-rocket-takeoff me-1"></i>Started @bundle.StartsAt.Value.ToLocalTime().ToString("g")</div>
+                                                    }
+                                                    <div><i class="bi bi-sync me-1"></i>Last updated @bundle.LastUpdatedUtc.ToLocalTime().ToString("g")</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+}
+
+@if (Model.IncludeExpired && (Model.ExpiredBundles.Count > 0))
+{
+    <section class="mt-5">
+        <h2 class="h4 mb-3">Expired Bundles</h2>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle table-striped">
+                <thead class="table-light">
+                <tr>
+                    <th scope="col">Bundle</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Ended</th>
+                    <th scope="col">Ran For</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var bundle in Model.ExpiredBundles)
+                {
+                    <tr>
+                        <td>
+                            <a href="@bundle.Url" target="_blank" rel="noopener">@bundle.Title</a>
+                            @if (!string.IsNullOrWhiteSpace(bundle.ShortDescription))
+                            {
+                                <div class="text-muted small">@bundle.ShortDescription</div>
+                            }
+                        </td>
+                        <td class="text-uppercase text-muted small">
+                            @(string.IsNullOrWhiteSpace(bundle.Category)
+                                      ? bundle.Stamp
+                                      : bundle.Category)
+                        </td>
+                        <td>@bundle.EndsAt?.ToLocalTime().ToString("f")</td>
+                        <td>
+                            @{
+                                if (bundle.StartsAt.HasValue && bundle.EndsAt.HasValue)
+                                {
+                                    var span = bundle.EndsAt.Value - bundle.StartsAt.Value;
+                                    @FormatRemaining(span)
+                                    ;
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}
+
+@functions {
+
+    private static string FormatRemaining(TimeSpan duration)
+    {
+        duration = duration < TimeSpan.Zero
+                ? TimeSpan.Zero
+                : duration;
+        if (duration.TotalDays >= 1)
+        {
+            return $"{(int)duration.TotalDays}d {duration.Hours}h";
+        }
+
+        if (duration.TotalHours >= 1)
+        {
+            return $"{(int)duration.TotalHours}h {duration.Minutes}m";
+        }
+
+        if (duration.TotalMinutes >= 1)
+        {
+            return $"{(int)duration.TotalMinutes}m {duration.Seconds}s";
+        }
+
+        return $"{duration.Seconds}s";
+    }
+
+}

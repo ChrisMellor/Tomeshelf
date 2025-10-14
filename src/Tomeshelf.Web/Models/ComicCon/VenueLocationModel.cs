@@ -10,4 +10,3 @@ public sealed record class VenueLocationModel
     [JsonPropertyName("name")]
     public string Name { get; init; } = null!;
 }
-

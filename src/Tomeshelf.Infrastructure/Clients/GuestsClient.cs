@@ -1,15 +1,15 @@
-using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Application.Contracts;
 
 namespace Tomeshelf.Infrastructure.Clients;
 
 /// <summary>
-/// HTTP client for accessing the external Comic Con People API.
+///     HTTP client for accessing the external Comic Con People API.
 /// </summary>
 public class GuestsClient : IGuestsClient
 {
@@ -17,7 +17,7 @@ public class GuestsClient : IGuestsClient
     private readonly ILogger<GuestsClient> _logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GuestsClient"/> class.
+    ///     Initializes a new instance of the <see cref="GuestsClient" /> class.
     /// </summary>
     /// <param name="http">Injected HttpClient.</param>
     /// <param name="logger">Logger instance.</param>
@@ -28,7 +28,7 @@ public class GuestsClient : IGuestsClient
     }
 
     /// <summary>
-    /// Calls the external Comic Con API to fetch the latest guests.
+    ///     Calls the external Comic Con API to fetch the latest guests.
     /// </summary>
     /// <param name="key">The Comic Con API key for the target event/city.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
@@ -46,6 +46,7 @@ public class GuestsClient : IGuestsClient
         await using var s = await response.Content.ReadAsStreamAsync(cancellationToken);
         var guests = await JsonSerializer.DeserializeAsync<EventDto>(s, cancellationToken: cancellationToken);
         _logger.LogInformation("Fetched guests payload ({Length} bytes)", response.Content.Headers.ContentLength?.ToString() ?? "?");
+
         return guests!;
     }
 }

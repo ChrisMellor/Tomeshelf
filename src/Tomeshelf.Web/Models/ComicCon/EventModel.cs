@@ -17,4 +17,3 @@ public sealed record EventModel
     [JsonPropertyName("people")]
     public List<PersonModel> People { get; init; } = [];
 }
-

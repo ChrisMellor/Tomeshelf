@@ -1,9 +1,9 @@
-using FakeItEasy;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using FakeItEasy;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models;
 using Tomeshelf.Web.Models.ComicCon;
@@ -21,7 +21,7 @@ public class ComicConControllerTests
         var groups = new List<GuestsGroupModel> { new GuestsGroupModel { Items = new List<PersonModel>() } };
         var resultModel = new GuestsByCityResult(groups, 1);
         A.CallTo(() => api.GetComicConGuestsByCityResultAsync("London", A<CancellationToken>._))
-           .Returns(resultModel);
+         .Returns(resultModel);
 
         var controller = new ComicConController(api);
 
@@ -29,11 +29,16 @@ public class ComicConControllerTests
         var result = await controller.Index("London", TestContext.Current.CancellationToken);
 
         // Assert
-        result.Should().BeOfType<ViewResult>();
+        result.Should()
+              .BeOfType<ViewResult>();
         var viewResult = (ViewResult)result;
-        viewResult.ViewName.Should().Be("Index");
-        viewResult.Model.Should().BeSameAs(groups);
-        ((string)controller.ViewBag.City).Should().Be("London");
-        ((int)controller.ViewBag.Total).Should().Be(1);
+        viewResult.ViewName.Should()
+                  .Be("Index");
+        viewResult.Model.Should()
+                  .BeSameAs(groups);
+        ((string)controller.ViewBag.City).Should()
+                                         .Be("London");
+        ((int)controller.ViewBag.Total).Should()
+                                       .Be(1);
     }
 }

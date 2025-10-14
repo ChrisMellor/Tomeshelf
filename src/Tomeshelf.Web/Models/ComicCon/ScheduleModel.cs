@@ -28,4 +28,3 @@ public sealed record ScheduleModel
     [JsonPropertyName("venue_location")]
     public VenueLocationModel VenueLocation { get; init; }
 }
-

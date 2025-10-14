@@ -12,6 +12,4 @@ public sealed record CategoryModel
 
     [JsonPropertyName("color")]
     public string Color { get; init; }
-
 }
-

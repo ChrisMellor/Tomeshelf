@@ -1,6 +1,7 @@
-using FluentAssertions;
 using System.IO;
+using System.Text;
 using System.Text.Json;
+using FluentAssertions;
 
 namespace Tomeshelf.Application.Tests.Converters.NullableFlexibleDecimalConverterTests;
 
@@ -17,10 +18,11 @@ public class NullableFlexibleDecimalConverterWriteTests
         // Act
         converter.Write(writer, null, new JsonSerializerOptions());
         writer.Flush();
-        var json = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+        var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
-        json.Should().Be("null");
+        json.Should()
+            .Be("null");
     }
 
     [Fact]
@@ -34,9 +36,10 @@ public class NullableFlexibleDecimalConverterWriteTests
         // Act
         converter.Write(writer, 12.34m, new JsonSerializerOptions());
         writer.Flush();
-        var json = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+        var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
-        json.Should().Be("12.34");
+        json.Should()
+            .Be("12.34");
     }
 }

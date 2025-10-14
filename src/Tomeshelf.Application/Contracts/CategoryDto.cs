@@ -12,5 +12,4 @@ public sealed record CategoryDto
 
     [JsonPropertyName("color")]
     public string Color { get; init; }
-
 }

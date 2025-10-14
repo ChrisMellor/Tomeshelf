@@ -11,7 +11,7 @@ using Tomeshelf.Infrastructure.Persistence;
 
 namespace Tomeshelf.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(TomeshelfDbContext))]
+    [DbContext(typeof(TomeshelfComicConDbContext))]
     [Migration("20250910233544_InitialCreate")]
     partial class InitialCreate
     {

@@ -94,6 +94,7 @@ public sealed record PersonDto
 
     [JsonPropertyName("schedules")]
     public List<ScheduleDto> Schedules { get; init; } = [];
+
     [JsonPropertyName("removed_at")]
     public string RemovedAt { get; init; }
 }

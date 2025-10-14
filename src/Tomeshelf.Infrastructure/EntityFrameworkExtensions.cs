@@ -4,11 +4,12 @@ using System.Linq;
 
 namespace Tomeshelf.Infrastructure;
 
-static class EntityFrameworkExtensions
+internal static class EntityFrameworkExtensions
 {
     public static void RemoveWhere<T>(this ICollection<T> set, Func<T, bool> predicate)
     {
-        foreach (var item in set.Where(predicate).ToList())
+        foreach (var item in set.Where(predicate)
+                                .ToList())
         {
             set.Remove(item);
         }

@@ -1,78 +1,73 @@
-using Aspire.Hosting;
-using Aspire.Hosting.ApplicationModel;
-using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using Aspire.Hosting;
+using Microsoft.Extensions.Configuration;
+using Projects;
 using Tomeshelf.AppHost.Records;
 
 namespace Tomeshelf.AppHost;
 
 /// <summary>
-/// Aspire AppHost that defines and wires up application resources.
+///     Aspire AppHost that defines and wires up application resources.
 /// </summary>
 internal class Program
 {
     /// <summary>
-    /// Application entry point for the Aspire AppHost.
-    /// Defines resources and wiring for the distributed application.
+    ///     Application entry point for the Aspire AppHost.
+    ///     Defines resources and wiring for the distributed application.
     /// </summary>
     /// <param name="args">Command-line arguments.</param>
     public static void Main(string[] args)
     {
         var builder = DistributedApplication.CreateBuilder(args);
 
-        builder.Configuration.AddUserSecrets<Program>(optional: true);
+        builder.Configuration.AddUserSecrets<Program>(true);
 
         var isPublish = builder.ExecutionContext.IsPublishMode;
 
         if (!isPublish)
         {
             builder.AddDockerComposeEnvironment("metrics")
-                .WithDashboard(rb => rb.WithHostPort(18888));
+                   .WithDashboard(rb => rb.WithHostPort(18888));
         }
 
-        IResourceBuilder<ProjectResource> api;
+        var database = builder.AddSqlServer("sql")
+                              .WithDataVolume()
+                              .WithEnvironment("ACCEPT_EULA", "Y");
 
-        if (isPublish)
-        {
-            var database = builder.AddAzureSqlServer("sql")
-                .AddDatabase("tomeshelfdb");
+        var tomeshelfDb = database.AddDatabase("tomeshelfdb");
+        var humbleBundleDb = database.AddDatabase("bundlesdb");
 
-            api = builder.AddProject<Projects.Tomeshelf_Api>("api")
-                .WithExternalHttpEndpoints()
-                .WithHttpHealthCheck("/health")
-                .WithReference(database)
-                .WaitFor(database);
-        }
-        else
-        {
-            var database = builder.AddSqlServer("sql")
-                .WithDataVolume()
-                .WithEnvironment("ACCEPT_EULA", "Y")
-                .AddDatabase("tomeshelfdb");
+        var comicConApi = builder.AddProject<Tomeshelf_ComicConApi>("ComicConApi")
+                                 .WithExternalHttpEndpoints()
+                                 .WithHttpHealthCheck("/health")
+                                 .WithReference(tomeshelfDb)
+                                 .WaitFor(tomeshelfDb);
 
-            api = builder.AddProject<Projects.Tomeshelf_Api>("api")
-                .WithExternalHttpEndpoints()
-                .WithHttpHealthCheck("/health")
-                .WithReference(database)
-                .WaitFor(database);
-        }
+        var humbleBundleApi = builder.AddProject<Tomeshelf_HumbleBundle_Api>("HumbleBundleApi")
+                                     .WithExternalHttpEndpoints()
+                                     .WithHttpHealthCheck("/health")
+                                     .WithReference(humbleBundleDb)
+                                     .WaitFor(humbleBundleDb);
 
-        builder.AddProject<Projects.Tomeshelf_Web>("web")
-            .WithExternalHttpEndpoints()
-            .WithHttpHealthCheck("/health")
-            .WithReference(api)
-            .WaitFor(api);
+        builder.AddProject<Tomeshelf_Web>("web")
+               .WithExternalHttpEndpoints()
+               .WithHttpHealthCheck("/health")
+               .WithReference(comicConApi)
+               .WaitFor(comicConApi)
+               .WithReference(humbleBundleApi)
+               .WaitFor(humbleBundleApi);
 
-        var sites = builder.Configuration
-            .GetSection("ComicCon")
-            .Get<List<ComicConSite>>() ?? [];
+        var sites = builder.Configuration.GetSection("ComicCon")
+                           .Get<List<ComicConSite>>() ?? [];
 
         for (var i = 0; i < sites.Count; i++)
         {
-            api.WithEnvironment($"ComicCon__{i}__City", sites[i].City)
-                .WithEnvironment($"ComicCon__{i}__Key", sites[i].Key.ToString());
+            comicConApi.WithEnvironment($"ComicCon__{i}__City", sites[i].City)
+                       .WithEnvironment($"ComicCon__{i}__Key", sites[i]
+                                                              .Key.ToString());
         }
 
-        builder.Build().Run();
+        builder.Build()
+               .Run();
     }
 }

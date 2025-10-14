@@ -16,4 +16,3 @@ public sealed record ImageSetModel
     [JsonPropertyName("thumb")]
     public string Thumb { get; init; }
 }
-

@@ -12,4 +12,3 @@ public sealed record GuestsGroupModel
     [JsonPropertyName("items")]
     public List<PersonModel> Items { get; init; } = [];
 }
-

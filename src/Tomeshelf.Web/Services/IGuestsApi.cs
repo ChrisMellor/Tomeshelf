@@ -10,12 +10,12 @@ using Tomeshelf.Web.Models.ComicCon;
 namespace Tomeshelf.Web.Services;
 
 /// <summary>
-/// Abstraction for retrieving Comic Con guests from the API.
+///     Abstraction for retrieving Comic Con guests from the API.
 /// </summary>
 public interface IGuestsApi
 {
     /// <summary>
-    /// Retrieves Comic Con guests for a given city from the API.
+    ///     Retrieves Comic Con guests for a given city from the API.
     /// </summary>
     /// <param name="city">City name to query.</param>
     /// <param name="cancellationToken">Cancellation token for the request.</param>
@@ -26,7 +26,7 @@ public interface IGuestsApi
     Task<(IReadOnlyList<GuestsGroupModel> Groups, int Total)> GetComicConGuestsByCityAsync(string city, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Retrieves Comic Con guests for a given city from the API and returns a typed result model.
+    ///     Retrieves Comic Con guests for a given city from the API and returns a typed result model.
     /// </summary>
     /// <param name="city">City name to query.</param>
     /// <param name="cancellationToken">Cancellation token for the request.</param>

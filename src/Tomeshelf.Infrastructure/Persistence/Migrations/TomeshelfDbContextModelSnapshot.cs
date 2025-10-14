@@ -10,7 +10,7 @@ using Tomeshelf.Infrastructure.Persistence;
 
 namespace Tomeshelf.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(TomeshelfDbContext))]
+    [DbContext(typeof(TomeshelfComicConDbContext))]
     partial class TomeshelfDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

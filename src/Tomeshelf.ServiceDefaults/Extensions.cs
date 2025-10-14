@@ -14,7 +14,7 @@ namespace Tomeshelf.ServiceDefaults;
 // This project should be referenced by each service project in your solution.
 // To learn more about using this project, see https://aka.ms/dotnet/aspire/service-defaults
 /// <summary>
-/// Helper extensions to add common service defaults (OpenTelemetry, health checks, discovery).
+///     Helper extensions to add common service defaults (OpenTelemetry, health checks, discovery).
 /// </summary>
 public static class Extensions
 {
@@ -22,7 +22,7 @@ public static class Extensions
     private const string AlivenessEndpointPath = "/alive";
 
     /// <summary>
-    /// Adds common .NET Aspire defaults: OpenTelemetry, health checks, and service discovery.
+    ///     Adds common .NET Aspire defaults: OpenTelemetry, health checks, and service discovery.
     /// </summary>
     /// <param name="builder">The host application builder.</param>
     /// <returns>The same builder for chaining.</returns>
@@ -50,7 +50,7 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Configures OpenTelemetry logging, metrics and tracing with sensible defaults.
+    ///     Configures OpenTelemetry logging, metrics and tracing with sensible defaults.
     /// </summary>
     /// <param name="builder">The host application builder.</param>
     /// <returns>The same builder for chaining.</returns>
@@ -63,23 +63,18 @@ public static class Extensions
         });
 
         builder.Services.AddOpenTelemetry()
-            .WithMetrics(metrics =>
-            {
-                metrics.AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddRuntimeInstrumentation();
-            })
-            .WithTracing(tracing =>
-            {
-                tracing.AddSource(builder.Environment.ApplicationName)
-                    .AddAspNetCoreInstrumentation(tracing =>
-                        tracing.Filter = context =>
-                            !context.Request.Path.StartsWithSegments(HealthEndpointPath)
-                            && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
-                    )
-                    //.AddGrpcClientInstrumentation()
-                    .AddHttpClientInstrumentation();
-            });
+               .WithMetrics(metrics =>
+                {
+                    metrics.AddAspNetCoreInstrumentation()
+                           .AddHttpClientInstrumentation()
+                           .AddRuntimeInstrumentation();
+                })
+               .WithTracing(tracing =>
+                {
+                    AspNetCoreInstrumentationTracerProviderBuilderExtensions.AddAspNetCoreInstrumentation(tracing.AddSource(builder.Environment.ApplicationName), tracing => tracing.Filter = context => !context.Request.Path.StartsWithSegments(HealthEndpointPath) && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath))
+                                                                             //.AddGrpcClientInstrumentation()
+                                                                            .AddHttpClientInstrumentation();
+                });
 
         builder.AddOpenTelemetryExporters();
 
@@ -87,7 +82,7 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Adds OpenTelemetry exporters based on configuration (e.g., OTLP endpoint).
+    ///     Adds OpenTelemetry exporters based on configuration (e.g., OTLP endpoint).
     /// </summary>
     /// <param name="builder">The host application builder.</param>
     /// <returns>The same builder for chaining.</returns>
@@ -97,7 +92,8 @@ public static class Extensions
 
         if (useOtlpExporter)
         {
-            builder.Services.AddOpenTelemetry().UseOtlpExporter();
+            builder.Services.AddOpenTelemetry()
+                   .UseOtlpExporter();
         }
 
         //if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
@@ -110,20 +106,20 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Registers default liveness and readiness health checks.
+    ///     Registers default liveness and readiness health checks.
     /// </summary>
     /// <param name="builder">The host application builder.</param>
     /// <returns>The same builder for chaining.</returns>
     public static TBuilder AddDefaultHealthChecks<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
         builder.Services.AddHealthChecks()
-            .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+               .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
 
         return builder;
     }
 
     /// <summary>
-    /// Maps default health endpoints used during development.
+    ///     Maps default health endpoints used during development.
     /// </summary>
     /// <param name="app">The web application.</param>
     /// <returns>The same application instance for chaining.</returns>
@@ -133,10 +129,7 @@ public static class Extensions
         {
             app.MapHealthChecks(HealthEndpointPath);
 
-            app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
-            {
-                Predicate = r => r.Tags.Contains("live")
-            });
+            app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions { Predicate = r => r.Tags.Contains("live") });
         }
 
         return app;
