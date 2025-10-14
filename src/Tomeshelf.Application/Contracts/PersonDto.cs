@@ -87,16 +87,13 @@ public sealed record PersonDto
     public List<object> PeopleCategories { get; init; }
 
     [JsonPropertyName("global_categories")]
-    public List<CategoryDto> GlobalCategories { get; init; } =
-        [];
+    public List<CategoryDto> GlobalCategories { get; init; } = [];
 
     [JsonPropertyName("images")]
-    public List<ImageSetDto> Images { get; init; } =
-        [];
+    public List<ImageSetDto> Images { get; init; } = [];
 
     [JsonPropertyName("schedules")]
-    public List<ScheduleDto> Schedules { get; init; } =
-        [];
+    public List<ScheduleDto> Schedules { get; init; } = [];
 
     [JsonPropertyName("removed_at")]
     public string RemovedAt { get; init; }

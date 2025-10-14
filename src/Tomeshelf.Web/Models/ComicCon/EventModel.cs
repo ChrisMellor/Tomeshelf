@@ -15,6 +15,5 @@ public sealed record EventModel
     public string EventSlug { get; init; } = null!;
 
     [JsonPropertyName("people")]
-    public List<PersonModel> People { get; init; } =
-        [];
+    public List<PersonModel> People { get; init; } = [];
 }

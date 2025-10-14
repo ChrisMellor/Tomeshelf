@@ -62,8 +62,7 @@ public class GuestService : IGuestService
         var changed = await _ingest.UpsertAsync(evt, cancellationToken);
         _logger.LogInformation("Upserted event {Slug} with {Count} people; changed={Changed}", evt.EventSlug, evt.People?.Count ?? 0, changed);
 
-        return evt.People ??
-               [];
+        return evt.People ?? [];
     }
 
     /// <summary>

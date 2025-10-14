@@ -215,9 +215,8 @@
                                                     </p>
                                                 }
                                                 <div class="mb-2 d-flex flex-wrap gap-1">
-                                                    @foreach (var c in (g.GlobalCategories ??
-                                                                        []).Where(c => !string.IsNullOrWhiteSpace(c.Name) && !string.Equals(c.Name.Trim(), "Canceled", StringComparison.OrdinalIgnoreCase) && !string.Equals(c.Name.Trim(), "Cancelled", StringComparison.OrdinalIgnoreCase))
-                                                                           .Take(3))
+                                                    @foreach (var c in (g.GlobalCategories ?? []).Where(c => !string.IsNullOrWhiteSpace(c.Name) && !string.Equals(c.Name.Trim(), "Canceled", StringComparison.OrdinalIgnoreCase) && !string.Equals(c.Name.Trim(), "Cancelled", StringComparison.OrdinalIgnoreCase))
+                                                                                                 .Take(3))
                                                     {
                                                         <span class="badge rounded-pill text-bg-light border">@WebUtility.HtmlDecode(c.Name)</span>
                                                     }

@@ -89,8 +89,7 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
     private async Task<Dictionary<string, Category>> BuildCategoryCacheAsync(EventDto dto, CancellationToken ct)
     {
-        var allCatIds = dto.People.SelectMany(p => p.GlobalCategories ??
-                                                   [])
+        var allCatIds = dto.People.SelectMany(p => p.GlobalCategories ?? [])
                            .Select(c => c.Id)
                            .Distinct()
                            .ToList();
@@ -134,8 +133,7 @@ public class EventIngestService(TomeshelfComicConDbContext context)
         person.Uid = data.Uid;
         var wasVisible = person.PubliclyVisible;
 
-        var isCanceledCategory = (data.GlobalCategories ??
-                                  []).Any(c => !string.IsNullOrWhiteSpace(c.Name) && (string.Equals(c.Name.Trim(), "Canceled", StringComparison.OrdinalIgnoreCase) || string.Equals(c.Name.Trim(), "Cancelled", StringComparison.OrdinalIgnoreCase)));
+        var isCanceledCategory = (data.GlobalCategories ?? []).Any(c => !string.IsNullOrWhiteSpace(c.Name) && (string.Equals(c.Name.Trim(), "Canceled", StringComparison.OrdinalIgnoreCase) || string.Equals(c.Name.Trim(), "Cancelled", StringComparison.OrdinalIgnoreCase)));
 
         var desiredVisible = data.PubliclyVisible && !isCanceledCategory;
         person.PubliclyVisible = desiredVisible;
@@ -180,9 +178,8 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <param name="images">Incoming image descriptors.</param>
     private static void SyncPersonImages(Person person, List<ImageSetDto> images)
     {
-        var desired = (images ??
-                       []).Select(img => (Key: BuildImageKey(img), Payload: img))
-                          .ToList();
+        var desired = (images ?? []).Select(img => (Key: BuildImageKey(img), Payload: img))
+                                    .ToList();
 
         var existingGroups = person.Images.GroupBy(BuildImageKey, StringComparer.OrdinalIgnoreCase)
                                    .ToDictionary(group => group.Key, group => new Queue<PersonImage>(group), StringComparer.OrdinalIgnoreCase);
@@ -224,8 +221,7 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <param name="cache">Cache used to reuse tracked entities.</param>
     private void EnsureCategories(List<CategoryDto> categories, Dictionary<string, Category> cache)
     {
-        foreach (var c in categories ??
-                          [])
+        foreach (var c in categories ?? [])
         {
             GetOrAddCategory(c.Id, c.Name, cache, context);
         }
@@ -239,9 +235,8 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <param name="cache">Category cache for resolving entities.</param>
     private static void SyncPersonCategories(Person person, List<CategoryDto> categories, Dictionary<string, Category> cache)
     {
-        var desired = (categories ??
-                       []).Select(c => c.Id)
-                          .ToHashSet();
+        var desired = (categories ?? []).Select(c => c.Id)
+                                        .ToHashSet();
 
         person.Categories.RemoveWhere(link => !desired.Contains(link.Category.ExternalId));
 
@@ -315,8 +310,7 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     private async Task SyncSchedulesAsync(EventAppearance a, List<ScheduleDto> schedules, CancellationToken ct)
     {
         var byId = a.Schedules.ToDictionary(s => s.ExternalId);
-        foreach (var sd in schedules ??
-                           [])
+        foreach (var sd in schedules ?? [])
         {
             if (!byId.TryGetValue(sd.Id, out var s))
             {

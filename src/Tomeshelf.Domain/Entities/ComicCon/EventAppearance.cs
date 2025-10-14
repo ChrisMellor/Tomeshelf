@@ -24,6 +24,5 @@ public class EventAppearance
 
     public decimal? PhotoOpTableAmount { get; set; }
 
-    public ICollection<Schedule> Schedules { get; set; } =
-        [];
+    public ICollection<Schedule> Schedules { get; set; } = [];
 }

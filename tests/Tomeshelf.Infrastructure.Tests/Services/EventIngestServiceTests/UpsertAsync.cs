@@ -35,10 +35,8 @@ public class EventIngestServiceTests
                                          .ToString(),
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
-                                Images =
-                                        [],
-                                GlobalCategories =
-                                        []
+                                Images = [],
+                                GlobalCategories = []
                         }
                 }
         };
@@ -73,8 +71,7 @@ public class EventIngestServiceTests
                 EventId = "E1",
                 EventName = "Old",
                 EventSlug = "old-slug",
-                People =
-                        []
+                People = []
         };
         await sut.UpsertAsync(evt);
 

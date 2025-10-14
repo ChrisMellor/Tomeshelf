@@ -88,16 +88,13 @@ public sealed record PersonModel
     public List<object> PeopleCategories { get; init; }
 
     [JsonPropertyName("global_categories")]
-    public List<CategoryModel> GlobalCategories { get; init; } =
-        [];
+    public List<CategoryModel> GlobalCategories { get; init; } = [];
 
     [JsonPropertyName("images")]
-    public List<ImageSetModel> Images { get; init; } =
-        [];
+    public List<ImageSetModel> Images { get; init; } = [];
 
     [JsonPropertyName("schedules")]
-    public List<ScheduleModel> Schedules { get; init; } =
-        [];
+    public List<ScheduleModel> Schedules { get; init; } = [];
 
     [JsonPropertyName("removed_at")]
     public string RemovedAt { get; init; }

@@ -58,8 +58,7 @@ internal class Program
                .WaitFor(humbleBundleApi);
 
         var sites = builder.Configuration.GetSection("ComicCon")
-                           .Get<List<ComicConSite>>() ??
-                    [];
+                           .Get<List<ComicConSite>>() ?? [];
 
         for (var i = 0; i < sites.Count; i++)
         {

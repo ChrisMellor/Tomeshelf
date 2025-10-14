@@ -10,6 +10,5 @@ public sealed record GuestsGroupModel
     public DateTime CreatedDate { get; init; }
 
     [JsonPropertyName("items")]
-    public List<PersonModel> Items { get; init; } =
-        [];
+    public List<PersonModel> Items { get; init; } = [];
 }
