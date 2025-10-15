@@ -1,0 +1,263 @@
+@using System.Globalization
+@model Tomeshelf.Web.Models.Fitness.FitnessDashboardViewModel
+@{
+    ViewData["Title"] = "Fitness Dashboard";
+}
+
+<div class="fitness-dashboard">
+    <div class="dashboard-header">
+        <div class="header-left">
+            <h1 class="page-title">Fitbit Dashboard</h1>
+            <p class="page-subtitle">Daily summary pulled from your Fitbit history</p>
+            @if (Model.Summary is
+                 { } summary)
+            {
+                <div class="text-muted small">Last synced: @summary.GeneratedUtc.ToLocalTime().ToString("ddd dd MMM yyyy HH:mm")</div>
+            }
+        </div>
+        @if (Model.CanRefresh)
+        {
+            <form method="get" class="refresh-form">
+                <input type="hidden" name="date" value="@Model.SelectedDate"/>
+                <input type="hidden" name="refresh" value="true"/>
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Refresh from Fitbit
+                </button>
+            </form>
+        }
+    </div>
+
+    <div class="date-selector" role="navigation" aria-label="Select date">
+        <div class="date-nav-buttons">
+            <a class="date-nav" href="@Url.Action("Index", new { date = Model.PreviousDate })" aria-label="Previous day">
+                <span aria-hidden="true">&#x276E;</span>
+            </a>
+            <form id="dateForm" method="get" class="date-form">
+                <input type="date" id="dateInput" name="date" value="@Model.SelectedDate" max="@Model.TodayIso"/>
+            </form>
+            @if (!string.IsNullOrWhiteSpace(Model.NextDate))
+            {
+                <a class="date-nav" href="@Url.Action("Index", new { date = Model.NextDate })" aria-label="Next day">
+                    <span aria-hidden="true">&#x276F;</span>
+                </a>
+            }
+            else
+            {
+                <span class="date-nav disabled" aria-label="No future data">
+                    <span aria-hidden="true">&#x276F;</span>
+                </span>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-warning" role="status">@Model.ErrorMessage</div>
+    }
+
+    @if (Model.HasData &&
+         Model.Summary is
+                 { } day)
+    {
+        <div class="overview-grid">
+            <section class="range-card">
+                <header class="range-header">
+                    <div>
+                        <h2>Daily overview</h2>
+                        <p class="range-date">@day.Date.ToString("ddd dd MMM yyyy", CultureInfo.InvariantCulture)</p>
+                    </div>
+                </header>
+                <div class="range-content metric-card-grid">
+                    <div class="metric-card">
+                        <div class="metric-card-header">
+                            <div class="metric-icon weight">
+                                <i class="bi bi-activity" aria-hidden="true"></i>
+                            </div>
+                            <div>
+                                <h3 class="metric-title">Weight</h3>
+                                <div class="metric-primary">@FormatWeight(day.Weight.CurrentWeightKg)</div>
+                                <div class="metric-caption">Current weight</div>
+                            </div>
+                        </div>
+                        <div class="metric-rows">
+                            <div class="metric-row">
+                                <span class="metric-label">Starting weight</span>
+                                <span class="metric-value">@FormatWeight(day.Weight.StartingWeightKg)</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Change</span>
+                                <span class="metric-value">@FormatWeightChange(day.Weight.ChangeKg)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-card-header">
+                            <div class="metric-icon calories">
+                                <i class="bi bi-fire" aria-hidden="true"></i>
+                            </div>
+                            <div>
+                                <h3 class="metric-title">Calories</h3>
+                                <div class="metric-primary">@FormatNumber(day.Calories.NetCalories, "kcal")</div>
+                                <div class="metric-caption">Net calories</div>
+                            </div>
+                        </div>
+                        <div class="metric-rows">
+                            <div class="metric-row">
+                                <span class="metric-label">Consumed</span>
+                                <span class="metric-value">@FormatNumber(day.Calories.IntakeCalories, "kcal")</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Burned</span>
+                                <span class="metric-value">@FormatNumber(day.Calories.BurnedCalories, "kcal")</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-card-header">
+                            <div class="metric-icon sleep">
+                                <i class="bi bi-moon-stars" aria-hidden="true"></i>
+                            </div>
+                            <div>
+                                <h3 class="metric-title">Sleep</h3>
+                                <div class="metric-primary">@FormatDuration(day.Sleep.TotalSleepHours)</div>
+                                <div class="metric-caption">Total sleep</div>
+                            </div>
+                        </div>
+                        <div class="metric-rows">
+                            <div class="metric-row">
+                                <span class="metric-label">Awake time</span>
+                                <span class="metric-value">@FormatDuration(day.Sleep.TotalAwakeHours)</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Efficiency</span>
+                                <span class="metric-value">@FormatPercentage(day.Sleep.EfficiencyPercentage)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-card-header">
+                            <div class="metric-icon activity">
+                                <i class="bi bi-heart-pulse" aria-hidden="true"></i>
+                            </div>
+                            <div>
+                                <h3 class="metric-title">Activity</h3>
+                                <div class="metric-primary">@FormatNumber(day.Activity.Steps)</div>
+                                <div class="metric-caption">Total steps</div>
+                            </div>
+                        </div>
+                        <div class="metric-rows">
+                            <div class="metric-row">
+                                <span class="metric-label">Distance</span>
+                                <span class="metric-value">@FormatDistance(day.Activity.DistanceKm)</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Floors</span>
+                                <span class="metric-value">@FormatNumber(day.Activity.Floors)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    }
+    else if (string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <p class="no-data">No Fitbit data available.</p>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const form = document.getElementById('dateForm');
+            const dateInput = document.getElementById('dateInput');
+            if (form && dateInput) {
+                dateInput.addEventListener('change', () => form.submit());
+            }
+        })();
+    </script>
+}
+
+@functions {
+#nullable enable
+    private string FormatWeight(double? kg)
+    {
+        return kg.HasValue
+                ? $"{kg.Value:F1} kg"
+                : "-";
+    }
+
+    private string FormatWeightChange(double? deltaKg)
+    {
+        if (!deltaKg.HasValue)
+        {
+            return "-";
+        }
+
+        if (Math.Abs(deltaKg.Value) < 0.01)
+        {
+            return "No change";
+        }
+
+        var verb = deltaKg.Value > 0
+                ? "lost"
+                : "gained";
+
+        return $"{Math.Abs(deltaKg.Value):F1} kg {verb}";
+    }
+
+    private string FormatNumber(int? value, string? suffix = null)
+    {
+        if (!value.HasValue)
+        {
+            return "-";
+        }
+
+        var formatted = value.Value.ToString("N0", CultureInfo.InvariantCulture);
+
+        return suffix is null
+                ? formatted
+                : $"{formatted} {suffix}";
+    }
+
+    private string FormatDistance(double? km)
+    {
+        return km.HasValue
+                ? $"{km.Value:F2} km"
+                : "-";
+    }
+
+    private string FormatDuration(double? hours)
+    {
+        if (!hours.HasValue)
+        {
+            return "-";
+        }
+
+        var totalMinutes = (int)Math.Round(hours.Value * 60, MidpointRounding.AwayFromZero);
+        var span = TimeSpan.FromMinutes(totalMinutes);
+        var hoursPart = (int)Math.Floor(span.TotalHours);
+        var minutesPart = span.Minutes;
+        if ((hoursPart <= 0) && (minutesPart <= 0))
+        {
+            return "0m";
+        }
+
+        if (hoursPart <= 0)
+        {
+            return $"{minutesPart}m";
+        }
+
+        return minutesPart > 0
+                ? $"{hoursPart}h {minutesPart}m"
+                : $"{hoursPart}h";
+    }
+
+    private static string FormatPercentage(double? value)
+    {
+        return value.HasValue
+                ? $"{value.Value:F0}%"
+                : "-";
+    }
+
+}

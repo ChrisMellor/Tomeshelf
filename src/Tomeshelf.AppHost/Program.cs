@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using Aspire.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +37,7 @@ internal class Program
 
         var tomeshelfDb = database.AddDatabase("tomeshelfdb");
         var humbleBundleDb = database.AddDatabase("bundlesdb");
+        var fitbitDb = database.AddDatabase("fitbitdb");
 
         var comicConApi = builder.AddProject<Tomeshelf_ComicConApi>("ComicConApi")
                                  .WithExternalHttpEndpoints()
@@ -49,13 +51,49 @@ internal class Program
                                      .WithReference(humbleBundleDb)
                                      .WaitFor(humbleBundleDb);
 
+        var fitbitSettings = builder.Configuration.GetSection("Fitbit");
+
+        var fitbitApi = builder.AddProject<Tomeshelf_Fitbit_Api>("FitbitApi")
+                               .WithHttpsEndpoint(name: "fitbit-https", port: 7152)
+                               .WithHttpEndpoint(name: "fitbit-http", port: 5152)
+                               .WithHttpHealthCheck("/health")
+                               .WithReference(fitbitDb)
+                               .WaitFor(fitbitDb);
+
+        fitbitApi = fitbitApi.WithEndpoint("fitbit-https", endpoint => endpoint.IsExternal = true)
+                             .WithEndpoint("fitbit-http", endpoint => endpoint.IsExternal = true);
+
+        var optionalEnv = new Dictionary<string, string?>
+        {
+                ["Fitbit__ClientId"] = fitbitSettings["ClientId"],
+                ["Fitbit__ClientSecret"] = fitbitSettings["ClientSecret"],
+                ["Fitbit__AccessToken"] = fitbitSettings["AccessToken"],
+                ["Fitbit__RefreshToken"] = fitbitSettings["RefreshToken"],
+        };
+
+        foreach (var entry in optionalEnv)
+        {
+            if (!string.IsNullOrWhiteSpace(entry.Value))
+            {
+                fitbitApi = fitbitApi.WithEnvironment(entry.Key, entry.Value!);
+            }
+        }
+
+        fitbitApi = fitbitApi.WithEnvironment("Fitbit__ApiBase", fitbitSettings["ApiBase"] ?? "https://api.fitbit.com/")
+                             .WithEnvironment("Fitbit__UserId", fitbitSettings["UserId"] ?? "-")
+                             .WithEnvironment("Fitbit__Scope", fitbitSettings["Scope"] ?? "activity nutrition sleep weight profile settings")
+                             .WithEnvironment("Fitbit__CallbackBaseUri", fitbitSettings["CallbackBaseUri"] ?? "https://localhost:7152")
+                             .WithEnvironment("Fitbit__CallbackPath", fitbitSettings["CallbackPath"] ?? "/api/fitbit/auth/callback");
+
         builder.AddProject<Tomeshelf_Web>("web")
                .WithExternalHttpEndpoints()
                .WithHttpHealthCheck("/health")
                .WithReference(comicConApi)
                .WaitFor(comicConApi)
                .WithReference(humbleBundleApi)
-               .WaitFor(humbleBundleApi);
+               .WaitFor(humbleBundleApi)
+               .WithReference(fitbitApi)
+               .WaitFor(fitbitApi);
 
         var sites = builder.Configuration.GetSection("ComicCon")
                            .Get<List<ComicConSite>>() ?? [];
@@ -71,3 +109,5 @@ internal class Program
                .Run();
     }
 }
+
+

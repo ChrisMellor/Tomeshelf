@@ -89,6 +89,34 @@ public class Program
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
 
+        builder.Services.AddHttpClient<IFitbitApi, FitbitApi>(client =>
+                {
+                    var configured = builder.Configuration["Services:FitbitApiBase"];
+
+                    if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+                    {
+                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                        {
+                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:FitbitApiBase'.");
+                        }
+
+                        client.BaseAddress = configuredUri;
+                    }
+                    else
+                    {
+                        client.BaseAddress = new Uri("https://FitbitApi");
+                    }
+
+                    client.DefaultRequestVersion = HttpVersion.Version11;
+                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                    client.Timeout = TimeSpan.FromSeconds(100);
+                })
+               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+                {
+                        AutomaticDecompression = DecompressionMethods.None,
+                        AllowAutoRedirect = false
+                });
+
         var app = builder.Build();
 
         if (!app.Environment.IsDevelopment())
