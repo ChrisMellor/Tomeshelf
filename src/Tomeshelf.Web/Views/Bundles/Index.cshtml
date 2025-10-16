@@ -34,6 +34,37 @@
                     </span>
                 }
             </p>
+            @if (Model.LastViewedUtc.HasValue)
+            {
+                var lastViewedLocal = Model.LastViewedUtc.Value.ToLocalTime();
+                <p class="text-muted small mb-0">
+                    Last viewed @lastViewedLocal.ToString("f").
+                    @if ((Model.NewBundlesCount > 0) || (Model.UpdatedBundlesCount > 0))
+                    {
+                        <span>
+                            Since then we spotted <strong>@Model.NewBundlesCount new</strong> bundle@(Model.NewBundlesCount == 1
+                                                                                                              ? string.Empty
+                                                                                                              : "s")
+                            @if (Model.UpdatedBundlesCount > 0)
+                            {
+                                <span>
+                                    and <strong>@Model.UpdatedBundlesCount updated</strong> bundle@(Model.UpdatedBundlesCount == 1
+                                                                                                            ? string.Empty
+                                                                                                            : "s").
+                                </span>
+                            }
+                            else
+                            {
+                                <span>.</span>
+                            }
+                        </span>
+                    }
+                    else
+                    {
+                        <span>No changes since your last visit.</span>
+                    }
+                </p>
+            }
         </div>
         <div class="d-flex gap-2">
             <a class="btn btn-outline-secondary" asp-action="Index" asp-route-includeExpired="@(!Model.IncludeExpired)">
@@ -126,6 +157,20 @@ else
                                                         </span>
                                                     }
                                                 </div>
+                                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                                    @if (bundle.IsNewSinceLastFetch)
+                                                    {
+                                                        <span class="badge rounded-pill text-bg-success d-inline-flex align-items-center gap-1">
+                                                            <i class="bi bi-stars"></i>New
+                                                        </span>
+                                                    }
+                                                    else if (bundle.IsUpdatedSinceLastFetch)
+                                                    {
+                                                        <span class="badge rounded-pill text-bg-info d-inline-flex align-items-center gap-1">
+                                                            <i class="bi bi-arrow-repeat"></i>Updated
+                                                        </span>
+                                                    }
+                                                </div>
                                                 <h3 class="card-title h5">
                                                     <a href="@bundle.Url" target="_blank" rel="noopener" class="stretched-link text-decoration-none">@bundle.Title</a>
                                                 </h3>
@@ -138,7 +183,7 @@ else
                                                     {
                                                         <div><i class="bi bi-rocket-takeoff me-1"></i>Started @bundle.StartsAt.Value.ToLocalTime().ToString("g")</div>
                                                     }
-                                                    <div><i class="bi bi-sync me-1"></i>Last updated @bundle.LastUpdatedUtc.ToLocalTime().ToString("g")</div>
+                                                    <div><i class="bi bi-sync me-1"></i>Last updated @FormatRelative(bundle.LastUpdatedUtc) (@bundle.LastUpdatedUtc.ToLocalTime().ToString("g"))</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -176,6 +221,14 @@ else
                             @if (!string.IsNullOrWhiteSpace(bundle.ShortDescription))
                             {
                                 <div class="text-muted small">@bundle.ShortDescription</div>
+                            }
+                            @if (bundle.IsNewSinceLastFetch)
+                            {
+                                <span class="badge rounded-pill text-bg-success ms-1">New</span>
+                            }
+                            else if (bundle.IsUpdatedSinceLastFetch)
+                            {
+                                <span class="badge rounded-pill text-bg-info ms-1">Updated</span>
                             }
                         </td>
                         <td class="text-uppercase text-muted small">
@@ -225,6 +278,40 @@ else
         }
 
         return $"{duration.Seconds}s";
+    }
+
+    private static string FormatRelative(DateTimeOffset timestampUtc)
+    {
+        var local = timestampUtc.ToLocalTime();
+        var diff = DateTimeOffset.Now - local;
+
+        if (diff < TimeSpan.Zero)
+        {
+            diff = TimeSpan.Zero;
+        }
+
+        if (diff.TotalDays >= 1)
+        {
+            return $"{(int)diff.TotalDays} day{(diff.TotalDays >= 2
+                        ? "s"
+                        : string.Empty)} ago";
+        }
+
+        if (diff.TotalHours >= 1)
+        {
+            return $"{(int)diff.TotalHours} hour{(diff.TotalHours >= 2
+                        ? "s"
+                        : string.Empty)} ago";
+        }
+
+        if (diff.TotalMinutes >= 1)
+        {
+            return $"{(int)diff.TotalMinutes} minute{(diff.TotalMinutes >= 2
+                        ? "s"
+                        : string.Empty)} ago";
+        }
+
+        return "just now";
     }
 
 }

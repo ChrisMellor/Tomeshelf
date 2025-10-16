@@ -1,7 +1,9 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Models.Bundles;
 using Tomeshelf.Web.Services;
@@ -11,6 +13,8 @@ namespace Tomeshelf.Web.Controllers;
 [Route("bundles")]
 public sealed class BundlesController(IBundlesApi api) : Controller
 {
+    private const string LastViewedCookieName = "tomeshelf_bundles_lastViewedUtc";
+
     /// <summary>
     ///     Displays Humble Bundle listings fetched from the backend API.
     /// </summary>
@@ -19,6 +23,12 @@ public sealed class BundlesController(IBundlesApi api) : Controller
     [HttpGet("")]
     public async Task<IActionResult> Index([FromQuery] bool includeExpired = false, CancellationToken cancellationToken = default)
     {
+        DateTimeOffset? lastViewed = null;
+        if (Request.Cookies.TryGetValue(LastViewedCookieName, out var cookieValue) && DateTimeOffset.TryParse(cookieValue, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed))
+        {
+            lastViewed = parsed;
+        }
+
         var bundles = await api.GetBundlesAsync(includeExpired, cancellationToken);
         var now = DateTimeOffset.UtcNow;
 
@@ -26,6 +36,8 @@ public sealed class BundlesController(IBundlesApi api) : Controller
                                  {
                                      var timeRemaining = CalculateRemaining(bundle.EndsAt, now);
                                      var isExpired = bundle.EndsAt.HasValue && (bundle.EndsAt.Value <= now);
+                                     var isNew = lastViewed.HasValue && (bundle.FirstSeenUtc > lastViewed.Value);
+                                     var isUpdated = lastViewed.HasValue && (bundle.LastUpdatedUtc > lastViewed.Value);
 
                                      return new BundleViewModel
                                      {
@@ -50,7 +62,9 @@ public sealed class BundlesController(IBundlesApi api) : Controller
                                              TimeRemaining = isExpired
                                                      ? null
                                                      : timeRemaining,
-                                             SecondsRemaining = bundle.SecondsRemaining
+                                             SecondsRemaining = bundle.SecondsRemaining,
+                                             IsNewSinceLastFetch = isNew,
+                                             IsUpdatedSinceLastFetch = isUpdated
                                      };
                                  })
                                 .ToList();
@@ -73,12 +87,25 @@ public sealed class BundlesController(IBundlesApi api) : Controller
                 ? bundles.Max(b => b.GeneratedUtc)
                 : now;
 
+        if (bundles.Count > 0)
+        {
+            Response.Cookies.Append(LastViewedCookieName, dataTimestamp.ToString("O"), new CookieOptions
+            {
+                    Expires = DateTimeOffset.UtcNow.AddDays(14),
+                    HttpOnly = false,
+                    IsEssential = true
+            });
+        }
+
         var model = new BundlesIndexViewModel
         {
                 ActiveBundles = active,
                 ExpiredBundles = expired,
                 IncludeExpired = includeExpired,
-                DataTimestampUtc = dataTimestamp
+                DataTimestampUtc = dataTimestamp,
+                LastViewedUtc = lastViewed,
+                NewBundlesCount = viewModels.Count(vm => vm.IsNewSinceLastFetch),
+                UpdatedBundlesCount = viewModels.Count(vm => vm.IsUpdatedSinceLastFetch && !vm.IsNewSinceLastFetch)
         };
 
         return View(model);

@@ -17,6 +17,12 @@ public sealed class BundlesIndexViewModel
 
     public DateTimeOffset DataTimestampUtc { get; init; }
 
+    public DateTimeOffset? LastViewedUtc { get; init; }
+
+    public int NewBundlesCount { get; init; }
+
+    public int UpdatedBundlesCount { get; init; }
+
     public int TotalBundles => (ActiveBundles?.Sum(group => group.Bundles.Count) ?? 0) +
                                (IncludeExpired
                                        ? ExpiredBundles?.Count ?? 0

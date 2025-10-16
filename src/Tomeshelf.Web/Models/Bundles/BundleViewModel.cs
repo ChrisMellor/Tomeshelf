@@ -42,4 +42,8 @@ public sealed class BundleViewModel
     public TimeSpan? TimeRemaining { get; init; }
 
     public double? SecondsRemaining { get; init; }
+
+    public bool IsNewSinceLastFetch { get; init; }
+
+    public bool IsUpdatedSinceLastFetch { get; init; }
 }
