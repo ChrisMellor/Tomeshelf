@@ -43,7 +43,7 @@ public sealed class FitbitDashboardService
     public async Task<FitbitDashboardDto?> GetDashboardAsync(DateOnly date, bool forceRefresh = false, CancellationToken cancellationToken = default)
     {
         var cacheKey = $"fitbit:dashboard:{date:yyyy-MM-dd}";
-        if (_cache.TryGetValue(cacheKey, out FitbitDashboardDto? cached) && cached is not null)
+        if (!forceRefresh && _cache.TryGetValue(cacheKey, out FitbitDashboardDto? cached) && cached is not null)
         {
             return cached;
         }
@@ -405,23 +405,39 @@ public sealed class FitbitDashboardService
             return null;
         }
 
-        var composite = !string.IsNullOrWhiteSpace(time)
-                ? $"{date}T{time}"
-                : date;
-
-        if (string.IsNullOrWhiteSpace(composite))
+        if (!string.IsNullOrWhiteSpace(time))
         {
-            return null;
+            if (DateTimeOffset.TryParse(time, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var parsedTimeOnly))
+            {
+                return parsedTimeOnly;
+            }
+
+            if (!string.IsNullOrWhiteSpace(date))
+            {
+                var composite = $"{date}T{time}";
+                if (DateTimeOffset.TryParse(composite, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var dto))
+                {
+                    return dto;
+                }
+
+                if (DateTime.TryParse(composite, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var dt))
+                {
+                    return new DateTimeOffset(dt);
+                }
+            }
         }
 
-        if (DateTimeOffset.TryParse(composite, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var dto))
+        if (!string.IsNullOrWhiteSpace(date))
         {
-            return dto;
-        }
+            if (DateTimeOffset.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var dtoDateOnly))
+            {
+                return dtoDateOnly;
+            }
 
-        if (DateTime.TryParse(composite, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var dt))
-        {
-            return new DateTimeOffset(dt);
+            if (DateTime.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var dtDateOnly))
+            {
+                return new DateTimeOffset(dtDateOnly);
+            }
         }
 
         return null;
