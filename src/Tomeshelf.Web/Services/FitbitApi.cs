@@ -125,6 +125,7 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
         if (!IsRedirectStatus(response.StatusCode))
         {
             var payload = await response.Content.ReadAsStringAsync(cancellationToken);
+
             throw new InvalidOperationException($"Fitbit authorization endpoint returned unexpected status {(int)response.StatusCode}. Response: {payload}");
         }
 

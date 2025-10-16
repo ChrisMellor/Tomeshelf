@@ -13,18 +13,15 @@ namespace Tomeshelf.Infrastructure.Fitness;
 
 public sealed class FitbitTokenCache
 {
-    private readonly object _sync = new();
-    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<FitbitTokenCache> _logger;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly object _sync = new object();
 
     private string? _accessToken;
-    private string? _refreshToken;
     private DateTimeOffset? _expiresAtUtc;
+    private string? _refreshToken;
 
-    public FitbitTokenCache(
-        IServiceScopeFactory scopeFactory,
-        IOptions<FitbitOptions> options,
-        ILogger<FitbitTokenCache> logger)
+    public FitbitTokenCache(IServiceScopeFactory scopeFactory, IOptions<FitbitOptions> options, ILogger<FitbitTokenCache> logger)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
@@ -32,8 +29,12 @@ public sealed class FitbitTokenCache
         if (!TryLoadFromDatabase())
         {
             var value = options.Value;
-            _accessToken = string.IsNullOrWhiteSpace(value.AccessToken) ? null : value.AccessToken;
-            _refreshToken = string.IsNullOrWhiteSpace(value.RefreshToken) ? null : value.RefreshToken;
+            _accessToken = string.IsNullOrWhiteSpace(value.AccessToken)
+                    ? null
+                    : value.AccessToken;
+            _refreshToken = string.IsNullOrWhiteSpace(value.RefreshToken)
+                    ? null
+                    : value.RefreshToken;
             _expiresAtUtc = null;
 
             if (_accessToken is not null || _refreshToken is not null)
@@ -108,7 +109,8 @@ public sealed class FitbitTokenCache
         {
             using var scope = _scopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
-            var credential = dbContext.FitbitCredentials.AsNoTracking().SingleOrDefault();
+            var credential = dbContext.FitbitCredentials.AsNoTracking()
+                                      .SingleOrDefault();
             if (credential is null)
             {
                 return false;
@@ -117,11 +119,13 @@ public sealed class FitbitTokenCache
             _accessToken = credential.AccessToken;
             _refreshToken = credential.RefreshToken;
             _expiresAtUtc = credential.ExpiresAtUtc;
+
             return true;
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Failed to read Fitbit credentials from database.");
+
             return false;
         }
     }

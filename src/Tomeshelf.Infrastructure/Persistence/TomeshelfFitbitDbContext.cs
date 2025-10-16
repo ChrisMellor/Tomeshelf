@@ -59,4 +59,3 @@ public sealed class TomeshelfFitbitDbContext(DbContextOptions<TomeshelfFitbitDbC
         credential.Property(x => x.ExpiresAtUtc);
     }
 }
-

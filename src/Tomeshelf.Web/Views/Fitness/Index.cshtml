@@ -280,6 +280,7 @@
         }
 
         var format = $"F{decimals}";
+
         return $"{value.Value.ToString(format, CultureInfo.InvariantCulture)} {unit}";
     }
 
@@ -325,8 +326,8 @@
 
         var span = TimeSpan.FromMinutes(minutes.Value);
 
-        int hours = (int)span.TotalHours;
-        int mins = span.Minutes;
+        var hours = (int)span.TotalHours;
+        var mins = span.Minutes;
 
         var parts = new List<string>();
 
@@ -348,7 +349,6 @@
         return string.Join(" ", parts);
     }
 
-
     private string FormatClockTime(string? time)
     {
         return string.IsNullOrWhiteSpace(time)
@@ -365,7 +365,7 @@
 
     private static string GetNetCaloriesCss(int? netCalories)
     {
-        if (!netCalories.HasValue || netCalories.Value == 0)
+        if (!netCalories.HasValue || (netCalories.Value == 0))
         {
             return string.Empty;
         }
@@ -374,4 +374,5 @@
                 ? "text-success"
                 : "text-danger";
     }
+
 }

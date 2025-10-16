@@ -74,11 +74,13 @@ public sealed class FitnessController : Controller
             try
             {
                 var authorizeUri = await _fitbitApi.ResolveAuthorizationAsync(authEx.Location, cancellationToken);
+
                 return Redirect(authorizeUri.ToString());
             }
             catch (Exception resolveEx)
             {
                 _logger.LogWarning(resolveEx, "Failed to resolve Fitbit authorization redirect for {Date}; falling back to API location.", targetDate);
+
                 return Redirect(authEx.Location.ToString());
             }
         }

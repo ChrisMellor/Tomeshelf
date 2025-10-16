@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure;
 using Tomeshelf.Infrastructure.Persistence;

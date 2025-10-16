@@ -56,5 +56,4 @@ public sealed class FitbitOptions
     ///     Gets or sets the relative callback path Fitbit redirects to after authorization.
     /// </summary>
     public string CallbackPath { get; set; } = "/api/fitbit/auth/callback";
-
 }

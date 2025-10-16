@@ -2,9 +2,9 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -207,27 +207,30 @@ public sealed class FitbitDashboardService
 
     private static FitbitWeightSummaryDto BuildWeightSummary(WeightResponse? response)
     {
-        if (response?.Entries is not { Count: > 0 })
+        if (response?.Entries is not
+            {
+                    Count: > 0
+            })
         {
             return new FitbitWeightSummaryDto();
         }
 
         var data = response.Entries.Where(e => e.Weight.HasValue)
-                                   .Select(entry =>
-                                    {
-                                        var timestamp = ParseDateTime(entry.Date, entry.Time) ?? DateTimeOffset.MinValue;
+                           .Select(entry =>
+                            {
+                                var timestamp = ParseDateTime(entry.Date, entry.Time) ?? DateTimeOffset.MinValue;
 
-                                        return new
-                                        {
-                                                Timestamp = timestamp,
-                                                entry.Weight,
-                                                entry.BodyFatPercentage,
-                                                entry.LeanMassKg
-                                        };
-                                    })
-                                   .Where(e => e.Weight.HasValue)
-                                   .OrderBy(e => e.Timestamp)
-                                   .ToList();
+                                return new
+                                {
+                                        Timestamp = timestamp,
+                                        entry.Weight,
+                                        entry.BodyFatPercentage,
+                                        entry.LeanMassKg
+                                };
+                            })
+                           .Where(e => e.Weight.HasValue)
+                           .OrderBy(e => e.Timestamp)
+                           .ToList();
 
         if (data.Count == 0)
         {
@@ -257,7 +260,7 @@ public sealed class FitbitDashboardService
                 leanMass = Math.Round(weight * (1 - (bodyFat.Value / 100d)), 2);
             }
 
-            if (!bodyFat.HasValue && leanMass.HasValue && weight > 0)
+            if (!bodyFat.HasValue && leanMass.HasValue && (weight > 0))
             {
                 bodyFat = Math.Round((1 - (leanMass.Value / weight)) * 100d, 2);
             }
@@ -300,13 +303,16 @@ public sealed class FitbitDashboardService
 
     private static FitbitSleepSummaryDto BuildSleepSummary(SleepResponse? response)
     {
-        if (response?.Entries is not { Count: > 0 })
+        if (response?.Entries is not
+            {
+                    Count: > 0
+            })
         {
             return new FitbitSleepSummaryDto();
         }
 
         var entries = response.Entries.Where(e => e.MinutesAsleep.HasValue || e.MinutesAwake.HasValue)
-                                      .ToList();
+                              .ToList();
 
         if (entries.Count == 0)
         {
@@ -329,15 +335,13 @@ public sealed class FitbitDashboardService
                               .OrderByDescending(d => d)
                               .FirstOrDefault();
 
-        double? efficiency = efficiencyValues.Count > 0 ? efficiencyValues.Average() : null;
+        double? efficiency = efficiencyValues.Count > 0
+                ? efficiencyValues.Average()
+                : null;
 
         static double? ToHours(int minutes)
         {
-            return minutes > 0
-                    ? Math.Round(minutes / 60d, 2)
-                    : minutes == 0
-                            ? 0d
-                            : null;
+            return minutes > 0 ? Math.Round(minutes / 60d, 2) : minutes == 0 ? 0d : null;
         }
 
         int? SumLevelMinutes(Func<SleepResponse.SleepLevelSummary, SleepResponse.SleepLevelSummaryItem?> selector)
@@ -353,7 +357,8 @@ public sealed class FitbitDashboardService
                     continue;
                 }
 
-                var minutes = selector(summary)?.Minutes;
+                var minutes = selector(summary)
+                      ?.Minutes;
                 if (minutes.HasValue)
                 {
                     total += minutes.Value;

@@ -17,7 +17,8 @@ public sealed class FitbitTokenCacheTests
     [Fact]
     public void ConstructorLoadsStoredCredentials()
     {
-        var dbName = Guid.NewGuid().ToString("N");
+        var dbName = Guid.NewGuid()
+                         .ToString("N");
         using var provider = BuildServiceProvider(dbName);
         var scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
 
@@ -36,15 +37,19 @@ public sealed class FitbitTokenCacheTests
 
         var cache = new FitbitTokenCache(scopeFactory, Options.Create(new FitbitOptions()), NullLogger<FitbitTokenCache>.Instance);
 
-        cache.AccessToken.Should().Be("stored-access");
-        cache.RefreshToken.Should().Be("stored-refresh");
-        cache.ExpiresAtUtc.Should().NotBeNull();
+        cache.AccessToken.Should()
+             .Be("stored-access");
+        cache.RefreshToken.Should()
+             .Be("stored-refresh");
+        cache.ExpiresAtUtc.Should()
+             .NotBeNull();
     }
 
     [Fact]
     public void ConstructorSeedsDatabaseFromOptionsWhenEmpty()
     {
-        var dbName = Guid.NewGuid().ToString("N");
+        var dbName = Guid.NewGuid()
+                         .ToString("N");
         using var provider = BuildServiceProvider(dbName);
         var scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
         var options = new FitbitOptions
@@ -61,22 +66,27 @@ public sealed class FitbitTokenCacheTests
 
         var cache = new FitbitTokenCache(scopeFactory, Options.Create(options), NullLogger<FitbitTokenCache>.Instance);
 
-        cache.AccessToken.Should().Be("bootstrap-access");
-        cache.RefreshToken.Should().Be("bootstrap-refresh");
+        cache.AccessToken.Should()
+             .Be("bootstrap-access");
+        cache.RefreshToken.Should()
+             .Be("bootstrap-refresh");
 
         using (var scope = scopeFactory.CreateScope())
         {
             var context = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
             var credential = context.FitbitCredentials.Single();
-            credential.AccessToken.Should().Be("bootstrap-access");
-            credential.RefreshToken.Should().Be("bootstrap-refresh");
+            credential.AccessToken.Should()
+                      .Be("bootstrap-access");
+            credential.RefreshToken.Should()
+                      .Be("bootstrap-refresh");
         }
     }
 
     [Fact]
     public void UpdatePersistsCredentials()
     {
-        var dbName = Guid.NewGuid().ToString("N");
+        var dbName = Guid.NewGuid()
+                         .ToString("N");
         using var provider = BuildServiceProvider(dbName);
         var scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
 
@@ -91,24 +101,31 @@ public sealed class FitbitTokenCacheTests
         var expiresAt = DateTimeOffset.UtcNow.AddMinutes(30);
         cache.Update("new-access", "new-refresh", expiresAt);
 
-        cache.AccessToken.Should().Be("new-access");
-        cache.RefreshToken.Should().Be("new-refresh");
-        cache.ExpiresAtUtc.Should().BeCloseTo(expiresAt, TimeSpan.FromSeconds(1));
+        cache.AccessToken.Should()
+             .Be("new-access");
+        cache.RefreshToken.Should()
+             .Be("new-refresh");
+        cache.ExpiresAtUtc.Should()
+             .BeCloseTo(expiresAt, TimeSpan.FromSeconds(1));
 
         using (var scope = scopeFactory.CreateScope())
         {
             var context = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
             var credential = context.FitbitCredentials.Single();
-            credential.AccessToken.Should().Be("new-access");
-            credential.RefreshToken.Should().Be("new-refresh");
-            credential.ExpiresAtUtc.Should().BeCloseTo(expiresAt, TimeSpan.FromSeconds(1));
+            credential.AccessToken.Should()
+                      .Be("new-access");
+            credential.RefreshToken.Should()
+                      .Be("new-refresh");
+            credential.ExpiresAtUtc.Should()
+                      .BeCloseTo(expiresAt, TimeSpan.FromSeconds(1));
         }
     }
 
     [Fact]
     public void ClearRemovesPersistedCredentials()
     {
-        var dbName = Guid.NewGuid().ToString("N");
+        var dbName = Guid.NewGuid()
+                         .ToString("N");
         using var provider = BuildServiceProvider(dbName);
         var scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
 
@@ -123,17 +140,23 @@ public sealed class FitbitTokenCacheTests
 
         cache.Clear();
 
-        cache.AccessToken.Should().BeNull();
-        cache.RefreshToken.Should().BeNull();
-        cache.ExpiresAtUtc.Should().BeNull();
+        cache.AccessToken.Should()
+             .BeNull();
+        cache.RefreshToken.Should()
+             .BeNull();
+        cache.ExpiresAtUtc.Should()
+             .BeNull();
 
         using (var scope = scopeFactory.CreateScope())
         {
             var context = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
             var credential = context.FitbitCredentials.Single();
-            credential.AccessToken.Should().BeNull();
-            credential.RefreshToken.Should().BeNull();
-            credential.ExpiresAtUtc.Should().BeNull();
+            credential.AccessToken.Should()
+                      .BeNull();
+            credential.RefreshToken.Should()
+                      .BeNull();
+            credential.ExpiresAtUtc.Should()
+                      .BeNull();
         }
     }
 

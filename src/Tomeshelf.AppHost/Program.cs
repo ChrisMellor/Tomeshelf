@@ -68,7 +68,7 @@ internal class Program
                 ["Fitbit__ClientId"] = fitbitSettings["ClientId"],
                 ["Fitbit__ClientSecret"] = fitbitSettings["ClientSecret"],
                 ["Fitbit__AccessToken"] = fitbitSettings["AccessToken"],
-                ["Fitbit__RefreshToken"] = fitbitSettings["RefreshToken"],
+                ["Fitbit__RefreshToken"] = fitbitSettings["RefreshToken"]
         };
 
         foreach (var entry in optionalEnv)
@@ -109,5 +109,3 @@ internal class Program
                .Run();
     }
 }
-
-
