@@ -292,23 +292,20 @@ else
 
         if (diff.TotalDays >= 1)
         {
-            return $"{(int)diff.TotalDays} day{(diff.TotalDays >= 2
-                        ? "s"
-                        : string.Empty)} ago";
+            var suffix = diff.TotalDays >= 2 ? "s" : string.Empty;
+            return $"{(int)diff.TotalDays} day{suffix} ago";
         }
 
         if (diff.TotalHours >= 1)
         {
-            return $"{(int)diff.TotalHours} hour{(diff.TotalHours >= 2
-                        ? "s"
-                        : string.Empty)} ago";
+            var suffix = diff.TotalHours >= 2 ? "s" : string.Empty;
+            return $"{(int)diff.TotalHours} hour{suffix} ago";
         }
 
         if (diff.TotalMinutes >= 1)
         {
-            return $"{(int)diff.TotalMinutes} minute{(diff.TotalMinutes >= 2
-                        ? "s"
-                        : string.Empty)} ago";
+            var suffix = diff.TotalMinutes >= 2 ? "s" : string.Empty;
+            return $"{(int)diff.TotalMinutes} minute{suffix} ago";
         }
 
         return "just now";
