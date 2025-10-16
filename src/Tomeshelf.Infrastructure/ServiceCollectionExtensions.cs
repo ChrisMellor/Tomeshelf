@@ -1,7 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure.Bundles;
 using Tomeshelf.Infrastructure.Clients;
+using Tomeshelf.Infrastructure.Fitness;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
@@ -10,11 +14,6 @@ namespace Tomeshelf.Infrastructure;
 
 public static class ServiceCollectionExtensions
 {
-    /// <summary>
-    ///     Registers infrastructure services assuming the DbContext is configured elsewhere (Aspire-friendly overload).
-    /// </summary>
-    /// <param name="services">The DI service collection.</param>
-    /// <returns>The same service collection for chaining.</returns>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
         services.AddScoped<GuestQueries>();
@@ -25,11 +24,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>
-    ///     Registers Humble Bundle scraping and query services.
-    /// </summary>
-    /// <param name="services">The DI service collection.</param>
-    /// <returns>The same service collection for chaining.</returns>
     public static IServiceCollection AddBundleInfrastructure(this IServiceCollection services)
     {
         services.AddScoped<BundleQueries>();
@@ -42,12 +36,50 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>
-    ///     Registers infrastructure services and configures the EF Core DbContext (classic overload).
-    /// </summary>
-    /// <param name="services">The DI service collection.</param>
-    /// <param name="connectionString">SQL Server connection string.</param>
-    /// <returns>The same service collection for chaining.</returns>
+    public static IServiceCollection AddFitnessInfrastructure(this IServiceCollection services)
+    {
+        services.AddMemoryCache();
+        services.AddSingleton<FitbitTokenCache>();
+        services.AddHttpClient<IFitbitApiClient, FitbitApiClient>((sp, client) =>
+        {
+            var options = sp.GetRequiredService<IOptionsMonitor<FitbitOptions>>()
+                            .CurrentValue;
+            var baseUrl = string.IsNullOrWhiteSpace(options.ApiBase)
+                    ? "https://api.fitbit.com/"
+                    : options.ApiBase;
+
+            if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri))
+            {
+                throw new InvalidOperationException($"Invalid Fitbit API base URL '{baseUrl}'.");
+            }
+
+            client.BaseAddress = uri;
+            client.Timeout = TimeSpan.FromMinutes(2);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf/1.0 (+https://github.com/ChrisMellor/Tomeshelf)");
+        });
+        services.AddHttpClient("FitbitOAuth", (sp, client) =>
+        {
+            var options = sp.GetRequiredService<IOptionsMonitor<FitbitOptions>>()
+                            .CurrentValue;
+            var baseUrl = string.IsNullOrWhiteSpace(options.ApiBase)
+                    ? "https://api.fitbit.com/"
+                    : options.ApiBase;
+
+            if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri))
+            {
+                throw new InvalidOperationException($"Invalid Fitbit API base URL '{baseUrl}'.");
+            }
+
+            client.BaseAddress = uri;
+            client.Timeout = TimeSpan.FromSeconds(30);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf/1.0 (+https://github.com/ChrisMellor/Tomeshelf)");
+        });
+        services.AddTransient<FitbitDashboardService>();
+        services.AddSingleton<FitbitAuthorizationService>();
+
+        return services;
+    }
+
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<TomeshelfComicConDbContext>(options => options.UseSqlServer(connectionString));

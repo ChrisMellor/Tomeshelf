@@ -19,3 +19,142 @@ body { margin-bottom: 60px; }
 }
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder { text-align: start; }
+
+/* Fitness dashboard styling */
+
+.fitness-dashboard .date-selector { margin: 1.5rem 0; }
+
+.fitness-dashboard .date-nav-buttons {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.fitness-dashboard .date-nav {
+    align-items: center;
+    background: var(--bs-primary-bg-subtle, #e7f1ff);
+    border-radius: 50%;
+    color: var(--bs-primary, #0d6efd);
+    display: inline-flex;
+    height: 2.75rem;
+    justify-content: center;
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    width: 2.75rem;
+}
+
+.fitness-dashboard .date-nav.disabled {
+    background: var(--bs-secondary-bg, #f1f3f5);
+    color: var(--bs-secondary, #6c757d);
+    cursor: not-allowed;
+}
+
+.fitness-dashboard .date-nav:not(.disabled):hover {
+    box-shadow: 0 0.5rem 1rem -0.75rem rgba(13, 110, 253, 0.6);
+    transform: translateY(-2px);
+}
+
+.fitness-dashboard .date-form input[type="date"] {
+    border: 1px solid rgba(33, 37, 41, 0.15);
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+}
+
+.metric-card-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+    .metric-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.metric-card {
+    background: linear-gradient(135deg, rgba(248, 249, 250, 0.9), rgba(255, 255, 255, 0.95));
+    border: 1px solid rgba(33, 37, 41, 0.08);
+    border-radius: 1.25rem;
+    box-shadow: 0 1.5rem 3rem -2rem rgba(33, 37, 41, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.5rem;
+}
+
+.metric-card-header {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+}
+
+.metric-icon {
+    align-items: center;
+    border-radius: 1rem;
+    box-shadow: 0 0.75rem 2rem -1rem rgba(0, 0, 0, 0.35);
+    color: #fff;
+    display: inline-flex;
+    font-size: 1.5rem;
+    height: 3.25rem;
+    justify-content: center;
+    width: 3.25rem;
+}
+
+.metric-icon.weight { background: linear-gradient(135deg, #6f42c1, #b197fc); }
+
+.metric-icon.calories { background: linear-gradient(135deg, #d63384, #fd7e14); }
+
+.metric-icon.sleep { background: linear-gradient(135deg, #0d6efd, #4dabf7); }
+
+.metric-icon.activity { background: linear-gradient(135deg, #198754, #51cf66); }
+
+.metric-title {
+    color: rgba(33, 37, 41, 0.6);
+    font-size: 0.95rem;
+    letter-spacing: 0.08rem;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.metric-primary {
+    color: var(--bs-body-color);
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.metric-caption {
+    color: rgba(33, 37, 41, 0.6);
+    font-size: 0.85rem;
+}
+
+.metric-rows {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.metric-row {
+    align-items: center;
+    color: rgba(33, 37, 41, 0.85);
+    display: flex;
+    font-size: 0.95rem;
+    justify-content: space-between;
+}
+
+.metric-row + .metric-row {
+    border-top: 1px dashed rgba(33, 37, 41, 0.08);
+    padding-top: 0.65rem;
+}
+
+.metric-label { font-weight: 500; }
+
+.metric-value {
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 576px) {
+    .fitness-dashboard .date-nav-buttons { gap: 0.5rem; }
+
+    .metric-card { padding: 1.25rem; }
+}
