@@ -1,4 +1,5 @@
-@model BundlesIndexViewModel
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Tomeshelf.Web.Models.Bundles.BundlesIndexViewModel
 @{
     ViewData["Title"] = "Humble Bundle Tracker";
     var generatedLocal = Model.DataTimestampUtc.ToLocalTime();

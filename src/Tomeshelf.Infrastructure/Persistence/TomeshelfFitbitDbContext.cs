@@ -34,6 +34,18 @@ public sealed class TomeshelfFitbitDbContext(DbContextOptions<TomeshelfFitbitDbC
         snapshot.Property(x => x.WakeTime)
                 .HasMaxLength(10);
 
+        snapshot.Property(x => x.BodyFatPercentage);
+        snapshot.Property(x => x.LeanMassKg);
+        snapshot.Property(x => x.CarbsGrams);
+        snapshot.Property(x => x.FatGrams);
+        snapshot.Property(x => x.FiberGrams);
+        snapshot.Property(x => x.ProteinGrams);
+        snapshot.Property(x => x.SodiumMilligrams);
+        snapshot.Property(x => x.SleepDeepMinutes);
+        snapshot.Property(x => x.SleepLightMinutes);
+        snapshot.Property(x => x.SleepRemMinutes);
+        snapshot.Property(x => x.SleepWakeMinutes);
+
         snapshot.HasIndex(x => x.GeneratedUtc);
         var credential = modelBuilder.Entity<FitbitCredential>();
         credential.ToTable("FitbitCredentials");

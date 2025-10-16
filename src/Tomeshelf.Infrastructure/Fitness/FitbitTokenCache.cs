@@ -1,7 +1,8 @@
 #nullable enable
 using System;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tomeshelf.Application.Options;
@@ -13,7 +14,7 @@ namespace Tomeshelf.Infrastructure.Fitness;
 public sealed class FitbitTokenCache
 {
     private readonly object _sync = new();
-    private readonly IDbContextFactory<TomeshelfFitbitDbContext> _dbContextFactory;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<FitbitTokenCache> _logger;
 
     private string? _accessToken;
@@ -21,11 +22,11 @@ public sealed class FitbitTokenCache
     private DateTimeOffset? _expiresAtUtc;
 
     public FitbitTokenCache(
-        IDbContextFactory<TomeshelfFitbitDbContext> dbContextFactory,
+        IServiceScopeFactory scopeFactory,
         IOptions<FitbitOptions> options,
         ILogger<FitbitTokenCache> logger)
     {
-        _dbContextFactory = dbContextFactory;
+        _scopeFactory = scopeFactory;
         _logger = logger;
 
         if (!TryLoadFromDatabase())
@@ -105,7 +106,8 @@ public sealed class FitbitTokenCache
     {
         try
         {
-            using var dbContext = _dbContextFactory.CreateDbContext();
+            using var scope = _scopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
             var credential = dbContext.FitbitCredentials.AsNoTracking().SingleOrDefault();
             if (credential is null)
             {
@@ -128,7 +130,8 @@ public sealed class FitbitTokenCache
     {
         try
         {
-            using var dbContext = _dbContextFactory.CreateDbContext();
+            using var scope = _scopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
             var credential = dbContext.FitbitCredentials.SingleOrDefault();
             if (credential is null)
             {

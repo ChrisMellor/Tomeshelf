@@ -39,7 +39,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddFitnessInfrastructure(this IServiceCollection services)
     {
         services.AddMemoryCache();
-        services.AddDbContextFactory<TomeshelfFitbitDbContext>();
         services.AddSingleton<FitbitTokenCache>();
         services.AddHttpClient<IFitbitApiClient, FitbitApiClient>((sp, client) =>
         {

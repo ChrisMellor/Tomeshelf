@@ -69,9 +69,18 @@ public sealed class FitnessController : Controller
         }
         catch (FitbitAuthorizationRequiredException authEx)
         {
-            _logger.LogInformation("Redirecting to Fitbit authorization flow from dashboard request for {Date}", targetDate);
+            _logger.LogInformation("Resolving Fitbit authorization flow for {Date}", targetDate);
 
-            return Redirect(authEx.Location.ToString());
+            try
+            {
+                var authorizeUri = await _fitbitApi.ResolveAuthorizationAsync(authEx.Location, cancellationToken);
+                return Redirect(authorizeUri.ToString());
+            }
+            catch (Exception resolveEx)
+            {
+                _logger.LogWarning(resolveEx, "Failed to resolve Fitbit authorization redirect for {Date}; falling back to API location.", targetDate);
+                return Redirect(authEx.Location.ToString());
+            }
         }
         catch (FitbitBackendUnavailableException unavailableEx)
         {
@@ -128,17 +137,17 @@ public sealed class FitnessController : Controller
 
     private static bool HasAnyMetrics(DaySummaryViewModel summary)
     {
-        if (summary.Weight.StartingWeightKg.HasValue || summary.Weight.CurrentWeightKg.HasValue || summary.Weight.ChangeKg.HasValue)
+        if (summary.Weight.StartingWeightKg.HasValue || summary.Weight.CurrentWeightKg.HasValue || summary.Weight.ChangeKg.HasValue || summary.Weight.BodyFatPercentage.HasValue || summary.Weight.LeanMassKg.HasValue)
         {
             return true;
         }
 
-        if (summary.Calories.IntakeCalories.HasValue || summary.Calories.BurnedCalories.HasValue || summary.Calories.NetCalories.HasValue)
+        if (summary.Calories.IntakeCalories.HasValue || summary.Calories.BurnedCalories.HasValue || summary.Calories.NetCalories.HasValue || summary.Calories.CarbsGrams.HasValue || summary.Calories.FatGrams.HasValue || summary.Calories.FiberGrams.HasValue || summary.Calories.ProteinGrams.HasValue || summary.Calories.SodiumMilligrams.HasValue)
         {
             return true;
         }
 
-        if (summary.Sleep.TotalSleepHours.HasValue || summary.Sleep.TotalAwakeHours.HasValue || summary.Sleep.EfficiencyPercentage.HasValue)
+        if (summary.Sleep.TotalSleepHours.HasValue || summary.Sleep.TotalAwakeHours.HasValue || summary.Sleep.EfficiencyPercentage.HasValue || summary.Sleep.Levels.DeepMinutes.HasValue || summary.Sleep.Levels.LightMinutes.HasValue || summary.Sleep.Levels.RemMinutes.HasValue || summary.Sleep.Levels.WakeMinutes.HasValue)
         {
             return true;
         }

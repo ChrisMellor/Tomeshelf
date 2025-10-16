@@ -42,12 +42,12 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return GetJsonAsync<ActivitiesResponse>(path, cancellationToken);
     }
 
-    public Task<CaloriesInResponse?> GetCaloriesInAsync(DateOnly date, CancellationToken cancellationToken)
+    public Task<FoodLogSummaryResponse?> GetCaloriesInAsync(DateOnly date, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
-        var path = $"1/user/{userId}/foods/log/caloriesIn/date/{date:yyyy-MM-dd}/1d.json";
+        var path = $"1/user/{userId}/foods/log/date/{date:yyyy-MM-dd}.json";
 
-        return GetJsonAsync<CaloriesInResponse>(path, cancellationToken);
+        return GetJsonAsync<FoodLogSummaryResponse>(path, cancellationToken);
     }
 
     public Task<SleepResponse?> GetSleepAsync(DateOnly date, CancellationToken cancellationToken)

@@ -41,17 +41,72 @@ public sealed record FitbitDashboardDto
 /// <summary>
 ///     Weight change summary details.
 /// </summary>
-public sealed record FitbitWeightSummaryDto(double? StartingWeightKg, double? CurrentWeightKg, double? ChangeKg);
+public sealed record FitbitWeightSummaryDto
+{
+    public double? StartingWeightKg { get; init; }
+
+    public double? CurrentWeightKg { get; init; }
+
+    public double? ChangeKg { get; init; }
+
+    public double? BodyFatPercentage { get; init; }
+
+    public double? LeanMassKg { get; init; }
+}
 
 /// <summary>
 ///     Daily calorie summary.
 /// </summary>
-public sealed record FitbitCaloriesSummaryDto(int? IntakeCalories, int? BurnedCalories, int? NetCalories);
+public sealed record FitbitCaloriesSummaryDto
+{
+    public int? IntakeCalories { get; init; }
+
+    public int? BurnedCalories { get; init; }
+
+    public int? NetCalories { get; init; }
+
+    public double? CarbsGrams { get; init; }
+
+    public double? FatGrams { get; init; }
+
+    public double? FiberGrams { get; init; }
+
+    public double? ProteinGrams { get; init; }
+
+    public double? SodiumMilligrams { get; init; }
+}
 
 /// <summary>
 ///     Sleep routine summary for the day.
 /// </summary>
-public sealed record FitbitSleepSummaryDto(double? TotalSleepHours, double? TotalAwakeHours, double? EfficiencyPercentage, string? Bedtime, string? WakeTime);
+public sealed record FitbitSleepSummaryDto
+{
+    public double? TotalSleepHours { get; init; }
+
+    public double? TotalAwakeHours { get; init; }
+
+    public double? EfficiencyPercentage { get; init; }
+
+    public string? Bedtime { get; init; }
+
+    public string? WakeTime { get; init; }
+
+    public FitbitSleepLevelsDto Levels { get; init; } = new();
+}
+
+/// <summary>
+///     Breakdown of sleep stages for the night.
+/// </summary>
+public sealed record FitbitSleepLevelsDto
+{
+    public int? DeepMinutes { get; init; }
+
+    public int? LightMinutes { get; init; }
+
+    public int? RemMinutes { get; init; }
+
+    public int? WakeMinutes { get; init; }
+}
 
 /// <summary>
 ///     Activity summary information.

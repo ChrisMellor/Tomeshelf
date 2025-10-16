@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure;
 using Tomeshelf.Infrastructure.Persistence;
@@ -54,20 +55,12 @@ public class Program
 
         var app = builder.Build();
 
-        if (args.Any(a => string.Equals(a, "--migrate", StringComparison.OrdinalIgnoreCase)))
-        {
-            using var scope = app.Services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
-            await dbContext.Database.MigrateAsync();
+        var migrateOnly = args.Any(a => string.Equals(a, "--migrate", StringComparison.OrdinalIgnoreCase));
 
+        await ApplyDatabaseMigrationsAsync(app.Services);
+        if (migrateOnly)
+        {
             return;
-        }
-
-        if (app.Environment.IsDevelopment())
-        {
-            using var scope = app.Services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
-            await dbContext.Database.MigrateAsync();
         }
 
         app.UseExceptionHandler();
@@ -93,5 +86,12 @@ public class Program
         app.MapDefaultEndpoints();
 
         await app.RunAsync();
+    }
+
+    private static async Task ApplyDatabaseMigrationsAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
+    {
+        await using var scope = serviceProvider.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
+        await dbContext.Database.MigrateAsync(cancellationToken);
     }
 }

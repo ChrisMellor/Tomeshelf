@@ -88,6 +88,14 @@
                                 <span class="metric-label">Change</span>
                                 <span class="metric-value">@FormatWeightChange(day.Weight.ChangeKg)</span>
                             </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Body fat</span>
+                                <span class="metric-value">@FormatPercentage(day.Weight.BodyFatPercentage, "F1")</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Lean mass</span>
+                                <span class="metric-value">@FormatWeight(day.Weight.LeanMassKg)</span>
+                            </div>
                         </div>
                     </div>
                     <div class="metric-card">
@@ -97,7 +105,7 @@
                             </div>
                             <div>
                                 <h3 class="metric-title">Calories</h3>
-                                <div class="metric-primary">@FormatNumber(day.Calories.NetCalories, "kcal")</div>
+                                <div class="metric-primary @GetNetCaloriesCss(day.Calories.NetCalories)">@FormatNumber(day.Calories.NetCalories, "kcal")</div>
                                 <div class="metric-caption">Net calories</div>
                             </div>
                         </div>
@@ -109,6 +117,26 @@
                             <div class="metric-row">
                                 <span class="metric-label">Burned</span>
                                 <span class="metric-value">@FormatNumber(day.Calories.BurnedCalories, "kcal")</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Carbs</span>
+                                <span class="metric-value">@FormatQuantity(day.Calories.CarbsGrams, "g")</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Fat</span>
+                                <span class="metric-value">@FormatQuantity(day.Calories.FatGrams, "g")</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Fiber</span>
+                                <span class="metric-value">@FormatQuantity(day.Calories.FiberGrams, "g")</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Protein</span>
+                                <span class="metric-value">@FormatQuantity(day.Calories.ProteinGrams, "g")</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Sodium</span>
+                                <span class="metric-value">@FormatQuantity(day.Calories.SodiumMilligrams, "mg", 0)</span>
                             </div>
                         </div>
                     </div>
@@ -131,6 +159,30 @@
                             <div class="metric-row">
                                 <span class="metric-label">Efficiency</span>
                                 <span class="metric-value">@FormatPercentage(day.Sleep.EfficiencyPercentage)</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Bedtime</span>
+                                <span class="metric-value">@FormatClockTime(day.Sleep.Bedtime)</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Wake time</span>
+                                <span class="metric-value">@FormatClockTime(day.Sleep.WakeTime)</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Deep</span>
+                                <span class="metric-value">@FormatStageDuration(day.Sleep.Levels.DeepMinutes)</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Light</span>
+                                <span class="metric-value">@FormatStageDuration(day.Sleep.Levels.LightMinutes)</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">REM</span>
+                                <span class="metric-value">@FormatStageDuration(day.Sleep.Levels.RemMinutes)</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Wake</span>
+                                <span class="metric-value">@FormatStageDuration(day.Sleep.Levels.WakeMinutes)</span>
                             </div>
                         </div>
                     </div>
@@ -220,6 +272,17 @@
                 : $"{formatted} {suffix}";
     }
 
+    private string FormatQuantity(double? value, string unit, int decimals = 1)
+    {
+        if (!value.HasValue)
+        {
+            return "-";
+        }
+
+        var format = $"F{decimals}";
+        return $"{value.Value.ToString(format, CultureInfo.InvariantCulture)} {unit}";
+    }
+
     private string FormatDistance(double? km)
     {
         return km.HasValue
@@ -253,11 +316,62 @@
                 : $"{hoursPart}h";
     }
 
-    private static string FormatPercentage(double? value)
+    private string FormatStageDuration(int? minutes)
+    {
+        if (!minutes.HasValue)
+        {
+            return "-";
+        }
+
+        var span = TimeSpan.FromMinutes(minutes.Value);
+
+        int hours = (int)span.TotalHours;
+        int mins = span.Minutes;
+
+        var parts = new List<string>();
+
+        if (hours > 0)
+        {
+            parts.Add($"{hours}h");
+        }
+
+        if (mins > 0)
+        {
+            parts.Add($"{mins}m");
+        }
+
+        if (parts.Count == 0)
+        {
+            parts.Add("0m");
+        }
+
+        return string.Join(" ", parts);
+    }
+
+
+    private string FormatClockTime(string? time)
+    {
+        return string.IsNullOrWhiteSpace(time)
+                ? "-"
+                : time;
+    }
+
+    private static string FormatPercentage(double? value, string format = "F0")
     {
         return value.HasValue
-                ? $"{value.Value:F0}%"
+                ? $"{value.Value.ToString(format, CultureInfo.InvariantCulture)}%"
                 : "-";
     }
 
+    private static string GetNetCaloriesCss(int? netCalories)
+    {
+        if (!netCalories.HasValue || netCalories.Value == 0)
+        {
+            return string.Empty;
+        }
+
+        return netCalories.Value < 0
+                ? "text-success"
+                : "text-danger";
+    }
 }

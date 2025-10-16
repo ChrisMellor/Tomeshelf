@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -65,7 +66,7 @@ public sealed class FitbitDashboardService
                 await UpsertSnapshotAsync(snapshot, cancellationToken)
                        .ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!IsCriticalFitbitFailure(ex))
             {
                 _logger.LogWarning(ex, "Failed to refresh Fitbit snapshot for {Date}", date);
             }
@@ -82,6 +83,11 @@ public sealed class FitbitDashboardService
         }
 
         return snapshot;
+    }
+
+    private static bool IsCriticalFitbitFailure(Exception exception)
+    {
+        return exception is InvalidOperationException or FitbitRateLimitExceededException or FitbitBadRequestException or HttpRequestException;
     }
 
     private async Task<FitbitDashboardDto> FetchSnapshotAsync(DateOnly date, CancellationToken cancellationToken)
@@ -128,14 +134,25 @@ public sealed class FitbitDashboardService
         entity.StartingWeightKg = snapshot.Weight.StartingWeightKg;
         entity.CurrentWeightKg = snapshot.Weight.CurrentWeightKg;
         entity.ChangeWeightKg = snapshot.Weight.ChangeKg;
+        entity.BodyFatPercentage = snapshot.Weight.BodyFatPercentage;
+        entity.LeanMassKg = snapshot.Weight.LeanMassKg;
         entity.IntakeCalories = snapshot.Calories.IntakeCalories;
         entity.BurnedCalories = snapshot.Calories.BurnedCalories;
         entity.NetCalories = snapshot.Calories.NetCalories;
+        entity.CarbsGrams = snapshot.Calories.CarbsGrams;
+        entity.FatGrams = snapshot.Calories.FatGrams;
+        entity.FiberGrams = snapshot.Calories.FiberGrams;
+        entity.ProteinGrams = snapshot.Calories.ProteinGrams;
+        entity.SodiumMilligrams = snapshot.Calories.SodiumMilligrams;
         entity.TotalSleepHours = snapshot.Sleep.TotalSleepHours;
         entity.TotalAwakeHours = snapshot.Sleep.TotalAwakeHours;
         entity.SleepEfficiencyPercentage = snapshot.Sleep.EfficiencyPercentage;
         entity.Bedtime = snapshot.Sleep.Bedtime;
         entity.WakeTime = snapshot.Sleep.WakeTime;
+        entity.SleepDeepMinutes = snapshot.Sleep.Levels.DeepMinutes;
+        entity.SleepLightMinutes = snapshot.Sleep.Levels.LightMinutes;
+        entity.SleepRemMinutes = snapshot.Sleep.Levels.RemMinutes;
+        entity.SleepWakeMinutes = snapshot.Sleep.Levels.WakeMinutes;
         entity.Steps = snapshot.Activity.Steps;
         entity.DistanceKm = snapshot.Activity.DistanceKm;
         entity.Floors = snapshot.Activity.Floors;
@@ -150,67 +167,116 @@ public sealed class FitbitDashboardService
         {
                 Date = entity.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                 GeneratedUtc = entity.GeneratedUtc,
-                Weight = new FitbitWeightSummaryDto(entity.StartingWeightKg, entity.CurrentWeightKg, entity.ChangeWeightKg),
-                Calories = new FitbitCaloriesSummaryDto(entity.IntakeCalories, entity.BurnedCalories, entity.NetCalories),
-                Sleep = new FitbitSleepSummaryDto(entity.TotalSleepHours, entity.TotalAwakeHours, entity.SleepEfficiencyPercentage, entity.Bedtime, entity.WakeTime),
+                Weight = new FitbitWeightSummaryDto
+                {
+                        StartingWeightKg = entity.StartingWeightKg,
+                        CurrentWeightKg = entity.CurrentWeightKg,
+                        ChangeKg = entity.ChangeWeightKg,
+                        BodyFatPercentage = entity.BodyFatPercentage,
+                        LeanMassKg = entity.LeanMassKg
+                },
+                Calories = new FitbitCaloriesSummaryDto
+                {
+                        IntakeCalories = entity.IntakeCalories,
+                        BurnedCalories = entity.BurnedCalories,
+                        NetCalories = entity.NetCalories,
+                        CarbsGrams = entity.CarbsGrams,
+                        FatGrams = entity.FatGrams,
+                        FiberGrams = entity.FiberGrams,
+                        ProteinGrams = entity.ProteinGrams,
+                        SodiumMilligrams = entity.SodiumMilligrams
+                },
+                Sleep = new FitbitSleepSummaryDto
+                {
+                        TotalSleepHours = entity.TotalSleepHours,
+                        TotalAwakeHours = entity.TotalAwakeHours,
+                        EfficiencyPercentage = entity.SleepEfficiencyPercentage,
+                        Bedtime = entity.Bedtime,
+                        WakeTime = entity.WakeTime,
+                        Levels = new FitbitSleepLevelsDto
+                        {
+                                DeepMinutes = entity.SleepDeepMinutes,
+                                LightMinutes = entity.SleepLightMinutes,
+                                RemMinutes = entity.SleepRemMinutes,
+                                WakeMinutes = entity.SleepWakeMinutes
+                        }
+                },
                 Activity = new FitbitActivitySummaryDto(entity.Steps, entity.DistanceKm, entity.Floors)
         };
     }
 
     private static FitbitWeightSummaryDto BuildWeightSummary(WeightResponse? response)
     {
-        if (response?.Entries is not
-            {
-                    Count: > 0
-            })
+        if (response?.Entries is not { Count: > 0 })
         {
-            return new FitbitWeightSummaryDto(null, null, null);
+            return new FitbitWeightSummaryDto();
         }
 
         var data = response.Entries.Where(e => e.Weight.HasValue)
-                           .Select(e =>
-                            {
-                                var timestamp = ParseDateTime(e.Date, e.Time) ?? DateTimeOffset.MinValue;
+                                   .Select(entry =>
+                                    {
+                                        var timestamp = ParseDateTime(entry.Date, entry.Time) ?? DateTimeOffset.MinValue;
 
-                                return new
-                                {
-                                        Timestamp = timestamp,
-                                        e.Weight
-                                };
-                            })
-                           .Where(e => e.Weight.HasValue)
-                           .OrderBy(e => e.Timestamp)
-                           .ToList();
+                                        return new
+                                        {
+                                                Timestamp = timestamp,
+                                                entry.Weight,
+                                                entry.BodyFatPercentage,
+                                                entry.LeanMassKg
+                                        };
+                                    })
+                                   .Where(e => e.Weight.HasValue)
+                                   .OrderBy(e => e.Timestamp)
+                                   .ToList();
 
         if (data.Count == 0)
         {
-            return new FitbitWeightSummaryDto(null, null, null);
+            return new FitbitWeightSummaryDto();
         }
 
-        var starting = data.First()
-                           .Weight;
-        var current = data.Last()
-                          .Weight;
+        var startingWeight = data.First()
+                                 .Weight;
+        var current = data.Last();
+        var currentWeight = current.Weight;
+
         double? change = null;
-
-        if (starting.HasValue && current.HasValue)
+        if (startingWeight.HasValue && currentWeight.HasValue)
         {
-            change = starting.Value - current.Value;
+            change = startingWeight.Value - currentWeight.Value;
         }
 
-        return new FitbitWeightSummaryDto(starting, current, change);
+        var bodyFat = current.BodyFatPercentage;
+        var leanMass = current.LeanMassKg;
+
+        if (currentWeight.HasValue)
+        {
+            var weight = currentWeight.Value;
+
+            if (!leanMass.HasValue && bodyFat.HasValue)
+            {
+                leanMass = Math.Round(weight * (1 - (bodyFat.Value / 100d)), 2);
+            }
+
+            if (!bodyFat.HasValue && leanMass.HasValue && weight > 0)
+            {
+                bodyFat = Math.Round((1 - (leanMass.Value / weight)) * 100d, 2);
+            }
+        }
+
+        return new FitbitWeightSummaryDto
+        {
+                StartingWeightKg = startingWeight,
+                CurrentWeightKg = currentWeight,
+                ChangeKg = change,
+                BodyFatPercentage = bodyFat,
+                LeanMassKg = leanMass
+        };
     }
 
-    private static FitbitCaloriesSummaryDto BuildCaloriesSummary(CaloriesInResponse? calories, ActivitiesResponse? activities)
+    private static FitbitCaloriesSummaryDto BuildCaloriesSummary(FoodLogSummaryResponse? foodLog, ActivitiesResponse? activities)
     {
-        int? intake = null;
-
-        var entry = calories?.Entries?.FirstOrDefault();
-        if (!string.IsNullOrWhiteSpace(entry?.Value) && int.TryParse(entry.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedIntake))
-        {
-            intake = parsedIntake;
-        }
-
+        var summary = foodLog?.Summary;
+        var intake = summary?.Calories;
         var burned = activities?.Summary?.CaloriesOut;
 
         int? net = null;
@@ -219,25 +285,32 @@ public sealed class FitbitDashboardService
             net = intake.Value - burned.Value;
         }
 
-        return new FitbitCaloriesSummaryDto(intake, burned, net);
+        return new FitbitCaloriesSummaryDto
+        {
+                IntakeCalories = intake,
+                BurnedCalories = burned,
+                NetCalories = net,
+                CarbsGrams = summary?.Carbs,
+                FatGrams = summary?.Fat,
+                FiberGrams = summary?.Fiber,
+                ProteinGrams = summary?.Protein,
+                SodiumMilligrams = summary?.Sodium
+        };
     }
 
     private static FitbitSleepSummaryDto BuildSleepSummary(SleepResponse? response)
     {
-        if (response?.Entries is not
-            {
-                    Count: > 0
-            })
+        if (response?.Entries is not { Count: > 0 })
         {
-            return new FitbitSleepSummaryDto(null, null, null, null, null);
+            return new FitbitSleepSummaryDto();
         }
 
         var entries = response.Entries.Where(e => e.MinutesAsleep.HasValue || e.MinutesAwake.HasValue)
-                              .ToList();
+                                      .ToList();
 
         if (entries.Count == 0)
         {
-            return new FitbitSleepSummaryDto(null, null, null, null, null);
+            return new FitbitSleepSummaryDto();
         }
 
         var totalSleepMinutes = entries.Sum(e => e.MinutesAsleep ?? 0);
@@ -256,20 +329,60 @@ public sealed class FitbitDashboardService
                               .OrderByDescending(d => d)
                               .FirstOrDefault();
 
-        double? efficiency = null;
-        if (efficiencyValues.Count > 0)
-        {
-            efficiency = efficiencyValues.Average();
-        }
+        double? efficiency = efficiencyValues.Count > 0 ? efficiencyValues.Average() : null;
 
         static double? ToHours(int minutes)
         {
             return minutes > 0
                     ? Math.Round(minutes / 60d, 2)
+                    : minutes == 0
+                            ? 0d
+                            : null;
+        }
+
+        int? SumLevelMinutes(Func<SleepResponse.SleepLevelSummary, SleepResponse.SleepLevelSummaryItem?> selector)
+        {
+            var total = 0;
+            var hasData = false;
+
+            foreach (var entry in entries)
+            {
+                var summary = entry.Levels?.Summary;
+                if (summary is null)
+                {
+                    continue;
+                }
+
+                var minutes = selector(summary)?.Minutes;
+                if (minutes.HasValue)
+                {
+                    total += minutes.Value;
+                    hasData = true;
+                }
+            }
+
+            return hasData
+                    ? total
                     : null;
         }
 
-        return new FitbitSleepSummaryDto(ToHours(totalSleepMinutes) ?? 0d, ToHours(totalAwakeMinutes), efficiency, bedTime?.ToString("HH:mm"), wakeTime?.ToString("HH:mm"));
+        var levels = new FitbitSleepLevelsDto
+        {
+                DeepMinutes = SumLevelMinutes(s => s.Deep),
+                LightMinutes = SumLevelMinutes(s => s.Light),
+                RemMinutes = SumLevelMinutes(s => s.Rem),
+                WakeMinutes = SumLevelMinutes(s => s.Wake)
+        };
+
+        return new FitbitSleepSummaryDto
+        {
+                TotalSleepHours = ToHours(totalSleepMinutes),
+                TotalAwakeHours = ToHours(totalAwakeMinutes),
+                EfficiencyPercentage = efficiency,
+                Bedtime = bedTime?.ToString("HH:mm"),
+                WakeTime = wakeTime?.ToString("HH:mm"),
+                Levels = levels
+        };
     }
 
     private static FitbitActivitySummaryDto BuildActivitySummary(ActivitiesResponse? response)

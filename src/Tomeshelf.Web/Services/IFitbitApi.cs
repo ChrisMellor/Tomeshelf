@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Web.Models.Fitness;
@@ -19,4 +20,12 @@ public interface IFitbitApi
     /// <param name="cancellationToken">Cancellation token for the HTTP request.</param>
     /// <returns>The dashboard payload or null when unavailable.</returns>
     Task<FitbitDashboardModel?> GetDashboardAsync(string? date, bool refresh, string returnUrl, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Resolves the external Fitbit authorization URL by invoking the backend authorize endpoint.
+    /// </summary>
+    /// <param name="authorizeEndpoint">The backend API authorize endpoint returned when authorization is required.</param>
+    /// <param name="cancellationToken">Cancellation token for the HTTP request.</param>
+    /// <returns>An absolute Fitbit authorization URI.</returns>
+    Task<Uri> ResolveAuthorizationAsync(Uri authorizeEndpoint, CancellationToken cancellationToken);
 }

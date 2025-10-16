@@ -19,5 +19,11 @@ public sealed class WeightResponse
 
         [JsonPropertyName("weight")]
         public double? Weight { get; init; }
+
+        [JsonPropertyName("fat")]
+        public double? BodyFatPercentage { get; init; }
+
+        [JsonPropertyName("leanMass")]
+        public double? LeanMassKg { get; init; }
     }
 }

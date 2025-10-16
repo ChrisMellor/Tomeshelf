@@ -10,7 +10,7 @@ public interface IFitbitApiClient
 {
     Task<ActivitiesResponse?> GetActivitiesAsync(DateOnly date, CancellationToken cancellationToken);
 
-    Task<CaloriesInResponse?> GetCaloriesInAsync(DateOnly date, CancellationToken cancellationToken);
+    Task<FoodLogSummaryResponse?> GetCaloriesInAsync(DateOnly date, CancellationToken cancellationToken);
 
     Task<SleepResponse?> GetSleepAsync(DateOnly date, CancellationToken cancellationToken);
 

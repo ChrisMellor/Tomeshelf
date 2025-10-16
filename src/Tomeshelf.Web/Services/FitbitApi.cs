@@ -111,6 +111,37 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
         return model;
     }
 
+    /// <inheritdoc />
+    public async Task<Uri> ResolveAuthorizationAsync(Uri authorizeEndpoint, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(authorizeEndpoint);
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, authorizeEndpoint);
+        var started = DateTimeOffset.UtcNow;
+        using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        var duration = DateTimeOffset.UtcNow - started;
+        logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms (authorization resolve)", authorizeEndpoint, (int)response.StatusCode, (int)duration.TotalMilliseconds);
+
+        if (!IsRedirectStatus(response.StatusCode))
+        {
+            var payload = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new InvalidOperationException($"Fitbit authorization endpoint returned unexpected status {(int)response.StatusCode}. Response: {payload}");
+        }
+
+        var location = response.Headers.Location;
+        if (location is null)
+        {
+            throw new InvalidOperationException("Fitbit authorization endpoint returned a redirect without a location header.");
+        }
+
+        if (!location.IsAbsoluteUri && httpClient.BaseAddress is not null)
+        {
+            location = new Uri(httpClient.BaseAddress, location);
+        }
+
+        return location;
+    }
+
     private static JsonSerializerOptions CreateSerializerOptions()
     {
         return new JsonSerializerOptions(JsonSerializerDefaults.Web);
