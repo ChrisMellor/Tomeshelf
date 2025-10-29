@@ -181,6 +181,78 @@ else
                 localStorage.setItem(storageKey, JSON.stringify(favourites));
             };
 
+            const parseNumber = value => {
+                const parsed = Number(value);
+                return Number.isNaN(parsed) ? 0 : parsed;
+            };
+
+            const parseFavouriteFromCheckbox = checkbox => ({
+                id: checkbox.dataset.plotId ?? '',
+                district: checkbox.dataset.district ?? '',
+                size: checkbox.dataset.size ?? '',
+                ward: parseNumber(checkbox.dataset.ward),
+                plot: parseNumber(checkbox.dataset.plot),
+                price: parseNumber(checkbox.dataset.price),
+                entries: parseNumber(checkbox.dataset.entries),
+                lastUpdated: checkbox.dataset.lastUpdated ?? new Date().toISOString()
+            });
+
+            const favouritesMatch = (a, b) =>
+                a.district === b.district
+                && a.size === b.size
+                && a.ward === b.ward
+                && a.plot === b.plot
+                && a.price === b.price
+                && a.entries === b.entries
+                && a.lastUpdated === b.lastUpdated;
+
+            const refreshFavouritesFromDom = () => {
+                if (favourites.length === 0) {
+                    return;
+                }
+
+                const toggles = Array.from(document.querySelectorAll('.favourite-toggle'));
+                if (toggles.length === 0) {
+                    return;
+                }
+
+                const latestById = new Map();
+                toggles.forEach(cb => {
+                    if (!cb.dataset.plotId) {
+                        return;
+                    }
+
+                    const parsed = parseFavouriteFromCheckbox(cb);
+                    latestById.set(parsed.id, parsed);
+                });
+
+                if (latestById.size === 0) {
+                    return;
+                }
+
+                let updated = false;
+                const merged = favourites.map(existing => {
+                    const latest = latestById.get(existing.id);
+                    if (!latest) {
+                        return existing;
+                    }
+
+                    if (!favouritesMatch(existing, latest)) {
+                        updated = true;
+                    }
+
+                    return latest;
+                });
+
+                favourites = merged;
+
+                if (updated) {
+                    saveFavourites();
+                }
+            };
+
+            refreshFavouritesFromDom();
+
             const renderFavourites = () => {
                 if (!container || !list) {
                     return;
@@ -246,16 +318,7 @@ else
                 favourites = favourites.filter(f => f.id !== id);
 
                 if (checkbox.checked) {
-                    favourites.push({
-                        id,
-                        district: checkbox.dataset.district,
-                        size: checkbox.dataset.size,
-                        ward: Number(checkbox.dataset.ward),
-                        plot: Number(checkbox.dataset.plot),
-                        price: Number(checkbox.dataset.price),
-                        entries: Number(checkbox.dataset.entries),
-                        lastUpdated: checkbox.dataset.lastUpdated
-                    });
+                    favourites.push(parseFavouriteFromCheckbox(checkbox));
                 }
 
                 saveFavourites();
