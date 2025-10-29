@@ -14,6 +14,11 @@
     Data captured at @Model.RetrievedAtUtc.ToLocalTime().ToString("f").
 </p>
 
+<div id="favouritePlots" class="p-4 mb-4 bg-body-tertiary rounded-3 d-none">
+    <h2 class="h5 mb-3">Favourite Plots</h2>
+    <div id="favouriteList" class="row g-2"></div>
+</div>
+
 @if (!Model.Districts.Any())
 {
     <div class="alert alert-info">
@@ -63,40 +68,73 @@ else
                             </h2>
                             <div id="@collapseId" class="accordion-collapse collapse@(isOpen ? " show" : string.Empty)" aria-labelledby="@headerId" data-bs-parent="@($"#{accordionId}")">
                                 <div class="accordion-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-sm align-middle">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">Ward</th>
-                                                    <th scope="col">Plot</th>
-                                                    <th scope="col">Price</th>
-                                                    <th scope="col">Entries</th>
-                                                    <th scope="col">Last Updated</th>
-                                                    <th scope="col">Eligibility</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach (var plot in size.Plots)
-                                                {
+                                    @if (!size.Plots.Any())
+                                    {
+                                        <div class="alert alert-info mb-0">
+                                            There are no @size.Size.ToLowerInvariant() plots accepting entries this bidding period.
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table table-sm align-middle">
+                                                <thead>
                                                     <tr>
-                                                        <td>@plot.Ward</td>
-                                                        <td>@plot.Plot</td>
-                                                        <td>
-                                                            <span class="fw-semibold">@plot.Price.ToString("N0")</span>
-                                                            <small class="text-muted">gil</small>
-                                                        </td>
-                                                        <td>@plot.Entries</td>
-                                                        <td>@plot.LastUpdatedUtc.ToLocalTime().ToString("g")</td>
-                                                        <td>
-                                                            <span class="badge @GetEligibilityBadgeClass(plot.PurchaseCategoryKey)">
-                                                                @plot.PurchaseCategory
-                                                            </span>
-                                                        </td>
+                                                        <th scope="col" class="text-center">Fav</th>
+                                                        <th scope="col">Ward</th>
+                                                        <th scope="col">Plot</th>
+                                                        <th scope="col">Price</th>
+                                                        <th scope="col">Entries</th>
+                                                        <th scope="col">Last Updated</th>
+                                                        <th scope="col">Eligibility</th>
                                                     </tr>
-                                                }
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var plot in size.Plots)
+                                                    {
+                                                        var plotId = $"{Model.WorldId}-{district.Id}-{size.SizeKey}-{plot.Ward}-{plot.Plot}";
+                                                        <tr>
+                                                            <td class="text-center">
+                                                                <input type="checkbox"
+                                                                       class="form-check-input favourite-toggle"
+                                                                       data-plot-id="@plotId"
+                                                                       data-district="@district.Name"
+                                                                       data-size="@size.Size"
+                                                                       data-ward="@plot.Ward"
+                                                                       data-plot="@plot.Plot"
+                                                                       data-price="@plot.Price"
+                                                                       data-entries="@plot.Entries"
+                                                                       data-last-updated="@plot.LastUpdatedUtc.ToUniversalTime().ToString("O")"
+                                                                       aria-label="Toggle favourite for @size.Size plot in @district.Name, Ward @plot.Ward, Plot @plot.Plot" />
+                                                            </td>
+                                                            <td>@plot.Ward</td>
+                                                            <td>@plot.Plot</td>
+                                                            <td>
+                                                                <span class="fw-semibold">@plot.Price.ToString("N0")</span>
+                                                                <small class="text-muted">gil</small>
+                                                            </td>
+                                                            <td>@plot.Entries</td>
+                                                            <td>@plot.LastUpdatedUtc.ToLocalTime().ToString("g")</td>
+                                                            <td>
+                                                                @if (plot.AllowsPersonal)
+                                                                {
+                                                                    <span class="badge text-bg-primary me-1">Personal</span>
+                                                                }
+                                                                @if (plot.AllowsFreeCompany)
+                                                                {
+                                                                    <span class="badge text-bg-warning me-1">Free Company</span>
+                                                                }
+                                                                @if (plot.IsEligibilityUnknown)
+                                                                {
+                                                                    <span class="badge text-bg-secondary">Unknown</span>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -107,15 +145,117 @@ else
     </div>
 }
 
-@functions {
-    private static string GetEligibilityBadgeClass(string key)
-    {
-        return key switch
-        {
-            "personal" => "text-bg-primary",
-            "free-company" => "text-bg-warning",
-            "both" => "text-bg-success",
-            _ => "text-bg-secondary"
-        };
-    }
+@section Scripts
+{
+    <script>
+        (() => {
+            const storageKey = 'tomeshelf.paissa.favourites';
+            const container = document.getElementById('favouritePlots');
+            const list = document.getElementById('favouriteList');
+
+            const loadFavourites = () => {
+                try {
+                    const raw = localStorage.getItem(storageKey);
+                    return raw ? JSON.parse(raw) : [];
+                } catch {
+                    return [];
+                }
+            };
+
+            let favourites = loadFavourites();
+
+            const saveFavourites = () => {
+                localStorage.setItem(storageKey, JSON.stringify(favourites));
+            };
+
+            const renderFavourites = () => {
+                if (!container || !list) {
+                    return;
+                }
+
+                list.innerHTML = '';
+
+                if (favourites.length === 0) {
+                    container.classList.add('d-none');
+                    return;
+                }
+
+                container.classList.remove('d-none');
+
+                favourites.forEach(f => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'col-12 col-md-6';
+
+                    const card = document.createElement('div');
+                    card.className = 'border rounded p-3 h-100';
+                    const updated = new Date(f.lastUpdated);
+
+                    card.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="fw-semibold">${f.district}</span>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-favourite" data-id="${f.id}">Remove</button>
+                        </div>
+                        <div class="small text-muted mb-1">${f.size} &middot; Ward ${f.ward}, Plot ${f.plot}</div>
+                        <div class="small mb-1"><strong>${Number(f.price).toLocaleString()}</strong> gil &middot; Entries: ${f.entries}</div>
+                        <div class="small text-muted">Updated: ${updated.toLocaleString()}</div>`;
+
+                    wrapper.appendChild(card);
+                    list.appendChild(wrapper);
+                });
+            };
+
+            const syncCheckboxes = () => {
+                document.querySelectorAll('.favourite-toggle').forEach(cb => {
+                    cb.checked = favourites.some(f => f.id === cb.dataset.plotId);
+                });
+            };
+
+            const upsertFavourite = checkbox => {
+                const id = checkbox.dataset.plotId;
+                favourites = favourites.filter(f => f.id !== id);
+
+                if (checkbox.checked) {
+                    favourites.push({
+                        id,
+                        district: checkbox.dataset.district,
+                        size: checkbox.dataset.size,
+                        ward: Number(checkbox.dataset.ward),
+                        plot: Number(checkbox.dataset.plot),
+                        price: Number(checkbox.dataset.price),
+                        entries: Number(checkbox.dataset.entries),
+                        lastUpdated: checkbox.dataset.lastUpdated
+                    });
+                }
+
+                saveFavourites();
+                renderFavourites();
+                syncCheckboxes();
+            };
+
+            document.addEventListener('change', event => {
+                const target = event.target;
+                if (target instanceof HTMLInputElement && target.classList.contains('favourite-toggle')) {
+                    upsertFavourite(target);
+                }
+            });
+
+            document.addEventListener('click', event => {
+                const button = event.target;
+                if (button instanceof HTMLButtonElement && button.classList.contains('remove-favourite')) {
+                    const id = button.dataset.id;
+                    favourites = favourites.filter(f => f.id !== id);
+                    saveFavourites();
+                    renderFavourites();
+                    const checkbox = document.querySelector(`.favourite-toggle[data-plot-id="${id}"]`);
+                    if (checkbox) {
+                        checkbox.checked = false;
+                    }
+                    syncCheckboxes();
+                }
+            });
+
+            renderFavourites();
+            syncCheckboxes();
+        })();
+    </script>
 }

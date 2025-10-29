@@ -36,6 +36,7 @@ public sealed record PaissaSizeGroupResponse(string Size, string SizeKey, IReadO
 /// <param name="Price">Price in gil.</param>
 /// <param name="Entries">Number of lottery entries.</param>
 /// <param name="LastUpdatedUtc">Last update timestamp from PaissaDB.</param>
-/// <param name="PurchaseCategory">Display text describing who may purchase.</param>
-/// <param name="PurchaseCategoryKey">Stable key describing who may purchase (personal, free-company, both, unknown).</param>
-public sealed record PaissaPlotResponse(int Ward, int Plot, long Price, int Entries, DateTimeOffset LastUpdatedUtc, string PurchaseCategory, string PurchaseCategoryKey);
+/// <param name="AllowsPersonal">Indicates whether personal buyers may bid.</param>
+/// <param name="AllowsFreeCompany">Indicates whether free companies may bid.</param>
+/// <param name="IsEligibilityUnknown">True when buyer eligibility is unknown.</param>
+public sealed record PaissaPlotResponse(int Ward, int Plot, long Price, int Entries, DateTimeOffset LastUpdatedUtc, bool AllowsPersonal, bool AllowsFreeCompany, bool IsEligibilityUnknown);

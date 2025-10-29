@@ -13,15 +13,21 @@ namespace Tomeshelf.Paissa.Api.Services;
 
 public sealed class PaissaHousingService
 {
+    private static readonly (string Key, string Label)[] SizeDefinitions =
+    {
+        ("large", "Large"),
+        ("medium", "Medium"),
+        ("small", "Small")
+    };
+
     private readonly IPaissaClient _client;
-    private readonly ILogger<PaissaHousingService> _logger;
     private readonly int _worldId;
 
     public PaissaHousingService(IPaissaClient client, IConfiguration configuration, ILogger<PaissaHousingService> logger)
     {
         _client = client;
-        _logger = logger;
         _worldId = configuration.GetValue("Paissa:WorldId", 33);
+        _ = logger;
     }
 
     public async Task<PaissaWorldResponse> GetAcceptingEntriesAsync(CancellationToken cancellationToken)
@@ -33,34 +39,39 @@ public sealed class PaissaHousingService
 
         foreach (var district in world.Districts)
         {
-            var groupedPlots = district.OpenPlots
-                                       .Where(plot => plot.LotteryPhase == (int)LotteryPhase.AcceptingEntries)
-                                       .Select(plot => (Plot: plot, Category: MapSize(plot.Size)))
-                                       .GroupBy(x => x.Category.Key, StringComparer.OrdinalIgnoreCase)
-                                       .Select(group =>
-                                        {
-                                            var orderedPlots = group.Select(item => MapPlot(item.Plot))
-                                                                    .OrderBy(p => p.Ward)
-                                                                    .ThenBy(p => p.Plot)
-                                                                    .ToList()
-                                                                    .AsReadOnly();
+            var plotsBySize = district.OpenPlots
+                                      .Select(plot => new { Plot = plot, SizeKey = MapSizeKey(plot.Size) })
+                                      .Where(x => x.SizeKey is not null && x.Plot.LotteryPhase == (int)LotteryPhase.AcceptingEntries)
+                                      .GroupBy(x => x.SizeKey!, StringComparer.OrdinalIgnoreCase)
+                                      .ToDictionary(
+                                          group => group.Key,
+                                          group => group.Select(x => MapPlot(x.Plot))
+                                                        .OrderBy(p => p.Ward)
+                                                        .ThenBy(p => p.Plot)
+                                                        .ToList(),
+                                          StringComparer.OrdinalIgnoreCase);
 
-                                            return new PaissaSizeGroupResponse(group.First().Category.Label, group.Key, orderedPlots);
-                                        })
-                                       .OrderBy(group => group.SizeKey, SizeKeyComparer.Instance)
-                                       .ToList();
-
-            if (groupedPlots.Count == 0)
+            if (!plotsBySize.Any())
             {
                 continue;
             }
 
-            districtResponses.Add(new PaissaDistrictResponse(district.Id, district.Name, groupedPlots.AsReadOnly()));
+            var sizeGroups = SizeDefinitions.Select(definition =>
+                                      {
+                                          if (plotsBySize.TryGetValue(definition.Key, out var plots))
+                                          {
+                                              return new PaissaSizeGroupResponse(definition.Label, definition.Key, plots);
+                                          }
+
+                                          return new PaissaSizeGroupResponse(definition.Label, definition.Key, Array.Empty<PaissaPlotResponse>());
+                                      })
+                                      .ToList();
+
+            districtResponses.Add(new PaissaDistrictResponse(district.Id, district.Name, sizeGroups));
         }
 
         var orderedDistricts = districtResponses.OrderBy(d => d.Name, StringComparer.OrdinalIgnoreCase)
-                                                .ToList()
-                                                .AsReadOnly();
+                                                .ToList();
 
         return new PaissaWorldResponse(world.Id, world.Name, retrievedAt, orderedDistricts);
     }
@@ -69,43 +80,33 @@ public sealed class PaissaHousingService
     {
         var lastUpdated = ConvertUnixTimestamp(plot.LastUpdatedTime);
         var entries = plot.LotteryEntries.GetValueOrDefault();
-        var purchase = MapPurchaseCategory(plot.PurchaseSystem);
+        var eligibility = MapPurchaseCategory(plot.PurchaseSystem);
 
-        return new PaissaPlotResponse(plot.WardNumber + 1, plot.PlotNumber + 1, plot.Price, entries, lastUpdated, purchase.Display, purchase.Key);
+        return new PaissaPlotResponse(plot.WardNumber + 1, plot.PlotNumber + 1, plot.Price, entries, lastUpdated, eligibility.AllowsPersonal, eligibility.AllowsFreeCompany, eligibility.IsUnknown);
     }
 
-    private static (string Label, string Key) MapSize(int rawSize)
+    private static string? MapSizeKey(int rawSize)
     {
         return rawSize switch
         {
-            0 => ("Small", "small"),
-            1 => ("Medium", "medium"),
-            2 => ("Large", "large"),
-            _ => ("Unknown", "unknown")
+            2 => "large",
+            1 => "medium",
+            0 => "small",
+            _ => null
         };
     }
 
-    private static (string Display, string Key) MapPurchaseCategory(int purchaseSystem)
+    private static (bool AllowsPersonal, bool AllowsFreeCompany, bool IsUnknown) MapPurchaseCategory(int purchaseSystem)
     {
         var allowsFreeCompany = (purchaseSystem & (int)PurchaseSystem.FreeCompany) != 0;
         var allowsPersonal = (purchaseSystem & (int)PurchaseSystem.Personal) != 0;
 
-        if (allowsFreeCompany && allowsPersonal)
+        if (!allowsFreeCompany && !allowsPersonal)
         {
-            return ("Personal & Free Company", "both");
+            return (false, false, true);
         }
 
-        if (allowsPersonal)
-        {
-            return ("Personal", "personal");
-        }
-
-        if (allowsFreeCompany)
-        {
-            return ("Free Company", "free-company");
-        }
-
-        return ("Unknown", "unknown");
+        return (allowsPersonal, allowsFreeCompany, false);
     }
 
     private static DateTimeOffset ConvertUnixTimestamp(double value)
@@ -135,28 +136,5 @@ public sealed class PaissaHousingService
         Unknown = 1,
         FreeCompany = 2,
         Personal = 4
-    }
-
-    private sealed class SizeKeyComparer : IComparer<string>
-    {
-        public static SizeKeyComparer Instance { get; } = new();
-
-        public int Compare(string? x, string? y)
-        {
-            var rankX = Rank(x);
-            var rankY = Rank(y);
-            return rankX.CompareTo(rankY);
-        }
-
-        private static int Rank(string? value)
-        {
-            return value?.ToLowerInvariant() switch
-            {
-                "small" => 0,
-                "medium" => 1,
-                "large" => 2,
-                _ => 3
-            };
-        }
     }
 }
