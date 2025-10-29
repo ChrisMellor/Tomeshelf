@@ -84,6 +84,10 @@ internal class Program
                              .WithEnvironment("Fitbit__CallbackBaseUri", fitbitSettings["CallbackBaseUri"] ?? "https://localhost:7152")
                              .WithEnvironment("Fitbit__CallbackPath", fitbitSettings["CallbackPath"] ?? "/api/fitbit/auth/callback");
 
+        var paissaApi = builder.AddProject<Tomeshelf_Paissa_Api>("PaissaApi")
+                               .WithExternalHttpEndpoints()
+                               .WithHttpHealthCheck("/health");
+
         builder.AddProject<Tomeshelf_Web>("web")
                .WithExternalHttpEndpoints()
                .WithHttpHealthCheck("/health")
@@ -92,7 +96,9 @@ internal class Program
                .WithReference(humbleBundleApi)
                .WaitFor(humbleBundleApi)
                .WithReference(fitbitApi)
-               .WaitFor(fitbitApi);
+               .WaitFor(fitbitApi)
+               .WithReference(paissaApi)
+               .WaitFor(paissaApi);
 
         var sites = builder.Configuration.GetSection("ComicCon")
                            .Get<List<ComicConSite>>() ?? [];

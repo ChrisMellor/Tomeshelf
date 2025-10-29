@@ -117,6 +117,30 @@ public class Program
                         AllowAutoRedirect = false
                 });
 
+        builder.Services.AddHttpClient<IPaissaApi, PaissaApi>(client =>
+                {
+                    var configured = builder.Configuration["Services:PaissaApiBase"];
+
+                    if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+                    {
+                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                        {
+                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:PaissaApiBase'.");
+                        }
+
+                        client.BaseAddress = configuredUri;
+                    }
+                    else
+                    {
+                        client.BaseAddress = new Uri("https://PaissaApi");
+                    }
+
+                    client.DefaultRequestVersion = HttpVersion.Version11;
+                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                    client.Timeout = TimeSpan.FromSeconds(30);
+                })
+               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
+
         var app = builder.Build();
 
         if (!app.Environment.IsDevelopment())
