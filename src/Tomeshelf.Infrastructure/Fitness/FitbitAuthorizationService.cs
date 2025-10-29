@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -35,7 +34,7 @@ public sealed class FitbitAuthorizationService
         _options = options;
     }
 
-    public Uri BuildAuthorizationUri(string? returnUrl, out string state)
+    public Uri BuildAuthorizationUri(string returnUrl, out string state)
     {
         var options = _options.CurrentValue;
         state = Guid.NewGuid()
@@ -50,7 +49,7 @@ public sealed class FitbitAuthorizationService
         var callback = BuildCallbackUri(options);
         var codeChallenge = CreateCodeChallenge(codeVerifier);
 
-        var query = new Dictionary<string, string?>
+        var query = new Dictionary<string, string>
         {
                 ["response_type"] = "code",
                 ["client_id"] = options.ClientId,

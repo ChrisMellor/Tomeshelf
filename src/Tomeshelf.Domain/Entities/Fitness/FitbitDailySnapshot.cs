@@ -49,9 +49,9 @@ public sealed class FitbitDailySnapshot
 
     public double? SleepEfficiencyPercentage { get; set; }
 
-    public string? Bedtime { get; set; }
+    public string Bedtime { get; set; }
 
-    public string? WakeTime { get; set; }
+    public string WakeTime { get; set; }
 
     public int? SleepDeepMinutes { get; set; }
 

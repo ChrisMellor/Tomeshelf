@@ -1,12 +1,11 @@
-﻿#nullable enable
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Infrastructure.Fitness.Models;
 
 public sealed class FoodLogSummaryResponse
 {
     [JsonPropertyName("summary")]
-    public FoodSummary? Summary { get; init; }
+    public FoodSummary Summary { get; init; }
 
     public sealed class FoodSummary
     {

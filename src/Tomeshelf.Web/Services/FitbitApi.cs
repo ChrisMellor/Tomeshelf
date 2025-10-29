@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -19,7 +18,7 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
     private static readonly JsonSerializerOptions SerializerOptions = CreateSerializerOptions();
 
     /// <inheritdoc />
-    public async Task<FitbitDashboardModel?> GetDashboardAsync(string? date, bool refresh, string returnUrl, CancellationToken cancellationToken)
+    public async Task<FitbitDashboardModel> GetDashboardAsync(string date, bool refresh, string returnUrl, CancellationToken cancellationToken)
     {
         var parameters = new List<string>();
 
@@ -166,9 +165,9 @@ public sealed class FitbitAuthorizationRequiredException : Exception
 
 public sealed class FitbitBackendUnavailableException : Exception
 {
-    public FitbitBackendUnavailableException(string? message) : base(BuildMessage(message)) { }
+    public FitbitBackendUnavailableException(string message) : base(BuildMessage(message)) { }
 
-    private static string BuildMessage(string? raw)
+    private static string BuildMessage(string raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
         {

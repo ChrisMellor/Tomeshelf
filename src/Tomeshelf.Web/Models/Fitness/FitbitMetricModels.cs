@@ -1,4 +1,3 @@
-#nullable enable
 namespace Tomeshelf.Web.Models.Fitness;
 
 public sealed class FitbitWeightModel
@@ -41,9 +40,9 @@ public sealed class FitbitSleepModel
 
     public double? EfficiencyPercentage { get; set; }
 
-    public string? Bedtime { get; set; }
+    public string Bedtime { get; set; }
 
-    public string? WakeTime { get; set; }
+    public string WakeTime { get; set; }
 
     public FitbitSleepLevelsModel Levels { get; set; } = new FitbitSleepLevelsModel();
 }

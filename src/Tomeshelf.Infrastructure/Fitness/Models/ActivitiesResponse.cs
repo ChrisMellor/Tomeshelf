@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Infrastructure.Fitness.Models;
@@ -7,7 +6,7 @@ namespace Tomeshelf.Infrastructure.Fitness.Models;
 public sealed class ActivitiesResponse
 {
     [JsonPropertyName("summary")]
-    public ActivitiesSummary? Summary { get; init; }
+    public ActivitiesSummary Summary { get; init; }
 
     public sealed class ActivitiesSummary
     {
@@ -21,13 +20,13 @@ public sealed class ActivitiesResponse
         public int? CaloriesOut { get; init; }
 
         [JsonPropertyName("distances")]
-        public IReadOnlyList<ActivityDistance>? Distances { get; init; }
+        public IReadOnlyList<ActivityDistance> Distances { get; init; }
     }
 
     public sealed class ActivityDistance
     {
         [JsonPropertyName("activity")]
-        public string? Activity { get; init; }
+        public string Activity { get; init; }
 
         [JsonPropertyName("distance")]
         public double? Distance { get; init; }

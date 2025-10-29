@@ -1,4 +1,3 @@
-#nullable enable
 using System.Collections.Generic;
 using Aspire.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -63,7 +62,7 @@ internal class Program
         fitbitApi = fitbitApi.WithEndpoint("fitbit-https", endpoint => endpoint.IsExternal = true)
                              .WithEndpoint("fitbit-http", endpoint => endpoint.IsExternal = true);
 
-        var optionalEnv = new Dictionary<string, string?>
+        var optionalEnv = new Dictionary<string, string>
         {
                 ["Fitbit__ClientId"] = fitbitSettings["ClientId"],
                 ["Fitbit__ClientSecret"] = fitbitSettings["ClientSecret"],

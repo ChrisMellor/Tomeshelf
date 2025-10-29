@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -17,9 +16,9 @@ public sealed class FitbitTokenCache
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly object _sync = new object();
 
-    private string? _accessToken;
+    private string _accessToken;
     private DateTimeOffset? _expiresAtUtc;
-    private string? _refreshToken;
+    private string _refreshToken;
 
     public FitbitTokenCache(IServiceScopeFactory scopeFactory, IOptions<FitbitOptions> options, ILogger<FitbitTokenCache> logger)
     {
@@ -44,7 +43,7 @@ public sealed class FitbitTokenCache
         }
     }
 
-    public string? AccessToken
+    public string AccessToken
     {
         get
         {
@@ -55,7 +54,7 @@ public sealed class FitbitTokenCache
         }
     }
 
-    public string? RefreshToken
+    public string RefreshToken
     {
         get
         {
@@ -77,7 +76,7 @@ public sealed class FitbitTokenCache
         }
     }
 
-    public void Update(string accessToken, string? refreshToken, DateTimeOffset? expiresAtUtc)
+    public void Update(string accessToken, string refreshToken, DateTimeOffset? expiresAtUtc)
     {
         lock (_sync)
         {

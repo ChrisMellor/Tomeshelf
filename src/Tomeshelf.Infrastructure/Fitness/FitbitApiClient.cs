@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -34,7 +33,7 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         _logger = logger;
     }
 
-    public Task<ActivitiesResponse?> GetActivitiesAsync(DateOnly date, CancellationToken cancellationToken)
+    public Task<ActivitiesResponse> GetActivitiesAsync(DateOnly date, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
         var path = $"1/user/{userId}/activities/date/{date:yyyy-MM-dd}.json";
@@ -42,7 +41,7 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return GetJsonAsync<ActivitiesResponse>(path, cancellationToken);
     }
 
-    public Task<FoodLogSummaryResponse?> GetCaloriesInAsync(DateOnly date, CancellationToken cancellationToken)
+    public Task<FoodLogSummaryResponse> GetCaloriesInAsync(DateOnly date, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
         var path = $"1/user/{userId}/foods/log/date/{date:yyyy-MM-dd}.json";
@@ -50,7 +49,7 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return GetJsonAsync<FoodLogSummaryResponse>(path, cancellationToken);
     }
 
-    public Task<SleepResponse?> GetSleepAsync(DateOnly date, CancellationToken cancellationToken)
+    public Task<SleepResponse> GetSleepAsync(DateOnly date, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
         var path = $"1.2/user/{userId}/sleep/date/{date:yyyy-MM-dd}.json";
@@ -58,7 +57,7 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return GetJsonAsync<SleepResponse>(path, cancellationToken);
     }
 
-    public Task<WeightResponse?> GetWeightAsync(DateOnly date, int lookbackDays, CancellationToken cancellationToken)
+    public Task<WeightResponse> GetWeightAsync(DateOnly date, int lookbackDays, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
         lookbackDays = Math.Clamp(lookbackDays, 1, 365);
@@ -76,7 +75,7 @@ internal sealed class FitbitApiClient : IFitbitApiClient
                 : Uri.EscapeDataString(userId);
     }
 
-    private async Task<T?> GetJsonAsync<T>(string path, CancellationToken cancellationToken)
+    private async Task<T> GetJsonAsync<T>(string path, CancellationToken cancellationToken)
     {
         if (!await EnsureAccessTokenAsync(cancellationToken)
                    .ConfigureAwait(false))
@@ -299,14 +298,14 @@ internal sealed class FitbitApiClient : IFitbitApiClient
 
 public sealed class FitbitRateLimitExceededException : Exception
 {
-    public FitbitRateLimitExceededException(string? rawMessage, TimeSpan? retryAfter) : base(BuildMessage(rawMessage))
+    public FitbitRateLimitExceededException(string rawMessage, TimeSpan? retryAfter) : base(BuildMessage(rawMessage))
     {
         RetryAfter = retryAfter;
     }
 
     public TimeSpan? RetryAfter { get; }
 
-    private static string BuildMessage(string? raw)
+    private static string BuildMessage(string raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
         {
@@ -362,9 +361,9 @@ public sealed class FitbitRateLimitExceededException : Exception
 
 public sealed class FitbitBadRequestException : Exception
 {
-    public FitbitBadRequestException(string? rawMessage) : base(BuildMessage(rawMessage)) { }
+    public FitbitBadRequestException(string rawMessage) : base(BuildMessage(rawMessage)) { }
 
-    private static string BuildMessage(string? raw)
+    private static string BuildMessage(string raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
         {

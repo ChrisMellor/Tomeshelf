@@ -1,4 +1,3 @@
-#nullable enable
 using System.ComponentModel.DataAnnotations;
 
 namespace Tomeshelf.Application.Options;
@@ -23,18 +22,18 @@ public sealed class FitbitOptions
     /// <summary>
     ///     Gets or sets an optional bootstrap access token. When omitted the application will request one via OAuth.
     /// </summary>
-    public string? AccessToken { get; set; }
+    public string AccessToken { get; set; }
 
     /// <summary>
     ///     Gets or sets an optional bootstrap refresh token. When omitted the application will request one via OAuth.
     /// </summary>
-    public string? RefreshToken { get; set; }
+    public string RefreshToken { get; set; }
 
     /// <summary>
     ///     Gets or sets the base URL for Fitbit API requests. Defaults to https://api.fitbit.com/ when unspecified.
     /// </summary>
     [Url]
-    public string? ApiBase { get; set; }
+    public string ApiBase { get; set; }
 
     /// <summary>
     ///     Gets or sets the user identifier. Use "-" to address the currently authenticated user.
