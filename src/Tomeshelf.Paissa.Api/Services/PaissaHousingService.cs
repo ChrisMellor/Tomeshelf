@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,18 +9,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Paissa.Api.Models;
 
-#nullable enable
-
 namespace Tomeshelf.Paissa.Api.Services;
 
 public sealed class PaissaHousingService
 {
-    private static readonly (string Key, string Label)[] SizeDefinitions =
-    {
-        ("large", "Large"),
-        ("medium", "Medium"),
-        ("small", "Small")
-    };
+    private static readonly (string Key, string Label)[] SizeDefinitions = { ("large", "Large"), ("medium", "Medium"), ("small", "Small") };
 
     private readonly IPaissaClient _client;
     private readonly int _worldId;
@@ -39,17 +34,17 @@ public sealed class PaissaHousingService
 
         foreach (var district in world.Districts)
         {
-            var plotsBySize = district.OpenPlots
-                                      .Select(plot => new { Plot = plot, SizeKey = MapSizeKey(plot.Size) })
-                                      .Where(x => x.SizeKey is not null && x.Plot.LotteryPhase == (int)LotteryPhase.AcceptingEntries)
+            var plotsBySize = district.OpenPlots.Select(plot => new
+                                       {
+                                               Plot = plot,
+                                               SizeKey = MapSizeKey(plot.Size)
+                                       })
+                                      .Where(x => x.SizeKey is not null && (x.Plot.LotteryPhase == (int)LotteryPhase.AcceptingEntries))
                                       .GroupBy(x => x.SizeKey!, StringComparer.OrdinalIgnoreCase)
-                                      .ToDictionary(
-                                          group => group.Key,
-                                          group => group.Select(x => MapPlot(x.Plot))
-                                                        .OrderBy(p => p.Ward)
-                                                        .ThenBy(p => p.Plot)
-                                                        .ToList(),
-                                          StringComparer.OrdinalIgnoreCase);
+                                      .ToDictionary(group => group.Key, group => group.Select(x => MapPlot(x.Plot))
+                                                                                      .OrderBy(p => p.Ward)
+                                                                                      .ThenBy(p => p.Plot)
+                                                                                      .ToList(), StringComparer.OrdinalIgnoreCase);
 
             if (!plotsBySize.Any())
             {
@@ -57,15 +52,15 @@ public sealed class PaissaHousingService
             }
 
             var sizeGroups = SizeDefinitions.Select(definition =>
-                                      {
-                                          if (plotsBySize.TryGetValue(definition.Key, out var plots))
-                                          {
-                                              return new PaissaSizeGroupResponse(definition.Label, definition.Key, plots);
-                                          }
+                                             {
+                                                 if (plotsBySize.TryGetValue(definition.Key, out var plots))
+                                                 {
+                                                     return new PaissaSizeGroupResponse(definition.Label, definition.Key, plots);
+                                                 }
 
-                                          return new PaissaSizeGroupResponse(definition.Label, definition.Key, Array.Empty<PaissaPlotResponse>());
-                                      })
-                                      .ToList();
+                                                 return new PaissaSizeGroupResponse(definition.Label, definition.Key, Array.Empty<PaissaPlotResponse>());
+                                             })
+                                            .ToList();
 
             districtResponses.Add(new PaissaDistrictResponse(district.Id, district.Name, sizeGroups));
         }
@@ -89,10 +84,10 @@ public sealed class PaissaHousingService
     {
         return rawSize switch
         {
-            2 => "large",
-            1 => "medium",
-            0 => "small",
-            _ => null
+                2 => "large",
+                1 => "medium",
+                0 => "small",
+                _ => null
         };
     }
 

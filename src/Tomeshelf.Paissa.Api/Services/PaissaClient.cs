@@ -27,6 +27,7 @@ internal sealed class PaissaClient(HttpClient httpClient, ILogger<PaissaClient> 
         catch (HttpRequestException ex) when (ex.StatusCode is HttpStatusCode.NotFound)
         {
             logger.LogWarning(ex, "World {WorldId} not found in PaissaDB.", worldId);
+
             throw;
         }
     }

@@ -1,4 +1,3 @@
-@using System.Linq
 @model Tomeshelf.Web.Models.Paissa.PaissaIndexViewModel
 
 @{
@@ -10,7 +9,9 @@
     <span class="badge text-bg-primary ms-3">World @Model.WorldName (@Model.WorldId)</span>
 </div>
 <p class="text-muted">
-    Showing @Model.TotalPlotCount plot@(Model.TotalPlotCount == 1 ? string.Empty : "s") accepting entries.
+    Showing @Model.TotalPlotCount plot@(Model.TotalPlotCount == 1
+                                              ? string.Empty
+                                              : "s") accepting entries.
     Data captured at @Model.RetrievedAtUtc.ToLocalTime().ToString("f").
 </p>
 
@@ -38,7 +39,9 @@ else
             var isActive = i == 0;
             var plotCount = district.Tabs.Sum(t => t.Plots.Count);
             <li class="nav-item" role="presentation">
-                <button class="nav-link@(isActive ? " active" : string.Empty)" id="@($"{tabId}-tab")" data-bs-toggle="tab" data-bs-target="@($"#{tabId}")" type="button" role="tab" aria-controls="@tabId" aria-selected="@isActive">
+                <button class="nav-link@(isActive
+                                               ? " active"
+                                               : string.Empty)" id="@($"{tabId}-tab")" data-bs-toggle="tab" data-bs-target="@($"#{tabId}")" type="button" role="tab" aria-controls="@tabId" aria-selected="@isActive">
                     @district.Name
                     <span class="badge text-bg-secondary ms-2">@plotCount</span>
                 </button>
@@ -53,7 +56,9 @@ else
             var accordionId = $"{tabId}-accordion";
             var isActive = i == 0;
 
-            <div class="tab-pane fade@(isActive ? " show active" : string.Empty)" id="@tabId" role="tabpanel" aria-labelledby="@($"{tabId}-tab")" tabindex="0">
+            <div class="tab-pane fade@(isActive
+                                             ? " show active"
+                                             : string.Empty)" id="@tabId" role="tabpanel" aria-labelledby="@($"{tabId}-tab")" tabindex="0">
                 <div class="accordion" id="@accordionId">
                     @for (var j = 0; j < district.Tabs.Count; j++)
                     {
@@ -64,12 +69,16 @@ else
 
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="@headerId">
-                                <button class="accordion-button@(isOpen ? string.Empty : " collapsed")" type="button" data-bs-toggle="collapse" data-bs-target="@($"#{collapseId}")" aria-expanded="@isOpen" aria-controls="@collapseId">
+                                <button class="accordion-button@(isOpen
+                                                                       ? string.Empty
+                                                                       : " collapsed")" type="button" data-bs-toggle="collapse" data-bs-target="@($"#{collapseId}")" aria-expanded="@isOpen" aria-controls="@collapseId">
                                     @size.Size
                                     <span class="badge text-bg-secondary ms-2">@size.Plots.Count</span>
                                 </button>
                             </h2>
-                            <div id="@collapseId" class="accordion-collapse collapse@(isOpen ? " show" : string.Empty)" aria-labelledby="@headerId" data-bs-parent="@($"#{accordionId}")">
+                            <div id="@collapseId" class="accordion-collapse collapse@(isOpen
+                                                                                            ? " show"
+                                                                                            : string.Empty)" aria-labelledby="@headerId" data-bs-parent="@($"#{accordionId}")">
                                 <div class="accordion-body">
                                     @if (!size.Plots.Any())
                                     {
@@ -82,58 +91,58 @@ else
                                         <div class="table-responsive">
                                             <table class="table table-sm align-middle">
                                                 <thead>
-                                                    <tr>
-                                                        <th scope="col" class="text-center">Fav</th>
-                                                        <th scope="col">Ward</th>
-                                                        <th scope="col">Plot</th>
-                                                        <th scope="col">Price</th>
-                                                        <th scope="col">Entries</th>
-                                                        <th scope="col">Last Updated</th>
-                                                        <th scope="col">Eligibility</th>
-                                                    </tr>
+                                                <tr>
+                                                    <th scope="col" class="text-center">Fav</th>
+                                                    <th scope="col">Ward</th>
+                                                    <th scope="col">Plot</th>
+                                                    <th scope="col">Price</th>
+                                                    <th scope="col">Entries</th>
+                                                    <th scope="col">Last Updated</th>
+                                                    <th scope="col">Eligibility</th>
+                                                </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach (var plot in size.Plots)
-                                                    {
-                                                        var plotId = $"{Model.WorldId}-{district.Id}-{size.SizeKey}-{plot.Ward}-{plot.Plot}";
-                                                        <tr>
-                                                            <td class="text-center">
-                                                                <input type="checkbox"
-                                                                       class="form-check-input favourite-toggle"
-                                                                       data-plot-id="@plotId"
-                                                                       data-district="@district.Name"
-                                                                       data-size="@size.Size"
-                                                                       data-ward="@plot.Ward"
-                                                                       data-plot="@plot.Plot"
-                                                                       data-price="@plot.Price"
-                                                                       data-entries="@plot.Entries"
-                                                                       data-last-updated="@plot.LastUpdatedUtc.ToUniversalTime().ToString("O")"
-                                                                       aria-label="Toggle favourite for @size.Size plot in @district.Name, Ward @plot.Ward, Plot @plot.Plot" />
-                                                            </td>
-                                                            <td>@plot.Ward</td>
-                                                            <td>@plot.Plot</td>
-                                                            <td>
-                                                                <span class="fw-semibold">@plot.Price.ToString("N0")</span>
-                                                                <small class="text-muted">gil</small>
-                                                            </td>
-                                                            <td>@plot.Entries</td>
-                                                            <td>@plot.LastUpdatedUtc.ToLocalTime().ToString("g")</td>
-                                                            <td>
-                                                                @if (plot.AllowsPersonal)
-                                                                {
-                                                                    <span class="badge text-bg-primary me-1">Personal</span>
-                                                                }
-                                                                @if (plot.AllowsFreeCompany)
-                                                                {
-                                                                    <span class="badge text-bg-warning me-1">Free Company</span>
-                                                                }
-                                                                @if (plot.IsEligibilityUnknown)
-                                                                {
-                                                                    <span class="badge text-bg-secondary">Unknown</span>
-                                                                }
-                                                            </td>
-                                                        </tr>
-                                                    }
+                                                @foreach (var plot in size.Plots)
+                                                {
+                                                    var plotId = $"{Model.WorldId}-{district.Id}-{size.SizeKey}-{plot.Ward}-{plot.Plot}";
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input favourite-toggle"
+                                                                   data-plot-id="@plotId"
+                                                                   data-district="@district.Name"
+                                                                   data-size="@size.Size"
+                                                                   data-ward="@plot.Ward"
+                                                                   data-plot="@plot.Plot"
+                                                                   data-price="@plot.Price"
+                                                                   data-entries="@plot.Entries"
+                                                                   data-last-updated="@plot.LastUpdatedUtc.ToUniversalTime().ToString("O")"
+                                                                   aria-label="Toggle favourite for @size.Size plot in @district.Name, Ward @plot.Ward, Plot @plot.Plot"/>
+                                                        </td>
+                                                        <td>@plot.Ward</td>
+                                                        <td>@plot.Plot</td>
+                                                        <td>
+                                                            <span class="fw-semibold">@plot.Price.ToString("N0")</span>
+                                                            <small class="text-muted">gil</small>
+                                                        </td>
+                                                        <td>@plot.Entries</td>
+                                                        <td>@plot.LastUpdatedUtc.ToLocalTime().ToString("g")</td>
+                                                        <td>
+                                                            @if (plot.AllowsPersonal)
+                                                            {
+                                                                <span class="badge text-bg-primary me-1">Personal</span>
+                                                            }
+                                                            @if (plot.AllowsFreeCompany)
+                                                            {
+                                                                <span class="badge text-bg-warning me-1">Free Company</span>
+                                                            }
+                                                            @if (plot.IsEligibilityUnknown)
+                                                            {
+                                                                <span class="badge text-bg-secondary">Unknown</span>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
                                                 </tbody>
                                             </table>
                                         </div>

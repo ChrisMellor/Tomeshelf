@@ -14,7 +14,7 @@ public sealed class FitbitTokenCache
 {
     private readonly ILogger<FitbitTokenCache> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly object _sync = new();
+    private readonly object _sync = new object();
 
     private string _accessToken;
     private DateTimeOffset? _expiresAtUtc;

@@ -10,7 +10,7 @@ namespace Tomeshelf.Web.Services;
 
 public sealed class PaissaApi(HttpClient http, ILogger<PaissaApi> logger) : IPaissaApi
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
 
     public async Task<PaissaWorldModel> GetWorldAsync(CancellationToken cancellationToken)
     {
