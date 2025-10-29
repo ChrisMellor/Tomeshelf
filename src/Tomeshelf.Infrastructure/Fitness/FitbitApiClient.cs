@@ -18,7 +18,7 @@ namespace Tomeshelf.Infrastructure.Fitness;
 
 internal sealed class FitbitApiClient : IFitbitApiClient
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
 
     private readonly HttpClient _httpClient;
     private readonly ILogger<FitbitApiClient> _logger;

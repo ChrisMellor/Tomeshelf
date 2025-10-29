@@ -39,7 +39,7 @@ public sealed class FitbitDashboardServiceTests
                           Floors = 10,
                           Distances = new List<ActivitiesResponse.ActivityDistance>
                           {
-                                  new()
+                                  new ActivitiesResponse.ActivityDistance
                                   {
                                           Activity = "total",
                                           Distance = 3.5
@@ -59,7 +59,7 @@ public sealed class FitbitDashboardServiceTests
           {
                   Entries = new List<SleepResponse.SleepEntry>
                   {
-                          new()
+                          new SleepResponse.SleepEntry
                           {
                                   DateOfSleep = "2025-10-16",
                                   StartTime = "2025-10-16T22:15:00.000",

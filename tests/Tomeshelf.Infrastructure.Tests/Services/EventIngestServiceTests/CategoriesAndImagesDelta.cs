@@ -29,14 +29,14 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P1",
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
                                 Images = new List<ImageSetDto>
                                 {
-                                        new()
+                                        new ImageSetDto
                                         {
                                                 Big = "b1",
                                                 Med = "m1",
@@ -46,12 +46,12 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                                 },
                                 GlobalCategories = new List<CategoryDto>
                                 {
-                                        new()
+                                        new CategoryDto
                                         {
                                                 Id = "A",
                                                 Name = "Alpha"
                                         },
-                                        new()
+                                        new CategoryDto
                                         {
                                                 Id = "B",
                                                 Name = "Beta"
@@ -71,14 +71,14 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P1",
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
                                 Images = new List<ImageSetDto>
                                 {
-                                        new()
+                                        new ImageSetDto
                                         {
                                                 Big = "b2",
                                                 Med = "m2",
@@ -88,12 +88,12 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                                 },
                                 GlobalCategories = new List<CategoryDto>
                                 {
-                                        new()
+                                        new CategoryDto
                                         {
                                                 Id = "B",
                                                 Name = "Beta"
                                         },
-                                        new()
+                                        new CategoryDto
                                         {
                                                 Id = "C",
                                                 Name = "Gamma"
@@ -139,14 +139,14 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P1",
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
                                 Schedules = new List<ScheduleDto>
                                 {
-                                        new()
+                                        new ScheduleDto
                                         {
                                                 Id = "S1",
                                                 Title = "Talk",
@@ -176,14 +176,14 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P1",
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
                                 Schedules = new List<ScheduleDto>
                                 {
-                                        new()
+                                        new ScheduleDto
                                         {
                                                 Id = "S1",
                                                 Title = "Talk Updated",
@@ -198,7 +198,7 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                                                         Name = "Hall Updated"
                                                 }
                                         },
-                                        new()
+                                        new ScheduleDto
                                         {
                                                 Id = "S2",
                                                 Title = "Panel",
