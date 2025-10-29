@@ -1,4 +1,7 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Infrastructure.Fitness;
 
 namespace Tomeshelf.Fitbit.Api.Controllers;
@@ -19,7 +22,7 @@ public sealed class FitbitAuthorizationController : ControllerBase
     }
 
     [HttpGet("authorize")]
-    public IActionResult Authorize([FromQuery] string? returnUrl)
+    public IActionResult Authorize([FromQuery] string returnUrl)
     {
         var uri = _authorizationService.BuildAuthorizationUri(returnUrl, out _);
 
@@ -27,7 +30,7 @@ public sealed class FitbitAuthorizationController : ControllerBase
     }
 
     [HttpGet("callback")]
-    public async Task<IActionResult> Callback([FromQuery] string? code, [FromQuery] string? state, [FromQuery] string? error, CancellationToken cancellationToken)
+    public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state, [FromQuery] string error, CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(error))
         {

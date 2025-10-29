@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Globalization;
 using System.Linq;
@@ -40,10 +39,10 @@ public sealed class FitbitDashboardService
     /// <summary>
     ///     Retrieves a dashboard snapshot for the supplied date, preferring stored data.
     /// </summary>
-    public async Task<FitbitDashboardDto?> GetDashboardAsync(DateOnly date, bool forceRefresh = false, CancellationToken cancellationToken = default)
+    public async Task<FitbitDashboardDto> GetDashboardAsync(DateOnly date, bool forceRefresh = false, CancellationToken cancellationToken = default)
     {
         var cacheKey = $"fitbit:dashboard:{date:yyyy-MM-dd}";
-        if (!forceRefresh && _cache.TryGetValue(cacheKey, out FitbitDashboardDto? cached) && cached is not null)
+        if (!forceRefresh && _cache.TryGetValue(cacheKey, out FitbitDashboardDto cached) && cached is not null)
         {
             return cached;
         }
@@ -55,7 +54,7 @@ public sealed class FitbitDashboardService
 
         var shouldFetch = forceRefresh || existing is null || (isToday && ((DateTimeOffset.UtcNow - existing.GeneratedUtc) >= TodayRefreshThreshold));
 
-        FitbitDashboardDto? snapshot = null;
+        FitbitDashboardDto snapshot = null;
 
         if (shouldFetch)
         {
@@ -205,7 +204,7 @@ public sealed class FitbitDashboardService
         };
     }
 
-    private static FitbitWeightSummaryDto BuildWeightSummary(WeightResponse? response)
+    private static FitbitWeightSummaryDto BuildWeightSummary(WeightResponse response)
     {
         if (response?.Entries is not
             {
@@ -276,7 +275,7 @@ public sealed class FitbitDashboardService
         };
     }
 
-    private static FitbitCaloriesSummaryDto BuildCaloriesSummary(FoodLogSummaryResponse? foodLog, ActivitiesResponse? activities)
+    private static FitbitCaloriesSummaryDto BuildCaloriesSummary(FoodLogSummaryResponse foodLog, ActivitiesResponse activities)
     {
         var summary = foodLog?.Summary;
         var intake = summary?.Calories;
@@ -301,7 +300,7 @@ public sealed class FitbitDashboardService
         };
     }
 
-    private static FitbitSleepSummaryDto BuildSleepSummary(SleepResponse? response)
+    private static FitbitSleepSummaryDto BuildSleepSummary(SleepResponse response)
     {
         if (response?.Entries is not
             {
@@ -344,7 +343,7 @@ public sealed class FitbitDashboardService
             return minutes > 0 ? Math.Round(minutes / 60d, 2) : minutes == 0 ? 0d : null;
         }
 
-        int? SumLevelMinutes(Func<SleepResponse.SleepLevelSummary, SleepResponse.SleepLevelSummaryItem?> selector)
+        int? SumLevelMinutes(Func<SleepResponse.SleepLevelSummary, SleepResponse.SleepLevelSummaryItem> selector)
         {
             var total = 0;
             var hasData = false;
@@ -390,7 +389,7 @@ public sealed class FitbitDashboardService
         };
     }
 
-    private static FitbitActivitySummaryDto BuildActivitySummary(ActivitiesResponse? response)
+    private static FitbitActivitySummaryDto BuildActivitySummary(ActivitiesResponse response)
     {
         if (response?.Summary is null)
         {
@@ -403,7 +402,7 @@ public sealed class FitbitDashboardService
         return new FitbitActivitySummaryDto(response.Summary.Steps, distance, response.Summary.Floors);
     }
 
-    private static DateTimeOffset? ParseDateTime(string? date, string? time)
+    private static DateTimeOffset? ParseDateTime(string date, string time)
     {
         if (string.IsNullOrWhiteSpace(date) && string.IsNullOrWhiteSpace(time))
         {

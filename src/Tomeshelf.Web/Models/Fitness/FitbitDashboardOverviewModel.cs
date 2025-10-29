@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 
 namespace Tomeshelf.Web.Models.Fitness;

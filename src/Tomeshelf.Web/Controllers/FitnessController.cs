@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Globalization;
 using System.Threading;
@@ -23,7 +22,7 @@ public sealed class FitnessController : Controller
     }
 
     [HttpGet("")]
-    public async Task<IActionResult> Index([FromQuery] string? date, [FromQuery] bool refresh = false, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Index([FromQuery] string date, [FromQuery] bool refresh = false, CancellationToken cancellationToken = default)
     {
         var targetDate = ResolveDate(date);
         var today = DateOnly.FromDateTime(DateTime.Today);
@@ -100,7 +99,7 @@ public sealed class FitnessController : Controller
         }
     }
 
-    private static DateOnly ResolveDate(string? date)
+    private static DateOnly ResolveDate(string date)
     {
         if (!string.IsNullOrWhiteSpace(date) && DateOnly.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
         {
@@ -110,7 +109,7 @@ public sealed class FitnessController : Controller
         return DateOnly.FromDateTime(DateTime.Today);
     }
 
-    private static DaySummaryViewModel? CreateSummary(FitbitDashboardModel model)
+    private static DaySummaryViewModel CreateSummary(FitbitDashboardModel model)
     {
         var summary = new DaySummaryViewModel
         {

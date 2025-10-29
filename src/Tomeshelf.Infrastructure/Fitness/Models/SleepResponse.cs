@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Infrastructure.Fitness.Models;
@@ -7,18 +6,18 @@ namespace Tomeshelf.Infrastructure.Fitness.Models;
 public sealed class SleepResponse
 {
     [JsonPropertyName("sleep")]
-    public IReadOnlyList<SleepEntry>? Entries { get; init; }
+    public IReadOnlyList<SleepEntry> Entries { get; init; }
 
     public sealed class SleepEntry
     {
         [JsonPropertyName("dateOfSleep")]
-        public string? DateOfSleep { get; init; }
+        public string DateOfSleep { get; init; }
 
         [JsonPropertyName("startTime")]
-        public string? StartTime { get; init; }
+        public string StartTime { get; init; }
 
         [JsonPropertyName("endTime")]
-        public string? EndTime { get; init; }
+        public string EndTime { get; init; }
 
         [JsonPropertyName("duration")]
         public long? DurationMilliseconds { get; init; }
@@ -39,31 +38,31 @@ public sealed class SleepResponse
         public int? Efficiency { get; init; }
 
         [JsonPropertyName("levels")]
-        public SleepLevels? Levels { get; init; }
+        public SleepLevels Levels { get; init; }
     }
 
     public sealed class SleepLevels
     {
         [JsonPropertyName("summary")]
-        public SleepLevelSummary? Summary { get; init; }
+        public SleepLevelSummary Summary { get; init; }
 
         [JsonPropertyName("data")]
-        public IReadOnlyList<SleepLevelData>? Data { get; init; }
+        public IReadOnlyList<SleepLevelData> Data { get; init; }
     }
 
     public sealed class SleepLevelSummary
     {
         [JsonPropertyName("deep")]
-        public SleepLevelSummaryItem? Deep { get; init; }
+        public SleepLevelSummaryItem Deep { get; init; }
 
         [JsonPropertyName("light")]
-        public SleepLevelSummaryItem? Light { get; init; }
+        public SleepLevelSummaryItem Light { get; init; }
 
         [JsonPropertyName("rem")]
-        public SleepLevelSummaryItem? Rem { get; init; }
+        public SleepLevelSummaryItem Rem { get; init; }
 
         [JsonPropertyName("wake")]
-        public SleepLevelSummaryItem? Wake { get; init; }
+        public SleepLevelSummaryItem Wake { get; init; }
     }
 
     public sealed class SleepLevelSummaryItem
@@ -81,10 +80,10 @@ public sealed class SleepResponse
     public sealed class SleepLevelData
     {
         [JsonPropertyName("dateTime")]
-        public string? DateTime { get; init; }
+        public string DateTime { get; init; }
 
         [JsonPropertyName("level")]
-        public string? Level { get; init; }
+        public string Level { get; init; }
 
         [JsonPropertyName("seconds")]
         public int? Seconds { get; init; }

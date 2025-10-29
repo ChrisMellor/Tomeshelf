@@ -87,9 +87,9 @@ public sealed record FitbitSleepSummaryDto
 
     public double? EfficiencyPercentage { get; init; }
 
-    public string? Bedtime { get; init; }
+    public string Bedtime { get; init; }
 
-    public string? WakeTime { get; init; }
+    public string WakeTime { get; init; }
 
     public FitbitSleepLevelsDto Levels { get; init; } = new FitbitSleepLevelsDto();
 }

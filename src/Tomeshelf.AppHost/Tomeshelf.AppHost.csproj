@@ -12,13 +12,14 @@
 	<ProjectReference Include="..\Tomeshelf.HumbleBundle.Api\Tomeshelf.HumbleBundle.Api.csproj" />
 	<ProjectReference Include="..\Tomeshelf.ComicConApi\Tomeshelf.ComicConApi.csproj" />
 	<ProjectReference Include="..\Tomeshelf.Fitbit.Api\Tomeshelf.Fitbit.Api.csproj" />
+	<ProjectReference Include="..\Tomeshelf.Paissa.Api\Tomeshelf.Paissa.Api.csproj" />
 	<ProjectReference Include="..\Tomeshelf.Web\Tomeshelf.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.1" />
-	<PackageReference Include="Aspire.Hosting.Azure" Version="9.5.1" />
-	<PackageReference Include="Aspire.Hosting.Azure.Sql" Version="9.5.1" />
+	<PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.2" />
+	<PackageReference Include="Aspire.Hosting.Azure" Version="9.5.2" />
+	<PackageReference Include="Aspire.Hosting.Azure.Sql" Version="9.5.2" />
 	<PackageReference Include="Aspire.Hosting.Docker" Version="9.4.1-preview.1.25408.4" />
 	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.6" />
   </ItemGroup>

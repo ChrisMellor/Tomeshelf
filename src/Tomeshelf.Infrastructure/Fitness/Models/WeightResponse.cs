@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Infrastructure.Fitness.Models;
@@ -7,15 +6,15 @@ namespace Tomeshelf.Infrastructure.Fitness.Models;
 public sealed class WeightResponse
 {
     [JsonPropertyName("weight")]
-    public IReadOnlyList<WeightEntry>? Entries { get; init; }
+    public IReadOnlyList<WeightEntry> Entries { get; init; }
 
     public sealed class WeightEntry
     {
         [JsonPropertyName("date")]
-        public string? Date { get; init; }
+        public string Date { get; init; }
 
         [JsonPropertyName("time")]
-        public string? Time { get; init; }
+        public string Time { get; init; }
 
         [JsonPropertyName("weight")]
         public double? Weight { get; init; }

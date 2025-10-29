@@ -1,6 +1,11 @@
+using System;
 using System.Globalization;
 using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Infrastructure.Fitness;
 
@@ -28,7 +33,7 @@ public sealed class FitbitController : ControllerBase
     /// <param name="cancellationToken">Cancellation token for the request.</param>
     [HttpGet("Dashboard")]
     [ProducesResponseType(typeof(FitbitDashboardDto), 200)]
-    public async Task<ActionResult<FitbitDashboardDto>> GetDashboard([FromQuery] string? date, [FromQuery] bool refresh = false, [FromQuery] string? returnUrl = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<FitbitDashboardDto>> GetDashboard([FromQuery] string date, [FromQuery] bool refresh = false, [FromQuery] string returnUrl = null, CancellationToken cancellationToken = default)
     {
         var targetDate = ResolveDate(date);
         var today = DateOnly.FromDateTime(DateTime.Today);
@@ -114,7 +119,7 @@ public sealed class FitbitController : ControllerBase
         }
     }
 
-    private static DateOnly ResolveDate(string? input)
+    private static DateOnly ResolveDate(string input)
     {
         if (!string.IsNullOrWhiteSpace(input) && DateOnly.TryParseExact(input, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
         {
@@ -124,7 +129,7 @@ public sealed class FitbitController : ControllerBase
         return DateOnly.FromDateTime(DateTime.Now);
     }
 
-    private string BuildAuthorizeRedirectTarget(string? requestedReturnUrl)
+    private string BuildAuthorizeRedirectTarget(string requestedReturnUrl)
     {
         var queryReturnUrl = requestedReturnUrl ?? Request.Query["returnUrl"];
         var target = string.IsNullOrWhiteSpace(queryReturnUrl)

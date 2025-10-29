@@ -124,7 +124,7 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
         return new Uri(SiteBaseUri, relative.TrimStart('/')).ToString();
     }
 
-    private static string? GetString(JsonElement element, string propertyName)
+    private static string GetString(JsonElement element, string propertyName)
     {
         if (element.TryGetProperty(propertyName, out var property) && (property.ValueKind == JsonValueKind.String))
         {

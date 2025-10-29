@@ -1,4 +1,3 @@
-#nullable enable
 using System.Collections.Generic;
 using Aspire.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -63,7 +62,7 @@ internal class Program
         fitbitApi = fitbitApi.WithEndpoint("fitbit-https", endpoint => endpoint.IsExternal = true)
                              .WithEndpoint("fitbit-http", endpoint => endpoint.IsExternal = true);
 
-        var optionalEnv = new Dictionary<string, string?>
+        var optionalEnv = new Dictionary<string, string>
         {
                 ["Fitbit__ClientId"] = fitbitSettings["ClientId"],
                 ["Fitbit__ClientSecret"] = fitbitSettings["ClientSecret"],
@@ -85,6 +84,10 @@ internal class Program
                              .WithEnvironment("Fitbit__CallbackBaseUri", fitbitSettings["CallbackBaseUri"] ?? "https://localhost:7152")
                              .WithEnvironment("Fitbit__CallbackPath", fitbitSettings["CallbackPath"] ?? "/api/fitbit/auth/callback");
 
+        var paissaApi = builder.AddProject<Tomeshelf_Paissa_Api>("PaissaApi")
+                               .WithExternalHttpEndpoints()
+                               .WithHttpHealthCheck("/health");
+
         builder.AddProject<Tomeshelf_Web>("web")
                .WithExternalHttpEndpoints()
                .WithHttpHealthCheck("/health")
@@ -93,7 +96,9 @@ internal class Program
                .WithReference(humbleBundleApi)
                .WaitFor(humbleBundleApi)
                .WithReference(fitbitApi)
-               .WaitFor(fitbitApi);
+               .WaitFor(fitbitApi)
+               .WithReference(paissaApi)
+               .WaitFor(paissaApi);
 
         var sites = builder.Configuration.GetSection("ComicCon")
                            .Get<List<ComicConSite>>() ?? [];
