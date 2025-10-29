@@ -6,7 +6,7 @@ namespace Tomeshelf.Application.Tests.Converters.NullableFlexibleDecimalConverte
 
 public class NullableFlexibleDecimalConverterReadTests
 {
-    private readonly JsonSerializerOptions _opts = new JsonSerializerOptions(JsonSerializerDefaults.Web) { Converters = { new NullableFlexibleDecimalConverter() } };
+    private readonly JsonSerializerOptions _opts = new(JsonSerializerDefaults.Web) { Converters = { new NullableFlexibleDecimalConverter() } };
 
     private static string Wrap(object value)
     {

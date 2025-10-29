@@ -71,9 +71,10 @@ public static class Extensions
                 })
                .WithTracing(tracing =>
                 {
-                    AspNetCoreInstrumentationTracerProviderBuilderExtensions.AddAspNetCoreInstrumentation(tracing.AddSource(builder.Environment.ApplicationName), tracing => tracing.Filter = context => !context.Request.Path.StartsWithSegments(HealthEndpointPath) && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath))
-                                                                             //.AddGrpcClientInstrumentation()
-                                                                            .AddHttpClientInstrumentation();
+                    tracing.AddSource(builder.Environment.ApplicationName)
+                           .AddAspNetCoreInstrumentation(tracing => tracing.Filter = context => !context.Request.Path.StartsWithSegments(HealthEndpointPath) && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath))
+                            //.AddGrpcClientInstrumentation()
+                           .AddHttpClientInstrumentation();
                 });
 
         builder.AddOpenTelemetryExporters();
