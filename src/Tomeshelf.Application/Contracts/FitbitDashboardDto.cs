@@ -91,7 +91,7 @@ public sealed record FitbitSleepSummaryDto
 
     public string WakeTime { get; init; }
 
-    public FitbitSleepLevelsDto Levels { get; init; } = new();
+    public FitbitSleepLevelsDto Levels { get; init; } = new FitbitSleepLevelsDto();
 }
 
 /// <summary>

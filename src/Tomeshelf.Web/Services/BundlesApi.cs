@@ -14,7 +14,7 @@ namespace Tomeshelf.Web.Services;
 /// </summary>
 public sealed class BundlesApi(HttpClient http, ILogger<BundlesApi> logger) : IBundlesApi
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<BundleModel>> GetBundlesAsync(bool includeExpired, CancellationToken cancellationToken)

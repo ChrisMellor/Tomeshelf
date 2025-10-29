@@ -29,7 +29,7 @@ public class EventIngestServiceTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = Guid.NewGuid()
                                          .ToString(),

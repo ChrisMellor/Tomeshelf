@@ -52,11 +52,11 @@ public sealed class DaySummaryViewModel
 
     public DateTimeOffset GeneratedUtc { get; init; } = DateTimeOffset.UtcNow;
 
-    public FitbitWeightModel Weight { get; init; } = new FitbitWeightModel();
+    public FitbitWeightModel Weight { get; init; } = new();
 
-    public FitbitCaloriesModel Calories { get; init; } = new FitbitCaloriesModel();
+    public FitbitCaloriesModel Calories { get; init; } = new();
 
-    public FitbitSleepModel Sleep { get; init; } = new FitbitSleepModel();
+    public FitbitSleepModel Sleep { get; init; } = new();
 
-    public FitbitActivityModel Activity { get; init; } = new FitbitActivityModel();
+    public FitbitActivityModel Activity { get; init; } = new();
 }

@@ -9,11 +9,11 @@ public sealed class FitbitDashboardModel
 
     public DateTimeOffset GeneratedUtc { get; set; } = DateTimeOffset.UtcNow;
 
-    public FitbitWeightModel Weight { get; set; } = new FitbitWeightModel();
+    public FitbitWeightModel Weight { get; set; } = new();
 
-    public FitbitCaloriesModel Calories { get; set; } = new FitbitCaloriesModel();
+    public FitbitCaloriesModel Calories { get; set; } = new();
 
-    public FitbitSleepModel Sleep { get; set; } = new FitbitSleepModel();
+    public FitbitSleepModel Sleep { get; set; } = new();
 
-    public FitbitActivityModel Activity { get; set; } = new FitbitActivityModel();
+    public FitbitActivityModel Activity { get; set; } = new();
 }
