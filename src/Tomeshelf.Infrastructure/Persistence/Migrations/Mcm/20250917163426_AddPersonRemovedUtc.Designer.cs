@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Tomeshelf.Infrastructure.Persistence.Migrations.ComicCon
+namespace Tomeshelf.Infrastructure.Persistence.Migrations.Mcm
 {
-    [DbContext(typeof(TomeshelfComicConDbContext))]
+    [DbContext(typeof(TomeshelfMcmDbContext))]
     [Migration("20250917163426_AddPersonRemovedUtc")]
     partial class AddPersonRemovedUtc
     {

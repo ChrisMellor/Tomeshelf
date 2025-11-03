@@ -53,8 +53,15 @@ public class Program
             options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         });
 
+        var config = builder.Configuration.GetSection("Fitbit");
+
+        //if (File.Exists("/.dockerenv"))
+        //{
+        config["CallbackPath"] = "https://host.docker.internal:61319";
+        //}
+
         builder.Services.AddOptions<FitbitOptions>()
-               .Bind(builder.Configuration.GetSection("Fitbit"))
+               .Bind(config)
                .ValidateDataAnnotations();
 
         builder.Services.AddFitnessInfrastructure();

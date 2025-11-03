@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Configuration;
 using Projects;
 using Tomeshelf.AppHost.Records;
@@ -19,98 +20,110 @@ internal class Program
     public static void Main(string[] args)
     {
         var builder = DistributedApplication.CreateBuilder(args);
-
         builder.Configuration.AddUserSecrets<Program>(true);
 
-        var isPublish = builder.ExecutionContext.IsPublishMode;
+        var database = SetupDatabase(builder);
 
-        if (!isPublish)
-        {
-            builder.AddDockerComposeEnvironment("metrics")
-                   .WithDashboard(rb => rb.WithHostPort(18888));
-        }
+        var comicConApi = SetupComicConApi(builder, database);
+        var humbleBundleApi = SetupHumbleBundleApi(builder, database);
+        var fitbitApi = SetupFitbitApi(builder, database);
+        var paissaApi = SetupPaissaApi(builder);
 
+        var web = SetupWeb(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
+
+        builder.AddDockerComposeEnvironment("compose")
+               .WithDashboard(rb => rb.WithHostPort(18888));
+
+        builder.Build()
+               .Run();
+    }
+
+    private static IResourceBuilder<SqlServerServerResource> SetupDatabase(IDistributedApplicationBuilder builder)
+    {
         var database = builder.AddSqlServer("sql")
                               .WithDataVolume()
                               .WithEnvironment("ACCEPT_EULA", "Y");
 
-        var tomeshelfDb = database.AddDatabase("tomeshelfdb");
-        var humbleBundleDb = database.AddDatabase("bundlesdb");
-        var fitbitDb = database.AddDatabase("fitbitdb");
+        return database;
+    }
 
-        var comicConApi = builder.AddProject<Tomeshelf_ComicConApi>("ComicConApi")
-                                 .WithExternalHttpEndpoints()
-                                 .WithHttpHealthCheck("/health")
-                                 .WithReference(tomeshelfDb)
-                                 .WaitFor(tomeshelfDb);
+    private static IResourceBuilder<ProjectResource> SetupComicConApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
+    {
+        var db = database.AddDatabase("mcmdb");
 
-        var humbleBundleApi = builder.AddProject<Tomeshelf_HumbleBundle_Api>("HumbleBundleApi")
-                                     .WithExternalHttpEndpoints()
-                                     .WithHttpHealthCheck("/health")
-                                     .WithReference(humbleBundleDb)
-                                     .WaitFor(humbleBundleDb);
-
-        var fitbitSettings = builder.Configuration.GetSection("Fitbit");
-
-        var fitbitApi = builder.AddProject<Tomeshelf_Fitbit_Api>("FitbitApi")
-                               .WithHttpsEndpoint(name: "fitbit-https", port: 7152)
-                               .WithHttpEndpoint(name: "fitbit-http", port: 5152)
-                               .WithHttpHealthCheck("/health")
-                               .WithReference(fitbitDb)
-                               .WaitFor(fitbitDb);
-
-        fitbitApi = fitbitApi.WithEndpoint("fitbit-https", endpoint => endpoint.IsExternal = true)
-                             .WithEndpoint("fitbit-http", endpoint => endpoint.IsExternal = true);
-
-        var optionalEnv = new Dictionary<string, string>
-        {
-                ["Fitbit__ClientId"] = fitbitSettings["ClientId"],
-                ["Fitbit__ClientSecret"] = fitbitSettings["ClientSecret"],
-                ["Fitbit__AccessToken"] = fitbitSettings["AccessToken"],
-                ["Fitbit__RefreshToken"] = fitbitSettings["RefreshToken"]
-        };
-
-        foreach (var entry in optionalEnv)
-        {
-            if (!string.IsNullOrWhiteSpace(entry.Value))
-            {
-                fitbitApi = fitbitApi.WithEnvironment(entry.Key, entry.Value!);
-            }
-        }
-
-        fitbitApi = fitbitApi.WithEnvironment("Fitbit__ApiBase", fitbitSettings["ApiBase"] ?? "https://api.fitbit.com/")
-                             .WithEnvironment("Fitbit__UserId", fitbitSettings["UserId"] ?? "-")
-                             .WithEnvironment("Fitbit__Scope", fitbitSettings["Scope"] ?? "activity nutrition sleep weight profile settings")
-                             .WithEnvironment("Fitbit__CallbackBaseUri", fitbitSettings["CallbackBaseUri"] ?? "https://localhost:7152")
-                             .WithEnvironment("Fitbit__CallbackPath", fitbitSettings["CallbackPath"] ?? "/api/fitbit/auth/callback");
-
-        var paissaApi = builder.AddProject<Tomeshelf_Paissa_Api>("PaissaApi")
-                               .WithExternalHttpEndpoints()
-                               .WithHttpHealthCheck("/health");
-
-        builder.AddProject<Tomeshelf_Web>("web")
-               .WithExternalHttpEndpoints()
-               .WithHttpHealthCheck("/health")
-               .WithReference(comicConApi)
-               .WaitFor(comicConApi)
-               .WithReference(humbleBundleApi)
-               .WaitFor(humbleBundleApi)
-               .WithReference(fitbitApi)
-               .WaitFor(fitbitApi)
-               .WithReference(paissaApi)
-               .WaitFor(paissaApi);
+        var api = builder.AddProject<Tomeshelf_ComicConApi>("comicconapi")
+                         .WithHttpHealthCheck("/health")
+                         .WithReference(db)
+                         .WaitFor(db);
 
         var sites = builder.Configuration.GetSection("ComicCon")
                            .Get<List<ComicConSite>>() ?? [];
 
         for (var i = 0; i < sites.Count; i++)
         {
-            comicConApi.WithEnvironment($"ComicCon__{i}__City", sites[i].City)
-                       .WithEnvironment($"ComicCon__{i}__Key", sites[i]
-                                                              .Key.ToString());
+            api.WithEnvironment($"ComicCon__{i}__City", sites[i].City)
+               .WithEnvironment($"ComicCon__{i}__Key", sites[i]
+                                                      .Key.ToString());
         }
 
-        builder.Build()
-               .Run();
+        return api;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupHumbleBundleApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
+    {
+        var db = database.AddDatabase("humblebundledb");
+
+        var api = builder.AddProject<Tomeshelf_HumbleBundle_Api>("humblebundleapi")
+                         .WithHttpHealthCheck("/health")
+                         .WithReference(db)
+                         .WaitFor(db);
+
+        return api;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupFitbitApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
+    {
+        var settings = builder.Configuration.GetSection("fitbit");
+
+        var db = database.AddDatabase("fitbitdb");
+
+        var api = builder.AddProject<Tomeshelf_Fitbit_Api>("fitbitapi")
+                         .WithHttpHealthCheck("/health")
+                         .WithReference(db)
+                         .WaitFor(db)
+                         .WithEnvironment("Fitbit__ApiBase", settings["ApiBase"] ?? "https://api.fitbit.com/")
+                         .WithEnvironment("Fitbit__UserId", settings["UserId"] ?? "-")
+                         .WithEnvironment("Fitbit__Scope", settings["Scope"] ?? "activity nutrition sleep weight profile settings")
+                         .WithEnvironment("Fitbit__CallbackBaseUri", settings["CallbackBaseUri"] ?? "https://localhost:61319")
+                         .WithEnvironment("Fitbit__CallbackPath", settings["CallbackPath"] ?? "/api/fitbit/auth/callback")
+                         .WithEnvironment("Fitbit__ClientId", settings["ClientId"])
+                         .WithEnvironment("Fitbit__ClientSecret", settings["ClientSecret"]);
+
+        return api;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupPaissaApi(IDistributedApplicationBuilder builder)
+    {
+        var api = builder.AddProject<Tomeshelf_Paissa_Api>("paissaapi")
+                         .WithHttpHealthCheck("/health");
+
+        return api;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupWeb(IDistributedApplicationBuilder builder, IResourceBuilder<ProjectResource> comicConApi, IResourceBuilder<ProjectResource> humbleBundleApi, IResourceBuilder<ProjectResource> fitbitApi, IResourceBuilder<ProjectResource> paissaApi)
+    {
+        var web = builder.AddProject<Tomeshelf_Web>("web")
+                         .WithHttpHealthCheck("/health")
+                         .WithReference(comicConApi)
+                         .WaitFor(comicConApi)
+                         .WithReference(humbleBundleApi)
+                         .WaitFor(humbleBundleApi)
+                         .WithReference(fitbitApi)
+                         .WaitFor(fitbitApi)
+                         .WithReference(paissaApi)
+                         .WaitFor(paissaApi)
+                         .WithExternalHttpEndpoints();
+
+        return web;
     }
 }

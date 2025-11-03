@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Tomeshelf.Infrastructure.Persistence.Migrations.ComicCon;
+namespace Tomeshelf.Infrastructure.Persistence.Migrations.Mcm;
 
 /// <inheritdoc />
 public partial class InitialCreate : Migration

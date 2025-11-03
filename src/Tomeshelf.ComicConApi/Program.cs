@@ -76,7 +76,7 @@ public static class Program
         builder.Services.AddSingleton<IGuestsCache, GuestsCache>();
         builder.Services.AddHostedService<ComicConUpdateBackgroundService>();
 
-        builder.AddSqlServerDbContext<TomeshelfComicConDbContext>("tomeshelfdb");
+        builder.AddSqlServerDbContext<TomeshelfMcmDbContext>("mcmdb");
 
         var app = builder.Build();
 
@@ -110,7 +110,7 @@ public static class Program
             var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
                               .CreateLogger("Migrations");
             logger.LogInformation("Starting database migrations...");
-            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfComicConDbContext>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfMcmDbContext>();
             await dbContext.Database.MigrateAsync();
             logger.LogInformation("Database migrations completed successfully.");
 
@@ -120,7 +120,7 @@ public static class Program
         if (app.Environment.IsDevelopment())
         {
             using var scope = app.Services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfComicConDbContext>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfMcmDbContext>();
             await dbContext.Database.MigrateAsync();
         }
 

@@ -16,17 +16,17 @@ namespace Tomeshelf.Infrastructure.Queries;
 /// </summary>
 public sealed class GuestQueries
 {
-    private readonly TomeshelfComicConDbContext _comicConDb;
     private readonly ILogger<GuestQueries> _logger;
+    private readonly TomeshelfMcmDbContext _mcmDb;
 
     /// <summary>
     ///     Constructor with dependencies injected.
     /// </summary>
-    /// <param name="comicConDb">EF Core DbContext.</param>
+    /// <param name="mcmDb">EF Core DbContext.</param>
     /// <param name="logger">Logger instance.</param>
-    public GuestQueries(TomeshelfComicConDbContext comicConDb, ILogger<GuestQueries> logger)
+    public GuestQueries(TomeshelfMcmDbContext mcmDb, ILogger<GuestQueries> logger)
     {
-        _comicConDb = comicConDb;
+        _mcmDb = mcmDb;
         _logger = logger;
     }
 
@@ -50,9 +50,9 @@ public sealed class GuestQueries
         _logger.LogInformation("Querying guests for event {EventSlug} (page={Page}, size={Size})", eventSlug, page, pageSize);
         var started = DateTimeOffset.UtcNow;
 
-        var eventId = await _comicConDb.Events.Where(e => e.Slug == eventSlug)
-                                       .Select(e => e.Id)
-                                       .SingleOrDefaultAsync(cancellationToken);
+        var eventId = await _mcmDb.Events.Where(e => e.Slug == eventSlug)
+                                  .Select(e => e.Id)
+                                  .SingleOrDefaultAsync(cancellationToken);
 
         if (eventId == 0)
         {
@@ -61,8 +61,8 @@ public sealed class GuestQueries
             return (Array.Empty<PersonDto>(), 0);
         }
 
-        var baseQuery = _comicConDb.EventAppearances.AsNoTracking()
-                                   .Where(eventAppearance => eventAppearance.EventId == eventId);
+        var baseQuery = _mcmDb.EventAppearances.AsNoTracking()
+                              .Where(eventAppearance => eventAppearance.EventId == eventId);
 
         if (!string.IsNullOrWhiteSpace(day))
         {
@@ -102,9 +102,9 @@ public sealed class GuestQueries
     public async Task<IReadOnlyList<(string Id, string Name)>> GetCategoriesByEventSlugAsync(string slug, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Querying categories for event {EventSlug}", slug);
-        var eventId = await _comicConDb.Events.Where(e => e.Slug == slug)
-                                       .Select(e => e.Id)
-                                       .SingleOrDefaultAsync(cancellationToken);
+        var eventId = await _mcmDb.Events.Where(e => e.Slug == slug)
+                                  .Select(e => e.Id)
+                                  .SingleOrDefaultAsync(cancellationToken);
 
         if (eventId == 0)
         {
@@ -113,16 +113,16 @@ public sealed class GuestQueries
             return Array.Empty<(string, string)>();
         }
 
-        var cats = await _comicConDb.EventAppearances.Where(a => a.EventId == eventId)
-                                    .SelectMany(a => a.Person.Categories.Select(pc => pc.Category))
-                                    .Distinct()
-                                    .OrderBy(c => c.Name)
-                                    .Select(c => new
-                                     {
-                                             c.ExternalId,
-                                             c.Name
-                                     })
-                                    .ToListAsync(cancellationToken);
+        var cats = await _mcmDb.EventAppearances.Where(a => a.EventId == eventId)
+                               .SelectMany(a => a.Person.Categories.Select(pc => pc.Category))
+                               .Distinct()
+                               .OrderBy(c => c.Name)
+                               .Select(c => new
+                                {
+                                        c.ExternalId,
+                                        c.Name
+                                })
+                               .ToListAsync(cancellationToken);
 
         var list = cats.Select(c => (c.ExternalId, c.Name))
                        .ToList();
@@ -150,8 +150,8 @@ public sealed class GuestQueries
         var like = $"%{city}%";
         _logger.LogInformation("Querying guests by city like pattern {Pattern}", like);
 
-        var baseQuery = _comicConDb.EventAppearances.AsNoTracking()
-                                   .Where(a => EF.Functions.Like(a.Event.Slug, like));
+        var baseQuery = _mcmDb.EventAppearances.AsNoTracking()
+                              .Where(a => EF.Functions.Like(a.Event.Slug, like));
 
         var qStart = DateTimeOffset.UtcNow;
         var rows = await ProjectPeople(baseQuery)

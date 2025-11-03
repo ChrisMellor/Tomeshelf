@@ -27,9 +27,9 @@ public class ComicConControllerUpdateGuestsTests
         A.CallTo(() => svc.GetGuestsAsync("London", A<CancellationToken>._))
          .Returns(new List<PersonDto>());
 
-        using var db = new TomeshelfComicConDbContext(new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                                                        .ToString())
-                                                                                                               .Options);
+        using var db = new TomeshelfMcmDbContext(new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                                              .ToString())
+                                                                                                     .Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
         var cache = A.Fake<IGuestsCache>();
         var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance, cache);
@@ -51,9 +51,9 @@ public class ComicConControllerUpdateGuestsTests
         var svc = A.Fake<IGuestService>();
         A.CallTo(() => svc.GetGuestsAsync("Birmingham", A<CancellationToken>._))
          .Throws(new ApplicationException("nope"));
-        using var db = new TomeshelfComicConDbContext(new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                                                        .ToString())
-                                                                                                               .Options);
+        using var db = new TomeshelfMcmDbContext(new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                                              .ToString())
+                                                                                                     .Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
         var cache = A.Fake<IGuestsCache>();
         var controller = new ComicConController(svc, queries, NullLogger<ComicConController>.Instance, cache);

@@ -7,7 +7,7 @@ namespace Tomeshelf.Infrastructure.Persistence;
 ///     EF Core database context for Tomeshelf's ComicCon domain entities.
 /// </summary>
 /// <param name="options">DbContext options configured by DI.</param>
-public class TomeshelfComicConDbContext(DbContextOptions<TomeshelfComicConDbContext> options) : DbContext(options)
+public class TomeshelfMcmDbContext(DbContextOptions<TomeshelfMcmDbContext> options) : DbContext(options)
 {
     public DbSet<Event> Events => Set<Event>();
 
@@ -175,6 +175,6 @@ public class TomeshelfComicConDbContext(DbContextOptions<TomeshelfComicConDbCont
              .HasForeignKey(x => x.VenueLocationId);
         });
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TomeshelfComicConDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TomeshelfMcmDbContext).Assembly);
     }
 }

@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Tomeshelf.Infrastructure.Persistence.Fitbit.Migrations
 {
     /// <inheritdoc />
-    [DbContext(typeof(TomeshelfFitbitDbContext))]
     [Migration("20251015000000_CreateFitbitSnapshotsSchema")]
+    [DbContext(typeof(TomeshelfFitbitDbContext))]
     public partial class CreateFitbitSnapshotsSchema : Migration
     {
         /// <inheritdoc />
