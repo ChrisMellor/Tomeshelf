@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
@@ -55,11 +52,6 @@ public class Program
 
         var config = builder.Configuration.GetSection("Fitbit");
 
-        //if (File.Exists("/.dockerenv"))
-        //{
-        config["CallbackPath"] = "https://host.docker.internal:61319";
-        //}
-
         builder.Services.AddOptions<FitbitOptions>()
                .Bind(config)
                .ValidateDataAnnotations();
@@ -68,14 +60,6 @@ public class Program
         builder.AddSqlServerDbContext<TomeshelfFitbitDbContext>("fitbitDb");
 
         var app = builder.Build();
-
-        var migrateOnly = args.Any(a => string.Equals(a, "--migrate", StringComparison.OrdinalIgnoreCase));
-
-        await ApplyDatabaseMigrationsAsync(app.Services);
-        if (migrateOnly)
-        {
-            return;
-        }
 
         app.UseExceptionHandler();
 
@@ -99,13 +83,12 @@ public class Program
         app.MapControllers();
         app.MapDefaultEndpoints();
 
-        await app.RunAsync();
-    }
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
+            await db.Database.MigrateAsync();
+        }
 
-    private static async Task ApplyDatabaseMigrationsAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
-    {
-        await using var scope = serviceProvider.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
-        await dbContext.Database.MigrateAsync(cancellationToken);
+        await app.RunAsync();
     }
 }

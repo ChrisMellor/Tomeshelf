@@ -88,16 +88,18 @@ internal class Program
         var db = database.AddDatabase("fitbitdb");
 
         var api = builder.AddProject<Tomeshelf_Fitbit_Api>("fitbitapi")
+                         .WithExternalHttpEndpoints()
                          .WithHttpHealthCheck("/health")
                          .WithReference(db)
-                         .WaitFor(db)
-                         .WithEnvironment("Fitbit__ApiBase", settings["ApiBase"] ?? "https://api.fitbit.com/")
-                         .WithEnvironment("Fitbit__UserId", settings["UserId"] ?? "-")
-                         .WithEnvironment("Fitbit__Scope", settings["Scope"] ?? "activity nutrition sleep weight profile settings")
-                         .WithEnvironment("Fitbit__CallbackBaseUri", settings["CallbackBaseUri"] ?? "https://localhost:61319")
-                         .WithEnvironment("Fitbit__CallbackPath", settings["CallbackPath"] ?? "/api/fitbit/auth/callback")
-                         .WithEnvironment("Fitbit__ClientId", settings["ClientId"])
-                         .WithEnvironment("Fitbit__ClientSecret", settings["ClientSecret"]);
+                         .WaitFor(db);
+
+        api.WithEnvironment("Fitbit__ApiBase", settings["ApiBase"] ?? "https://api.fitbit.com/")
+           .WithEnvironment("Fitbit__UserId", settings["UserId"] ?? "-")
+           .WithEnvironment("Fitbit__Scope", settings["Scope"] ?? "activity nutrition sleep weight profile settings")
+           .WithEnvironment("Fitbit__CallbackBaseUri", api.GetEndpoint("https"))
+           .WithEnvironment("Fitbit__CallbackPath", settings["CallbackPath"] ?? "/api/fitbit/auth/callback")
+           .WithEnvironment("Fitbit__ClientId", settings["ClientId"])
+           .WithEnvironment("Fitbit__ClientSecret", settings["ClientSecret"]);
 
         return api;
     }

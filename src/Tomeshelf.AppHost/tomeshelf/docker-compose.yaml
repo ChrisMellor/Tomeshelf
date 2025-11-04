@@ -76,14 +76,14 @@ services:
       Fitbit__ApiBase: "https://api.fitbit.com/"
       Fitbit__UserId: "-"
       Fitbit__Scope: "activity nutrition sleep weight profile settings"
-      Fitbit__CallbackBaseUri: "https://localhost:61319"
+      Fitbit__CallbackBaseUri: "https://fitbitapi:${FITBITAPI_PORT}"
       Fitbit__CallbackPath: "/api/fitbit/auth/callback"
       Fitbit__ClientId: "23TLDM"
       Fitbit__ClientSecret: "23814b6f91058080f9d66d9e12c5eff9"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
       OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
       OTEL_SERVICE_NAME: "fitbitapi"
-    expose:
+    ports:
       - "${FITBITAPI_PORT}"
     depends_on:
       sql:

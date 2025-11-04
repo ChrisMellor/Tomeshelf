@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -104,24 +102,10 @@ public static class Program
 
         app.MapDefaultEndpoints();
 
-        if (args.Any(a => string.Equals(a, "--migrate", StringComparison.OrdinalIgnoreCase)))
+        using (var scope = app.Services.CreateScope())
         {
-            using var scope = app.Services.CreateScope();
-            var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
-                              .CreateLogger("Migrations");
-            logger.LogInformation("Starting database migrations...");
-            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfMcmDbContext>();
-            await dbContext.Database.MigrateAsync();
-            logger.LogInformation("Database migrations completed successfully.");
-
-            return;
-        }
-
-        if (app.Environment.IsDevelopment())
-        {
-            using var scope = app.Services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfMcmDbContext>();
-            await dbContext.Database.MigrateAsync();
+            var db = scope.ServiceProvider.GetRequiredService<TomeshelfMcmDbContext>();
+            await db.Database.MigrateAsync();
         }
 
         await app.RunAsync();
