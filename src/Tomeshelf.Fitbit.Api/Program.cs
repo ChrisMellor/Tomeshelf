@@ -81,6 +81,7 @@ public class Program
 
         app.UseAuthorization();
         app.MapControllers();
+        app.MapExecutorDiscoveryEndpoint();
         app.MapDefaultEndpoints();
 
         using (var scope = app.Services.CreateScope())

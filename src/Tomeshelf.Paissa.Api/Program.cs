@@ -80,6 +80,7 @@ public static class Program
         app.UseAuthorization();
         app.MapControllers();
 
+        app.MapExecutorDiscoveryEndpoint();
         app.MapDefaultEndpoints();
 
         await app.RunAsync();

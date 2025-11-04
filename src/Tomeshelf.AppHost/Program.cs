@@ -29,7 +29,8 @@ internal class Program
         var fitbitApi = SetupFitbitApi(builder, database);
         var paissaApi = SetupPaissaApi(builder);
 
-        var web = SetupWeb(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
+        _ = SetupExecutor(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
+        _ = SetupWeb(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
 
         builder.AddDockerComposeEnvironment("compose")
                .WithDashboard(rb => rb.WithHostPort(18888));
@@ -67,6 +68,23 @@ internal class Program
         }
 
         return api;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupExecutor(IDistributedApplicationBuilder builder, IResourceBuilder<ProjectResource> comicConApi, IResourceBuilder<ProjectResource> humbleBundleApi, IResourceBuilder<ProjectResource> fitbitApi, IResourceBuilder<ProjectResource> paissaApi)
+    {
+        var Executor = builder.AddProject<Tomeshelf_Executor>("executor")
+                              .WithHttpHealthCheck("/health")
+                              .WithExternalHttpEndpoints()
+                              .WithReference(comicConApi)
+                              .WaitFor(comicConApi)
+                              .WithReference(humbleBundleApi)
+                              .WaitFor(humbleBundleApi)
+                              .WithReference(fitbitApi)
+                              .WaitFor(fitbitApi)
+                              .WithReference(paissaApi)
+                              .WaitFor(paissaApi);
+
+        return Executor;
     }
 
     private static IResourceBuilder<ProjectResource> SetupHumbleBundleApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)

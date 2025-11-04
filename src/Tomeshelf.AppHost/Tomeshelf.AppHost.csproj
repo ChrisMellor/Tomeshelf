@@ -8,11 +8,12 @@
 	  <UserSecretsId>f60973c0-5a1a-4287-a8c2-c6ccd279ecaf</UserSecretsId>
   </PropertyGroup>
 
-  <ItemGroup>
+ <ItemGroup>
 	<ProjectReference Include="..\Tomeshelf.HumbleBundle.Api\Tomeshelf.HumbleBundle.Api.csproj" />
 	<ProjectReference Include="..\Tomeshelf.ComicConApi\Tomeshelf.ComicConApi.csproj" />
 	<ProjectReference Include="..\Tomeshelf.Fitbit.Api\Tomeshelf.Fitbit.Api.csproj" />
 	<ProjectReference Include="..\Tomeshelf.Paissa.Api\Tomeshelf.Paissa.Api.csproj" />
+	<ProjectReference Include="..\Tomeshelf.Exectorer\Tomeshelf.Executor.csproj" />
 	<ProjectReference Include="..\Tomeshelf.Web\Tomeshelf.Web.csproj" />
   </ItemGroup>
 

@@ -105,6 +105,34 @@ services:
       - "${PAISSAAPI_PORT}"
     networks:
       - "aspire"
+  Executor:
+    image: "${Executor_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${Executor_PORT}"
+      services__comicconapi__http__0: "http://comicconapi:${COMICCONAPI_PORT}"
+      services__humblebundleapi__http__0: "http://humblebundleapi:${HUMBLEBUNDLEAPI_PORT}"
+      services__fitbitapi__http__0: "http://fitbitapi:${FITBITAPI_PORT}"
+      services__paissaapi__http__0: "http://paissaapi:${PAISSAAPI_PORT}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "Executor"
+    ports:
+      - "${Executor_PORT}"
+    depends_on:
+      comicconapi:
+        condition: "service_started"
+      humblebundleapi:
+        condition: "service_started"
+      fitbitapi:
+        condition: "service_started"
+      paissaapi:
+        condition: "service_started"
+    networks:
+      - "aspire"
   web:
     image: "${WEB_IMAGE}"
     environment:
@@ -139,3 +167,5 @@ networks:
 volumes:
   tomeshelf.apphost-918c7a5d48-sql-data:
     driver: "local"
+
+
