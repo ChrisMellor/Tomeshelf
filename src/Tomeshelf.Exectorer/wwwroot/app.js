@@ -114,7 +114,7 @@ function selectEndpoint(endpointId) {
     clearMessage();
     renderEndpointDetails(endpoint);
     loadUpcomingExecutions(endpoint.id);
-    elements.resultContainer?.classList.add('hidden');
+    elements.resultContainer?.classList.add('d-none');
 }
 
 function renderEndpointDetails(endpoint) {
@@ -199,8 +199,10 @@ function renderEndpointDetails(endpoint) {
     if (elements.scheduleList) {
         elements.scheduleList.innerHTML = '';
         const placeholder = document.createElement('div');
-        placeholder.className = 'empty-state';
-        placeholder.textContent = endpoint.schedule ? 'Loading upcoming executions...' : 'Scheduling disabled for this endpoint.';
+        placeholder.className = 'alert alert-secondary mb-0 small';
+        placeholder.textContent = endpoint.schedule
+            ? 'Loading upcoming executions...'
+            : 'Scheduling disabled for this endpoint.';
         elements.scheduleList.appendChild(placeholder);
     }
 }
@@ -216,7 +218,7 @@ async function loadUpcomingExecutions(endpointId) {
 
         if (response.status === 204) {
             const item = document.createElement('div');
-            item.className = 'empty-state';
+            item.className = 'alert alert-warning mb-0 small';
             item.textContent = 'No schedule configured.';
             elements.scheduleList.appendChild(item);
             return;
@@ -232,7 +234,7 @@ async function loadUpcomingExecutions(endpointId) {
 
         if (occurrences.length === 0) {
             const item = document.createElement('div');
-            item.className = 'empty-state';
+            item.className = 'alert alert-info mb-0 small';
             item.textContent = 'No future occurrences were returned.';
             elements.scheduleList.appendChild(item);
             return;
@@ -240,13 +242,14 @@ async function loadUpcomingExecutions(endpointId) {
 
         for (const value of occurrences) {
             const entry = document.createElement('div');
+            entry.className = 'd-flex justify-content-between align-items-center border border-secondary-subtle rounded px-3 py-2 bg-dark-subtle small';
             entry.innerHTML = `<strong>${formatDateTime(value, timeZone)}</strong> <span>(${timeZone})</span>`;
             elements.scheduleList.appendChild(entry);
         }
     } catch (error) {
         console.error(error);
         const item = document.createElement('div');
-        item.className = 'empty-state';
+        item.className = 'alert alert-danger mb-0 small';
         item.textContent = error.message || 'Unable to determine next run times.';
         elements.scheduleList.appendChild(item);
     }
@@ -344,7 +347,7 @@ async function executeEndpoint(event) {
 
     const payload = buildExecutionPayload();
     setLoading(true);
-    elements.resultContainer?.classList.add('hidden');
+    elements.resultContainer?.classList.add('d-none');
     clearMessage();
 
     try {
@@ -418,25 +421,37 @@ function renderExecutionResult(result) {
         return;
     }
 
-    elements.resultContainer.classList.remove('hidden');
+    elements.resultContainer.classList.remove('d-none');
 
     const successful = Boolean(result.success);
-    const statusClass = successful ? 'success' : 'error';
-    const statusLabel = `${result.statusCode ?? '} ${result.reasonPhrase ?? '}`.trim();
+    const badgeVariant = successful ? 'text-bg-success' : 'text-bg-danger';
+    const statusLabel = [result.statusCode, result.reasonPhrase].filter(Boolean).join(' ').trim();
 
     if (elements.resultStatus) {
         elements.resultStatus.textContent = statusLabel || 'Unknown status';
-        elements.resultStatus.className = `status-pill ${statusClass}`;
+        elements.resultStatus.className = `badge rounded-pill ${badgeVariant} fs-6`;
     }
 
     if (elements.resultMeta) {
         const duration = result.durationMilliseconds ? `${Number(result.durationMilliseconds).toFixed(0)} ms` : 'n/a';
         const executedAt = result.executedAt ? new Date(result.executedAt).toLocaleString() : 'n/a';
         elements.resultMeta.innerHTML = `
-            <div><span class="badge">Target</span> ${escapeHtml(result.target ?? '')}</div>
-            <div><span class="badge">Duration</span> ${escapeHtml(duration)}</div>
-            <div><span class="badge">Executed</span> ${escapeHtml(executedAt)}</div>
-            <div><span class="badge">Method</span> ${escapeHtml(result.method ?? '')}</div>
+            <div class="col">
+                <div class="text-uppercase small text-secondary fw-semibold">Target</div>
+                <div class="fw-semibold text-break">${escapeHtml(result.target ?? '')}</div>
+            </div>
+            <div class="col">
+                <div class="text-uppercase small text-secondary fw-semibold">Duration</div>
+                <div class="fw-semibold">${escapeHtml(duration)}</div>
+            </div>
+            <div class="col">
+                <div class="text-uppercase small text-secondary fw-semibold">Executed</div>
+                <div class="fw-semibold">${escapeHtml(executedAt)}</div>
+            </div>
+            <div class="col">
+                <div class="text-uppercase small text-secondary fw-semibold">Method</div>
+                <div class="fw-semibold">${escapeHtml(result.method ?? '')}</div>
+            </div>
         `;
     }
 
@@ -456,12 +471,15 @@ function renderExecutionResult(result) {
         elements.resultMessage.textContent = successful
             ? 'Execution completed successfully.'
             : 'Execution returned a non-success status code.';
+        elements.resultMessage.className = successful
+            ? 'small text-success fw-semibold'
+            : 'small text-warning fw-semibold';
     }
 }
 
 function renderHeaders(headers) {
     if (!headers || Object.keys(headers).length === 0) {
-        return '<div class="empty-state">No response headers were returned.</div>';
+        return '<div class="alert alert-secondary mb-0 small">No response headers were returned.</div>';
     }
 
     const rows = Object.entries(headers)
@@ -471,7 +489,7 @@ function renderHeaders(headers) {
         })
         .join('');
 
-    return `<table>${rows}</table>`;
+    return `<table class="table table-sm table-striped align-middle mb-0 text-break"><tbody>${rows}</tbody></table>`;
 }
 
 function escapeHtml(value) {
@@ -503,7 +521,8 @@ function showMessage(message, isError) {
     }
 
     elements.message.textContent = message;
-    elements.message.className = `message${isError ? ' error' : ''}`;
+    elements.message.className = `alert ${isError ? 'alert-danger' : 'alert-info'} mb-3`;
+    elements.message.classList.remove('d-none');
 }
 
 function clearMessage() {
@@ -512,7 +531,7 @@ function clearMessage() {
     }
 
     elements.message.textContent = '';
-    elements.message.className = 'message';
+    elements.message.className = 'alert alert-info d-none mb-3';
 }
 
 

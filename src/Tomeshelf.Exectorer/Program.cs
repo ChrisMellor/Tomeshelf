@@ -10,7 +10,6 @@ namespace Tomeshelf.Executor;
 internal sealed class Program
 {
     private const string HttpClientName = "executor";
-    private const string ApiBasePath = "/api/executor";
 
     public static async Task Main(string[] args)
     {
@@ -18,6 +17,8 @@ internal sealed class Program
 
         builder.AddServiceDefaults();
         builder.Services.AddProblemDetails();
+        builder.Services.AddControllersWithViews();
+        builder.Services.AddAuthorization();
 
         builder.Services.AddOptions<ExecutorOptions>()
                .Bind(builder.Configuration.GetSection(ExecutorOptions.SectionName))
@@ -59,83 +60,15 @@ internal sealed class Program
         }
 
         app.UseHttpsRedirection();
-        app.UseDefaultFiles();
         app.UseStaticFiles();
         app.UseRouting();
+        app.UseAuthorization();
     }
 
     private static void MapRoutes(WebApplication app)
     {
-        app.MapGet("/error", (HttpContext context) =>
-        {
-            var error = context.Features.Get<IExceptionHandlerFeature>()
-                              ?.Error;
-
-            return Results.Problem(error?.Message ?? "An unexpected error occurred.");
-        });
-
-        app.MapGet($"{ApiBasePath}/endpoints", (EndpointCatalog catalog) =>
-        {
-            var summaries = catalog.GetSummaries();
-
-            return Results.Ok(summaries);
-        });
-
-        app.MapGet($"{ApiBasePath}/endpoints/{{id}}/next", (string id, EndpointCatalog catalog) =>
-        {
-            if (!catalog.TryGetDescriptor(id, out var descriptor))
-            {
-                return Results.NotFound();
-            }
-
-            if (descriptor.CronExpression is null)
-            {
-                return Results.NoContent();
-            }
-
-            var occurrences = new List<DateTimeOffset>();
-            var reference = DateTimeOffset.UtcNow;
-            var timeZoneId = descriptor.TimeZone?.Id ?? descriptor.CronExpression.TimeZone?.Id ?? TimeZoneInfo.Utc.Id;
-
-            for (var i = 0; i < 5; i++)
-            {
-                var next = descriptor.CronExpression.GetNextValidTimeAfter(reference);
-                if (next is null)
-                {
-                    break;
-                }
-
-                occurrences.Add(next.Value);
-                reference = next.Value;
-            }
-
-            return Results.Ok(new
-            {
-                    timeZone = timeZoneId,
-                    occurrences
-            });
-        });
-
-        app.MapPost($"{ApiBasePath}/endpoints/{{id}}/execute", async (string id, EndpointExecutionRequest request, EndpointExecutor executor, CancellationToken cancellationToken) =>
-        {
-            try
-            {
-                var result = await executor.ExecuteAsync(id, request, cancellationToken)
-                                           .ConfigureAwait(false);
-
-                return Results.Ok(result);
-            }
-            catch (KeyNotFoundException)
-            {
-                return Results.NotFound();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Results.BadRequest(new { message = ex.Message });
-            }
-        });
-
+        app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+        app.MapControllers();
         app.MapDefaultEndpoints();
-        app.MapFallbackToFile("index.html");
     }
 }
