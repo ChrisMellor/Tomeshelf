@@ -37,6 +37,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddFitnessInfrastructure(this IServiceCollection services)
     {
         services.AddMemoryCache();
+        services.AddHttpContextAccessor();
         services.AddSingleton<FitbitTokenCache>();
         services.AddHttpClient<IFitbitApiClient, FitbitApiClient>((sp, client) =>
         {
