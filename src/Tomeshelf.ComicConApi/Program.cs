@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi;
 using Tomeshelf.Application.Options;
 using Tomeshelf.ComicCon.Api.Hosted;
 using Tomeshelf.ComicCon.Api.Services;
@@ -52,6 +53,7 @@ public static class Program
                .AddOpenApi(options =>
                 {
                     options.AddSchemaTransformer(new CitySchemaTransformer());
+                    options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_0;
                 })
                .AddControllers()
                .AddJsonOptions(options =>

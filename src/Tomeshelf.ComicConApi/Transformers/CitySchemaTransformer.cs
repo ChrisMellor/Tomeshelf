@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Tomeshelf.ComicCon.Api.Enums;
 
 namespace Tomeshelf.ComicCon.Api.Transformers;
@@ -29,10 +29,10 @@ public class CitySchemaTransformer : IOpenApiSchemaTransformer
             return Task.CompletedTask;
         }
 
-        schema.Type = "string";
+        schema.Type = JsonSchemaType.String;
         schema.Format = null;
         schema.Enum = Enum.GetNames<City>()
-                          .Select(n => (IOpenApiAny)new OpenApiString(n))
+                          .Select(name => (JsonNode)JsonValue.Create(name)!)
                           .ToList();
 
         return Task.CompletedTask;
