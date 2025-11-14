@@ -5,14 +5,12 @@ namespace Tomeshelf.Executor.Services;
 
 public sealed class ExecutorSchedulerHostedService : IHostedService
 {
-    private readonly IExecutorSchedulerOrchestrator _orchestrator;
-    private readonly IOptionsMonitor<ExecutorOptions> _optionsMonitor;
     private readonly ILogger<ExecutorSchedulerHostedService> _logger;
+    private readonly IOptionsMonitor<ExecutorOptions> _optionsMonitor;
+    private readonly IExecutorSchedulerOrchestrator _orchestrator;
     private IDisposable? _subscription;
 
-    public ExecutorSchedulerHostedService(IExecutorSchedulerOrchestrator orchestrator,
-                                          IOptionsMonitor<ExecutorOptions> optionsMonitor,
-                                          ILogger<ExecutorSchedulerHostedService> logger)
+    public ExecutorSchedulerHostedService(IExecutorSchedulerOrchestrator orchestrator, IOptionsMonitor<ExecutorOptions> optionsMonitor, ILogger<ExecutorSchedulerHostedService> logger)
     {
         _orchestrator = orchestrator;
         _optionsMonitor = optionsMonitor;
@@ -34,6 +32,7 @@ public sealed class ExecutorSchedulerHostedService : IHostedService
     {
         _logger.LogInformation("Stopping Executor scheduler hosted service.");
         _subscription?.Dispose();
+
         return Task.CompletedTask;
     }
 }

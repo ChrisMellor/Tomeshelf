@@ -1,21 +1,16 @@
-using System.Net.Http;
-using System.Net.Http.Headers;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
 using Tomeshelf.Executor.Configuration;
 
 namespace Tomeshelf.Executor.Jobs;
 
-public class TriggerEndpointJob(IHttpClientFactory httpClientFactory,
-                                IOptionsMonitor<ExecutorOptions> executorOptions,
-                                ILogger<TriggerEndpointJob> logger) : IJob
+public class TriggerEndpointJob(IHttpClientFactory httpClientFactory, IOptionsMonitor<ExecutorOptions> executorOptions, ILogger<TriggerEndpointJob> logger) : IJob
 {
     public const string EndpointNameKey = "Executor.EndpointName";
     public const string HttpClientName = "Executor.EndpointClient";
+    private readonly IOptionsMonitor<ExecutorOptions> _executorOptions = executorOptions;
 
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
-    private readonly IOptionsMonitor<ExecutorOptions> _executorOptions = executorOptions;
     private readonly ILogger<TriggerEndpointJob> _logger = logger;
 
     public async Task Execute(IJobExecutionContext context)
@@ -25,28 +20,30 @@ public class TriggerEndpointJob(IHttpClientFactory httpClientFactory,
         if (string.IsNullOrWhiteSpace(endpointName))
         {
             _logger.LogWarning("Endpoint name missing from job data.");
+
             return;
         }
 
-        var endpoint = _executorOptions.CurrentValue.Endpoints
-                                       .FirstOrDefault(ep =>
-                                           string.Equals(ep.Name, endpointName, StringComparison.OrdinalIgnoreCase));
+        var endpoint = _executorOptions.CurrentValue.Endpoints.FirstOrDefault(ep => string.Equals(ep.Name, endpointName, StringComparison.OrdinalIgnoreCase));
 
         if (endpoint is null)
         {
             _logger.LogWarning("No configuration found for endpoint '{EndpointName}'.", endpointName);
+
             return;
         }
 
         if (!endpoint.Enabled)
         {
             _logger.LogInformation("Endpoint '{EndpointName}' is disabled; skipping execution.", endpointName);
+
             return;
         }
 
         if (!Uri.TryCreate(endpoint.Url, UriKind.Absolute, out var uri))
         {
             _logger.LogWarning("Invalid URL '{Url}' configured for endpoint '{EndpointName}'.", endpoint.Url, endpointName);
+
             return;
         }
 
@@ -61,17 +58,12 @@ public class TriggerEndpointJob(IHttpClientFactory httpClientFactory,
             var response = await client.SendAsync(request, context.CancellationToken);
             if (response.IsSuccessStatusCode)
             {
-                _logger.LogInformation("Executed endpoint '{EndpointName}' with status {StatusCode}.",
-                    endpointName,
-                    (int)response.StatusCode);
+                _logger.LogInformation("Executed endpoint '{EndpointName}' with status {StatusCode}.", endpointName, (int)response.StatusCode);
             }
             else
             {
                 var body = await response.Content.ReadAsStringAsync(context.CancellationToken);
-                _logger.LogError("Endpoint '{EndpointName}' responded with status {StatusCode}. Body: {Body}",
-                    endpointName,
-                    (int)response.StatusCode,
-                    body);
+                _logger.LogError("Endpoint '{EndpointName}' responded with status {StatusCode}. Body: {Body}", endpointName, (int)response.StatusCode, body);
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

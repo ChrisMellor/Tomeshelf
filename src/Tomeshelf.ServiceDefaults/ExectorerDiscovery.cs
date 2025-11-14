@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
 
 namespace Tomeshelf.ServiceDefaults;
@@ -39,13 +36,7 @@ public sealed record ExecutorDiscoveryDocument(string Service, IReadOnlyList<Exe
 /// <param name="Description">Optional description snippet.</param>
 /// <param name="AllowBody">Indicates whether the endpoint supports a request body.</param>
 /// <param name="GroupName">Optional group/category name.</param>
-public sealed record ExecutorDiscoveredEndpoint(string Id,
-                                                 string Method,
-                                                 string RelativePath,
-                                                 string? DisplayName,
-                                                 string? Description,
-                                                 bool AllowBody,
-                                                 string? GroupName);
+public sealed record ExecutorDiscoveredEndpoint(string Id, string Method, string RelativePath, string? DisplayName, string? Description, bool AllowBody, string? GroupName);
 
 /// <summary>
 ///     Extension methods for mapping Executor discovery endpoints.
@@ -62,29 +53,30 @@ public static class ExecutorDiscoveryExtensions
     {
         ArgumentNullException.ThrowIfNull(app);
 
-        var resolvedPattern = string.IsNullOrWhiteSpace(pattern) ? ExecutorDiscoveryConstants.DefaultPath : pattern.Trim();
+        var resolvedPattern = string.IsNullOrWhiteSpace(pattern)
+                ? ExecutorDiscoveryConstants.DefaultPath
+                : pattern.Trim();
         if (!resolvedPattern.StartsWith('/'))
         {
             resolvedPattern = "/" + resolvedPattern;
         }
 
         app.MapGet(resolvedPattern, (IApiDescriptionGroupCollectionProvider provider, IHostEnvironment environment) =>
-               {
-                   var serviceName = environment?.ApplicationName ?? "unknown";
-                   var endpoints = provider.ApiDescriptionGroups.Items
-                                         .SelectMany(g => g.Items)
-                                         .Where(d => d is not null && !string.IsNullOrWhiteSpace(d.RelativePath) && !string.IsNullOrWhiteSpace(d.HttpMethod))
-                                         .Select(CreateEndpoint)
-                                         .Where(static e => e is not null)
-                                         .Cast<ExecutorDiscoveredEndpoint>()
-                                         .GroupBy(e => $"{e.Method}:{e.RelativePath}", StringComparer.OrdinalIgnoreCase)
-                                         .Select(g => g.First())
-                                         .OrderBy(e => e.RelativePath, StringComparer.OrdinalIgnoreCase)
-                                         .ThenBy(e => e.Method, StringComparer.OrdinalIgnoreCase)
-                                         .ToList();
+            {
+                var serviceName = environment?.ApplicationName ?? "unknown";
+                var endpoints = provider.ApiDescriptionGroups.Items.SelectMany(g => g.Items)
+                                        .Where(d => d is not null && !string.IsNullOrWhiteSpace(d.RelativePath) && !string.IsNullOrWhiteSpace(d.HttpMethod))
+                                        .Select(CreateEndpoint)
+                                        .Where(static e => e is not null)
+                                        .Cast<ExecutorDiscoveredEndpoint>()
+                                        .GroupBy(e => $"{e.Method}:{e.RelativePath}", StringComparer.OrdinalIgnoreCase)
+                                        .Select(g => g.First())
+                                        .OrderBy(e => e.RelativePath, StringComparer.OrdinalIgnoreCase)
+                                        .ThenBy(e => e.Method, StringComparer.OrdinalIgnoreCase)
+                                        .ToList();
 
-                   return Results.Ok(new ExecutorDiscoveryDocument(serviceName, endpoints));
-               })
+                return Results.Ok(new ExecutorDiscoveryDocument(serviceName, endpoints));
+            })
            .WithName("executor-discovery")
            .AllowAnonymous()
            .ExcludeFromDescription();
@@ -103,14 +95,14 @@ public static class ExecutorDiscoveryExtensions
         var relativePath = "/" + description.RelativePath!.TrimStart('/');
 
         var displayName = description.ActionDescriptor?.DisplayName;
-        var descriptionText = description.ActionDescriptor?.EndpointMetadata
-                                ?.OfType<ProducesResponseTypeAttribute>()
-                                ?.FirstOrDefault()?.StatusCode switch
+        var descriptionText = description.ActionDescriptor?.EndpointMetadata?.OfType<ProducesResponseTypeAttribute>()
+                                        ?.FirstOrDefault()
+                                        ?.StatusCode switch
         {
-            StatusCodes.Status200OK => "Returns 200 OK",
-            StatusCodes.Status202Accepted => "Returns 202 Accepted",
-            StatusCodes.Status204NoContent => "Returns 204 No Content",
-            _ => null
+                StatusCodes.Status200OK => "Returns 200 OK",
+                StatusCodes.Status202Accepted => "Returns 202 Accepted",
+                StatusCodes.Status204NoContent => "Returns 204 No Content",
+                _ => null
         };
 
         var allowBody = AllowsBody(description);
@@ -123,29 +115,20 @@ public static class ExecutorDiscoveryExtensions
         }
 
         var groupName = description.GroupName;
-        if (string.IsNullOrWhiteSpace(groupName) && description.ActionDescriptor?.RouteValues is not null &&
-            description.ActionDescriptor.RouteValues.TryGetValue("controller", out var controllerName) && !string.IsNullOrWhiteSpace(controllerName))
+        if (string.IsNullOrWhiteSpace(groupName) && description.ActionDescriptor?.RouteValues is not null && description.ActionDescriptor.RouteValues.TryGetValue("controller", out var controllerName) && !string.IsNullOrWhiteSpace(controllerName))
         {
             groupName = controllerName;
         }
 
-        return new ExecutorDiscoveredEndpoint(id,
-                                               method,
-                                               relativePath,
-                                               displayName,
-                                               descriptionText,
-                                               allowBody,
-                                               groupName);
+        return new ExecutorDiscoveredEndpoint(id, method, relativePath, displayName, descriptionText, allowBody, groupName);
     }
 
     private static bool AllowsBody(ApiDescription description)
     {
-        if (description.HttpMethod?.Equals("GET", StringComparison.OrdinalIgnoreCase) == true ||
-            description.HttpMethod?.Equals("DELETE", StringComparison.OrdinalIgnoreCase) == true ||
-            description.HttpMethod?.Equals("HEAD", StringComparison.OrdinalIgnoreCase) == true)
+        if ((description.HttpMethod?.Equals("GET", StringComparison.OrdinalIgnoreCase) == true) || (description.HttpMethod?.Equals("DELETE", StringComparison.OrdinalIgnoreCase) == true) || (description.HttpMethod?.Equals("HEAD", StringComparison.OrdinalIgnoreCase) == true))
         {
             // Commonly body-less verbs.
-            if (!description.ParameterDescriptions.Any(static p => p.Source == BindingSource.Body || p.Source == BindingSource.Form))
+            if (!description.ParameterDescriptions.Any(static p => (p.Source == BindingSource.Body) || (p.Source == BindingSource.Form)))
             {
                 return false;
             }
@@ -156,10 +139,6 @@ public static class ExecutorDiscoveryExtensions
             return true;
         }
 
-        return description.ParameterDescriptions.Any(static p => p.Source == BindingSource.Body
-                                                               || p.Source == BindingSource.Form
-                                                               || p.Source == BindingSource.FormFile);
+        return description.ParameterDescriptions.Any(static p => (p.Source == BindingSource.Body) || (p.Source == BindingSource.Form) || (p.Source == BindingSource.FormFile));
     }
 }
-
-

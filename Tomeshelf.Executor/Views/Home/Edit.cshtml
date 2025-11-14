@@ -8,35 +8,33 @@
 
 <form asp-action="Edit" asp-route-name="@originalName" method="post">
     @Html.AntiForgeryToken()
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" name="originalName" value="@originalName"/>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
     <div class="row mb-3">
         <div class="col-md-6">
             <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" />
+            <input asp-for="Name" class="form-control"/>
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
         <div class="col-md-6">
             <label asp-for="Method" class="form-label"></label>
-            <input asp-for="Method" class="form-control" />
+            <input asp-for="Method" class="form-control"/>
             <span asp-validation-for="Method" class="text-danger"></span>
         </div>
     </div>
     <div class="mb-3">
         <label asp-for="Url" class="form-label"></label>
-        <input asp-for="Url" class="form-control" />
+        <input asp-for="Url" class="form-control"/>
         <span asp-validation-for="Url" class="text-danger"></span>
     </div>
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label asp-for="Cron" class="form-label"></label>
-            <input asp-for="Cron" class="form-control" />
-            <span asp-validation-for="Cron" class="text-danger"></span>
-        </div>
-        <div class="col-md-6">
-            <label asp-for="TimeZone" class="form-label"></label>
-            <input asp-for="TimeZone" class="form-control" placeholder="UTC" />
-            <span asp-validation-for="TimeZone" class="text-danger"></span>
-        </div>
+    <div class="mb-3">
+        <label asp-for="Cron" class="form-label"></label>
+        @{
+            var cronInputId = Html.IdFor(m => m.Cron);
+            var cronInputName = Html.NameFor(m => m.Cron);
+        }
+        <partial name="_CronBuilder" model="new CronBuilderViewModel(cronInputId, cronInputName, Model.Cron)"/>
+        <span asp-validation-for="Cron" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="Headers" class="form-label"></label>
@@ -44,7 +42,7 @@
         <span asp-validation-for="Headers" class="text-danger"></span>
     </div>
     <div class="form-check mb-3">
-        <input asp-for="Enabled" class="form-check-input" />
+        <input asp-for="Enabled" class="form-check-input"/>
         <label asp-for="Enabled" class="form-check-label"></label>
     </div>
     <button type="submit" class="btn btn-primary">Save changes</button>
@@ -52,5 +50,5 @@
 </form>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial"/>
 }

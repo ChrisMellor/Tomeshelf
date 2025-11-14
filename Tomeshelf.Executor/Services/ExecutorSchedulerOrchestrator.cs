@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
 using Quartz.Impl.Matchers;
@@ -10,14 +9,12 @@ namespace Tomeshelf.Executor.Services;
 public sealed class ExecutorSchedulerOrchestrator : IExecutorSchedulerOrchestrator
 {
     private const string JobGroup = "ExecutorEndpoints";
-
-    private readonly ISchedulerFactory _schedulerFactory;
     private readonly IOptionsMonitor<ExecutorOptions> _executorOptions;
     private readonly ILogger<ExecutorSchedulerOrchestrator> _logger;
 
-    public ExecutorSchedulerOrchestrator(ISchedulerFactory schedulerFactory,
-                                         IOptionsMonitor<ExecutorOptions> executorOptions,
-                                         ILogger<ExecutorSchedulerOrchestrator> logger)
+    private readonly ISchedulerFactory _schedulerFactory;
+
+    public ExecutorSchedulerOrchestrator(ISchedulerFactory schedulerFactory, IOptionsMonitor<ExecutorOptions> executorOptions, ILogger<ExecutorSchedulerOrchestrator> logger)
     {
         _schedulerFactory = schedulerFactory;
         _executorOptions = executorOptions;
@@ -30,8 +27,10 @@ public sealed class ExecutorSchedulerOrchestrator : IExecutorSchedulerOrchestrat
         var options = _executorOptions.CurrentValue;
 
         var desiredEndpoints = options.Enabled
-            ? options.Endpoints.Where(IsValid).ToList()
-            : Array.Empty<EndpointScheduleOptions>().ToList();
+                ? options.Endpoints.Where(IsValid)
+                         .ToList()
+                : Array.Empty<EndpointScheduleOptions>()
+                       .ToList();
 
         var existingJobKeys = await scheduler.GetJobKeys(GroupMatcher<JobKey>.GroupEquals(JobGroup), cancellationToken);
         var desiredJobNames = new HashSet<string>(desiredEndpoints.Select(ep => ep.Name), StringComparer.OrdinalIgnoreCase);
@@ -57,9 +56,9 @@ public sealed class ExecutorSchedulerOrchestrator : IExecutorSchedulerOrchestrat
                                         .ForJob(job)
                                         .WithDescription($"Cron schedule: {endpoint.Cron}")
                                         .WithCronSchedule(endpoint.Cron, cron =>
-                                        {
-                                            cron.InTimeZone(TriggerEndpointJob.ResolveTimeZone(endpoint.TimeZone));
-                                        })
+                                         {
+                                             cron.InTimeZone(TriggerEndpointJob.ResolveTimeZone(endpoint.TimeZone));
+                                         })
                                         .Build();
 
             await scheduler.ScheduleJob(job, new HashSet<ITrigger> { trigger }, true, cancellationToken);
@@ -69,6 +68,7 @@ public sealed class ExecutorSchedulerOrchestrator : IExecutorSchedulerOrchestrat
         {
             _logger.LogInformation("Executor scheduler is disabled. Putting scheduler into standby.");
             await scheduler.Standby(cancellationToken);
+
             return;
         }
 
@@ -81,9 +81,6 @@ public sealed class ExecutorSchedulerOrchestrator : IExecutorSchedulerOrchestrat
 
     private static bool IsValid(EndpointScheduleOptions endpoint)
     {
-        return endpoint.Enabled
-               && !string.IsNullOrWhiteSpace(endpoint.Name)
-               && !string.IsNullOrWhiteSpace(endpoint.Url)
-               && !string.IsNullOrWhiteSpace(endpoint.Cron);
+        return endpoint.Enabled && !string.IsNullOrWhiteSpace(endpoint.Name) && !string.IsNullOrWhiteSpace(endpoint.Url) && !string.IsNullOrWhiteSpace(endpoint.Cron);
     }
 }

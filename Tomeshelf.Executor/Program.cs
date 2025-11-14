@@ -12,17 +12,19 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Configuration.AddJsonFile("executorSettings.json", optional: true, reloadOnChange: true);
-        builder.Configuration.AddJsonFile($"executorSettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+        builder.Configuration.AddJsonFile("executorSettings.json", true, true);
+        builder.Configuration.AddJsonFile($"executorSettings.{builder.Environment.EnvironmentName}.json", true, true);
         builder.AddServiceDefaults();
 
         builder.Services.AddControllersWithViews();
         var executorSection = builder.Configuration.GetSection(ExecutorOptions.SectionName);
         builder.Services.Configure<ExecutorOptions>(executorSection);
         builder.Services.AddHttpClient(TriggerEndpointJob.HttpClientName);
+        builder.Services.AddHttpClient(ApiEndpointDiscoveryService.HttpClientName);
 
         builder.Services.AddSingleton<IExecutorConfigurationStore, ExecutorConfigurationStore>();
         builder.Services.AddSingleton<IExecutorSchedulerOrchestrator, ExecutorSchedulerOrchestrator>();
+        builder.Services.AddSingleton<IApiEndpointDiscoveryService, ApiEndpointDiscoveryService>();
         builder.Services.AddHostedService<ExecutorSchedulerHostedService>();
 
         builder.Services.AddQuartz();
@@ -48,9 +50,7 @@ public class Program
 
         app.UseAuthorization();
 
-        app.MapControllerRoute(
-            name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}");
+        app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 
         app.MapDefaultEndpoints();
 

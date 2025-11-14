@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using System.Net.Http;
+using Tomeshelf.Executor.Validation;
 
 namespace Tomeshelf.Executor.Configuration;
 
@@ -8,12 +8,12 @@ public class ExecutorOptions
     public const string SectionName = "Executor";
 
     /// <summary>
-    /// Enables or disables the scheduler entirely.
+    ///     Enables or disables the scheduler entirely.
     /// </summary>
     public bool Enabled { get; set; } = true;
 
     /// <summary>
-    /// Collection of endpoint triggers to register.
+    ///     Collection of endpoint triggers to register.
     /// </summary>
     [Required]
     public List<EndpointScheduleOptions> Endpoints { get; set; } = [];
@@ -25,7 +25,7 @@ public class EndpointScheduleOptions
     public string Name { get; set; } = string.Empty;
 
     [Required]
-    [Url]
+    [AbsoluteUrl]
     public string Url { get; set; } = string.Empty;
 
     [Required]
@@ -36,7 +36,7 @@ public class EndpointScheduleOptions
     public string Method { get; set; } = HttpMethod.Post.Method;
 
     /// <summary>
-    /// Optional TimeZone identifier understood by Quartz (defaults to UTC).
+    ///     Optional TimeZone identifier understood by Quartz (defaults to UTC).
     /// </summary>
     public string? TimeZone { get; set; }
 
