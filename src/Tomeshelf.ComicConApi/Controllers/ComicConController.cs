@@ -4,12 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Tomeshelf.ComicConApi.Enums;
-using Tomeshelf.ComicConApi.Services;
+using Tomeshelf.ComicCon.Api.Enums;
+using Tomeshelf.ComicCon.Api.Services;
 using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
 
-namespace Tomeshelf.ComicConApi.Controllers;
+namespace Tomeshelf.ComicCon.Api.Controllers;
 
 /// <summary>
 ///     Exposes endpoints for refreshing Comic Con guests and serving cached results.

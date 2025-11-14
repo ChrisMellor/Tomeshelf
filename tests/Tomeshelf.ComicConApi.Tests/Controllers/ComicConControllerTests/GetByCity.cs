@@ -5,8 +5,6 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using Tomeshelf.ComicConApi.Controllers;
-using Tomeshelf.ComicConApi.Services;
 using Tomeshelf.Domain.Entities.ComicCon;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;

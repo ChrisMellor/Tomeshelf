@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Tomeshelf.ComicConApi.Enums;
-using Tomeshelf.ComicConApi.Services;
+using Tomeshelf.ComicCon.Api.Enums;
+using Tomeshelf.ComicCon.Api.Services;
 using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
 
-namespace Tomeshelf.ComicConApi.Hosted;
+namespace Tomeshelf.ComicCon.Api.Hosted;
 
 /// <summary>
 ///     Background service that refreshes Comic Con guests on an hourly schedule.

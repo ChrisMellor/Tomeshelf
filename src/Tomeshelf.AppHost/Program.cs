@@ -29,7 +29,6 @@ internal class Program
         var fitbitApi = SetupFitbitApi(builder, database);
         var paissaApi = SetupPaissaApi(builder);
 
-        _ = SetupExecutor(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
         _ = SetupWeb(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
 
         builder.AddDockerComposeEnvironment("compose")
@@ -52,7 +51,7 @@ internal class Program
     {
         var db = database.AddDatabase("mcmdb");
 
-        var api = builder.AddProject<Tomeshelf_ComicConApi>("comicconapi")
+        var api = builder.AddProject<Tomeshelf_ComicCon_Api>("comicconapi")
                          .WithHttpHealthCheck("/health")
                          .WithReference(db)
                          .WaitFor(db);
@@ -68,23 +67,6 @@ internal class Program
         }
 
         return api;
-    }
-
-    private static IResourceBuilder<ProjectResource> SetupExecutor(IDistributedApplicationBuilder builder, IResourceBuilder<ProjectResource> comicConApi, IResourceBuilder<ProjectResource> humbleBundleApi, IResourceBuilder<ProjectResource> fitbitApi, IResourceBuilder<ProjectResource> paissaApi)
-    {
-        var Executor = builder.AddProject<Tomeshelf_Executor>("executor")
-                              .WithHttpHealthCheck("/health")
-                              .WithExternalHttpEndpoints()
-                              .WithReference(comicConApi)
-                              .WaitFor(comicConApi)
-                              .WithReference(humbleBundleApi)
-                              .WaitFor(humbleBundleApi)
-                              .WithReference(fitbitApi)
-                              .WaitFor(fitbitApi)
-                              .WithReference(paissaApi)
-                              .WaitFor(paissaApi);
-
-        return Executor;
     }
 
     private static IResourceBuilder<ProjectResource> SetupHumbleBundleApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)

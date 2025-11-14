@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using Tomeshelf.ComicConApi.Enums;
+using Tomeshelf.ComicCon.Api.Enums;
 
-namespace Tomeshelf.ComicConApi.Transformers;
+namespace Tomeshelf.ComicCon.Api.Transformers;
 
 /// <summary>
 ///     OpenAPI schema transformer that renders the City enum as string values.

@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Concurrent;
 
-namespace Tomeshelf.ComicConApi.Services;
+namespace Tomeshelf.ComicCon.Api.Services;
 
 /// <summary>
 ///     Thread-safe in-memory implementation of <see cref="IGuestsCache" />.
 /// </summary>
 public sealed class GuestsCache : IGuestsCache
 {
-    private readonly ConcurrentDictionary<string, GuestsSnapshot> _cache = new ConcurrentDictionary<string, GuestsSnapshot>(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, GuestsSnapshot> _cache = new(StringComparer.OrdinalIgnoreCase);
 
     public bool TryGet(string city, out GuestsSnapshot snapshot)
     {

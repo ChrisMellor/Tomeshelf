@@ -10,10 +10,9 @@
 
  <ItemGroup>
 	<ProjectReference Include="..\Tomeshelf.HumbleBundle.Api\Tomeshelf.HumbleBundle.Api.csproj" />
-	<ProjectReference Include="..\Tomeshelf.ComicConApi\Tomeshelf.ComicConApi.csproj" />
+	<ProjectReference Include="..\Tomeshelf.ComicConApi\Tomeshelf.ComicCon.Api.csproj" />
 	<ProjectReference Include="..\Tomeshelf.Fitbit.Api\Tomeshelf.Fitbit.Api.csproj" />
 	<ProjectReference Include="..\Tomeshelf.Paissa.Api\Tomeshelf.Paissa.Api.csproj" />
-	<ProjectReference Include="..\Tomeshelf.Exectorer\Tomeshelf.Executor.csproj" />
 	<ProjectReference Include="..\Tomeshelf.Web\Tomeshelf.Web.csproj" />
   </ItemGroup>
 

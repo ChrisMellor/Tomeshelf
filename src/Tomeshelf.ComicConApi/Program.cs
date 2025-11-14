@@ -7,14 +7,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Application.Options;
-using Tomeshelf.ComicConApi.Hosted;
-using Tomeshelf.ComicConApi.Services;
-using Tomeshelf.ComicConApi.Transformers;
+using Tomeshelf.ComicCon.Api.Hosted;
+using Tomeshelf.ComicCon.Api.Services;
+using Tomeshelf.ComicCon.Api.Transformers;
 using Tomeshelf.Infrastructure;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.ServiceDefaults;
 
-namespace Tomeshelf.ComicConApi;
+namespace Tomeshelf.ComicCon.Api;
 
 /// <summary>
 ///     API application entry point and configuration.
