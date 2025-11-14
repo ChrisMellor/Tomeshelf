@@ -29,6 +29,7 @@ internal class Program
         var fitbitApi = SetupFitbitApi(builder, database);
         var paissaApi = SetupPaissaApi(builder);
 
+        _ = SetupExecutor(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
         _ = SetupWeb(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
 
         builder.AddDockerComposeEnvironment("compose")
@@ -127,5 +128,20 @@ internal class Program
                          .WithExternalHttpEndpoints();
 
         return web;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupExecutor(IDistributedApplicationBuilder builder, params IResourceBuilder<ProjectResource>[] apis)
+    {
+        var executor = builder.AddProject<Tomeshelf_Executor>("executor")
+                              .WithHttpHealthCheck("/health")
+                              .WithExternalHttpEndpoints();
+
+        foreach (var api in apis)
+        {
+            executor = executor.WithReference(api)
+                               .WaitFor(api);
+        }
+
+        return executor;
     }
 }

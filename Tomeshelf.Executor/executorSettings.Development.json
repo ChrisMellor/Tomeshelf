@@ -1,0 +1,28 @@
+{
+  "Executor": {
+    "Enabled": true,
+    "Endpoints": [
+      {
+        "Name": "comiccon-london-refresh",
+        "Url": "https://localhost:7000/api/ComicCon/Guests/City?city=London",
+        "Method": "POST",
+        "Cron": "0 0 * * * ?",
+        "TimeZone": "UTC"
+      },
+      {
+        "Name": "comiccon-birmingham-refresh",
+        "Url": "https://localhost:7000/api/ComicCon/Guests/City?city=Birmingham",
+        "Method": "POST",
+        "Cron": "0 30 * * * ?",
+        "TimeZone": "UTC"
+      },
+      {
+        "Name": "humblebundle-refresh",
+        "Url": "https://localhost:7015/bundles/refresh",
+        "Method": "POST",
+        "Cron": "0 0 6 * * ?",
+        "TimeZone": "UTC"
+      }
+    ]
+  }
+}
