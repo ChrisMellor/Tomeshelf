@@ -23,6 +23,7 @@ public class Program
         {
             builder.Configuration.AddJsonFile(environmentSettingsPath, true, true);
         }
+
         builder.AddServiceDefaults();
 
         builder.Services.AddControllersWithViews();
