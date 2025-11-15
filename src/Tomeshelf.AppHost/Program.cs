@@ -32,7 +32,7 @@ internal class Program
         _ = SetupExecutor(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
         _ = SetupWeb(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
 
-        builder.AddDockerComposeEnvironment("compose")
+        builder.AddDockerComposeEnvironment("tomeshelf")
                .WithDashboard(rb => rb.WithHostPort(18888));
 
         builder.Build()
@@ -43,7 +43,11 @@ internal class Program
     {
         var database = builder.AddSqlServer("sql")
                               .WithDataVolume()
-                              .WithEnvironment("ACCEPT_EULA", "Y");
+                              .WithEnvironment("ACCEPT_EULA", "Y")
+                              .PublishAsDockerComposeService((resource, service) =>
+                               {
+                                   service.Restart = "unless-stopped";
+                               });
 
         return database;
     }
@@ -55,7 +59,11 @@ internal class Program
         var api = builder.AddProject<Tomeshelf_ComicCon_Api>("comicconapi")
                          .WithHttpHealthCheck("/health")
                          .WithReference(db)
-                         .WaitFor(db);
+                         .WaitFor(db)
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
 
         var sites = builder.Configuration.GetSection("ComicCon")
                            .Get<List<ComicConSite>>() ?? [];
@@ -77,7 +85,11 @@ internal class Program
         var api = builder.AddProject<Tomeshelf_HumbleBundle_Api>("humblebundleapi")
                          .WithHttpHealthCheck("/health")
                          .WithReference(db)
-                         .WaitFor(db);
+                         .WaitFor(db)
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
 
         return api;
     }
@@ -92,7 +104,11 @@ internal class Program
                          .WithExternalHttpEndpoints()
                          .WithHttpHealthCheck("/health")
                          .WithReference(db)
-                         .WaitFor(db);
+                         .WaitFor(db)
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
 
         api.WithEnvironment("Fitbit__ApiBase", settings["ApiBase"] ?? "https://api.fitbit.com/")
            .WithEnvironment("Fitbit__UserId", settings["UserId"] ?? "-")
@@ -108,24 +124,30 @@ internal class Program
     private static IResourceBuilder<ProjectResource> SetupPaissaApi(IDistributedApplicationBuilder builder)
     {
         var api = builder.AddProject<Tomeshelf_Paissa_Api>("paissaapi")
-                         .WithHttpHealthCheck("/health");
+                         .WithHttpHealthCheck("/health")
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
 
         return api;
     }
 
-    private static IResourceBuilder<ProjectResource> SetupWeb(IDistributedApplicationBuilder builder, IResourceBuilder<ProjectResource> comicConApi, IResourceBuilder<ProjectResource> humbleBundleApi, IResourceBuilder<ProjectResource> fitbitApi, IResourceBuilder<ProjectResource> paissaApi)
+    private static IResourceBuilder<ProjectResource> SetupWeb(IDistributedApplicationBuilder builder, params IResourceBuilder<ProjectResource>[] apis)
     {
         var web = builder.AddProject<Tomeshelf_Web>("web")
                          .WithHttpHealthCheck("/health")
-                         .WithReference(comicConApi)
-                         .WaitFor(comicConApi)
-                         .WithReference(humbleBundleApi)
-                         .WaitFor(humbleBundleApi)
-                         .WithReference(fitbitApi)
-                         .WaitFor(fitbitApi)
-                         .WithReference(paissaApi)
-                         .WaitFor(paissaApi)
-                         .WithExternalHttpEndpoints();
+                         .WithExternalHttpEndpoints()
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
+
+        foreach (var api in apis)
+        {
+            web.WithReference(api)
+               .WaitFor(api);
+        }
 
         return web;
     }
@@ -134,7 +156,11 @@ internal class Program
     {
         var executor = builder.AddProject<Tomeshelf_Executor>("executor")
                               .WithHttpHealthCheck("/health")
-                              .WithExternalHttpEndpoints();
+                              .WithExternalHttpEndpoints()
+                              .PublishAsDockerComposeService((resource, service) =>
+                               {
+                                   service.Restart = "unless-stopped";
+                               });
 
         foreach (var api in apis)
         {

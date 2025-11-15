@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Web", "src\Tomeshelf.Web\Tomeshelf.Web.csproj", "{E12C7D7F-3BD5-3A71-B824-98B088C320BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.ComicCon.Api", "src\Tomeshelf.ComicConApi\Tomeshelf.ComicCon.Api.csproj", "{EF6856B8-2858-C4D1-96BB-9E1D5526C3B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.ComicCon.Api", "src\api\Tomeshelf.ComicCon.Api\Tomeshelf.ComicCon.Api.csproj", "{EF6856B8-2858-C4D1-96BB-9E1D5526C3B5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Domain", "src\Tomeshelf.Domain\Tomeshelf.Domain.csproj", "{F1A5B39D-64C6-45B9-A38E-250D4147BC22}"
 EndProject
@@ -29,17 +29,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Infrastructure.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Application.Tests", "tests\Tomeshelf.Application.Tests\Tomeshelf.Application.Tests.csproj", "{22AF4EF4-DC94-4FF8-B6D0-1344111CB4E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.HumbleBundle.Api", "src\Tomeshelf.HumbleBundle.Api\Tomeshelf.HumbleBundle.Api.csproj", "{BBD3EFE3-2FAA-B79C-3232-19105CD8D688}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.HumbleBundle.Api", "src\api\Tomeshelf.HumbleBundle.Api\Tomeshelf.HumbleBundle.Api.csproj", "{BBD3EFE3-2FAA-B79C-3232-19105CD8D688}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Fitbit.Api", "src\Tomeshelf.Fitbit.Api\Tomeshelf.Fitbit.Api.csproj", "{F1E5A4C2-9B7F-4D2D-AC50-5EAF4496C1D9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Fitbit.Api", "src\api\Tomeshelf.Fitbit.Api\Tomeshelf.Fitbit.Api.csproj", "{F1E5A4C2-9B7F-4D2D-AC50-5EAF4496C1D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Paissa.Api", "src\Tomeshelf.Paissa.Api\Tomeshelf.Paissa.Api.csproj", "{71243F8B-C381-472B-AA87-A372A78436C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Paissa.Api", "src\api\Tomeshelf.Paissa.Api\Tomeshelf.Paissa.Api.csproj", "{71243F8B-C381-472B-AA87-A372A78436C8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.HumbleBundle.Api.Tests", "tests\Tomeshelf.HumbleBundle.Api.Tests\Tomeshelf.HumbleBundle.Api.Tests.csproj", "{A7765F7A-C25D-0F89-7708-E34019FACFB2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "APIs", "APIs", "{1E44240B-3136-4752-AE36-937588DAB6EA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{1E44240B-3136-4752-AE36-937588DAB6EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Executor", "Tomeshelf.Executor\Tomeshelf.Executor.csproj", "{85310EF6-6654-7E07-0268-A5F32759F6DB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Executor", "src\Tomeshelf.Executor\Tomeshelf.Executor.csproj", "{85310EF6-6654-7E07-0268-A5F32759F6DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
