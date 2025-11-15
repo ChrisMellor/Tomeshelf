@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /src/local-tomeshelf
+/src/Tomeshelf.AppHost/tomeshelf/.env.Production
+/src/Tomeshelf.AppHost/tomeshelf/.env
+/src/Tomeshelf.AppHost/tomeshelf/.env
