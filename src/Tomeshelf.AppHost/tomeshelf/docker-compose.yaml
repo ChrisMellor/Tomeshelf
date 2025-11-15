@@ -1,0 +1,213 @@
+services:
+  tomeshelf-dashboard:
+    image: "mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest"
+    ports:
+      - "18888:18888"
+    expose:
+      - "18889"
+    networks:
+      - "aspire"
+    restart: "always"
+  sql:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${SQL_PASSWORD}"
+    expose:
+      - "1433"
+    volumes:
+      - type: "volume"
+        target: "/var/opt/mssql"
+        source: "tomeshelf.apphost-918c7a5d48-sql-data"
+        read_only: false
+    networks:
+      - "aspire"
+    restart: "unless-stopped"
+  comicconapi:
+    image: "${COMICCONAPI_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${COMICCONAPI_PORT}"
+      ConnectionStrings__mcmdb: "Server=sql,1433;User ID=sa;Password=${SQL_PASSWORD};TrustServerCertificate=true;Initial Catalog=mcmdb"
+      MCMDB_HOST: "sql"
+      MCMDB_PORT: "1433"
+      MCMDB_USERNAME: "sa"
+      MCMDB_PASSWORD: "${SQL_PASSWORD}"
+      MCMDB_URI: "mssql://sql:1433/mcmdb"
+      MCMDB_JDBCCONNECTIONSTRING: "jdbc:sqlserver://sql:1433;trustServerCertificate=true;databaseName=mcmdb"
+      MCMDB_DATABASE: "mcmdb"
+      ComicCon__0__City: "London"
+      ComicCon__0__Key: "f3ae8fc9-28d4-4dfb-a30d-0134a0be8a07"
+      ComicCon__1__City: "Birmingham"
+      ComicCon__1__Key: "4dc18538-15bb-400a-87ee-561a5607d788"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://tomeshelf-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "comicconapi"
+    expose:
+      - "${COMICCONAPI_PORT}"
+    depends_on:
+      sql:
+        condition: "service_started"
+    networks:
+      - "aspire"
+    restart: "unless-stopped"
+  humblebundleapi:
+    image: "${HUMBLEBUNDLEAPI_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${HUMBLEBUNDLEAPI_PORT}"
+      ConnectionStrings__humblebundledb: "Server=sql,1433;User ID=sa;Password=${SQL_PASSWORD};TrustServerCertificate=true;Initial Catalog=humblebundledb"
+      HUMBLEBUNDLEDB_HOST: "sql"
+      HUMBLEBUNDLEDB_PORT: "1433"
+      HUMBLEBUNDLEDB_USERNAME: "sa"
+      HUMBLEBUNDLEDB_PASSWORD: "${SQL_PASSWORD}"
+      HUMBLEBUNDLEDB_URI: "mssql://sql:1433/humblebundledb"
+      HUMBLEBUNDLEDB_JDBCCONNECTIONSTRING: "jdbc:sqlserver://sql:1433;trustServerCertificate=true;databaseName=humblebundledb"
+      HUMBLEBUNDLEDB_DATABASE: "humblebundledb"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://tomeshelf-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "humblebundleapi"
+    expose:
+      - "${HUMBLEBUNDLEAPI_PORT}"
+    depends_on:
+      sql:
+        condition: "service_started"
+    networks:
+      - "aspire"
+    restart: "unless-stopped"
+  fitbitapi:
+    image: "${FITBITAPI_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${FITBITAPI_PORT}"
+      ConnectionStrings__fitbitdb: "Server=sql,1433;User ID=sa;Password=${SQL_PASSWORD};TrustServerCertificate=true;Initial Catalog=fitbitdb"
+      FITBITDB_HOST: "sql"
+      FITBITDB_PORT: "1433"
+      FITBITDB_USERNAME: "sa"
+      FITBITDB_PASSWORD: "${SQL_PASSWORD}"
+      FITBITDB_URI: "mssql://sql:1433/fitbitdb"
+      FITBITDB_JDBCCONNECTIONSTRING: "jdbc:sqlserver://sql:1433;trustServerCertificate=true;databaseName=fitbitdb"
+      FITBITDB_DATABASE: "fitbitdb"
+      Fitbit__ApiBase: "https://api.fitbit.com/"
+      Fitbit__UserId: "-"
+      Fitbit__Scope: "activity nutrition sleep weight profile settings"
+      Fitbit__CallbackBaseUri: "https://fitbitapi:${FITBITAPI_PORT}"
+      Fitbit__CallbackPath: "/api/fitbit/auth/callback"
+      Fitbit__ClientId: "23TLDM"
+      Fitbit__ClientSecret: "23814b6f91058080f9d66d9e12c5eff9"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://tomeshelf-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "fitbitapi"
+    ports:
+      - "${FITBITAPI_PORT}"
+    depends_on:
+      sql:
+        condition: "service_started"
+    networks:
+      - "aspire"
+    restart: "unless-stopped"
+  paissaapi:
+    image: "${PAISSAAPI_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${PAISSAAPI_PORT}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://tomeshelf-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "paissaapi"
+    expose:
+      - "${PAISSAAPI_PORT}"
+    networks:
+      - "aspire"
+    restart: "unless-stopped"
+  executor:
+    image: "${EXECUTOR_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${EXECUTOR_PORT}"
+      COMICCONAPI_HTTP: "http://comicconapi:${COMICCONAPI_PORT}"
+      services__comicconapi__http__0: "http://comicconapi:${COMICCONAPI_PORT}"
+      COMICCONAPI_HTTPS: "https://comicconapi:${COMICCONAPI_PORT}"
+      HUMBLEBUNDLEAPI_HTTP: "http://humblebundleapi:${HUMBLEBUNDLEAPI_PORT}"
+      services__humblebundleapi__http__0: "http://humblebundleapi:${HUMBLEBUNDLEAPI_PORT}"
+      HUMBLEBUNDLEAPI_HTTPS: "https://humblebundleapi:${HUMBLEBUNDLEAPI_PORT}"
+      FITBITAPI_HTTP: "http://fitbitapi:${FITBITAPI_PORT}"
+      services__fitbitapi__http__0: "http://fitbitapi:${FITBITAPI_PORT}"
+      FITBITAPI_HTTPS: "https://fitbitapi:${FITBITAPI_PORT}"
+      PAISSAAPI_HTTP: "http://paissaapi:${PAISSAAPI_PORT}"
+      services__paissaapi__http__0: "http://paissaapi:${PAISSAAPI_PORT}"
+      PAISSAAPI_HTTPS: "https://paissaapi:${PAISSAAPI_PORT}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://tomeshelf-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "executor"
+    ports:
+      - "${EXECUTOR_PORT}"
+    depends_on:
+      comicconapi:
+        condition: "service_started"
+      humblebundleapi:
+        condition: "service_started"
+      fitbitapi:
+        condition: "service_started"
+      paissaapi:
+        condition: "service_started"
+    networks:
+      - "aspire"
+    restart: "unless-stopped"
+  web:
+    image: "${WEB_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${WEB_PORT}"
+      COMICCONAPI_HTTP: "http://comicconapi:${COMICCONAPI_PORT}"
+      services__comicconapi__http__0: "http://comicconapi:${COMICCONAPI_PORT}"
+      COMICCONAPI_HTTPS: "https://comicconapi:${COMICCONAPI_PORT}"
+      HUMBLEBUNDLEAPI_HTTP: "http://humblebundleapi:${HUMBLEBUNDLEAPI_PORT}"
+      services__humblebundleapi__http__0: "http://humblebundleapi:${HUMBLEBUNDLEAPI_PORT}"
+      HUMBLEBUNDLEAPI_HTTPS: "https://humblebundleapi:${HUMBLEBUNDLEAPI_PORT}"
+      FITBITAPI_HTTP: "http://fitbitapi:${FITBITAPI_PORT}"
+      services__fitbitapi__http__0: "http://fitbitapi:${FITBITAPI_PORT}"
+      FITBITAPI_HTTPS: "https://fitbitapi:${FITBITAPI_PORT}"
+      PAISSAAPI_HTTP: "http://paissaapi:${PAISSAAPI_PORT}"
+      services__paissaapi__http__0: "http://paissaapi:${PAISSAAPI_PORT}"
+      PAISSAAPI_HTTPS: "https://paissaapi:${PAISSAAPI_PORT}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://tomeshelf-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "web"
+    ports:
+      - "${WEB_PORT}"
+    depends_on:
+      comicconapi:
+        condition: "service_started"
+      humblebundleapi:
+        condition: "service_started"
+      fitbitapi:
+        condition: "service_started"
+      paissaapi:
+        condition: "service_started"
+    networks:
+      - "aspire"
+    restart: "unless-stopped"
+networks:
+  aspire:
+    driver: "bridge"
+volumes:
+  tomeshelf.apphost-918c7a5d48-sql-data:
+    driver: "local"

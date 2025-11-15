@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Tomeshelf.ServiceDefaults\Tomeshelf.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\Tomeshelf.ServiceDefaults\Tomeshelf.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

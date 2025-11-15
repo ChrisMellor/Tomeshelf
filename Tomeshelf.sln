@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Infrastructure", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.ComicConApi.Tests", "tests\Tomeshelf.ComicConApi.Tests\Tomeshelf.ComicConApi.Tests.csproj", "{B66F2DE6-0957-4C8F-86E8-964229BD227A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.ComicCon.Api.Tests", "tests\Tomeshelf.ComicCon.Api.Tests\Tomeshelf.ComicCon.Api.Tests.csproj", "{B66F2DE6-0957-4C8F-86E8-964229BD227A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Web.Tests", "tests\Tomeshelf.Web.Tests\Tomeshelf.Web.Tests.csproj", "{2A31F818-51AC-40E0-9D6F-8B8568366908}"
 EndProject

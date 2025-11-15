@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Tomeshelf.HumbleBundle.Api\Tomeshelf.HumbleBundle.Api.csproj" />
+    <ProjectReference Include="..\..\src\api\Tomeshelf.HumbleBundle.Api\Tomeshelf.HumbleBundle.Api.csproj" />
     <ProjectReference Include="..\..\src\Tomeshelf.Infrastructure\Tomeshelf.Infrastructure.csproj" />
   </ItemGroup>
 

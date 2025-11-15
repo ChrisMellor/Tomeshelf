@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Net.Http;
 using Tomeshelf.Executor.Validation;
 
 namespace Tomeshelf.Executor.Configuration;

@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Executor.Configuration;
@@ -9,14 +14,11 @@ namespace Tomeshelf.Executor.Controllers;
 public class HomeController : Controller
 {
     private readonly IApiEndpointDiscoveryService _discovery;
+    private readonly ILogger<HomeController> _logger;
     private readonly IExecutorSchedulerOrchestrator _scheduler;
     private readonly IExecutorConfigurationStore _store;
-    private readonly ILogger<HomeController> _logger;
 
-    public HomeController(IExecutorConfigurationStore store,
-                          IExecutorSchedulerOrchestrator scheduler,
-                          IApiEndpointDiscoveryService discovery,
-                          ILogger<HomeController> logger)
+    public HomeController(IExecutorConfigurationStore store, IExecutorSchedulerOrchestrator scheduler, IApiEndpointDiscoveryService discovery, ILogger<HomeController> logger)
     {
         _store = store;
         _scheduler = scheduler;
@@ -37,7 +39,9 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Toggle(bool enabled, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Toggling scheduler {State}.", enabled ? "on" : "off");
+        _logger.LogInformation("Toggling scheduler {State}.", enabled
+                                       ? "on"
+                                       : "off");
         var options = await _store.GetAsync(cancellationToken);
         options.Enabled = enabled;
         await PersistAsync(options, cancellationToken);
@@ -59,6 +63,7 @@ public class HomeController : Controller
         if (!ModelState.IsValid)
         {
             _logger.LogWarning("Validation failed creating endpoint {Name}.", model.Name);
+
             return View("Index", await CreateViewModelAsync(options, model, cancellationToken));
         }
 
@@ -87,6 +92,7 @@ public class HomeController : Controller
         if (endpoint is null)
         {
             _logger.LogWarning("Endpoint {Name} not found when editing.", name);
+
             return RedirectToAction(nameof(Index));
         }
 
