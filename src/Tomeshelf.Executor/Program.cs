@@ -16,8 +16,13 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Configuration.AddJsonFile("executorSettings.json", true, true);
-        builder.Configuration.AddJsonFile($"executorSettings.{builder.Environment.EnvironmentName}.json", true, true);
+        ExecutorSettingsPaths.EnsureSeedFiles(builder.Environment);
+        builder.Configuration.AddJsonFile(ExecutorSettingsPaths.GetDefaultFilePath(builder.Environment), true, true);
+        var environmentSettingsPath = ExecutorSettingsPaths.GetEnvironmentFilePath(builder.Environment);
+        if (!string.IsNullOrWhiteSpace(environmentSettingsPath))
+        {
+            builder.Configuration.AddJsonFile(environmentSettingsPath, true, true);
+        }
         builder.AddServiceDefaults();
 
         builder.Services.AddControllersWithViews();

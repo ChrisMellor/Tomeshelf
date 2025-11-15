@@ -25,11 +25,8 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
         ArgumentNullException.ThrowIfNull(environment);
         ArgumentNullException.ThrowIfNull(logger);
 
-        _defaultFilePath = Path.Combine(environment.ContentRootPath, "executorSettings.json");
-        if (!string.IsNullOrWhiteSpace(environment.EnvironmentName))
-        {
-            _environmentFilePath = Path.Combine(environment.ContentRootPath, $"executorSettings.{environment.EnvironmentName}.json");
-        }
+        _defaultFilePath = ExecutorSettingsPaths.GetDefaultFilePath(environment, true);
+        _environmentFilePath = ExecutorSettingsPaths.GetEnvironmentFilePath(environment, true);
 
         _logger = logger;
     }

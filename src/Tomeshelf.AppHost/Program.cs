@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
+using Aspire.Hosting.Docker.Resources.ServiceNodes;
 using Microsoft.Extensions.Configuration;
 using Projects;
 using Tomeshelf.AppHost.Records;
@@ -12,6 +15,10 @@ namespace Tomeshelf.AppHost;
 /// </summary>
 internal class Program
 {
+    private const string ContainerExecutorSettingsDirectory = "/home/app/.tomeshelf/executor";
+    private const string ExecutorSettingsDirectoryVariable = "EXECUTOR_SETTINGS_DIR";
+    private const string ExecutorSettingsVolumeName = "executor-settings";
+
     /// <summary>
     ///     Application entry point for the Aspire AppHost.
     ///     Defines resources and wiring for the distributed application.
@@ -33,6 +40,14 @@ internal class Program
         _ = SetupWeb(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
 
         builder.AddDockerComposeEnvironment("tomeshelf")
+               .ConfigureComposeFile(compose =>
+                {
+                    compose.AddVolume(new Volume
+                    {
+                            Name = ExecutorSettingsVolumeName,
+                            Driver = "local"
+                    });
+                })
                .WithDashboard(rb => rb.WithHostPort(18888));
 
         builder.Build()
@@ -154,20 +169,55 @@ internal class Program
 
     private static IResourceBuilder<ProjectResource> SetupExecutor(IDistributedApplicationBuilder builder, params IResourceBuilder<ProjectResource>[] apis)
     {
+        var hostExecutorSettingsDirectory = ResolveHostExecutorSettingsDirectory();
+        var volume = new Volume
+        {
+                Name = ExecutorSettingsVolumeName,
+                Type = "volume",
+                Source = ExecutorSettingsVolumeName,
+                Target = ContainerExecutorSettingsDirectory,
+                ReadOnly = false
+        };
+
         var executor = builder.AddProject<Tomeshelf_Executor>("executor")
                               .WithHttpHealthCheck("/health")
                               .WithExternalHttpEndpoints()
+                              .WithEnvironment(ExecutorSettingsDirectoryVariable, hostExecutorSettingsDirectory)
                               .PublishAsDockerComposeService((resource, service) =>
                                {
                                    service.Restart = "unless-stopped";
+                                   service.User = "root";
+                                   service.Environment ??= new Dictionary<string, string?>();
+                                   service.Environment[ExecutorSettingsDirectoryVariable] = ContainerExecutorSettingsDirectory;
+                                   service.AddVolume(volume);
                                });
 
         foreach (var api in apis)
         {
-            executor = executor.WithReference(api)
-                               .WaitFor(api);
+            executor.WithReference(api)
+                    .WaitFor(api);
         }
 
         return executor;
+    }
+
+    private static string ResolveHostExecutorSettingsDirectory()
+    {
+        var basePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        if (string.IsNullOrWhiteSpace(basePath))
+        {
+            basePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        }
+
+        if (string.IsNullOrWhiteSpace(basePath))
+        {
+            basePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        }
+
+        basePath = string.IsNullOrWhiteSpace(basePath)
+                ? Directory.GetCurrentDirectory()
+                : basePath;
+
+        return Path.Combine(basePath, "Tomeshelf", "executor");
     }
 }
