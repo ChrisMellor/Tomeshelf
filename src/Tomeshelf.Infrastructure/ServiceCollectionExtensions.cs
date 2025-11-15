@@ -1,12 +1,10 @@
 using System;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure.Bundles;
 using Tomeshelf.Infrastructure.Clients;
 using Tomeshelf.Infrastructure.Fitness;
-using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
 
@@ -39,6 +37,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddFitnessInfrastructure(this IServiceCollection services)
     {
         services.AddMemoryCache();
+        services.AddHttpContextAccessor();
         services.AddSingleton<FitbitTokenCache>();
         services.AddHttpClient<IFitbitApiClient, FitbitApiClient>((sp, client) =>
         {
@@ -78,12 +77,5 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<FitbitAuthorizationService>();
 
         return services;
-    }
-
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
-    {
-        services.AddDbContext<TomeshelfComicConDbContext>(options => options.UseSqlServer(connectionString));
-
-        return services.AddInfrastructure();
     }
 }

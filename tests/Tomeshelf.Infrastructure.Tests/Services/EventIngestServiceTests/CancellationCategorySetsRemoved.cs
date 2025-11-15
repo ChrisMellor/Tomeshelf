@@ -15,10 +15,10 @@ public class CancellationCategorySetsRemovedTests
     public async Task UpsertAsync_CanceledCategory_MarksNotVisible_AndSetsRemovedUtc()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                          .ToString())
-                                                                                 .Options;
-        using var db = new TomeshelfComicConDbContext(dbOptions);
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                     .ToString())
+                                                                            .Options;
+        using var db = new TomeshelfMcmDbContext(dbOptions);
         var sut = new EventIngestService(db);
 
         var evt = new EventDto
@@ -28,7 +28,7 @@ public class CancellationCategorySetsRemovedTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = "P-C1",
                                 Uid = "U1",
@@ -37,7 +37,7 @@ public class CancellationCategorySetsRemovedTests
                                 LastName = "Person",
                                 GlobalCategories = new List<CategoryDto>
                                 {
-                                        new CategoryDto
+                                        new()
                                         {
                                                 Id = "X",
                                                 Name = "Canceled"
@@ -62,10 +62,10 @@ public class CancellationCategorySetsRemovedTests
     public async Task UpsertAsync_RemovedCanceledCategory_MakesVisible_AndClearsRemovedUtc()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                          .ToString())
-                                                                                 .Options;
-        using var db = new TomeshelfComicConDbContext(dbOptions);
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                     .ToString())
+                                                                            .Options;
+        using var db = new TomeshelfMcmDbContext(dbOptions);
         var sut = new EventIngestService(db);
 
         var evt1 = new EventDto
@@ -75,7 +75,7 @@ public class CancellationCategorySetsRemovedTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = "P-C2",
                                 Uid = "U2",
@@ -84,7 +84,7 @@ public class CancellationCategorySetsRemovedTests
                                 LastName = "Person",
                                 GlobalCategories = new List<CategoryDto>
                                 {
-                                        new CategoryDto
+                                        new()
                                         {
                                                 Id = "X",
                                                 Name = "Canceled"
@@ -102,7 +102,7 @@ public class CancellationCategorySetsRemovedTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = "P-C2",
                                 Uid = "U2",

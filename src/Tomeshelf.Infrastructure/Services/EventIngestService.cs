@@ -16,7 +16,7 @@ namespace Tomeshelf.Infrastructure.Services;
 ///     schedules, and venue locations.
 /// </summary>
 /// <param name="context">EF Core database context.</param>
-public class EventIngestService(TomeshelfComicConDbContext context)
+public class EventIngestService(TomeshelfMcmDbContext context)
 {
     /// <summary>
     ///     Inserts or updates the event and all related people, categories, images and schedules.
@@ -364,9 +364,9 @@ public class EventIngestService(TomeshelfComicConDbContext context)
     /// <param name="id">External category identifier.</param>
     /// <param name="name">Current category display name.</param>
     /// <param name="categoryCache">Cache of categories indexed by external id.</param>
-    /// <param name="comicConDbContext">EF Core comicConDbContext used to add new entities.</param>
+    /// <param name="mcmDbContext">EF Core mcmDbContext used to add new entities.</param>
     /// <returns>The resolved <see cref="Category" />.</returns>
-    private Category GetOrAddCategory(string id, string name, Dictionary<string, Category> categoryCache, TomeshelfComicConDbContext comicConDbContext)
+    private Category GetOrAddCategory(string id, string name, Dictionary<string, Category> categoryCache, TomeshelfMcmDbContext mcmDbContext)
     {
         if (categoryCache.TryGetValue(id, out var existing))
         {
@@ -380,7 +380,7 @@ public class EventIngestService(TomeshelfComicConDbContext context)
                 ExternalId = id,
                 Name = name
         };
-        comicConDbContext.Categories.Add(category);
+        mcmDbContext.Categories.Add(category);
         categoryCache[id] = category;
 
         return category;

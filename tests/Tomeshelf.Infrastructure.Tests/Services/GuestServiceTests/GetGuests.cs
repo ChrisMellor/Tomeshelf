@@ -27,7 +27,7 @@ public class GuestServiceTests
         {
                 ComicCon = new List<Location>
                 {
-                        new Location
+                        new()
                         {
                                 City = city,
                                 Key = key
@@ -50,10 +50,10 @@ public class GuestServiceTests
 
         IGuestsClient guestsClient = new FakeGuestsClient(evt);
 
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                          .ToString())
-                                                                                 .Options;
-        using var db = new TomeshelfComicConDbContext(dbOptions);
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                     .ToString())
+                                                                            .Options;
+        using var db = new TomeshelfMcmDbContext(dbOptions);
         var ingest = new EventIngestService(db);
         var logger = NullLogger<GuestService>.Instance;
 
@@ -75,10 +75,10 @@ public class GuestServiceTests
         // Arrange
         var options = Options.Create(new ComicConOptions());
         IGuestsClient guestsClient = new FakeGuestsClient(null);
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                          .ToString())
-                                                                                 .Options;
-        using var db = new TomeshelfComicConDbContext(dbOptions);
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                     .ToString())
+                                                                            .Options;
+        using var db = new TomeshelfMcmDbContext(dbOptions);
         var ingest = new EventIngestService(db);
 
         var sut = new GuestService(guestsClient, options, NullLogger<GuestService>.Instance, ingest);
@@ -101,7 +101,7 @@ public class GuestServiceTests
         {
                 ComicCon = new List<Location>
                 {
-                        new Location
+                        new()
                         {
                                 City = city,
                                 Key = key
@@ -110,10 +110,10 @@ public class GuestServiceTests
         });
         IGuestsClient guestsClient = new FakeGuestsClient(null);
 
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                          .ToString())
-                                                                                 .Options;
-        using var db = new TomeshelfComicConDbContext(dbOptions);
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                     .ToString())
+                                                                            .Options;
+        using var db = new TomeshelfMcmDbContext(dbOptions);
         var ingest = new EventIngestService(db);
 
         var sut = new GuestService(guestsClient, options, NullLogger<GuestService>.Instance, ingest);
@@ -132,10 +132,10 @@ public class GuestServiceTests
         // Arrange
         var options = Options.Create(new ComicConOptions());
         IGuestsClient guestsClient = new FakeGuestsClient(null);
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                          .ToString())
-                                                                                 .Options;
-        using var db = new TomeshelfComicConDbContext(dbOptions);
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                     .ToString())
+                                                                            .Options;
+        using var db = new TomeshelfMcmDbContext(dbOptions);
         var ingest = new EventIngestService(db);
 
         var sut = new GuestService(guestsClient, options, NullLogger<GuestService>.Instance, ingest);
@@ -157,7 +157,7 @@ public class GuestServiceTests
         {
                 ComicCon = new List<Location>
                 {
-                        new Location
+                        new()
                         {
                                 City = "London",
                                 Key = key
@@ -172,10 +172,10 @@ public class GuestServiceTests
                 People = new List<PersonDto>()
         };
         IGuestsClient guestsClient = new FakeGuestsClient(evt);
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                          .ToString())
-                                                                                 .Options;
-        using var db = new TomeshelfComicConDbContext(dbOptions);
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                     .ToString())
+                                                                            .Options;
+        using var db = new TomeshelfMcmDbContext(dbOptions);
         var ingest = new EventIngestService(db);
         var sut = new GuestService(guestsClient, options, NullLogger<GuestService>.Instance, ingest);
 

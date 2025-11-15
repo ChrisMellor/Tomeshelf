@@ -16,10 +16,10 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
     public async Task UpsertAsync_ReplacesImages_AndSynchronizesCategories()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                          .ToString())
-                                                                                 .Options;
-        using var db = new TomeshelfComicConDbContext(dbOptions);
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                     .ToString())
+                                                                            .Options;
+        using var db = new TomeshelfMcmDbContext(dbOptions);
         var sut = new EventIngestService(db);
 
         var evt1 = new EventDto
@@ -29,14 +29,14 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = "P1",
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
                                 Images = new List<ImageSetDto>
                                 {
-                                        new ImageSetDto
+                                        new()
                                         {
                                                 Big = "b1",
                                                 Med = "m1",
@@ -46,12 +46,12 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                                 },
                                 GlobalCategories = new List<CategoryDto>
                                 {
-                                        new CategoryDto
+                                        new()
                                         {
                                                 Id = "A",
                                                 Name = "Alpha"
                                         },
-                                        new CategoryDto
+                                        new()
                                         {
                                                 Id = "B",
                                                 Name = "Beta"
@@ -71,14 +71,14 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = "P1",
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
                                 Images = new List<ImageSetDto>
                                 {
-                                        new ImageSetDto
+                                        new()
                                         {
                                                 Big = "b2",
                                                 Med = "m2",
@@ -88,12 +88,12 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                                 },
                                 GlobalCategories = new List<CategoryDto>
                                 {
-                                        new CategoryDto
+                                        new()
                                         {
                                                 Id = "B",
                                                 Name = "Beta"
                                         },
-                                        new CategoryDto
+                                        new()
                                         {
                                                 Id = "C",
                                                 Name = "Gamma"
@@ -126,10 +126,10 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
     public async Task UpsertAsync_AddsAndUpdatesSchedules_AndVenueLocations()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                          .ToString())
-                                                                                 .Options;
-        using var db = new TomeshelfComicConDbContext(dbOptions);
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                     .ToString())
+                                                                            .Options;
+        using var db = new TomeshelfMcmDbContext(dbOptions);
         var sut = new EventIngestService(db);
 
         var evt1 = new EventDto
@@ -139,14 +139,14 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = "P1",
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
                                 Schedules = new List<ScheduleDto>
                                 {
-                                        new ScheduleDto
+                                        new()
                                         {
                                                 Id = "S1",
                                                 Title = "Talk",
@@ -176,14 +176,14 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = "P1",
                                 FirstName = "Ada",
                                 LastName = "Lovelace",
                                 Schedules = new List<ScheduleDto>
                                 {
-                                        new ScheduleDto
+                                        new()
                                         {
                                                 Id = "S1",
                                                 Title = "Talk Updated",
@@ -198,7 +198,7 @@ public class EventIngestServiceCategoriesAndImagesDeltaTests
                                                         Name = "Hall Updated"
                                                 }
                                         },
-                                        new ScheduleDto
+                                        new()
                                         {
                                                 Id = "S2",
                                                 Title = "Panel",

@@ -49,7 +49,7 @@ public sealed class FitbitOptions
     ///     Gets or sets the absolute base URI used to construct the OAuth 2.0 callback.
     /// </summary>
     [Url]
-    public string CallbackBaseUri { get; set; } = "https://localhost:7152";
+    public string CallbackBaseUri { get; set; }
 
     /// <summary>
     ///     Gets or sets the relative callback path Fitbit redirects to after authorization.

@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
+using Aspire.Hosting.Docker.Resources.ServiceNodes;
 using Microsoft.Extensions.Configuration;
 using Projects;
 using Tomeshelf.AppHost.Records;
@@ -11,6 +15,10 @@ namespace Tomeshelf.AppHost;
 /// </summary>
 internal class Program
 {
+    private const string ContainerExecutorSettingsDirectory = "/home/app/.tomeshelf/executor";
+    private const string ExecutorSettingsDirectoryVariable = "EXECUTOR_SETTINGS_DIR";
+    private const string ExecutorSettingsVolumeName = "executor-settings";
+
     /// <summary>
     ///     Application entry point for the Aspire AppHost.
     ///     Defines resources and wiring for the distributed application.
@@ -19,98 +27,197 @@ internal class Program
     public static void Main(string[] args)
     {
         var builder = DistributedApplication.CreateBuilder(args);
-
         builder.Configuration.AddUserSecrets<Program>(true);
 
-        var isPublish = builder.ExecutionContext.IsPublishMode;
+        var database = SetupDatabase(builder);
 
-        if (!isPublish)
-        {
-            builder.AddDockerComposeEnvironment("metrics")
-                   .WithDashboard(rb => rb.WithHostPort(18888));
-        }
+        var comicConApi = SetupComicConApi(builder, database);
+        var humbleBundleApi = SetupHumbleBundleApi(builder, database);
+        var fitbitApi = SetupFitbitApi(builder, database);
+        var paissaApi = SetupPaissaApi(builder);
 
+        _ = SetupExecutor(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
+        _ = SetupWeb(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
+
+        builder.AddDockerComposeEnvironment("tomeshelf")
+               .ConfigureComposeFile(compose =>
+                {
+                    compose.AddVolume(new Volume
+                    {
+                            Name = ExecutorSettingsVolumeName,
+                            Driver = "local"
+                    });
+                })
+               .WithDashboard(rb => rb.WithHostPort(18888));
+
+        builder.Build()
+               .Run();
+    }
+
+    private static IResourceBuilder<SqlServerServerResource> SetupDatabase(IDistributedApplicationBuilder builder)
+    {
         var database = builder.AddSqlServer("sql")
                               .WithDataVolume()
-                              .WithEnvironment("ACCEPT_EULA", "Y");
+                              .WithEnvironment("ACCEPT_EULA", "Y")
+                              .PublishAsDockerComposeService((resource, service) =>
+                               {
+                                   service.Restart = "unless-stopped";
+                               });
 
-        var tomeshelfDb = database.AddDatabase("tomeshelfdb");
-        var humbleBundleDb = database.AddDatabase("bundlesdb");
-        var fitbitDb = database.AddDatabase("fitbitdb");
+        return database;
+    }
 
-        var comicConApi = builder.AddProject<Tomeshelf_ComicConApi>("ComicConApi")
-                                 .WithExternalHttpEndpoints()
-                                 .WithHttpHealthCheck("/health")
-                                 .WithReference(tomeshelfDb)
-                                 .WaitFor(tomeshelfDb);
+    private static IResourceBuilder<ProjectResource> SetupComicConApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
+    {
+        var db = database.AddDatabase("mcmdb");
 
-        var humbleBundleApi = builder.AddProject<Tomeshelf_HumbleBundle_Api>("HumbleBundleApi")
-                                     .WithExternalHttpEndpoints()
-                                     .WithHttpHealthCheck("/health")
-                                     .WithReference(humbleBundleDb)
-                                     .WaitFor(humbleBundleDb);
-
-        var fitbitSettings = builder.Configuration.GetSection("Fitbit");
-
-        var fitbitApi = builder.AddProject<Tomeshelf_Fitbit_Api>("FitbitApi")
-                               .WithHttpsEndpoint(name: "fitbit-https", port: 7152)
-                               .WithHttpEndpoint(name: "fitbit-http", port: 5152)
-                               .WithHttpHealthCheck("/health")
-                               .WithReference(fitbitDb)
-                               .WaitFor(fitbitDb);
-
-        fitbitApi = fitbitApi.WithEndpoint("fitbit-https", endpoint => endpoint.IsExternal = true)
-                             .WithEndpoint("fitbit-http", endpoint => endpoint.IsExternal = true);
-
-        var optionalEnv = new Dictionary<string, string>
-        {
-                ["Fitbit__ClientId"] = fitbitSettings["ClientId"],
-                ["Fitbit__ClientSecret"] = fitbitSettings["ClientSecret"],
-                ["Fitbit__AccessToken"] = fitbitSettings["AccessToken"],
-                ["Fitbit__RefreshToken"] = fitbitSettings["RefreshToken"]
-        };
-
-        foreach (var entry in optionalEnv)
-        {
-            if (!string.IsNullOrWhiteSpace(entry.Value))
-            {
-                fitbitApi = fitbitApi.WithEnvironment(entry.Key, entry.Value!);
-            }
-        }
-
-        fitbitApi = fitbitApi.WithEnvironment("Fitbit__ApiBase", fitbitSettings["ApiBase"] ?? "https://api.fitbit.com/")
-                             .WithEnvironment("Fitbit__UserId", fitbitSettings["UserId"] ?? "-")
-                             .WithEnvironment("Fitbit__Scope", fitbitSettings["Scope"] ?? "activity nutrition sleep weight profile settings")
-                             .WithEnvironment("Fitbit__CallbackBaseUri", fitbitSettings["CallbackBaseUri"] ?? "https://localhost:7152")
-                             .WithEnvironment("Fitbit__CallbackPath", fitbitSettings["CallbackPath"] ?? "/api/fitbit/auth/callback");
-
-        var paissaApi = builder.AddProject<Tomeshelf_Paissa_Api>("PaissaApi")
-                               .WithExternalHttpEndpoints()
-                               .WithHttpHealthCheck("/health");
-
-        builder.AddProject<Tomeshelf_Web>("web")
-               .WithExternalHttpEndpoints()
-               .WithHttpHealthCheck("/health")
-               .WithReference(comicConApi)
-               .WaitFor(comicConApi)
-               .WithReference(humbleBundleApi)
-               .WaitFor(humbleBundleApi)
-               .WithReference(fitbitApi)
-               .WaitFor(fitbitApi)
-               .WithReference(paissaApi)
-               .WaitFor(paissaApi);
+        var api = builder.AddProject<Tomeshelf_ComicCon_Api>("comicconapi")
+                         .WithHttpHealthCheck("/health")
+                         .WithReference(db)
+                         .WaitFor(db)
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
 
         var sites = builder.Configuration.GetSection("ComicCon")
                            .Get<List<ComicConSite>>() ?? [];
 
         for (var i = 0; i < sites.Count; i++)
         {
-            comicConApi.WithEnvironment($"ComicCon__{i}__City", sites[i].City)
-                       .WithEnvironment($"ComicCon__{i}__Key", sites[i]
-                                                              .Key.ToString());
+            api.WithEnvironment($"ComicCon__{i}__City", sites[i].City)
+               .WithEnvironment($"ComicCon__{i}__Key", sites[i]
+                                                      .Key.ToString());
         }
 
-        builder.Build()
-               .Run();
+        return api;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupHumbleBundleApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
+    {
+        var db = database.AddDatabase("humblebundledb");
+
+        var api = builder.AddProject<Tomeshelf_HumbleBundle_Api>("humblebundleapi")
+                         .WithHttpHealthCheck("/health")
+                         .WithReference(db)
+                         .WaitFor(db)
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
+
+        return api;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupFitbitApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
+    {
+        var settings = builder.Configuration.GetSection("fitbit");
+
+        var db = database.AddDatabase("fitbitdb");
+
+        var api = builder.AddProject<Tomeshelf_Fitbit_Api>("fitbitapi")
+                         .WithExternalHttpEndpoints()
+                         .WithHttpHealthCheck("/health")
+                         .WithReference(db)
+                         .WaitFor(db)
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
+
+        api.WithEnvironment("Fitbit__ApiBase", settings["ApiBase"] ?? "https://api.fitbit.com/")
+           .WithEnvironment("Fitbit__UserId", settings["UserId"] ?? "-")
+           .WithEnvironment("Fitbit__Scope", settings["Scope"] ?? "activity nutrition sleep weight profile settings")
+           .WithEnvironment("Fitbit__CallbackBaseUri", api.GetEndpoint("https"))
+           .WithEnvironment("Fitbit__CallbackPath", settings["CallbackPath"] ?? "/api/fitbit/auth/callback")
+           .WithEnvironment("Fitbit__ClientId", settings["ClientId"])
+           .WithEnvironment("Fitbit__ClientSecret", settings["ClientSecret"]);
+
+        return api;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupPaissaApi(IDistributedApplicationBuilder builder)
+    {
+        var api = builder.AddProject<Tomeshelf_Paissa_Api>("paissaapi")
+                         .WithHttpHealthCheck("/health")
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
+
+        return api;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupWeb(IDistributedApplicationBuilder builder, params IResourceBuilder<ProjectResource>[] apis)
+    {
+        var web = builder.AddProject<Tomeshelf_Web>("web")
+                         .WithHttpHealthCheck("/health")
+                         .WithExternalHttpEndpoints()
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
+
+        foreach (var api in apis)
+        {
+            web.WithReference(api)
+               .WaitFor(api);
+        }
+
+        return web;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupExecutor(IDistributedApplicationBuilder builder, params IResourceBuilder<ProjectResource>[] apis)
+    {
+        var hostExecutorSettingsDirectory = ResolveHostExecutorSettingsDirectory();
+        var volume = new Volume
+        {
+                Name = ExecutorSettingsVolumeName,
+                Type = "volume",
+                Source = ExecutorSettingsVolumeName,
+                Target = ContainerExecutorSettingsDirectory,
+                ReadOnly = false
+        };
+
+        var executor = builder.AddProject<Tomeshelf_Executor>("executor")
+                              .WithHttpHealthCheck("/health")
+                              .WithExternalHttpEndpoints()
+                              .WithEnvironment(ExecutorSettingsDirectoryVariable, hostExecutorSettingsDirectory)
+                              .PublishAsDockerComposeService((resource, service) =>
+                               {
+                                   service.Restart = "unless-stopped";
+                                   service.User = "root";
+                                   service.Environment ??= new Dictionary<string, string?>();
+                                   service.Environment[ExecutorSettingsDirectoryVariable] = ContainerExecutorSettingsDirectory;
+                                   service.AddVolume(volume);
+                               });
+
+        foreach (var api in apis)
+        {
+            executor.WithReference(api)
+                    .WaitFor(api);
+        }
+
+        return executor;
+    }
+
+    private static string ResolveHostExecutorSettingsDirectory()
+    {
+        var basePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        if (string.IsNullOrWhiteSpace(basePath))
+        {
+            basePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        }
+
+        if (string.IsNullOrWhiteSpace(basePath))
+        {
+            basePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        }
+
+        basePath = string.IsNullOrWhiteSpace(basePath)
+                ? Directory.GetCurrentDirectory()
+                : basePath;
+
+        return Path.Combine(basePath, "Tomeshelf", "executor");
     }
 }

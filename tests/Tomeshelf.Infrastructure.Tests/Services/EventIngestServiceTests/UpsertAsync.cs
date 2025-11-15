@@ -15,10 +15,10 @@ public class EventIngestServiceTests
     public async Task UpsertAsync_InsertsNewEventAndPeople()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                          .ToString())
-                                                                                 .Options;
-        using var db = new TomeshelfComicConDbContext(dbOptions);
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                     .ToString())
+                                                                            .Options;
+        using var db = new TomeshelfMcmDbContext(dbOptions);
         var sut = new EventIngestService(db);
 
         var evt = new EventDto
@@ -29,7 +29,7 @@ public class EventIngestServiceTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = Guid.NewGuid()
                                          .ToString(),
@@ -60,10 +60,10 @@ public class EventIngestServiceTests
     public async Task UpsertAsync_UpdatesExistingEvent()
     {
         // Arrange
-        var dbOptions = new DbContextOptionsBuilder<TomeshelfComicConDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                          .ToString())
-                                                                                 .Options;
-        using var db = new TomeshelfComicConDbContext(dbOptions);
+        var dbOptions = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                     .ToString())
+                                                                            .Options;
+        using var db = new TomeshelfMcmDbContext(dbOptions);
         var sut = new EventIngestService(db);
 
         var evt = new EventDto

@@ -1,0 +1,54 @@
+@model EndpointEditorModel
+@{
+    ViewData["Title"] = "Edit Endpoint";
+    var originalName = ViewData["OriginalName"] as string ?? Model.Name;
+}
+
+<h1 class="mb-3">Edit Endpoint</h1>
+
+<form asp-action="Edit" asp-route-name="@originalName" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="originalName" value="@originalName"/>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control"/>
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Method" class="form-label"></label>
+            <input asp-for="Method" class="form-control"/>
+            <span asp-validation-for="Method" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Url" class="form-label"></label>
+        <input asp-for="Url" class="form-control"/>
+        <span asp-validation-for="Url" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Cron" class="form-label"></label>
+        @{
+            var cronInputId = Html.IdFor(m => m.Cron);
+            var cronInputName = Html.NameFor(m => m.Cron);
+        }
+        <partial name="_CronBuilder" model="new CronBuilderViewModel(cronInputId, cronInputName, Model.Cron)"/>
+        <span asp-validation-for="Cron" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Headers" class="form-label"></label>
+        <textarea asp-for="Headers" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Headers" class="text-danger"></span>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="Enabled" class="form-check-input"/>
+        <label asp-for="Enabled" class="form-check-label"></label>
+    </div>
+    <button type="submit" class="btn btn-primary">Save changes</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

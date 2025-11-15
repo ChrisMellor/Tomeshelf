@@ -8,6 +8,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,18 +21,20 @@ public sealed class FitbitAuthorizationService
 {
     private static readonly TimeSpan StateLifetime = TimeSpan.FromMinutes(10);
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<FitbitAuthorizationService> _logger;
     private readonly IMemoryCache _memoryCache;
     private readonly IOptionsMonitor<FitbitOptions> _options;
     private readonly FitbitTokenCache _tokenCache;
 
-    public FitbitAuthorizationService(IHttpClientFactory httpClientFactory, FitbitTokenCache tokenCache, IMemoryCache memoryCache, ILogger<FitbitAuthorizationService> logger, IOptionsMonitor<FitbitOptions> options)
+    public FitbitAuthorizationService(IHttpClientFactory httpClientFactory, FitbitTokenCache tokenCache, IMemoryCache memoryCache, ILogger<FitbitAuthorizationService> logger, IOptionsMonitor<FitbitOptions> options, IHttpContextAccessor httpContextAccessor)
     {
-        _httpClientFactory = httpClientFactory;
-        _tokenCache = tokenCache;
-        _memoryCache = memoryCache;
-        _logger = logger;
-        _options = options;
+        _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+        _tokenCache = tokenCache ?? throw new ArgumentNullException(nameof(tokenCache));
+        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options ?? throw new ArgumentNullException(nameof(options));
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
     public Uri BuildAuthorizationUri(string returnUrl, out string state)
@@ -46,7 +49,7 @@ public sealed class FitbitAuthorizationService
         var authState = new AuthorizationState(codeVerifier, targetReturnUrl);
         _memoryCache.Set(GetStateCacheKey(state), authState, StateLifetime);
 
-        var callback = BuildCallbackUri(options);
+        var callback = BuildCallbackUri(options, _httpContextAccessor.HttpContext?.Request);
         var codeChallenge = CreateCodeChallenge(codeVerifier);
 
         var query = new Dictionary<string, string>
@@ -120,7 +123,7 @@ public sealed class FitbitAuthorizationService
             throw new InvalidOperationException("Fitbit client credentials are not configured.");
         }
 
-        var callback = BuildCallbackUri(options);
+        var callback = BuildCallbackUri(options, _httpContextAccessor.HttpContext?.Request);
 
         var client = _httpClientFactory.CreateClient("FitbitOAuth");
         using var request = new HttpRequestMessage(HttpMethod.Post, "oauth2/token")
@@ -189,28 +192,60 @@ public sealed class FitbitAuthorizationService
                       .Replace('/', '_');
     }
 
-    private static Uri BuildCallbackUri(FitbitOptions options)
+    public static Uri BuildCallbackUri(FitbitOptions options, HttpRequest request)
     {
-        if (string.IsNullOrWhiteSpace(options.CallbackBaseUri))
+        if (options is null)
         {
-            throw new InvalidOperationException("Fitbit CallbackBaseUri must be configured.");
+            throw new ArgumentNullException(nameof(options));
         }
 
-        if (!Uri.TryCreate(options.CallbackBaseUri, UriKind.Absolute, out var baseUri))
+        var path = string.IsNullOrWhiteSpace(options.CallbackPath) ? new PathString("/api/fitbit/auth/callback") : options.CallbackPath.StartsWith("/", StringComparison.Ordinal) ? new PathString(options.CallbackPath) : new PathString("/" + options.CallbackPath);
+
+        Uri baseUri;
+
+        if (string.IsNullOrWhiteSpace(options.CallbackBaseUri))
+        {
+            if (request is null)
+            {
+                throw new InvalidOperationException("Fitbit CallbackBaseUri is not configured and no HTTP request is available to infer it.");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Scheme))
+            {
+                throw new InvalidOperationException("Cannot infer Fitbit callback URI because the current HTTP request has no scheme.");
+            }
+
+            if (!request.Host.HasValue)
+            {
+                throw new InvalidOperationException("Cannot infer Fitbit callback URI because the current HTTP request has no host.");
+            }
+
+            baseUri = new Uri($"{request.Scheme}://{request.Host.ToUriComponent()}");
+
+            if (request.PathBase.HasValue)
+            {
+                path = request.PathBase.Add(path);
+            }
+        }
+        else if (!Uri.TryCreate(options.CallbackBaseUri, UriKind.Absolute, out baseUri))
         {
             throw new InvalidOperationException($"Invalid Fitbit CallbackBaseUri '{options.CallbackBaseUri}'.");
         }
-
-        var path = string.IsNullOrWhiteSpace(options.CallbackPath)
-                ? "/api/fitbit/auth/callback"
-                : options.CallbackPath;
-
-        if (!path.StartsWith('/'))
+        else if (request?.PathBase.HasValue == true)
         {
-            path = "/" + path;
+            path = request.PathBase.Add(path);
         }
 
-        return new Uri(baseUri, path);
+        var pathValue = path.HasValue
+                ? path.Value
+                : "/api/fitbit/auth/callback";
+
+        if ((pathValue.Length == 0) || (pathValue[0] != '/'))
+        {
+            pathValue = "/" + pathValue;
+        }
+
+        return new Uri(baseUri, pathValue);
     }
 
     private sealed record AuthorizationState(string CodeVerifier, string ReturnUrl);

@@ -44,7 +44,7 @@ public sealed class FitbitSleepModel
 
     public string WakeTime { get; set; }
 
-    public FitbitSleepLevelsModel Levels { get; set; } = new FitbitSleepLevelsModel();
+    public FitbitSleepLevelsModel Levels { get; set; } = new();
 }
 
 public sealed class FitbitActivityModel

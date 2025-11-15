@@ -26,17 +26,19 @@ Tomeshelf is a small .NET 9 that pulls Comic Con guest data from an external API
 - MVC site for browsing guests by city (`/comiccon/city/{city}/guests`)
 - Background job refreshes guests hourly for configured cities
 - .NET Aspire for service discovery, SQL container, health, and telemetry
+- Executor scheduler runs as an Aspire-managed service with UI + Quartz jobs to trigger downstream APIs
 
 ## Project Layout
 
 - `src/Tomeshelf.Api` — ASP.NET Core API, controllers, Swagger, migrations on startup
 - `src/Tomeshelf.Web` — ASP.NET Core MVC site consuming the API
 - `src/Tomeshelf.Infrastructure` — EF Core DbContext, queries, HTTP client, ingest services
-- `src/Tomeshelf.Application` — DTOs and options shared across layers
-- `src/Tomeshelf.Domain` — Entity classes and relationships
-- `src/Tomeshelf.ServiceDefaults` — OpenTelemetry, health checks, service discovery helpers
-- `src/Tomeshelf.AppHost` — .NET Aspire AppHost defining API, Web, SQL resources
-- `tests/*` — Unit tests for API, Web, Infrastructure, Application
+- `src/Tomeshelf.Application` - DTOs and options shared across layers
+- `src/Tomeshelf.Domain` - Entity classes and relationships
+- `src/Tomeshelf.ServiceDefaults` - OpenTelemetry, health checks, service discovery helpers
+- `src/Tomeshelf.AppHost` - .NET Aspire AppHost defining API, Web, SQL resources
+- `Tomeshelf.Executor` - Quartz-based scheduler that triggers API refresh endpoints over HTTP
+- `tests/*` - Unit tests for API, Web, Infrastructure, Application
 
 ## Prerequisites
 
@@ -138,6 +140,39 @@ In Development, visit the API root for Swagger UI.
 
 - `ComicConUpdateBackgroundService` runs hourly in the API host
 - Iterates the configured cities and invokes the ingest flow
+
+## Executor Scheduler
+
+- `Tomeshelf.Executor` hosts a Quartz scheduler that calls the HTTP endpoints responsible for refreshing downstream data (Comic Con guests, Humble Bundle listings, etc.).
+- The scheduler binds the `Executor` configuration section and registers one Quartz job + trigger per endpoint entry.
+- Each job issues an HTTP request using the configured method, URL, headers, and cron expression, and logs the outcome. The host references `Tomeshelf.ServiceDefaults`, so the outbound HTTP client benefits from the same service discovery, resilience, telemetry, and health conventions as the rest of the distributed app.
+- A lightweight UI is available at `/executor` to list, add, edit, and delete endpoints; it persists changes to `executorSettings*.json`, reloads configuration automatically, and syncs the running scheduler without restarts.
+
+Example configuration:
+
+```jsonc
+{
+  "Executor": {
+    "Enabled": true,
+    "Endpoints": [
+      {
+        "Name": "comiccon-london-refresh",
+        "Url": "https://localhost:7000/api/ComicCon/Guests/City?city=London",
+        "Method": "POST",
+        "Cron": "0 0 * * * ?",
+        "TimeZone": "UTC",
+        "Headers": {
+          "X-Api-Key": "optional-token"
+        }
+      }
+    ]
+  }
+}
+```
+
+- `Cron` uses Quartz expressions (`{seconds} {minutes} {hours} {day-of-month} {month} {day-of-week}`) and defaults to UTC when no `TimeZone` is supplied.
+- Override any value per environment via standard configuration providers (e.g., `Executor__Endpoints__0__Url` in env vars).
+- Disable the entire scheduler by setting `Executor:Enabled` to `false`, or disable a specific job via `Endpoints[n].Enabled`.
 
 ## Development
 

@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
@@ -56,7 +57,13 @@ public class Program
                     }
                     else
                     {
-                        client.BaseAddress = new Uri("https://ComicConApi");
+                        var protocol = "https";
+                        if (IsRunningInDocker())
+                        {
+                            protocol = "http";
+                        }
+
+                        client.BaseAddress = new Uri($"{protocol}://comicconapi");
                     }
 
                     client.DefaultRequestVersion = HttpVersion.Version11;
@@ -80,7 +87,13 @@ public class Program
                     }
                     else
                     {
-                        client.BaseAddress = new Uri("https://HumbleBundleApi");
+                        var protocol = "https";
+                        if (IsRunningInDocker())
+                        {
+                            protocol = "http";
+                        }
+
+                        client.BaseAddress = new Uri($"{protocol}://humblebundleapi");
                     }
 
                     client.DefaultRequestVersion = HttpVersion.Version11;
@@ -104,7 +117,13 @@ public class Program
                     }
                     else
                     {
-                        client.BaseAddress = new Uri("https://FitbitApi");
+                        var protocol = "https";
+                        if (IsRunningInDocker())
+                        {
+                            protocol = "http";
+                        }
+
+                        client.BaseAddress = new Uri($"{protocol}://fitbitapi");
                     }
 
                     client.DefaultRequestVersion = HttpVersion.Version11;
@@ -132,7 +151,13 @@ public class Program
                     }
                     else
                     {
-                        client.BaseAddress = new Uri("https://PaissaApi");
+                        var protocol = "https";
+                        if (IsRunningInDocker())
+                        {
+                            protocol = "http";
+                        }
+
+                        client.BaseAddress = new Uri($"{protocol}://paissaapi");
                     }
 
                     client.DefaultRequestVersion = HttpVersion.Version11;
@@ -172,5 +197,10 @@ public class Program
         app.MapDefaultEndpoints();
 
         app.Run();
+    }
+
+    private static bool IsRunningInDocker()
+    {
+        return File.Exists("/.dockerenv");
     }
 }

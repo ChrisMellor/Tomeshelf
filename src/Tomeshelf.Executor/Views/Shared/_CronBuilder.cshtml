@@ -1,0 +1,307 @@
+@model CronBuilderViewModel
+@{
+    var builderId = $"cron-builder-{Guid.NewGuid():N}";
+    var hasInitial = !string.IsNullOrWhiteSpace(Model.InitialValue);
+}
+
+<div id="@builderId" class="cron-builder border rounded p-3 mt-2" data-cron-input-id="@Model.InputId">
+    <input type="hidden"
+           id="@Model.InputId"
+           name="@Model.InputName"
+           value="@Model.InitialValue"
+           class="cron-expression"/>
+
+    <div class="mb-3">
+        <label class="form-label">Generated Cron Expression</label>
+        <input type="text"
+               class="form-control cron-expression-display"
+               value="@Model.InitialValue"
+               readonly
+               placeholder="Select a template to generate an expression"/>
+        <div class="form-text text-muted cron-summary">
+            @(hasInitial
+                    ? "Existing expression applied."
+                    : "Choose a schedule template to generate a Quartz cron expression (UTC).")
+        </div>
+    </div>
+
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label">Frequency</label>
+            <select class="form-select cron-frequency">
+                <option value="minutes">Every N minutes</option>
+                <option value="hourly">Hourly</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="custom">Custom expression</option>
+            </select>
+        </div>
+
+        <div class="col-md-4" data-cron-section="minutes">
+            <label class="form-label">Interval</label>
+            <div class="input-group">
+                <input type="number" min="1" max="59" step="1" value="5" class="form-control cron-minutes"/>
+                <span class="input-group-text">minute(s)</span>
+            </div>
+        </div>
+
+        <div class="col-md-4" data-cron-section="hourly">
+            <label class="form-label">Minute (:MM)</label>
+            <input type="number" min="0" max="59" step="1" value="0" class="form-control cron-hour-minute"/>
+        </div>
+
+        <div class="col-md-4" data-cron-section="daily">
+            <label class="form-label">Time (UTC)</label>
+            <input type="time" class="form-control cron-daily-time" value="08:00" step="60"/>
+        </div>
+
+        <div class="col-md-4" data-cron-section="weekly">
+            <label class="form-label">Day of week</label>
+            <select class="form-select cron-weekly-day">
+                <option value="MON">Monday</option>
+                <option value="TUE">Tuesday</option>
+                <option value="WED">Wednesday</option>
+                <option value="THU">Thursday</option>
+                <option value="FRI">Friday</option>
+                <option value="SAT">Saturday</option>
+                <option value="SUN">Sunday</option>
+            </select>
+        </div>
+
+        <div class="col-md-4" data-cron-section="weekly">
+            <label class="form-label">Time (UTC)</label>
+            <input type="time" class="form-control cron-weekly-time" value="06:00" step="60"/>
+        </div>
+
+        <div class="col-md-4" data-cron-section="monthly">
+            <label class="form-label">Day of month</label>
+            <input type="number" min="1" max="31" step="1" value="1" class="form-control cron-month-day"/>
+        </div>
+
+        <div class="col-md-4" data-cron-section="monthly">
+            <label class="form-label">Time (UTC)</label>
+            <input type="time" class="form-control cron-month-time" value="07:30" step="60"/>
+        </div>
+
+        <div class="col-12" data-cron-section="custom">
+            <label class="form-label">Custom expression</label>
+            <input type="text"
+                   class="form-control cron-custom-text"
+                   placeholder="0 0 * * * ? (seconds minutes hours day-of-month month day-of-week)"/>
+            <div class="form-text">Provide the complete expression if you need advanced scheduling.</div>
+        </div>
+    </div>
+
+    <p class="form-text mt-2 mb-0">
+        Cron values follow the Quartz format (<code>seconds minutes hours day-of-month month day-of-week</code>) and run in UTC.
+    </p>
+</div>
+
+@{
+    var scriptRegistered = ViewContext.HttpContext.Items.ContainsKey("__CronBuilderScriptV2");
+    ViewContext.HttpContext.Items["__CronBuilderScriptV2"] = true;
+}
+
+@if (!scriptRegistered)
+{
+    <script>
+        (() => {
+            const clamp = (value, min, max, fallback) => Number.isNaN(value) ? fallback : Math.min(Math.max(value, min), max);
+            const pad = (value) => value.toString().padStart(2, '0');
+            const parseTime = (input) => {
+                const [h, m] = (input?.value || '00:00').split(':');
+                const hours = pad(clamp(parseInt(h ?? '0', 10), 0, 23, 0));
+                const minutes = pad(clamp(parseInt(m ?? '0', 10), 0, 59, 0));
+                return { hours, minutes };
+            };
+
+            const detectTemplate = (expression) => {
+                if (!expression) {
+                    return null;
+                }
+
+                const patterns = [
+                    { key: 'minutes', regex: /^0 0\/(\d{1,2}) \* \* \* \?$/, map: (match) => ({ interval: parseInt(match[1], 10) }) },
+                    { key: 'hourly', regex: /^0 (\d{1,2}) \* \* \* \?$/, map: (match) => ({ minute: parseInt(match[1], 10) }) },
+                    { key: 'daily', regex: /^0 (\d{1,2}) (\d{1,2}) \* \* \?$/, map: (match) => ({ minutes: parseInt(match[1], 10), hours: parseInt(match[2], 10) }) },
+                    { key: 'weekly', regex: /^0 (\d{1,2}) (\d{1,2}) \? \* ([A-Z]{3})$/, map: (match) => ({ minutes: parseInt(match[1], 10), hours: parseInt(match[2], 10), day: match[3] }) },
+                    { key: 'monthly', regex: /^0 (\d{1,2}) (\d{1,2}) (\d{1,2}) \* \?$/, map: (match) => ({ minutes: parseInt(match[1], 10), hours: parseInt(match[2], 10), dayOfMonth: parseInt(match[3], 10) }) }
+                ];
+
+                for (const pattern of patterns) {
+                    const result = expression.match(pattern.regex);
+                    if (result) {
+                        return { template: pattern.key, args: pattern.map(result) };
+                    }
+                }
+
+                return null;
+            };
+
+            const toggleSections = (builder, template) => {
+                builder.querySelectorAll('[data-cron-section]').forEach(section => {
+                    section.classList.toggle('d-none', section.dataset.cronSection !== template);
+                });
+            };
+
+            const setExpression = (hiddenInput, displayInput, summary, cron, text) => {
+                const normalized = cron?.trim() ?? '';
+                hiddenInput.value = normalized;
+                displayInput.value = normalized;
+                summary.textContent = text;
+            };
+
+            const buildExpression = (builder) => {
+                const freqSelect = builder.querySelector('.cron-frequency');
+                const hiddenInput = builder.querySelector('.cron-expression');
+                const displayInput = builder.querySelector('.cron-expression-display');
+                const summary = builder.querySelector('.cron-summary');
+                const frequency = freqSelect?.value ?? 'minutes';
+
+                toggleSections(builder, frequency);
+
+                let cronValue = '';
+                let summaryText = '';
+
+                switch (frequency) {
+                    case 'minutes': {
+                        const input = builder.querySelector('.cron-minutes');
+                        const interval = clamp(parseInt(input?.value ?? '5', 10), 1, 59, 5);
+                        if (input) {
+                            input.value = interval;
+                        }
+                        cronValue = `0 0/${interval} * * * ?`;
+                        summaryText = `Every ${interval} minute${interval === 1 ? '' : 's'}.`;
+                        break;
+                    }
+                    case 'hourly': {
+                        const input = builder.querySelector('.cron-hour-minute');
+                        const minute = clamp(parseInt(input?.value ?? '0', 10), 0, 59, 0);
+                        if (input) {
+                            input.value = minute;
+                        }
+                        cronValue = `0 ${minute} * * * ?`;
+                        summaryText = `Every hour at minute ${minute.toString().padStart(2, '0')}.`;
+                        break;
+                    }
+                    case 'daily': {
+                        const { hours, minutes } = parseTime(builder.querySelector('.cron-daily-time'));
+                        cronValue = `0 ${minutes} ${hours} * * ?`;
+                        summaryText = `Daily at ${hours}:${minutes} UTC.`;
+                        break;
+                    }
+                    case 'weekly': {
+                        const daySelect = builder.querySelector('.cron-weekly-day');
+                        const dayValue = daySelect?.value || 'MON';
+                        const displayDay = daySelect?.selectedOptions?.[0]?.text || dayValue;
+                        const { hours, minutes } = parseTime(builder.querySelector('.cron-weekly-time'));
+                        cronValue = `0 ${minutes} ${hours} ? * ${dayValue}`;
+                        summaryText = `Weekly on ${displayDay} at ${hours}:${minutes} UTC.`;
+                        break;
+                    }
+                    case 'monthly': {
+                        const dayInput = builder.querySelector('.cron-month-day');
+                        const dayValue = clamp(parseInt(dayInput?.value ?? '1', 10), 1, 31, 1);
+                        if (dayInput) {
+                            dayInput.value = dayValue;
+                        }
+                        const { hours, minutes } = parseTime(builder.querySelector('.cron-month-time'));
+                        cronValue = `0 ${minutes} ${hours} ${dayValue} * ?`;
+                        summaryText = `Monthly on day ${dayValue} at ${hours}:${minutes} UTC.`;
+                        break;
+                    }
+                    case 'custom': {
+                        const customValue = builder.querySelector('.cron-custom-text')?.value?.trim() ?? '';
+                        cronValue = customValue;
+                        summaryText = customValue ? 'Custom expression.' : 'Enter a valid cron expression.';
+                        break;
+                    }
+                    default:
+                        summaryText = 'Select a schedule template.';
+                        break;
+                }
+
+                setExpression(hiddenInput, displayInput, summary, cronValue, summaryText);
+            };
+
+            const initializeBuilder = (builder) => {
+                const hiddenInput = builder.querySelector('.cron-expression');
+                const freqSelect = builder.querySelector('.cron-frequency');
+                const customInput = builder.querySelector('.cron-custom-text');
+
+                const currentValue = hiddenInput?.value?.trim() ?? '';
+                const detected = detectTemplate(currentValue);
+
+                if (detected) {
+                    freqSelect.value = detected.template;
+                    switch (detected.template) {
+                        case 'minutes':
+                            builder.querySelector('.cron-minutes').value = detected.args.interval ?? 5;
+                            break;
+                        case 'hourly':
+                            builder.querySelector('.cron-hour-minute').value = detected.args.minute ?? 0;
+                            break;
+                        case 'daily': {
+                            const hrs = pad(clamp(detected.args.hours ?? 0, 0, 23, 0));
+                            const mins = pad(clamp(detected.args.minutes ?? 0, 0, 59, 0));
+                            builder.querySelector('.cron-daily-time').value = `${hrs}:${mins}`;
+                            break;
+                        }
+                        case 'weekly': {
+                            const hrs = pad(clamp(detected.args.hours ?? 0, 0, 23, 0));
+                            const mins = pad(clamp(detected.args.minutes ?? 0, 0, 59, 0));
+                            builder.querySelector('.cron-weekly-day').value = detected.args.day ?? 'MON';
+                            builder.querySelector('.cron-weekly-time').value = `${hrs}:${mins}`;
+                            break;
+                        }
+                        case 'monthly': {
+                            const hrs = pad(clamp(detected.args.hours ?? 0, 0, 23, 0));
+                            const mins = pad(clamp(detected.args.minutes ?? 0, 0, 59, 0));
+                            builder.querySelector('.cron-month-day').value = detected.args.dayOfMonth ?? 1;
+                            builder.querySelector('.cron-month-time').value = `${hrs}:${mins}`;
+                            break;
+                        }
+                    }
+                } else if (currentValue) {
+                    freqSelect.value = 'custom';
+                    if (customInput) {
+                        customInput.value = currentValue;
+                    }
+                } else {
+                    freqSelect.value = 'minutes';
+                }
+
+                buildExpression(builder);
+
+                freqSelect?.addEventListener('change', () => buildExpression(builder));
+
+                const watchers = [
+                    '.cron-minutes',
+                    '.cron-hour-minute',
+                    '.cron-daily-time',
+                    '.cron-weekly-day',
+                    '.cron-weekly-time',
+                    '.cron-month-day',
+                    '.cron-month-time',
+                    '.cron-custom-text'
+                ];
+
+                watchers.forEach(selector => {
+                    builder.querySelectorAll(selector).forEach(element => {
+                        element.addEventListener('input', () => buildExpression(builder));
+                        element.addEventListener('change', () => buildExpression(builder));
+                    });
+                });
+            };
+
+            const initializeAll = () => document.querySelectorAll('.cron-builder').forEach(builder => initializeBuilder(builder));
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeAll);
+            } else {
+                initializeAll();
+            }
+        })();
+    </script>
+}

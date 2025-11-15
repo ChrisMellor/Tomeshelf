@@ -1,0 +1,267 @@
+@model ExecutorConfigurationViewModel
+@{
+    ViewData["Title"] = "Executor Scheduler";
+}
+
+<h1 class="mb-3">Executor Scheduler</h1>
+
+@if (TempData["StatusMessage"] is string statusMessage)
+{
+    <div class="alert alert-success">@statusMessage</div>
+}
+
+<div class="mb-4">
+    <form asp-action="Toggle" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="enabled" value="@(Model.Enabled
+                                                           ? "false"
+                                                           : "true")"/>
+        <button class="btn @(Model.Enabled
+                                   ? "btn-danger"
+                                   : "btn-success")" type="submit">
+            @(Model.Enabled
+                    ? "Disable Scheduler"
+                    : "Enable Scheduler")
+        </button>
+        <span class="ms-2 badge @(Model.Enabled
+                                        ? "text-bg-success"
+                                        : "text-bg-secondary")">
+            @(Model.Enabled
+                    ? "Enabled"
+                    : "Disabled")
+        </span>
+    </form>
+</div>
+
+<section class="mb-5">
+    <h2 class="h4">Configured Endpoints</h2>
+    @if (Model.Endpoints.Count == 0)
+    {
+        <p class="text-muted">No endpoints have been configured yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Method</th>
+                    <th>URL</th>
+                    <th>Cron</th>
+                    <th>Headers</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var endpoint in Model.Endpoints)
+                {
+                    <tr>
+                        <td>@endpoint.Name</td>
+                        <td>@endpoint.Method</td>
+                        <td class="text-break">@endpoint.Url</td>
+                        <td>@endpoint.Cron</td>
+                        <td>@endpoint.HeadersDisplay</td>
+                        <td>
+                            <span class="badge @(endpoint.Enabled
+                                                       ? "text-bg-success"
+                                                       : "text-bg-secondary")">
+                                @(endpoint.Enabled
+                                        ? "Enabled"
+                                        : "Disabled")
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-name="@endpoint.Name">Edit</a>
+                            <form asp-action="Delete" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="name" value="@endpoint.Name"/>
+                                <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('Delete @endpoint.Name?');">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section>
+    <h2 class="h4">New Endpoint</h2>
+    <form asp-action="Create" method="post" class="mt-3">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="Editor.Name" class="form-label"></label>
+                <input asp-for="Editor.Name" class="form-control"/>
+                <span asp-validation-for="Editor.Name" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Editor.Method" class="form-label"></label>
+                <input asp-for="Editor.Method" class="form-control"/>
+                <span asp-validation-for="Editor.Method" class="text-danger"></span>
+            </div>
+        </div>
+        @if (Model.ApiServices.Count > 0)
+        {
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="api-selector" class="form-label">API Base URL</label>
+                    <select id="api-selector" class="form-select" aria-label="API base URL selector">
+                        <option value="">Select an API</option>
+                        @foreach (var api in Model.ApiServices)
+                        {
+                            <option value="@api.BaseAddress" data-service-name="@api.ServiceName">
+                                @($"{api.DisplayName} - {api.BaseAddress}")
+                            </option>
+                        }
+                    </select>
+                    <div class="form-text">Selecting an API helps populate the target URL automatically.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="endpoint-selector" class="form-label">Endpoint</label>
+                    <select id="endpoint-selector" class="form-select" aria-label="Endpoint selector" disabled>
+                        <option value="">Select an endpoint</option>
+                    </select>
+                    <div class="form-text">Selecting an endpoint fills in the URL and HTTP method.</div>
+                </div>
+            </div>
+        }
+        <div class="mb-3">
+            <label asp-for="Editor.Url" class="form-label"></label>
+            <input asp-for="Editor.Url" class="form-control"/>
+            <span asp-validation-for="Editor.Url" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Editor.Cron" class="form-label"></label>
+            @{
+                var cronInputId = Html.IdFor(m => m.Editor.Cron);
+                var cronInputName = Html.NameFor(m => m.Editor.Cron);
+            }
+            <partial name="_CronBuilder" model="new CronBuilderViewModel(cronInputId, cronInputName, Model.Editor.Cron)"/>
+            <span asp-validation-for="Editor.Cron" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Editor.Headers" class="form-label"></label>
+            <textarea asp-for="Editor.Headers" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Editor.Headers" class="text-danger"></span>
+        </div>
+        <div class="form-check mb-3">
+            <input asp-for="Editor.Enabled" class="form-check-input"/>
+            <label asp-for="Editor.Enabled" class="form-check-label"></label>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Endpoint</button>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+    @if (Model.ApiServices.Count > 0)
+    {
+        <script>
+            (() => {
+                const apiSelect = document.getElementById('api-selector');
+                const endpointSelect = document.getElementById('endpoint-selector');
+                const urlInput = document.getElementById('Editor_Url');
+                const methodInput = document.getElementById('Editor_Method');
+                const discoveryUrl = '@Url.Action("GetDiscoveredEndpoints", "Home")';
+
+                if (!apiSelect || !endpointSelect || !urlInput || !methodInput) {
+                    return;
+                }
+
+                const resetEndpoints = (placeholder = 'Select an endpoint') => {
+                    endpointSelect.innerHTML = '';
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = placeholder;
+                    endpointSelect.appendChild(option);
+                    endpointSelect.disabled = true;
+                    endpointSelect.dataset.base = '';
+                };
+
+                resetEndpoints();
+
+                apiSelect.addEventListener('change', async () => {
+                    const baseUri = apiSelect.value;
+                    if (!baseUri) {
+                        resetEndpoints();
+                        return;
+                    }
+
+                    endpointSelect.dataset.base = baseUri;
+                    endpointSelect.disabled = true;
+                    endpointSelect.innerHTML = '';
+                    const loading = document.createElement('option');
+                    loading.value = '';
+                    loading.textContent = 'Loading endpoints...';
+                    endpointSelect.appendChild(loading);
+
+                    try {
+                        const response = await fetch(`${discoveryUrl}?baseUri=${encodeURIComponent(baseUri)}`);
+                        if (!response.ok) {
+                            throw new Error(`Failed to load endpoints (${response.status}).`);
+                        }
+
+                        const endpoints = await response.json();
+                        if (!Array.isArray(endpoints) || endpoints.length === 0) {
+                            resetEndpoints('No endpoints discovered');
+                            return;
+                        }
+
+                        endpointSelect.innerHTML = '';
+                        const placeholder = document.createElement('option');
+                        placeholder.value = '';
+                        placeholder.textContent = 'Select an endpoint';
+                        endpointSelect.appendChild(placeholder);
+
+                        endpoints.forEach(endpoint => {
+                            const option = document.createElement('option');
+                            option.value = endpoint.id ?? endpoint.relativePath ?? '';
+                            option.dataset.method = endpoint.method ?? '';
+                            option.dataset.relativePath = endpoint.relativePath ?? '';
+
+                            let label = `${endpoint.method ?? ''} ${endpoint.relativePath ?? ''}`.trim();
+                            if (endpoint.description) {
+                                label = `${label} (${endpoint.description})`;
+                            }
+
+                            option.textContent = label || (endpoint.displayName ?? 'Endpoint');
+                            option.title = endpoint.displayName ?? label;
+                            endpointSelect.appendChild(option);
+                        });
+
+                        endpointSelect.disabled = false;
+                    } catch (error) {
+                        console.error(error);
+                        resetEndpoints('Failed to load endpoints');
+                    }
+                });
+
+                endpointSelect.addEventListener('change', () => {
+                    const selected = endpointSelect.selectedOptions[0];
+                    if (!selected) {
+                        return;
+                    }
+
+                    const selectedMethod = selected.dataset.method;
+                    const relativePath = selected.dataset.relativePath;
+                    const baseUri = endpointSelect.dataset.base ?? '';
+
+                    if (selectedMethod) {
+                        methodInput.value = selectedMethod;
+                    }
+
+                    if (baseUri && relativePath) {
+                        const normalizedBase = baseUri.replace(/\/+$/, '');
+                        const normalizedPath = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
+                        urlInput.value = `${normalizedBase}${normalizedPath}`;
+                    }
+                });
+            })();
+        </script>
+    }
+}
