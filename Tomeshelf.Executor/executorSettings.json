@@ -3,27 +3,27 @@
     "enabled": true,
     "endpoints": [
       {
-        "name": "MCM Birmingham Refresh",
+        "name": "Refresh MCM - Birmingham",
         "url": "https://localhost:7000/api/ComicCon/Guests/City?city=Birmingham",
-        "cron": "0 0/5 * * * ?",
+        "cron": "0 0 8,12,16,20 ? * * *",
         "enabled": true,
         "method": "POST",
         "timeZone": null,
         "headers": null
       },
       {
-        "name": "Humble Bundle Refresh",
+        "name": "Refresh Bundles",
         "url": "https://localhost:7015/bundles/refresh",
-        "cron": "0 0/5 * * * ?",
+        "cron": "0 0 * * * ?",
         "enabled": true,
         "method": "POST",
         "timeZone": null,
         "headers": null
       },
       {
-        "name": "FF14 Housing Update",
+        "name": "Refresh FF14 Houses",
         "url": "https://localhost:64106/paissa/world",
-        "cron": "0 0/5 * * * ?",
+        "cron": "0 0 * * * ?",
         "enabled": true,
         "method": "GET",
         "timeZone": null,

@@ -1,27 +1,33 @@
 {
-  "Executor": {
-    "Enabled": true,
-    "Endpoints": [
+  "executor": {
+    "enabled": true,
+    "endpoints": [
       {
-        "Name": "comiccon-london-refresh",
-        "Url": "https://localhost:7000/api/ComicCon/Guests/City?city=London",
-        "Method": "POST",
-        "Cron": "0 0 * * * ?",
-        "TimeZone": "UTC"
+        "name": "Refresh MCM - Birmingham",
+        "url": "https://localhost:7000/api/ComicCon/Guests/City?city=Birmingham",
+        "cron": "0 0 8,12,16,20 ? * * *",
+        "enabled": true,
+        "method": "POST",
+        "timeZone": null,
+        "headers": null
       },
       {
-        "Name": "comiccon-birmingham-refresh",
-        "Url": "https://localhost:7000/api/ComicCon/Guests/City?city=Birmingham",
-        "Method": "POST",
-        "Cron": "0 30 * * * ?",
-        "TimeZone": "UTC"
+        "name": "Refresh Bundles",
+        "url": "https://localhost:7015/bundles/refresh",
+        "cron": "0 0 * * * ?",
+        "enabled": true,
+        "method": "POST",
+        "timeZone": null,
+        "headers": null
       },
       {
-        "Name": "humblebundle-refresh",
-        "Url": "https://localhost:7015/bundles/refresh",
-        "Method": "POST",
-        "Cron": "0 0 6 * * ?",
-        "TimeZone": "UTC"
+        "name": "Refresh FF14 Houses",
+        "url": "https://localhost:64106/paissa/world",
+        "cron": "0 0 * * * ?",
+        "enabled": true,
+        "method": "GET",
+        "timeZone": null,
+        "headers": null
       }
     ]
   }

@@ -20,11 +20,11 @@ public sealed class ExecutorSchedulerHostedService : IHostedService
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting Executor scheduler hosted service.");
-        await _orchestrator.RefreshAsync(cancellationToken);
+        await _orchestrator.RefreshAsync(null, cancellationToken);
 
-        _subscription = _optionsMonitor.OnChange((_, _) =>
+        _subscription = _optionsMonitor.OnChange((options, _) =>
         {
-            _ = Task.Run(() => _orchestrator.RefreshAsync(), CancellationToken.None);
+            Task.Run(async () => await _orchestrator.RefreshAsync(options), CancellationToken.None);
         });
     }
 

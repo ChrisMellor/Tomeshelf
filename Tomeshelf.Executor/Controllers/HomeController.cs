@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Executor.Configuration;
 using Tomeshelf.Executor.Models;
 using Tomeshelf.Executor.Services;
@@ -10,17 +11,23 @@ public class HomeController : Controller
     private readonly IApiEndpointDiscoveryService _discovery;
     private readonly IExecutorSchedulerOrchestrator _scheduler;
     private readonly IExecutorConfigurationStore _store;
+    private readonly ILogger<HomeController> _logger;
 
-    public HomeController(IExecutorConfigurationStore store, IExecutorSchedulerOrchestrator scheduler, IApiEndpointDiscoveryService discovery)
+    public HomeController(IExecutorConfigurationStore store,
+                          IExecutorSchedulerOrchestrator scheduler,
+                          IApiEndpointDiscoveryService discovery,
+                          ILogger<HomeController> logger)
     {
         _store = store;
         _scheduler = scheduler;
         _discovery = discovery;
+        _logger = logger;
     }
 
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
+        _logger.LogDebug("Rendering executor dashboard.");
         var options = await _store.GetAsync(cancellationToken);
 
         return View(await CreateViewModelAsync(options, null, cancellationToken));
@@ -30,6 +37,7 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Toggle(bool enabled, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Toggling scheduler {State}.", enabled ? "on" : "off");
         var options = await _store.GetAsync(cancellationToken);
         options.Enabled = enabled;
         await PersistAsync(options, cancellationToken);
@@ -45,15 +53,18 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind(Prefix = "Editor")] EndpointEditorModel model, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Creating scheduled endpoint {Name}.", model.Name);
         var options = await _store.GetAsync(cancellationToken);
 
         if (!ModelState.IsValid)
         {
+            _logger.LogWarning("Validation failed creating endpoint {Name}.", model.Name);
             return View("Index", await CreateViewModelAsync(options, model, cancellationToken));
         }
 
         if (options.Endpoints.Any(ep => string.Equals(ep.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
         {
+            _logger.LogWarning("Endpoint {Name} already exists.", model.Name);
             ModelState.AddModelError(nameof(EndpointEditorModel.Name), "An endpoint with this name already exists.");
 
             return View("Index", await CreateViewModelAsync(options, model, cancellationToken));
@@ -70,10 +81,12 @@ public class HomeController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(string name, CancellationToken cancellationToken)
     {
+        _logger.LogDebug("Loading endpoint {Name} for editing.", name);
         var options = await _store.GetAsync(cancellationToken);
         var endpoint = options.Endpoints.FirstOrDefault(ep => string.Equals(ep.Name, name, StringComparison.OrdinalIgnoreCase));
         if (endpoint is null)
         {
+            _logger.LogWarning("Endpoint {Name} not found when editing.", name);
             return RedirectToAction(nameof(Index));
         }
 
@@ -87,10 +100,12 @@ public class HomeController : Controller
     public async Task<IActionResult> Edit([FromRoute(Name = "name")] string? routeName, [FromForm(Name = "originalName")] string? originalName, [Bind(Prefix = "")] EndpointEditorModel model, CancellationToken cancellationToken)
     {
         var name = originalName ?? routeName;
+        _logger.LogInformation("Updating endpoint {OriginalName} -> {NewName}.", name, model.Name);
         var options = await _store.GetAsync(cancellationToken);
 
         if (!ModelState.IsValid)
         {
+            _logger.LogWarning("Validation failed editing endpoint {Name}.", name);
             ViewData["OriginalName"] = name;
 
             return View(model);
@@ -99,6 +114,7 @@ public class HomeController : Controller
         var endpoint = options.Endpoints.FirstOrDefault(ep => string.Equals(ep.Name, name, StringComparison.OrdinalIgnoreCase));
         if (endpoint is null)
         {
+            _logger.LogWarning("Endpoint {Name} not found while updating.", name);
             ModelState.AddModelError(string.Empty, "Endpoint not found.");
             ViewData["OriginalName"] = name;
 
@@ -107,6 +123,7 @@ public class HomeController : Controller
 
         if (!string.Equals(name, model.Name, StringComparison.OrdinalIgnoreCase) && options.Endpoints.Any(ep => string.Equals(ep.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
         {
+            _logger.LogWarning("New endpoint name {NewName} already exists.", model.Name);
             ModelState.AddModelError(nameof(EndpointEditorModel.Name), "Another endpoint already uses this name.");
             ViewData["OriginalName"] = name;
 
@@ -125,6 +142,7 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(string name, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Deleting endpoint {Name}.", name);
         var options = await _store.GetAsync(cancellationToken);
         var removed = options.Endpoints.RemoveAll(ep => string.Equals(ep.Name, name, StringComparison.OrdinalIgnoreCase));
         if (removed > 0)
@@ -139,6 +157,7 @@ public class HomeController : Controller
     [HttpGet("discovery/endpoints")]
     public async Task<IActionResult> GetDiscoveredEndpoints([FromQuery] string baseUri, CancellationToken cancellationToken)
     {
+        _logger.LogDebug("Fetching discovery metadata from {BaseUri}.", baseUri);
         if (string.IsNullOrWhiteSpace(baseUri))
         {
             return BadRequest("Base URI is required.");
@@ -162,7 +181,7 @@ public class HomeController : Controller
     private async Task PersistAsync(ExecutorOptions options, CancellationToken cancellationToken)
     {
         await _store.SaveAsync(options, cancellationToken);
-        await _scheduler.RefreshAsync(cancellationToken);
+        await _scheduler.RefreshAsync(options, cancellationToken);
     }
 
     private async Task<ExecutorConfigurationViewModel> CreateViewModelAsync(ExecutorOptions options, EndpointEditorModel? editor, CancellationToken cancellationToken)

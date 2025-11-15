@@ -7,7 +7,8 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
-    private readonly string _filePath;
+    private readonly string _defaultFilePath;
+    private readonly string? _environmentFilePath;
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly ILogger<ExecutorConfigurationStore> _logger;
 
@@ -16,7 +17,12 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
         ArgumentNullException.ThrowIfNull(environment);
         ArgumentNullException.ThrowIfNull(logger);
 
-        _filePath = Path.Combine(environment.ContentRootPath, "executorSettings.json");
+        _defaultFilePath = Path.Combine(environment.ContentRootPath, "executorSettings.json");
+        if (!string.IsNullOrWhiteSpace(environment.EnvironmentName))
+        {
+            _environmentFilePath = Path.Combine(environment.ContentRootPath, $"executorSettings.{environment.EnvironmentName}.json");
+        }
+
         _logger = logger;
     }
 
@@ -25,21 +31,21 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
         await _lock.WaitAsync(cancellationToken);
         try
         {
-            if (!File.Exists(_filePath))
+            var path = ResolveReadPath();
+            if (!File.Exists(path))
             {
-                _logger.LogInformation("Executor settings file '{Path}' not found. Returning defaults.", _filePath);
-
+                _logger.LogInformation("Executor settings file '{Path}' not found. Returning defaults.", path);
                 return new ExecutorOptions();
             }
 
-            await using var stream = File.OpenRead(_filePath);
+            await using var stream = File.OpenRead(path);
             var document = await JsonSerializer.DeserializeAsync<ExecutorSettingsDocument>(stream, SerializerOptions, cancellationToken);
 
             return document?.Executor?.Clone() ?? new ExecutorOptions();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to read executor settings file '{Path}'.", _filePath);
+            _logger.LogError(ex, "Failed to read executor settings file.");
 
             throw;
         }
@@ -57,15 +63,17 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
         try
         {
             var document = new ExecutorSettingsDocument(options);
-            Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
+            var path = ResolveWritePath();
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            _logger.LogInformation("Persisting executor settings to '{Path}'.", path);
 
-            await using var stream = File.Create(_filePath);
+            await using var stream = File.Create(path);
             await JsonSerializer.SerializeAsync(stream, document, SerializerOptions, cancellationToken);
             await stream.FlushAsync(cancellationToken);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to persist executor settings to '{Path}'.", _filePath);
+            _logger.LogError(ex, "Failed to persist executor settings to disk.");
 
             throw;
         }
@@ -73,6 +81,21 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
         {
             _lock.Release();
         }
+    }
+
+    private string ResolveReadPath()
+    {
+        if (!string.IsNullOrWhiteSpace(_environmentFilePath) && File.Exists(_environmentFilePath))
+        {
+            return _environmentFilePath;
+        }
+
+        return _defaultFilePath;
+    }
+
+    private string ResolveWritePath()
+    {
+        return _environmentFilePath ?? _defaultFilePath;
     }
 
     private sealed record ExecutorSettingsDocument
