@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Tomeshelf.Executor.Validation;
@@ -11,6 +12,10 @@ public sealed class ExecutorConfigurationViewModel
     public List<EndpointSummaryViewModel> Endpoints { get; set; } = [];
 
     public EndpointEditorModel Editor { get; set; } = new();
+
+    public EndpointPingModel Ping { get; set; } = new();
+
+    public EndpointPingResultViewModel? PingResult { get; set; }
 
     public List<ApiServiceOptionViewModel> ApiServices { get; set; } = [];
 }
@@ -55,6 +60,34 @@ public sealed class EndpointEditorModel
 
     [Display(Name = "Headers (key:value per line)")]
     public string? Headers { get; set; }
+}
+
+public sealed class EndpointPingModel
+{
+    [Required]
+    [Display(Name = "Target URL")]
+    [AbsoluteUrl]
+    public string Url { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "HTTP Method")]
+    public string Method { get; set; } = "GET";
+
+    [Display(Name = "Headers (key:value per line)")]
+    public string? Headers { get; set; }
+}
+
+public sealed class EndpointPingResultViewModel
+{
+    public bool Success { get; init; }
+
+    public string Message { get; init; } = string.Empty;
+
+    public int? StatusCode { get; init; }
+
+    public string? ResponseBody { get; init; }
+
+    public TimeSpan Duration { get; init; }
 }
 
 public sealed class ApiServiceOptionViewModel
