@@ -1,21 +1,21 @@
 using System;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
 using Tomeshelf.Executor.Configuration;
+using Tomeshelf.Executor.Services;
 
 namespace Tomeshelf.Executor.Jobs;
 
-public class TriggerEndpointJob(IHttpClientFactory httpClientFactory, IOptionsMonitor<ExecutorOptions> executorOptions, ILogger<TriggerEndpointJob> logger) : IJob
+public class TriggerEndpointJob(IEndpointPingService pingService, IOptionsMonitor<ExecutorOptions> executorOptions, ILogger<TriggerEndpointJob> logger) : IJob
 {
     public const string EndpointNameKey = "Executor.EndpointName";
     public const string HttpClientName = "Executor.EndpointClient";
     private readonly IOptionsMonitor<ExecutorOptions> _executorOptions = executorOptions;
 
-    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+    private readonly IEndpointPingService _pingService = pingService;
     private readonly ILogger<TriggerEndpointJob> _logger = logger;
 
     public async Task Execute(IJobExecutionContext context)
@@ -52,67 +52,26 @@ public class TriggerEndpointJob(IHttpClientFactory httpClientFactory, IOptionsMo
             return;
         }
 
-        var httpMethod = CreateMethod(endpoint.Method);
-        var client = _httpClientFactory.CreateClient(HttpClientName);
-
-        using var request = new HttpRequestMessage(httpMethod, uri);
-        AddHeaders(endpoint, request);
-
         try
         {
-            var response = await client.SendAsync(request, context.CancellationToken);
-            if (response.IsSuccessStatusCode)
+            var result = await _pingService.SendAsync(uri, endpoint.Method, endpoint.Headers, context.CancellationToken);
+            if (result.Success && result.StatusCode.HasValue)
             {
-                _logger.LogInformation("Executed endpoint '{EndpointName}' with status {StatusCode}.", endpointName, (int)response.StatusCode);
+                _logger.LogInformation("Executed endpoint '{EndpointName}' with status {StatusCode}.", endpointName, result.StatusCode.Value);
+            }
+            else if (result.StatusCode.HasValue)
+            {
+                var responseBody = result.Body ?? result.Message;
+                _logger.LogError("Endpoint '{EndpointName}' responded with status {StatusCode}. Body: {Body}", endpointName, result.StatusCode.Value, responseBody);
             }
             else
             {
-                var body = await response.Content.ReadAsStringAsync(context.CancellationToken);
-                _logger.LogError("Endpoint '{EndpointName}' responded with status {StatusCode}. Body: {Body}", endpointName, (int)response.StatusCode, body);
+                _logger.LogError("Endpoint '{EndpointName}' failed: {Message}", endpointName, result.Message);
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to execute endpoint '{EndpointName}'.", endpointName);
-        }
-    }
-
-    private static HttpMethod CreateMethod(string? methodName)
-    {
-        if (string.IsNullOrWhiteSpace(methodName))
-        {
-            return HttpMethod.Post;
-        }
-
-        try
-        {
-            return new HttpMethod(methodName);
-        }
-        catch (FormatException)
-        {
-            return HttpMethod.Post;
-        }
-    }
-
-    private static void AddHeaders(EndpointScheduleOptions endpoint, HttpRequestMessage request)
-    {
-        if (endpoint.Headers is null)
-        {
-            return;
-        }
-
-        foreach (var header in endpoint.Headers)
-        {
-            if (request.Headers.TryAddWithoutValidation(header.Key, header.Value))
-            {
-                continue;
-            }
-
-            request.Content ??= new StringContent(string.Empty);
-            if (!request.Content.Headers.TryAddWithoutValidation(header.Key, header.Value))
-            {
-                throw new InvalidOperationException($"Unable to add header '{header.Key}' to the request.");
-            }
         }
     }
 

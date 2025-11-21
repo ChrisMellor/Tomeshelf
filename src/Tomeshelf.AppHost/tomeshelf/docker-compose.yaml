@@ -18,7 +18,7 @@ services:
     volumes:
       - type: "volume"
         target: "/var/opt/mssql"
-        source: "tomeshelf.apphost-918c7a5d48-sql-data"
+        source: "tomeshelf-sql-data"
         read_only: false
     networks:
       - "aspire"
@@ -216,7 +216,7 @@ networks:
   aspire:
     driver: "bridge"
 volumes:
-  tomeshelf.apphost-918c7a5d48-sql-data:
+  tomeshelf-sql-data:
     driver: "local"
   executor-settings:
     driver: "local"

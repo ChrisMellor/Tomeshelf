@@ -31,6 +31,7 @@ public class Program
         builder.Services.Configure<ExecutorOptions>(executorSection);
         builder.Services.AddHttpClient(TriggerEndpointJob.HttpClientName);
         builder.Services.AddHttpClient(ApiEndpointDiscoveryService.HttpClientName);
+        builder.Services.AddSingleton<IEndpointPingService, EndpointPingService>();
 
         builder.Services.AddSingleton<IExecutorConfigurationStore, ExecutorConfigurationStore>();
         builder.Services.AddSingleton<IExecutorSchedulerOrchestrator, ExecutorSchedulerOrchestrator>();

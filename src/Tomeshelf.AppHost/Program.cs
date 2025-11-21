@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Docker.Resources.ServiceNodes;
 using Microsoft.Extensions.Configuration;
 using Projects;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Tomeshelf.AppHost.Records;
 
 namespace Tomeshelf.AppHost;
@@ -18,6 +18,7 @@ internal class Program
     private const string ContainerExecutorSettingsDirectory = "/home/app/.tomeshelf/executor";
     private const string ExecutorSettingsDirectoryVariable = "EXECUTOR_SETTINGS_DIR";
     private const string ExecutorSettingsVolumeName = "executor-settings";
+    private const string SqlDataVolumeName = "tomeshelf-sql-data";
 
     /// <summary>
     ///     Application entry point for the Aspire AppHost.
@@ -44,8 +45,8 @@ internal class Program
                 {
                     compose.AddVolume(new Volume
                     {
-                            Name = ExecutorSettingsVolumeName,
-                            Driver = "local"
+                        Name = ExecutorSettingsVolumeName,
+                        Driver = "local"
                     });
                 })
                .WithDashboard(rb => rb.WithHostPort(18888));
@@ -57,7 +58,7 @@ internal class Program
     private static IResourceBuilder<SqlServerServerResource> SetupDatabase(IDistributedApplicationBuilder builder)
     {
         var database = builder.AddSqlServer("sql")
-                              .WithDataVolume()
+                              .WithDataVolume(SqlDataVolumeName)
                               .WithEnvironment("ACCEPT_EULA", "Y")
                               .PublishAsDockerComposeService((resource, service) =>
                                {
@@ -172,11 +173,11 @@ internal class Program
         var hostExecutorSettingsDirectory = ResolveHostExecutorSettingsDirectory();
         var volume = new Volume
         {
-                Name = ExecutorSettingsVolumeName,
-                Type = "volume",
-                Source = ExecutorSettingsVolumeName,
-                Target = ContainerExecutorSettingsDirectory,
-                ReadOnly = false
+            Name = ExecutorSettingsVolumeName,
+            Type = "volume",
+            Source = ExecutorSettingsVolumeName,
+            Target = ContainerExecutorSettingsDirectory,
+            ReadOnly = false
         };
 
         var executor = builder.AddProject<Tomeshelf_Executor>("executor")
