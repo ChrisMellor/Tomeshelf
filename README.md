@@ -25,8 +25,6 @@ Tomeshelf is a data-aggregation platform built on .NET 10 and orchestrated with 
 - **OpenTelemetry** – Tracing, instrumentation, health checks  
 - **Docker / Aspire Compose** – Local container environment  
 
-
-
 ## Features
 ### Aspire Orchestration
 - **Aspire AppHost** – Coordinates all services, manages service discovery, configuration, and local orchestration.
