@@ -66,6 +66,9 @@
             }
         </div>
         <div class="d-flex gap-2">
+            <a class="btn btn-primary" asp-action="Upload">
+                <i class="bi bi-cloud-upload me-1"></i>Upload bundle
+            </a>
             <a class="btn btn-outline-secondary" asp-action="Index" asp-route-includeExpired="@(!Model.IncludeExpired)">
                 <i class="bi @(Model.IncludeExpired
                                      ? "bi-eye-slash"

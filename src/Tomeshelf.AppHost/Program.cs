@@ -36,9 +36,10 @@ internal class Program
         var humbleBundleApi = SetupHumbleBundleApi(builder, database);
         var fitbitApi = SetupFitbitApi(builder, database);
         var paissaApi = SetupPaissaApi(builder);
+        var fileUploaderApi = SetupFileUploaderApi(builder);
 
-        _ = SetupExecutor(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
-        _ = SetupWeb(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi);
+        _ = SetupExecutor(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi);
+        _ = SetupWeb(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi);
 
         builder.AddDockerComposeEnvironment("tomeshelf")
                .ConfigureComposeFile(compose =>
@@ -137,6 +138,54 @@ internal class Program
         return api;
     }
 
+    private static IResourceBuilder<ProjectResource> SetupFileUploaderApi(IDistributedApplicationBuilder builder)
+    {
+        var api = builder.AddProject<Tomeshelf_FileUploader_Api>("fileuploaderapi")
+                         .WithHttpHealthCheck("/health")
+                         .WithExternalHttpEndpoints()
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
+
+        var rootFolder = builder.Configuration.GetValue<string>("GoogleDrive:RootFolderPath");
+        if (!string.IsNullOrWhiteSpace(rootFolder))
+        {
+            api.WithEnvironment("GoogleDrive__RootFolderPath", rootFolder);
+        }
+        var rootFolderId = builder.Configuration.GetValue<string>("GoogleDrive:RootFolderId");
+        if (!string.IsNullOrWhiteSpace(rootFolderId))
+        {
+            api.WithEnvironment("GoogleDrive__RootFolderId", rootFolderId);
+        }
+
+        var clientId = builder.Configuration.GetValue<string>("GoogleDrive:ClientId");
+        if (!string.IsNullOrWhiteSpace(clientId))
+        {
+            api.WithEnvironment("GoogleDrive__ClientId", clientId);
+        }
+
+        var clientSecret = builder.Configuration.GetValue<string>("GoogleDrive:ClientSecret");
+        if (!string.IsNullOrWhiteSpace(clientSecret))
+        {
+            api.WithEnvironment("GoogleDrive__ClientSecret", clientSecret);
+        }
+
+        var userEmail = builder.Configuration.GetValue<string>("GoogleDrive:UserEmail");
+        if (!string.IsNullOrWhiteSpace(userEmail))
+        {
+            api.WithEnvironment("GoogleDrive__UserEmail", userEmail);
+        }
+
+        var sharedDriveId = builder.Configuration.GetValue<string>("GoogleDrive:SharedDriveId");
+        if (!string.IsNullOrWhiteSpace(sharedDriveId))
+        {
+            api.WithEnvironment("GoogleDrive__SharedDriveId", sharedDriveId);
+        }
+
+        return api;
+    }
+
     private static IResourceBuilder<ProjectResource> SetupPaissaApi(IDistributedApplicationBuilder builder)
     {
         var api = builder.AddProject<Tomeshelf_Paissa_Api>("paissaapi")
@@ -158,6 +207,30 @@ internal class Program
                           {
                               service.Restart = "unless-stopped";
                           });
+
+        var drive = builder.Configuration.GetSection("GoogleDrive");
+        var clientId = drive.GetValue<string>("ClientId");
+        if (!string.IsNullOrWhiteSpace(clientId))
+        {
+            web.WithEnvironment("GoogleDrive__ClientId", clientId);
+        }
+        var rootFolderId = drive.GetValue<string>("RootFolderId");
+        if (!string.IsNullOrWhiteSpace(rootFolderId))
+        {
+            web.WithEnvironment("GoogleDrive__RootFolderId", rootFolderId);
+        }
+
+        var clientSecret = drive.GetValue<string>("ClientSecret");
+        if (!string.IsNullOrWhiteSpace(clientSecret))
+        {
+            web.WithEnvironment("GoogleDrive__ClientSecret", clientSecret);
+        }
+
+        var userEmail = drive.GetValue<string>("UserEmail");
+        if (!string.IsNullOrWhiteSpace(userEmail))
+        {
+            web.WithEnvironment("GoogleDrive__UserEmail", userEmail);
+        }
 
         foreach (var api in apis)
         {

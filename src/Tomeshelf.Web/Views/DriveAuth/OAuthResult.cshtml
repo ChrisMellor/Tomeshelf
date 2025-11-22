@@ -1,0 +1,41 @@
+@model Tomeshelf.Web.Models.DriveAuth.OAuthResultViewModel
+@{
+    ViewData["Title"] = "Google Drive Authorisation";
+    var uploadUrl = Model.RedirectUrl ?? Url.Action("Upload", "Bundles");
+}
+
+<section class="mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h1 class="mb-1">Google Drive authorisation</h1>
+            <p class="text-muted mb-0">Grant Tomeshelf permission to upload Humble Bundle files to your Drive.</p>
+        </div>
+        <div>
+            <a class="btn btn-outline-secondary" asp-controller="Bundles" asp-action="Upload"><i class="bi bi-arrow-left me-1"></i>Back to upload</a>
+        </div>
+    </div>
+</section>
+
+@if (Model.Success)
+{
+    <div class="alert alert-success" role="alert">
+        <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
+        <strong>Success!</strong> @Model.Message
+        @if (!string.IsNullOrWhiteSpace(Model.UserEmail))
+        {
+            <span class="d-block text-muted small mt-1">Authorised as @Model.UserEmail.</span>
+        }
+    </div>
+
+    <p class="text-muted">Tokens are stored for this browser session. You can now upload bundles and they will be sent straight to Google Drive.</p>
+    <a class="btn btn-primary" href="@uploadUrl"><i class="bi bi-cloud-upload me-1"></i>Upload a bundle</a>
+}
+else
+{
+    <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+        <strong>Authorisation failed.</strong> @Model.Message
+    </div>
+
+    <a class="btn btn-outline-primary" asp-action="Start"><i class="bi bi-arrow-repeat me-1"></i>Try again</a>
+}
