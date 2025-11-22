@@ -1,8 +1,9 @@
-using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure.Bundles;
+using Tomeshelf.Infrastructure.Bundles.Upload;
 using Tomeshelf.Infrastructure.Clients;
 using Tomeshelf.Infrastructure.Fitness;
 using Tomeshelf.Infrastructure.Queries;
@@ -30,6 +31,18 @@ public static class ServiceCollectionExtensions
         {
             client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf/1.0 (+https://github.com/ChrisMellor/Tomeshelf)");
         });
+
+        return services;
+    }
+
+    /// <summary>
+    ///     Registers only the upload pipeline (no DB dependencies) for the file uploader API.
+    /// </summary>
+    public static IServiceCollection AddBundleUploadInfrastructure(this IServiceCollection services)
+    {
+        services.AddSingleton<BundleFileOrganiser>();
+        services.AddSingleton<IGoogleDriveClientFactory, GoogleDriveClientFactory>();
+        services.AddScoped<IHumbleBundleUploadService, BundleUploadService>();
 
         return services;
     }

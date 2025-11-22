@@ -1,17 +1,15 @@
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure;
-using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.ServiceDefaults;
 
-namespace Tomeshelf.HumbleBundle.Api;
+namespace Tomeshelf.FileUploader.Api;
 
 public class Program
 {
@@ -24,31 +22,23 @@ public class Program
 
         builder.AddServiceDefaults();
 
-        if (builder.Environment.IsDevelopment())
-        {
-            builder.Services.AddHttpLogging(o =>
-            {
-                o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestQuery | HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration | HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
-                o.RequestHeaders.Add("User-Agent");
-                o.MediaTypeOptions.AddText("application/json");
-                o.RequestBodyLogLimit = 0;
-                o.ResponseBodyLogLimit = 0;
-            });
-        }
-
         builder.Services.AddProblemDetails()
                .AddOpenApi()
                .AddControllers();
 
         builder.Services.AddAuthorization();
+        builder.Services.Configure<GoogleDriveOptions>(builder.Configuration.GetSection("GoogleDrive"));
+        builder.Services.Configure<FormOptions>(options =>
+        {
+            options.MultipartBodyLengthLimit = 1_073_741_824; // ~1GB
+        });
 
         builder.Services.ConfigureHttpJsonOptions(options =>
         {
             options.SerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
         });
 
-        builder.AddSqlServerDbContext<TomeshelfBundlesDbContext>("humblebundledb");
-        builder.Services.AddBundleInfrastructure();
+        builder.Services.AddBundleUploadInfrastructure();
 
         var app = builder.Build();
 
@@ -61,27 +51,16 @@ public class Program
             app.UseSwaggerUI(options =>
             {
                 options.RoutePrefix = string.Empty;
-                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf API v1");
+                options.SwaggerEndpoint("/openapi/v1.json", "File Uploader API v1");
             });
         }
 
         app.UseHttpsRedirection();
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseHttpLogging();
-        }
-
         app.UseAuthorization();
         app.MapControllers();
 
         app.MapExecutorDiscoveryEndpoint();
         app.MapDefaultEndpoints();
-
-        using (var scope = app.Services.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<TomeshelfBundlesDbContext>();
-            await db.Database.MigrateAsync();
-        }
 
         await app.RunAsync();
     }

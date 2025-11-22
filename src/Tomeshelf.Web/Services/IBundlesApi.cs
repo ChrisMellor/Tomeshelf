@@ -16,4 +16,5 @@ public interface IBundlesApi
     /// <param name="includeExpired">When true, includes bundles whose end date has passed.</param>
     /// <param name="cancellationToken">Cancellation token for the HTTP request.</param>
     Task<IReadOnlyList<BundleModel>> GetBundlesAsync(bool includeExpired, CancellationToken cancellationToken);
+
 }

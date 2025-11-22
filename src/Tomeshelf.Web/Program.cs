@@ -1,12 +1,13 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Tomeshelf.ServiceDefaults;
 using Tomeshelf.Web.Services;
 
@@ -41,6 +42,17 @@ public class Program
         builder.Services.AddControllersWithViews();
         builder.Services.AddAuthorization();
         builder.Services.AddLocalization();
+        builder.Services.AddDistributedMemoryCache();
+        builder.Services.AddSession(options =>
+        {
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
+            options.IdleTimeout = TimeSpan.FromHours(8);
+        });
+        builder.Services.Configure<FormOptions>(options =>
+        {
+            options.MultipartBodyLengthLimit = 1_073_741_824; // ~1GB
+        });
 
         builder.Services.AddHttpClient<IGuestsApi, GuestsApi>(client =>
                 {
@@ -131,10 +143,10 @@ public class Program
                     client.Timeout = TimeSpan.FromSeconds(100);
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-                {
-                        AutomaticDecompression = DecompressionMethods.None,
-                        AllowAutoRedirect = false
-                });
+               {
+                   AutomaticDecompression = DecompressionMethods.None,
+                   AllowAutoRedirect = false
+               });
 
         builder.Services.AddHttpClient<IPaissaApi, PaissaApi>(client =>
                 {
@@ -166,6 +178,38 @@ public class Program
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
 
+        builder.Services.AddHttpClient<IFileUploadsApi, FileUploadsApi>(client =>
+                {
+                    var configured = builder.Configuration["Services:FileUploaderApiBase"];
+
+                    if (!string.IsNullOrWhiteSpace(configured))
+                    {
+                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                        {
+                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:FileUploaderApiBase'.");
+                        }
+
+                        client.BaseAddress = configuredUri;
+                    }
+                    else
+                    {
+                        if (IsRunningInDocker())
+                        {
+                            client.BaseAddress = new Uri("http://fileuploaderapi");
+                        }
+                        else
+                        {
+                            client.BaseAddress = new Uri("https://localhost:49960");
+                        }
+                    }
+
+                    client.DefaultRequestVersion = HttpVersion.Version11;
+                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                    client.Timeout = TimeSpan.FromMinutes(30);
+                })
+               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None })
+               .ConfigureHttpMessageHandlerBuilder(b => b.AdditionalHandlers.Clear()); // disable default/standard resilience timeouts for large uploads
+
         var app = builder.Build();
 
         if (!app.Environment.IsDevelopment())
@@ -187,6 +231,7 @@ public class Program
         }
 
         app.UseRouting();
+        app.UseSession();
 
         app.UseAuthorization();
 

@@ -1,0 +1,88 @@
+@model Tomeshelf.Web.Models.Bundles.BundleUploadViewModel
+@{
+    ViewData["Title"] = "Upload Humble Bundle";
+}
+
+<section class="mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h1 class="mb-1">Upload Humble Bundle</h1>
+            <p class="text-muted mb-0">Send a downloaded bundle (zip) to the API and push the organised books to Google Drive under <code>Bundles &gt; Coding &gt; Humble Bundle</code>.</p>
+        </div>
+        <div>
+            <a class="btn btn-outline-secondary" asp-action="Index"><i class="bi bi-arrow-left me-1"></i>Back to bundles</a>
+        </div>
+    </div>
+</section>
+
+@if (!string.IsNullOrWhiteSpace(Model.Error))
+{
+    <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>@Model.Error
+    </div>
+}
+
+@if (Model.Result is not null)
+{
+    <div class="alert alert-success" role="alert">
+        <div class="d-flex align-items-start gap-3">
+            <i class="bi bi-cloud-check fs-4" aria-hidden="true"></i>
+            <div>
+                <h2 class="h5 mb-1">Upload complete</h2>
+                <p class="mb-1">
+                    Processed <strong>@Model.Result.BooksProcessed</strong> book@(Model.Result.BooksProcessed == 1 ? string.Empty : "s")
+                    across <strong>@Model.Result.BundlesProcessed</strong> bundle@(Model.Result.BundlesProcessed == 1 ? string.Empty : "s").
+                </p>
+                <p class="mb-0 text-muted small">Files uploaded: <strong>@Model.Result.FilesUploaded</strong>, skipped (already present): <strong>@Model.Result.FilesSkipped</strong>. Completed at @Model.Result.UploadedAtUtc.ToLocalTime().ToString("f").</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h3 class="h6 text-uppercase text-muted mb-3">Books delivered</h3>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">Bundle</th>
+                        <th scope="col">Book</th>
+                        <th scope="col" class="text-end">Uploaded</th>
+                        <th scope="col" class="text-end">Skipped</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var book in Model.Result.Books)
+                    {
+                        <tr>
+                            <td>@book.BundleName</td>
+                            <td>@book.BookTitle</td>
+                            <td class="text-end">@book.FilesUploaded</td>
+                            <td class="text-end">@book.FilesSkipped</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="h5 mb-3">Upload a bundle archive</h2>
+        <p class="text-muted">Download the bundle from Humble Bundle, keep the original folder structure, and compress it into a single <strong>.zip</strong> file. The API will read titles from the files and mirror the organised structure to Google Drive.</p>
+        <p class="text-muted small">First time here? <a asp-controller="DriveAuth" asp-action="Start" asp-route-returnUrl="@Url.Action("Upload", "Bundles")">Authorize Google Drive</a> and sign in; the refresh token is captured automatically for this browser session.</p>
+
+        <form asp-action="Upload" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <label for="archive" class="form-label">Bundle archive (.zip)</label>
+                <input type="file" class="form-control" id="archive" name="archive" accept=".zip,application/zip" required />
+                <div class="form-text">We do not store the archive; it's processed and uploaded directly to your Drive.</div>
+                <div class="invalid-feedback">Please choose a zip file exported from Humble Bundle.</div>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-upload me-1"></i>Upload to Google Drive</button>
+        </form>
+    </div>
+</div>
