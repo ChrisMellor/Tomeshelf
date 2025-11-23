@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Web.Models.ComicCon;
 
-public sealed record GuestsGroupModel
+public sealed class GuestsGroupModel
 {
     [JsonPropertyName("createdDate")]
     public DateTime CreatedDate { get; init; }

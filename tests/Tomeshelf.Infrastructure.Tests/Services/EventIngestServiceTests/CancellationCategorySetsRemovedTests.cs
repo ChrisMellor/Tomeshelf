@@ -28,7 +28,7 @@ public class CancellationCategorySetsRemovedTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P-C1",
                                 Uid = "U1",
@@ -37,7 +37,7 @@ public class CancellationCategorySetsRemovedTests
                                 LastName = "Person",
                                 GlobalCategories = new List<CategoryDto>
                                 {
-                                        new()
+                                        new CategoryDto
                                         {
                                                 Id = "X",
                                                 Name = "Canceled"
@@ -75,7 +75,7 @@ public class CancellationCategorySetsRemovedTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P-C2",
                                 Uid = "U2",
@@ -84,7 +84,7 @@ public class CancellationCategorySetsRemovedTests
                                 LastName = "Person",
                                 GlobalCategories = new List<CategoryDto>
                                 {
-                                        new()
+                                        new CategoryDto
                                         {
                                                 Id = "X",
                                                 Name = "Canceled"
@@ -102,7 +102,7 @@ public class CancellationCategorySetsRemovedTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new()
+                        new PersonDto
                         {
                                 Id = "P-C2",
                                 Uid = "U2",

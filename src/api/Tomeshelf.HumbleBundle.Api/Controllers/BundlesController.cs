@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Tomeshelf.Application.Contracts;
+using Tomeshelf.HumbleBundle.Api.Records;
 using Tomeshelf.Infrastructure.Bundles;
 
 namespace Tomeshelf.HumbleBundle.Api.Controllers;
@@ -56,56 +56,9 @@ public sealed class BundlesController : ControllerBase
         var scraped = await _scraper.ScrapeAsync(cancellationToken);
         var ingestResult = await _ingest.UpsertAsync(scraped, cancellationToken);
 
-        _logger.LogInformation("Bundles refresh completed via API call - processed {Processed} bundles (created: {Created}, updated: {Updated}, unchanged: {Unchanged})", ingestResult.Processed, ingestResult.Created, ingestResult.Updated, ingestResult.Unchanged);
+        _logger.LogInformation("Bundles refresh completed via API call - processed {Processed} bundles (created: {Created}, updated: {Updated}, unchanged: {Unchanged})",
+                               ingestResult.Processed, ingestResult.Created, ingestResult.Updated, ingestResult.Unchanged);
 
         return Ok(new RefreshBundlesResponse(ingestResult.Created, ingestResult.Updated, ingestResult.Unchanged, ingestResult.Processed, ingestResult.ObservedAtUtc));
     }
-
-    /// <summary>
-    ///     API model returned by the GET endpoint, enriched with computed remaining time.
-    /// </summary>
-    /// <param name="MachineName">Stable identifier.</param>
-    /// <param name="Category">Bundle category.</param>
-    /// <param name="Stamp">Bundle type stamp.</param>
-    /// <param name="Title">Full display title.</param>
-    /// <param name="ShortName">Short marketing title.</param>
-    /// <param name="Url">Product URL.</param>
-    /// <param name="TileImageUrl">Tile image.</param>
-    /// <param name="TileLogoUrl">Tile logo.</param>
-    /// <param name="HeroImageUrl">Hero image.</param>
-    /// <param name="ShortDescription">Short description text.</param>
-    /// <param name="StartsAt">Start date.</param>
-    /// <param name="EndsAt">End date.</param>
-    /// <param name="FirstSeenUtc">First time the scraper observed the bundle.</param>
-    /// <param name="LastSeenUtc">Last time the bundle was observed.</param>
-    /// <param name="LastUpdatedUtc">Last time metadata changed.</param>
-    /// <param name="SecondsRemaining">Seconds remaining until expiry, when applicable.</param>
-    /// <param name="GeneratedUtc">Timestamp when this projection was generated.</param>
-    public sealed record BundleResponse(string MachineName, string Category, string Stamp, string Title, string ShortName, string Url, string TileImageUrl, string TileLogoUrl, string HeroImageUrl, string ShortDescription, DateTimeOffset? StartsAt, DateTimeOffset? EndsAt, DateTimeOffset FirstSeenUtc, DateTimeOffset LastSeenUtc, DateTimeOffset LastUpdatedUtc, double? SecondsRemaining, DateTimeOffset GeneratedUtc)
-    {
-        public static BundleResponse FromDto(BundleDto dto, DateTimeOffset now)
-        {
-            double? secondsRemaining = null;
-            if (dto.EndsAt.HasValue)
-            {
-                var remaining = dto.EndsAt.Value - now;
-                if (remaining > TimeSpan.Zero)
-                {
-                    secondsRemaining = remaining.TotalSeconds;
-                }
-            }
-
-            return new BundleResponse(dto.MachineName, dto.Category, dto.Stamp, dto.Title, dto.ShortName, dto.Url, dto.TileImageUrl, dto.TileLogoUrl, dto.HeroImageUrl, dto.ShortDescription, dto.StartsAt, dto.EndsAt, dto.FirstSeenUtc, dto.LastSeenUtc, dto.LastUpdatedUtc, secondsRemaining, dto.GeneratedUtc);
-        }
-    }
-
-    /// <summary>
-    ///     Summary returned after invoking the refresh endpoint.
-    /// </summary>
-    /// <param name="Created">Bundles created during the ingest.</param>
-    /// <param name="Updated">Bundles updated during the ingest.</param>
-    /// <param name="Unchanged">Bundles left unchanged.</param>
-    /// <param name="Processed">Total bundles processed.</param>
-    /// <param name="ObservedAtUtc">Observation timestamp supplied by the ingest.</param>
-    public sealed record RefreshBundlesResponse(int Created, int Updated, int Unchanged, int Processed, DateTimeOffset ObservedAtUtc);
 }

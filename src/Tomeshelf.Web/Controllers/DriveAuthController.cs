@@ -1,8 +1,3 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -10,6 +5,11 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Infrastructure;
 using Tomeshelf.Web.Models.DriveAuth;
 
@@ -32,15 +32,15 @@ public sealed class DriveAuthController : Controller
     }
 
     [HttpGet("start")]
-    public IActionResult Start([FromQuery] string? returnUrl = null)
+    public IActionResult Start([FromQuery] string returnUrl = null)
     {
         var (clientId, clientSecret, userEmail) = LoadOAuthConfig();
         if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
         {
             return View("OAuthResult", new OAuthResultViewModel
             {
-                Success = false,
-                Message = "Google Drive OAuth is not configured. Set GoogleDrive:ClientId and GoogleDrive:ClientSecret in AppHost."
+                    Success = false,
+                    Message = "Google Drive OAuth is not configured. Set GoogleDrive:ClientId and GoogleDrive:ClientSecret in AppHost."
             });
         }
 
@@ -53,24 +53,24 @@ public sealed class DriveAuthController : Controller
             HttpContext.Session.SetString("gd_returnUrl", returnUrl);
         }
 
-        var authUrl = QueryHelpers.AddQueryString(AuthorizeEndpoint, new Dictionary<string, string?>
+        var authUrl = QueryHelpers.AddQueryString(AuthorizeEndpoint, new Dictionary<string, string>
         {
-            ["client_id"] = clientId,
-            ["redirect_uri"] = redirectUri,
-            ["response_type"] = "code",
-            ["scope"] = "https://www.googleapis.com/auth/drive",
-            ["access_type"] = "offline",
-            ["prompt"] = "consent",
-            ["include_granted_scopes"] = "true",
-            ["state"] = state,
-            ["login_hint"] = userEmail
+                ["client_id"] = clientId,
+                ["redirect_uri"] = redirectUri,
+                ["response_type"] = "code",
+                ["scope"] = "https://www.googleapis.com/auth/drive",
+                ["access_type"] = "offline",
+                ["prompt"] = "consent",
+                ["include_granted_scopes"] = "true",
+                ["state"] = state,
+                ["login_hint"] = userEmail
         });
 
         return Redirect(authUrl);
     }
 
     [HttpGet("callback")]
-    public async Task<IActionResult> Callback([FromQuery] string? code, [FromQuery] string? state, CancellationToken cancellationToken)
+    public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state, CancellationToken cancellationToken)
     {
         var expectedState = HttpContext.Session.GetString(GoogleDriveSessionKeys.OAuthState);
         HttpContext.Session.Remove(GoogleDriveSessionKeys.OAuthState);
@@ -79,8 +79,8 @@ public sealed class DriveAuthController : Controller
         {
             return View("OAuthResult", new OAuthResultViewModel
             {
-                Success = false,
-                Message = "Missing OAuth code from Google."
+                    Success = false,
+                    Message = "Missing OAuth code from Google."
             });
         }
 
@@ -88,8 +88,8 @@ public sealed class DriveAuthController : Controller
         {
             return View("OAuthResult", new OAuthResultViewModel
             {
-                Success = false,
-                Message = "OAuth state verification failed. Please try again."
+                    Success = false,
+                    Message = "OAuth state verification failed. Please try again."
             });
         }
 
@@ -98,8 +98,8 @@ public sealed class DriveAuthController : Controller
         {
             return View("OAuthResult", new OAuthResultViewModel
             {
-                Success = false,
-                Message = "Google Drive OAuth is not configured. Set GoogleDrive:ClientId and GoogleDrive:ClientSecret in AppHost."
+                    Success = false,
+                    Message = "Google Drive OAuth is not configured. Set GoogleDrive:ClientId and GoogleDrive:ClientSecret in AppHost."
             });
         }
 
@@ -109,8 +109,8 @@ public sealed class DriveAuthController : Controller
         {
             return View("OAuthResult", new OAuthResultViewModel
             {
-                Success = false,
-                Message = token.Error
+                    Success = false,
+                    Message = token.Error
             });
         }
 
@@ -118,8 +118,8 @@ public sealed class DriveAuthController : Controller
         {
             return View("OAuthResult", new OAuthResultViewModel
             {
-                Success = false,
-                Message = "Google did not return a refresh token. Re-run the flow and accept offline access."
+                    Success = false,
+                    Message = "Google did not return a refresh token. Re-run the flow and accept offline access."
             });
         }
 
@@ -136,15 +136,15 @@ public sealed class DriveAuthController : Controller
 
         return View("OAuthResult", new OAuthResultViewModel
         {
-            Success = true,
-            Message = "Google Drive authorised for this browser session. You can now upload bundles.",
-            UserEmail = userEmail,
-            AccessTokenExpiresIn = token.ExpiresIn,
-            RedirectUrl = target
+                Success = true,
+                Message = "Google Drive authorised for this browser session. You can now upload bundles.",
+                UserEmail = userEmail,
+                AccessTokenExpiresIn = token.ExpiresIn,
+                RedirectUrl = target
         });
     }
 
-    private (string? ClientId, string? ClientSecret, string? UserEmail) LoadOAuthConfig()
+    private (string ClientId, string ClientSecret, string UserEmail) LoadOAuthConfig()
     {
         var drive = _configuration.GetSection("GoogleDrive");
 
@@ -153,7 +153,8 @@ public sealed class DriveAuthController : Controller
 
     private string BuildRedirectUri()
     {
-        return Url.Action("Callback", "DriveAuth", null, Request.Scheme, Request.Host.ToUriComponent()) ?? throw new InvalidOperationException("Unable to determine OAuth redirect URI.");
+        return Url.Action("Callback", "DriveAuth", null, Request.Scheme, Request.Host.ToUriComponent()) ??
+               throw new InvalidOperationException("Unable to determine OAuth redirect URI.");
     }
 
     private async Task<TokenResponsePayload> ExchangeCodeAsync(string code, string clientId, string clientSecret, string redirectUri, CancellationToken cancellationToken)
@@ -161,13 +162,13 @@ public sealed class DriveAuthController : Controller
         try
         {
             var http = _httpClientFactory.CreateClient();
-            using var content = new FormUrlEncodedContent(new Dictionary<string, string?>
+            using var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                ["code"] = code,
-                ["client_id"] = clientId,
-                ["client_secret"] = clientSecret,
-                ["redirect_uri"] = redirectUri,
-                ["grant_type"] = "authorization_code"
+                    ["code"] = code,
+                    ["client_id"] = clientId,
+                    ["client_secret"] = clientSecret,
+                    ["redirect_uri"] = redirectUri,
+                    ["grant_type"] = "authorization_code"
             });
 
             using var response = await http.PostAsync(TokenEndpoint, content, cancellationToken);
@@ -198,15 +199,15 @@ public sealed class DriveAuthController : Controller
     private sealed class TokenResponsePayload
     {
         [JsonPropertyName("access_token")]
-        public string? AccessToken { get; init; }
+        public string AccessToken { get; init; }
 
         [JsonPropertyName("refresh_token")]
-        public string? RefreshToken { get; init; }
+        public string RefreshToken { get; init; }
 
         [JsonPropertyName("expires_in")]
         public int? ExpiresIn { get; init; }
 
         [JsonPropertyName("error")]
-        public string? Error { get; init; }
+        public string Error { get; init; }
     }
 }

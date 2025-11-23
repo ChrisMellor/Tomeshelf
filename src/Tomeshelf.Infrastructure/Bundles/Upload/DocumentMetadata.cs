@@ -1,6 +1,6 @@
 namespace Tomeshelf.Infrastructure.Bundles.Upload;
 
-internal sealed record DocumentMetadata
+internal sealed class DocumentMetadata
 {
-    public string? Title { get; set; }
+    public string Title { get; set; }
 }

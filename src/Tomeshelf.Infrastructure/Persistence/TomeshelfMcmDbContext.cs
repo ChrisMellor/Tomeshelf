@@ -6,9 +6,14 @@ namespace Tomeshelf.Infrastructure.Persistence;
 /// <summary>
 ///     EF Core database context for Tomeshelf's ComicCon domain entities.
 /// </summary>
-/// <param name="options">DbContext options configured by DI.</param>
-public class TomeshelfMcmDbContext(DbContextOptions<TomeshelfMcmDbContext> options) : DbContext(options)
+public class TomeshelfMcmDbContext : DbContext
 {
+    /// <summary>
+    ///     EF Core database context for Tomeshelf's ComicCon domain entities.
+    /// </summary>
+    /// <param name="options">DbContext options configured by DI.</param>
+    public TomeshelfMcmDbContext(DbContextOptions<TomeshelfMcmDbContext> options) : base(options) { }
+
     public DbSet<Event> Events => Set<Event>();
 
     public DbSet<Person> People => Set<Person>();

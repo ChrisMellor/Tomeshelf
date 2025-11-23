@@ -7,9 +7,14 @@ namespace Tomeshelf.Infrastructure.Persistence;
 /// <summary>
 ///     EF Core database context for persisted Fitbit snapshots.
 /// </summary>
-/// <param name="options">DbContext options configured by dependency injection.</param>
-public sealed class TomeshelfFitbitDbContext(DbContextOptions<TomeshelfFitbitDbContext> options) : DbContext(options)
+public sealed class TomeshelfFitbitDbContext : DbContext
 {
+    /// <summary>
+    ///     EF Core database context for persisted Fitbit snapshots.
+    /// </summary>
+    /// <param name="options">DbContext options configured by dependency injection.</param>
+    public TomeshelfFitbitDbContext(DbContextOptions<TomeshelfFitbitDbContext> options) : base(options) { }
+
     public DbSet<FitbitDailySnapshot> DailySnapshots => Set<FitbitDailySnapshot>();
 
     public DbSet<FitbitCredential> FitbitCredentials => Set<FitbitCredential>();

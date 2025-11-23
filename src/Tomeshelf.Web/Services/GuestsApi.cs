@@ -14,13 +14,23 @@ namespace Tomeshelf.Web.Services;
 /// <summary>
 ///     HTTP client wrapper for calling the Tomeshelf API to get Comic Con guests.
 /// </summary>
-/// <param name="http">Configured <see cref="HttpClient" /> with API base address.</param>
-/// <param name="logger">Logger for request/response telemetry.</param>
-public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGuestsApi
+public sealed class GuestsApi : IGuestsApi
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { NumberHandling = JsonNumberHandling.AllowReadingFromString };
+    private readonly HttpClient _http;
 
-    private readonly ILogger<GuestsApi> _logger = logger;
+    private readonly ILogger<GuestsApi> _logger;
+
+    /// <summary>
+    ///     HTTP client wrapper for calling the Tomeshelf API to get Comic Con guests.
+    /// </summary>
+    /// <param name="http">Configured <see cref="HttpClient" /> with API base address.</param>
+    /// <param name="logger">Logger for request/response telemetry.</param>
+    public GuestsApi(HttpClient http, ILogger<GuestsApi> logger)
+    {
+        _http = http;
+        _logger = logger;
+    }
 
     /// <summary>
     ///     Calls the API to retrieve Comic Con guests for a city and returns the parsed groups with a total count.
@@ -51,7 +61,7 @@ public sealed class GuestsApi(HttpClient http, ILogger<GuestsApi> logger) : IGue
     {
         var url = $"api/ComicCon/Guests/City?city={Uri.EscapeDataString(city)}";
         var started = DateTimeOffset.UtcNow;
-        using var res = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        using var res = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         var duration = DateTimeOffset.UtcNow - started;
         _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)res.StatusCode, (int)duration.TotalMilliseconds);
 

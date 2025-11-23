@@ -19,9 +19,4 @@ public sealed class GuestsCache : IGuestsCache
     {
         _cache[city] = snapshot;
     }
-
-    public void Remove(string city)
-    {
-        _cache.TryRemove(city, out _);
-    }
 }

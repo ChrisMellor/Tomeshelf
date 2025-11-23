@@ -3587,7 +3587,7 @@ jQuery.extend( {
 								process();
 							} else {
 
-								// Call an optional hook to record the error, in case of exception
+								// Call an optional hook to class the error, in case of exception
 								// since it's otherwise lost when execution goes async
 								if ( jQuery.Deferred.getErrorHook ) {
 									process.error = jQuery.Deferred.getErrorHook();

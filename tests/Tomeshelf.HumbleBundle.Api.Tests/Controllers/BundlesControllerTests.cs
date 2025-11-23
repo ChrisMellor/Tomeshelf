@@ -81,7 +81,7 @@ public sealed class BundlesControllerTests : IDisposable
                                    .BeOfType<OkObjectResult>()
                                    .Subject;
         var bundles = okResult.Value.Should()
-                              .BeAssignableTo<IReadOnlyList<BundlesController.BundleResponse>>()
+                              .BeAssignableTo<IReadOnlyList<BundleResponse>>()
                               .Subject;
 
         bundles.Should()
@@ -135,7 +135,7 @@ public sealed class BundlesControllerTests : IDisposable
                                    .BeOfType<OkObjectResult>()
                                    .Subject;
         var bundles = okResult.Value.Should()
-                              .BeAssignableTo<IReadOnlyList<BundlesController.BundleResponse>>()
+                              .BeAssignableTo<IReadOnlyList<BundleResponse>>()
                               .Subject;
 
         bundles.Should()
@@ -150,7 +150,11 @@ public sealed class BundlesControllerTests : IDisposable
         // Arrange
         var scraper = A.Fake<IHumbleBundleScraper>();
         var observed = DateTimeOffset.UtcNow;
-        var scrapedBundles = new List<ScrapedBundle> { new ScrapedBundle("refreshed_bundle", "games", "bundle", "Refreshed Bundle", "Refreshed", "https://humblebundle.com/refreshed", "https://img/refreshed.png", "https://img/refreshed-logo.png", "https://img/refreshed-hero.png", "Fresh content", observed.AddDays(-1), observed.AddDays(6), observed) };
+        var scrapedBundles = new List<ScrapedBundle>
+        {
+                new ScrapedBundle("refreshed_bundle", "games", "bundle", "Refreshed Bundle", "Refreshed", "https://humblebundle.com/refreshed", "https://img/refreshed.png",
+                                  "https://img/refreshed-logo.png", "https://img/refreshed-hero.png", "Fresh content", observed.AddDays(-1), observed.AddDays(6), observed)
+        };
 
         A.CallTo(() => scraper.ScrapeAsync(A<CancellationToken>.Ignored))
          .Returns(scrapedBundles);
@@ -167,7 +171,7 @@ public sealed class BundlesControllerTests : IDisposable
                                    .BeOfType<OkObjectResult>()
                                    .Subject;
         var payload = okResult.Value.Should()
-                              .BeAssignableTo<BundlesController.RefreshBundlesResponse>()
+                              .BeAssignableTo<RefreshBundlesResponse>()
                               .Subject;
 
         payload.Created.Should()

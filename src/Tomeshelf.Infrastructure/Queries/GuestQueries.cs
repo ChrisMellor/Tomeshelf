@@ -42,7 +42,8 @@ public sealed class GuestQueries
     /// <param name="cancellationToken">Cancellation token for the query.</param>
     /// <returns>A tuple of items and total row count.</returns>
     /// <exception cref="OperationCanceledException">Thrown if the query is canceled.</exception>
-    public async Task<(IReadOnlyList<PersonDto> Items, int Total)> GetGuestsAsync(string eventSlug, string day = null, string search = null, int page = 1, int pageSize = 24, CancellationToken cancellationToken = default)
+    public async Task<(IReadOnlyList<PersonDto> Items, int Total)> GetGuestsAsync(string eventSlug, string day = null, string search = null, int page = 1, int pageSize = 24,
+            CancellationToken cancellationToken = default)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
@@ -87,7 +88,8 @@ public sealed class GuestQueries
                          .ToListAsync(cancellationToken);
 
         var duration = DateTimeOffset.UtcNow - started;
-        _logger.LogInformation("Guests query for {EventSlug} returned {Count} items (total={Total}) in {Duration}ms", eventSlug, items.Count, total, (int)duration.TotalMilliseconds);
+        _logger.LogInformation("Guests query for {EventSlug} returned {Count} items (total={Total}) in {Duration}ms", eventSlug, items.Count, total,
+                               (int)duration.TotalMilliseconds);
 
         return (items, total);
     }
@@ -249,13 +251,30 @@ public sealed class GuestQueries
                 }
         });
     }
+}
 
-    public sealed record GuestsGroupResult(DateTime CreatedDate, IReadOnlyList<PersonDto> Items);
-
-    private sealed class PersonProjection
+public sealed record GuestsGroupResult
+{
+    public GuestsGroupResult(DateTime createdDate, IReadOnlyList<PersonDto> items)
     {
-        public DateTime CreatedUtc { get; init; }
-
-        public PersonDto Person { get; init; } = default!;
+        CreatedDate = createdDate;
+        Items = items;
     }
+
+    public DateTime CreatedDate { get; init; }
+
+    public IReadOnlyList<PersonDto> Items { get; init; }
+
+    public void Deconstruct(out DateTime createdDate, out IReadOnlyList<PersonDto> items)
+    {
+        createdDate = CreatedDate;
+        items = Items;
+    }
+}
+
+public sealed class PersonProjection
+{
+    public DateTime CreatedUtc { get; init; }
+
+    public PersonDto Person { get; init; } = default!;
 }

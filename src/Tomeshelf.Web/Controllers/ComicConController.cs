@@ -7,8 +7,15 @@ using Tomeshelf.Web.Services;
 namespace Tomeshelf.Web.Controllers;
 
 [Route("comiccon")]
-public class ComicConController(IGuestsApi api) : Controller
+public class ComicConController : Controller
 {
+    private readonly IGuestsApi _api;
+
+    public ComicConController(IGuestsApi api)
+    {
+        _api = api;
+    }
+
     /// <summary>
     ///     Displays Comic Con guests for the specified city.
     ///     Fetches grouped guests from the API and renders the Index view.
@@ -20,7 +27,7 @@ public class ComicConController(IGuestsApi api) : Controller
     public async Task<IActionResult> Index([FromRoute] string city, CancellationToken cancellationToken = default)
     {
         var sw = Stopwatch.StartNew();
-        var result = await api.GetComicConGuestsByCityResultAsync(city, cancellationToken);
+        var result = await _api.GetComicConGuestsByCityResultAsync(city, cancellationToken);
         sw.Stop();
 
         ViewBag.City = city;

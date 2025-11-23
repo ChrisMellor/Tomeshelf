@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Tomeshelf.Infrastructure.Bundles.Upload;
 
@@ -13,7 +12,8 @@ public sealed class BundleFileOrganiser
     {
         var files = Directory.EnumerateFiles(rootDirectory, "*.*", SearchOption.AllDirectories)
                              .Select(fileName => new FileInfo(fileName))
-                             .GroupBy(f => Path.GetFileNameWithoutExtension(f.Name.Replace("_supplement", string.Empty, StringComparison.OrdinalIgnoreCase)), StringComparer.OrdinalIgnoreCase)
+                             .GroupBy(f => Path.GetFileNameWithoutExtension(f.Name.Replace("_supplement", string.Empty, StringComparison.OrdinalIgnoreCase)),
+                                      StringComparer.OrdinalIgnoreCase)
                              .ToList();
 
         var plans = new List<BookPlan>(files.Count);
@@ -21,7 +21,9 @@ public sealed class BundleFileOrganiser
         foreach (var fileGroup in files)
         {
             var bundleName = GetBundleName(fileGroup.First()) ?? new DirectoryInfo(rootDirectory).Name;
-            bundleName = SanitizeForPath(string.IsNullOrWhiteSpace(bundleName) ? "Unknown Bundle" : bundleName);
+            bundleName = SanitizeForPath(string.IsNullOrWhiteSpace(bundleName)
+                                                 ? "Unknown Bundle"
+                                                 : bundleName);
 
             var bookTitle = TryGetTitle(fileGroup) ?? "Unknown Title";
             bookTitle = SanitizeForPath(bookTitle);
@@ -30,9 +32,10 @@ public sealed class BundleFileOrganiser
 
             foreach (var file in fileGroup)
             {
-                var isSupplement = file.Extension.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                   && file.Name.Contains("supplement", StringComparison.OrdinalIgnoreCase);
-                var targetBase = isSupplement ? $"{bookTitle} - Supplement" : bookTitle;
+                var isSupplement = file.Extension.Equals(".zip", StringComparison.OrdinalIgnoreCase) && file.Name.Contains("supplement", StringComparison.OrdinalIgnoreCase);
+                var targetBase = isSupplement
+                        ? $"{bookTitle} - Supplement"
+                        : bookTitle;
                 var destName = $"{targetBase}{file.Extension}";
 
                 bookFiles.Add(new BookFile(file.FullName, destName, file.Length));
@@ -44,7 +47,7 @@ public sealed class BundleFileOrganiser
         return plans;
     }
 
-    private static string? GetBundleName(FileInfo file)
+    private static string GetBundleName(FileInfo file)
     {
         var directory = file.Directory;
         while (directory is not null)
@@ -60,7 +63,7 @@ public sealed class BundleFileOrganiser
         return null;
     }
 
-    private static string? TryGetTitle(IGrouping<string, FileInfo> files)
+    private static string TryGetTitle(IGrouping<string, FileInfo> files)
     {
         foreach (var ext in new[] { ".epub", ".pdf", ".mobi" })
         {
@@ -107,10 +110,10 @@ public sealed class BundleFileOrganiser
         {
             var documentMetadata = file.Extension.ToLower(CultureInfo.InvariantCulture) switch
             {
-                ".pdf" => PdfMetadataReader.GetMetadata(file.FullName),
-                ".epub" => EpubMetadataReader.GetMetadata(file.FullName),
-                ".mobi" => MobiMetadataReader.GetMetadata(file.FullName),
-                _ => new DocumentMetadata()
+                    ".pdf" => PdfMetadataReader.GetMetadata(file.FullName),
+                    ".epub" => EpubMetadataReader.GetMetadata(file.FullName),
+                    ".mobi" => MobiMetadataReader.GetMetadata(file.FullName),
+                    _ => new DocumentMetadata()
             };
 
             return documentMetadata;
@@ -121,7 +124,3 @@ public sealed class BundleFileOrganiser
         }
     }
 }
-
-public sealed record BookPlan(string BundleName, string BookTitle, IReadOnlyList<BookFile> Files);
-
-public sealed record BookFile(string FullPath, string TargetFileName, long Length);

@@ -36,7 +36,7 @@ internal static class ExecutorSettingsPaths
         return Path.Combine(GetDirectory(environment, ensureDirectory), DefaultSettingsFileName);
     }
 
-    public static string? GetEnvironmentFilePath(IHostEnvironment environment, bool ensureDirectory = false)
+    public static string GetEnvironmentFilePath(IHostEnvironment environment, bool ensureDirectory = false)
     {
         if (string.IsNullOrWhiteSpace(environment.EnvironmentName))
         {

@@ -10,7 +10,7 @@ using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.Queries;
 using Tomeshelf.Infrastructure.Services;
 
-namespace Tomeshelf.ComicConApi.Tests.Controllers.ComicConControllerTests;
+namespace Tomeshelf.ComicCon.Api.Tests.Controllers.ComicConControllerTests;
 
 public class ComicConControllerGetByCityTests
 {
@@ -20,7 +20,7 @@ public class ComicConControllerGetByCityTests
         // Arrange
         var svc = A.Fake<IGuestService>();
         using var db = new TomeshelfMcmDbContext(new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                                              .ToString())
+                                                                                                             .ToString())
                                                                                                      .Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
         var cache = A.Fake<IGuestsCache>();
@@ -39,7 +39,7 @@ public class ComicConControllerGetByCityTests
     {
         // Arrange
         using var db = new TomeshelfMcmDbContext(new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                                              .ToString())
+                                                                                                             .ToString())
                                                                                                      .Options);
 
         var ev = new Event

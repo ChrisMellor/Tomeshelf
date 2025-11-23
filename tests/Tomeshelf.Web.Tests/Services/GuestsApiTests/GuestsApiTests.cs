@@ -50,7 +50,11 @@ public class GuestsApiTests
         // Arrange
         var handler = new StubHandler(request =>
         {
-            var json = "{" + "\"city\":\"London\",\"total\":1,\"groups\":[{" + "\"createdDate\":\"2025-01-01T00:00:00Z\",\"items\":[{" + "\"id\":\"1\",\"first_name\":\"Ada\",\"last_name\":\"Lovelace\",\"images\":[]" + "}]}]}";
+            var json = "{" +
+                       "\"city\":\"London\",\"total\":1,\"groups\":[{" +
+                       "\"createdDate\":\"2025-01-01T00:00:00Z\",\"items\":[{" +
+                       "\"id\":\"1\",\"first_name\":\"Ada\",\"last_name\":\"Lovelace\",\"images\":[]" +
+                       "}]}]}";
 
             return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
         });

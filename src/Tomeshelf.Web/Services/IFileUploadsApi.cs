@@ -16,5 +16,5 @@ public interface IFileUploadsApi
     /// <param name="archiveStream">Stream containing the bundle archive (typically a zip).</param>
     /// <param name="fileName">Original file name for the archive.</param>
     /// <param name="cancellationToken">Cancellation token for the HTTP request.</param>
-    Task<BundleUploadResultModel> UploadBundleAsync(Stream archiveStream, string fileName, GoogleDriveAuthModel? auth, CancellationToken cancellationToken);
+    Task<BundleUploadResultModel> UploadBundleAsync(Stream archiveStream, string fileName, GoogleDriveAuthModel auth, CancellationToken cancellationToken);
 }

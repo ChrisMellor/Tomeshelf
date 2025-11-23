@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Web.Models.ComicCon;
 
-public sealed record ScheduleModel
+public sealed class ScheduleModel
 {
     [JsonPropertyName("id")]
     public string Id { get; init; } = null!;

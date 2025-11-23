@@ -3,10 +3,29 @@ using System.Collections.Generic;
 
 namespace Tomeshelf.Web.Models.Paissa;
 
-public sealed record PaissaWorldModel(int WorldId, string WorldName, DateTimeOffset RetrievedAtUtc, IReadOnlyList<PaissaDistrictModel> Districts);
+public sealed record PaissaWorldModel
+{
+    public PaissaWorldModel(int worldId, string worldName, DateTimeOffset retrievedAtUtc, IReadOnlyList<PaissaDistrictModel> districts)
+    {
+        WorldId = worldId;
+        WorldName = worldName;
+        RetrievedAtUtc = retrievedAtUtc;
+        Districts = districts;
+    }
 
-public sealed record PaissaDistrictModel(int Id, string Name, IReadOnlyList<PaissaSizeGroupModel> Tabs);
+    public int WorldId { get; init; }
 
-public sealed record PaissaSizeGroupModel(string Size, string SizeKey, IReadOnlyList<PaissaPlotModel> Plots);
+    public string WorldName { get; init; }
 
-public sealed record PaissaPlotModel(int Ward, int Plot, long Price, int Entries, DateTimeOffset LastUpdatedUtc, bool AllowsPersonal, bool AllowsFreeCompany, bool IsEligibilityUnknown);
+    public DateTimeOffset RetrievedAtUtc { get; init; }
+
+    public IReadOnlyList<PaissaDistrictModel> Districts { get; init; }
+
+    public void Deconstruct(out int worldId, out string worldName, out DateTimeOffset retrievedAtUtc, out IReadOnlyList<PaissaDistrictModel> districts)
+    {
+        worldId = WorldId;
+        worldName = WorldName;
+        retrievedAtUtc = RetrievedAtUtc;
+        districts = Districts;
+    }
+}

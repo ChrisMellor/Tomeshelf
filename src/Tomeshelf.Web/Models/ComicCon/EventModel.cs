@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Web.Models.ComicCon;
 
-public sealed record EventModel
+public sealed class EventModel
 {
     [JsonPropertyName("event_id")]
     public string EventId { get; init; } = null!;

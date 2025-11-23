@@ -33,7 +33,8 @@ public sealed class FitbitController : ControllerBase
     /// <param name="cancellationToken">Cancellation token for the request.</param>
     [HttpGet("Dashboard")]
     [ProducesResponseType(typeof(FitbitDashboardDto), 200)]
-    public async Task<ActionResult<FitbitDashboardDto>> GetDashboard([FromQuery] string date, [FromQuery] bool refresh = false, [FromQuery] string returnUrl = null, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<FitbitDashboardDto>> GetDashboard([FromQuery] string date, [FromQuery] bool refresh = false, [FromQuery] string returnUrl = null,
+            CancellationToken cancellationToken = default)
     {
         var targetDate = ResolveDate(date);
         var today = DateOnly.FromDateTime(DateTime.Today);
@@ -85,7 +86,9 @@ public sealed class FitbitController : ControllerBase
 
             return StatusCode(502, new { message = ex.Message });
         }
-        catch (HttpRequestException ex) when ((ex.StatusCode == HttpStatusCode.ServiceUnavailable) || (ex.StatusCode == HttpStatusCode.GatewayTimeout) || (ex.StatusCode == HttpStatusCode.BadGateway))
+        catch (HttpRequestException ex) when ((ex.StatusCode == HttpStatusCode.ServiceUnavailable) ||
+                                              (ex.StatusCode == HttpStatusCode.GatewayTimeout) ||
+                                              (ex.StatusCode == HttpStatusCode.BadGateway))
         {
             _logger.LogWarning(ex, "Fitbit API is unavailable while fetching data for {Date}.", targetDate);
 

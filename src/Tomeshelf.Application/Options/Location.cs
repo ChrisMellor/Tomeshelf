@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Tomeshelf.Application.Options;
 
-public sealed record Location
+public sealed class Location
 {
     [Required]
     public string City { get; init; } = string.Empty;

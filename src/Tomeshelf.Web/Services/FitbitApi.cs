@@ -13,9 +13,20 @@ namespace Tomeshelf.Web.Services;
 /// <summary>
 ///     HTTP client wrapper for the Fitbit backend API.
 /// </summary>
-public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) : IFitbitApi
+public sealed class FitbitApi : IFitbitApi
 {
     private static readonly JsonSerializerOptions SerializerOptions = CreateSerializerOptions();
+    private readonly HttpClient _httpClient;
+    private readonly ILogger<FitbitApi> _logger;
+
+    /// <summary>
+    ///     HTTP client wrapper for the Fitbit backend API.
+    /// </summary>
+    public FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger)
+    {
+        _httpClient = httpClient;
+        _logger = logger;
+    }
 
     /// <inheritdoc />
     public async Task<FitbitDashboardModel> GetDashboardAsync(string date, bool refresh, string returnUrl, CancellationToken cancellationToken)
@@ -38,9 +49,9 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
 
         var url = $"api/Fitbit/Dashboard{query}";
         var started = DateTimeOffset.UtcNow;
-        using var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        using var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         var duration = DateTimeOffset.UtcNow - started;
-        logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)response.StatusCode, (int)duration.TotalMilliseconds);
+        _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)response.StatusCode, (int)duration.TotalMilliseconds);
 
         if (IsRedirectStatus(response.StatusCode))
         {
@@ -50,9 +61,9 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
                 throw new InvalidOperationException("Fitbit API returned a redirect without a location header.");
             }
 
-            if (!location.IsAbsoluteUri && httpClient.BaseAddress is not null)
+            if (!location.IsAbsoluteUri && _httpClient.BaseAddress is not null)
             {
-                location = new Uri(httpClient.BaseAddress, location);
+                location = new Uri(_httpClient.BaseAddress, location);
             }
 
             throw new FitbitAuthorizationRequiredException(location);
@@ -84,9 +95,9 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
             var location = response.Headers.Location ?? new Uri("/fitness", UriKind.Relative);
-            if (!location.IsAbsoluteUri && httpClient.BaseAddress is not null)
+            if (!location.IsAbsoluteUri && _httpClient.BaseAddress is not null)
             {
-                location = new Uri(httpClient.BaseAddress, location);
+                location = new Uri(_httpClient.BaseAddress, location);
             }
 
             throw new FitbitAuthorizationRequiredException(location);
@@ -117,9 +128,9 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
 
         using var request = new HttpRequestMessage(HttpMethod.Get, authorizeEndpoint);
         var started = DateTimeOffset.UtcNow;
-        using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         var duration = DateTimeOffset.UtcNow - started;
-        logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms (authorization resolve)", authorizeEndpoint, (int)response.StatusCode, (int)duration.TotalMilliseconds);
+        _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms (authorization resolve)", authorizeEndpoint, (int)response.StatusCode, (int)duration.TotalMilliseconds);
 
         if (!IsRedirectStatus(response.StatusCode))
         {
@@ -134,9 +145,9 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
             throw new InvalidOperationException("Fitbit authorization endpoint returned a redirect without a location header.");
         }
 
-        if (!location.IsAbsoluteUri && httpClient.BaseAddress is not null)
+        if (!location.IsAbsoluteUri && _httpClient.BaseAddress is not null)
         {
-            location = new Uri(httpClient.BaseAddress, location);
+            location = new Uri(_httpClient.BaseAddress, location);
         }
 
         return location;
@@ -149,69 +160,12 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
 
     private static bool IsRedirectStatus(HttpStatusCode statusCode)
     {
-        return (statusCode == HttpStatusCode.Redirect) || (statusCode == HttpStatusCode.RedirectKeepVerb) || (statusCode == HttpStatusCode.RedirectMethod) || (statusCode == HttpStatusCode.MovedPermanently) || (statusCode == HttpStatusCode.SeeOther) || (statusCode == HttpStatusCode.TemporaryRedirect) || (statusCode == HttpStatusCode.PermanentRedirect);
-    }
-}
-
-public sealed class FitbitAuthorizationRequiredException : Exception
-{
-    public FitbitAuthorizationRequiredException(Uri location) : base("Fitbit authorization is required.")
-    {
-        Location = location;
-    }
-
-    public Uri Location { get; }
-}
-
-public sealed class FitbitBackendUnavailableException : Exception
-{
-    public FitbitBackendUnavailableException(string message) : base(BuildMessage(message)) { }
-
-    private static string BuildMessage(string raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            return "Fitbit service is unavailable. Please try again in a moment.";
-        }
-
-        var trimmed = raw.Trim();
-        if (trimmed.StartsWith("<", StringComparison.Ordinal))
-        {
-            return "Fitbit service is unavailable. Please try again in a moment.";
-        }
-
-        if (trimmed.StartsWith("{", StringComparison.Ordinal))
-        {
-            try
-            {
-                using var document = JsonDocument.Parse(trimmed);
-                if ((document.RootElement.ValueKind == JsonValueKind.Object) && document.RootElement.TryGetProperty("message", out var messageElement) && (messageElement.ValueKind == JsonValueKind.String))
-                {
-                    var parsedMessage = messageElement.GetString();
-                    if (!string.IsNullOrWhiteSpace(parsedMessage))
-                    {
-                        return parsedMessage.Trim();
-                    }
-                }
-            }
-            catch (JsonException)
-            {
-                // Ignore invalid JSON and fall back to the original payload.
-            }
-        }
-
-        if (trimmed.StartsWith("\"", StringComparison.Ordinal) && trimmed.EndsWith("\"", StringComparison.Ordinal))
-        {
-            try
-            {
-                trimmed = JsonSerializer.Deserialize<string>(trimmed) ?? trimmed;
-            }
-            catch (JsonException)
-            {
-                // Ignore invalid JSON string and fall back to the original payload.
-            }
-        }
-
-        return trimmed;
+        return (statusCode == HttpStatusCode.Redirect) ||
+               (statusCode == HttpStatusCode.RedirectKeepVerb) ||
+               (statusCode == HttpStatusCode.RedirectMethod) ||
+               (statusCode == HttpStatusCode.MovedPermanently) ||
+               (statusCode == HttpStatusCode.SeeOther) ||
+               (statusCode == HttpStatusCode.TemporaryRedirect) ||
+               (statusCode == HttpStatusCode.PermanentRedirect);
     }
 }

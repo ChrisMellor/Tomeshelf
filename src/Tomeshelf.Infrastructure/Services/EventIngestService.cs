@@ -15,9 +15,20 @@ namespace Tomeshelf.Infrastructure.Services;
 ///     Handles ingesting event payloads into the database by upserting events, people, appearances, categories, images,
 ///     schedules, and venue locations.
 /// </summary>
-/// <param name="context">EF Core database context.</param>
-public class EventIngestService(TomeshelfMcmDbContext context)
+public class EventIngestService
 {
+    private readonly TomeshelfMcmDbContext _context;
+
+    /// <summary>
+    ///     Handles ingesting event payloads into the database by upserting events, people, appearances, categories, images,
+    ///     schedules, and venue locations.
+    /// </summary>
+    /// <param name="context">EF Core database context.</param>
+    public EventIngestService(TomeshelfMcmDbContext context)
+    {
+        _context = context;
+    }
+
     /// <summary>
     ///     Inserts or updates the event and all related people, categories, images and schedules.
     ///     Creates new entities when missing and updates existing ones, then saves the changes.
@@ -47,7 +58,7 @@ public class EventIngestService(TomeshelfMcmDbContext context)
             await SyncSchedulesAsync(appearance, personData.Schedules, cancellationToken);
         }
 
-        return await context.SaveChangesAsync(cancellationToken);
+        return await _context.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>
@@ -59,7 +70,7 @@ public class EventIngestService(TomeshelfMcmDbContext context)
     /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
     private async Task<Event> UpsertEventAsync(EventDto dto, CancellationToken ct)
     {
-        var entity = await context.Events.SingleOrDefaultAsync(x => x.ExternalId == dto.EventId, ct);
+        var entity = await _context.Events.SingleOrDefaultAsync(x => x.ExternalId == dto.EventId, ct);
         if (entity is null)
         {
             entity = new Event
@@ -68,7 +79,7 @@ public class EventIngestService(TomeshelfMcmDbContext context)
                     Name = dto.EventName,
                     Slug = dto.EventSlug
             };
-            context.Events.Add(entity);
+            _context.Events.Add(entity);
         }
         else
         {
@@ -94,8 +105,8 @@ public class EventIngestService(TomeshelfMcmDbContext context)
                            .Distinct()
                            .ToList();
 
-        var cache = await context.Categories.Where(c => allCatIds.Contains(c.ExternalId))
-                                 .ToDictionaryAsync(c => c.ExternalId, c => c, ct);
+        var cache = await _context.Categories.Where(c => allCatIds.Contains(c.ExternalId))
+                                  .ToDictionaryAsync(c => c.ExternalId, c => c, ct);
 
         return cache;
     }
@@ -109,15 +120,15 @@ public class EventIngestService(TomeshelfMcmDbContext context)
     /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
     private async Task<Person> GetOrCreatePersonAsync(string externalId, CancellationToken ct)
     {
-        var person = await context.People.Include(x => x.Images)
-                                  .Include(x => x.Categories)
-                                  .ThenInclude(pc => pc.Category)
-                                  .SingleOrDefaultAsync(x => x.ExternalId == externalId, ct);
+        var person = await _context.People.Include(x => x.Images)
+                                   .Include(x => x.Categories)
+                                   .ThenInclude(pc => pc.Category)
+                                   .SingleOrDefaultAsync(x => x.ExternalId == externalId, ct);
 
         if (person is null)
         {
             person = new Person { ExternalId = externalId };
-            context.People.Add(person);
+            _context.People.Add(person);
         }
 
         return person;
@@ -133,7 +144,9 @@ public class EventIngestService(TomeshelfMcmDbContext context)
         person.Uid = data.Uid;
         var wasVisible = person.PubliclyVisible;
 
-        var isCanceledCategory = (data.GlobalCategories ?? []).Any(c => !string.IsNullOrWhiteSpace(c.Name) && (string.Equals(c.Name.Trim(), "Canceled", StringComparison.OrdinalIgnoreCase) || string.Equals(c.Name.Trim(), "Cancelled", StringComparison.OrdinalIgnoreCase)));
+        var isCanceledCategory = (data.GlobalCategories ?? []).Any(c => !string.IsNullOrWhiteSpace(c.Name) &&
+                                                                        (string.Equals(c.Name.Trim(), "Canceled", StringComparison.OrdinalIgnoreCase) ||
+                                                                         string.Equals(c.Name.Trim(), "Cancelled", StringComparison.OrdinalIgnoreCase)));
 
         var desiredVisible = data.PubliclyVisible && !isCanceledCategory;
         person.PubliclyVisible = desiredVisible;
@@ -223,7 +236,7 @@ public class EventIngestService(TomeshelfMcmDbContext context)
     {
         foreach (var c in categories ?? [])
         {
-            GetOrAddCategory(c.Id, c.Name, cache, context);
+            GetOrAddCategory(c.Id, c.Name, cache, _context);
         }
     }
 
@@ -268,8 +281,8 @@ public class EventIngestService(TomeshelfMcmDbContext context)
 
         if ((eventEntity.Id > 0) && (person.Id > 0))
         {
-            appearance = await context.EventAppearances.Include(x => x.Schedules)
-                                      .SingleOrDefaultAsync(x => (x.EventId == eventEntity.Id) && (x.PersonId == person.Id), ct);
+            appearance = await _context.EventAppearances.Include(x => x.Schedules)
+                                       .SingleOrDefaultAsync(x => (x.EventId == eventEntity.Id) && (x.PersonId == person.Id), ct);
         }
 
         if (appearance is null)
@@ -279,7 +292,7 @@ public class EventIngestService(TomeshelfMcmDbContext context)
                     Event = eventEntity,
                     Person = person
             };
-            context.EventAppearances.Add(appearance);
+            _context.EventAppearances.Add(appearance);
         }
 
         return appearance;
@@ -333,7 +346,7 @@ public class EventIngestService(TomeshelfMcmDbContext context)
 
             if (sd.VenueLocation is not null)
             {
-                var vl = await context.VenueLocations.SingleOrDefaultAsync(x => x.ExternalId == sd.VenueLocation.Id, ct);
+                var vl = await _context.VenueLocations.SingleOrDefaultAsync(x => x.ExternalId == sd.VenueLocation.Id, ct);
                 if (vl is null)
                 {
                     vl = new VenueLocation
@@ -341,7 +354,7 @@ public class EventIngestService(TomeshelfMcmDbContext context)
                             ExternalId = sd.VenueLocation.Id,
                             Name = sd.VenueLocation.Name
                     };
-                    context.VenueLocations.Add(vl);
+                    _context.VenueLocations.Add(vl);
                 }
                 else
                 {

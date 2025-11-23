@@ -27,7 +27,7 @@ public sealed class ExecutorSchedulerOrchestrator : IExecutorSchedulerOrchestrat
         _logger = logger;
     }
 
-    public async Task RefreshAsync(ExecutorOptions? options = null, CancellationToken cancellationToken = default)
+    public async Task RefreshAsync(ExecutorOptions options = null, CancellationToken cancellationToken = default)
     {
         var scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
         options ??= _executorOptions.CurrentValue;

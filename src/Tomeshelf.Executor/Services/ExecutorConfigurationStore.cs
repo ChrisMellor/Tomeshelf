@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +14,7 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
     private readonly string _defaultFilePath;
-    private readonly string? _environmentFilePath;
+    private readonly string _environmentFilePath;
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly ILogger<ExecutorConfigurationStore> _logger;
 
@@ -104,7 +102,7 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
         return _environmentFilePath ?? _defaultFilePath;
     }
 
-    private sealed record ExecutorSettingsDocument
+    private sealed class ExecutorSettingsDocument
     {
         public ExecutorSettingsDocument() { }
 
@@ -114,36 +112,5 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
         }
 
         public ExecutorOptions Executor { get; set; } = new();
-    }
-}
-
-internal static class ExecutorOptionsExtensions
-{
-    public static ExecutorOptions Clone(this ExecutorOptions source)
-    {
-        var clone = new ExecutorOptions
-        {
-                Enabled = source.Enabled,
-                Endpoints = source.Endpoints.Select(Clone)
-                                  .ToList()
-        };
-
-        return clone;
-    }
-
-    private static EndpointScheduleOptions Clone(EndpointScheduleOptions source)
-    {
-        return new EndpointScheduleOptions
-        {
-                Name = source.Name,
-                Url = source.Url,
-                Method = source.Method,
-                Cron = source.Cron,
-                Enabled = source.Enabled,
-                TimeZone = source.TimeZone,
-                Headers = source.Headers is null
-                        ? null
-                        : new Dictionary<string, string>(source.Headers, StringComparer.OrdinalIgnoreCase)
-        };
     }
 }

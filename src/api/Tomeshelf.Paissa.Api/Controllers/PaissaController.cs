@@ -9,8 +9,15 @@ namespace Tomeshelf.Paissa.Api.Controllers;
 
 [ApiController]
 [Route("paissa")]
-public sealed class PaissaController(PaissaHousingService housingService) : ControllerBase
+public sealed class PaissaController : ControllerBase
 {
+    private readonly PaissaHousingService _housingService;
+
+    public PaissaController(PaissaHousingService housingService)
+    {
+        _housingService = housingService;
+    }
+
     /// <summary>
     ///     Returns the housing plots currently accepting entries for the configured world.
     /// </summary>
@@ -19,7 +26,7 @@ public sealed class PaissaController(PaissaHousingService housingService) : Cont
     [ProducesResponseType(typeof(PaissaWorldResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<PaissaWorldResponse>> GetWorld(CancellationToken cancellationToken)
     {
-        var world = await housingService.GetAcceptingEntriesAsync(cancellationToken);
+        var world = await _housingService.GetAcceptingEntriesAsync(cancellationToken);
 
         return Ok(world);
     }

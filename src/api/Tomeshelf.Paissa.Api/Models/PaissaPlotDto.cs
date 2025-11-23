@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Paissa.Api.Models;
 
-public sealed record PaissaPlotDto
+public sealed class PaissaPlotDto
 {
     [JsonPropertyName("world_id")]
     public int WorldId { get; init; }

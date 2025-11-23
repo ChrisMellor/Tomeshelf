@@ -2,7 +2,9 @@ using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Web.Models.ComicCon;
 
-public sealed record class VenueLocationModel
+public sealed class
+
+internal class VenueLocationModel
 {
     [JsonPropertyName("id")]
     public string Id { get; init; } = null!;

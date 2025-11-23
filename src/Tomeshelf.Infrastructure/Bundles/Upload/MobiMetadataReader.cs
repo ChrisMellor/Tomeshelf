@@ -15,18 +15,18 @@ internal static class MobiMetadataReader
         var exthPos = IndexOf(data, "EXTH"u8.ToArray());
         var meta = new DocumentMetadata();
 
-        if (exthPos >= 0 && exthPos + 12 <= data.Length)
+        if ((exthPos >= 0) && ((exthPos + 12) <= data.Length))
         {
-            var recordCount = ReadBE32(data, exthPos + 8);
+            var recordCount = ReadBe32(data, exthPos + 8);
 
             var p = exthPos + 12;
-            for (var i = 0; i < recordCount && p + 8 <= data.Length; i++)
+            for (var i = 0; (i < recordCount) && ((p + 8) <= data.Length); i++)
             {
-                var type = ReadBE32(data, p);
-                var len = ReadBE32(data, p + 4);
+                var type = ReadBe32(data, p);
+                var len = ReadBe32(data, p + 4);
                 var valueStart = p + 8;
                 var valueLen = (int)len - 8;
-                if (valueStart + valueLen > data.Length || valueLen < 0)
+                if (((valueStart + valueLen) > data.Length) || (valueLen < 0))
                 {
                     break;
                 }
@@ -36,8 +36,8 @@ internal static class MobiMetadataReader
 
                 meta.Title = type switch
                 {
-                    503 => NullIfWhiteSpace(str),
-                    _ => meta.Title
+                        503 => NullIfWhiteSpace(str),
+                        _ => meta.Title
                 };
 
                 p += (int)len;
@@ -52,18 +52,26 @@ internal static class MobiMetadataReader
         return meta;
     }
 
-    private static string? NullIfWhiteSpace(string? s)
+    private static string NullIfWhiteSpace(string s)
     {
-        return string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+        return string.IsNullOrWhiteSpace(s)
+                ? null
+                : s.Trim();
     }
 
     private static string DecodeText(ReadOnlySpan<byte> bytes)
     {
-        try { return Encoding.UTF8.GetString(bytes); }
-        catch { return Encoding.Latin1.GetString(bytes); }
+        try
+        {
+            return Encoding.UTF8.GetString(bytes);
+        }
+        catch
+        {
+            return Encoding.Latin1.GetString(bytes);
+        }
     }
 
-    private static string? DecodeNullTerminated(ReadOnlySpan<byte> bytes)
+    private static string DecodeNullTerminated(ReadOnlySpan<byte> bytes)
     {
         var zero = bytes.IndexOf((byte)0);
         if (zero >= 0)
@@ -71,19 +79,22 @@ internal static class MobiMetadataReader
             bytes = bytes[..zero];
         }
 
-        var s = Encoding.Latin1.GetString(bytes).Trim();
+        var s = Encoding.Latin1.GetString(bytes)
+                        .Trim();
 
-        return string.IsNullOrWhiteSpace(s) ? null : s;
+        return string.IsNullOrWhiteSpace(s)
+                ? null
+                : s;
     }
 
-    private static uint ReadBE32(byte[] data, int offset)
+    private static uint ReadBe32(byte[] data, int offset)
     {
-        return (uint)(data[offset] << 24 | data[offset + 1] << 16 | data[offset + 2] << 8 | data[offset + 3]);
+        return (uint)((data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3]);
     }
 
     private static int IndexOf(byte[] haystack, byte[] needle)
     {
-        for (var i = 0; i <= haystack.Length - needle.Length; i++)
+        for (var i = 0; i <= (haystack.Length - needle.Length); i++)
         {
             var j = 0;
             for (; j < needle.Length; j++)

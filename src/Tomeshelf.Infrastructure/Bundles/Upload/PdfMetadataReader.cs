@@ -11,7 +11,9 @@ internal static class PdfMetadataReader
 
         return new DocumentMetadata
         {
-            Title = string.IsNullOrWhiteSpace(info.Title) ? null : info.Title
+                Title = string.IsNullOrWhiteSpace(info.Title)
+                        ? null
+                        : info.Title
         };
     }
 }

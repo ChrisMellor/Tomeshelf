@@ -83,7 +83,9 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
     {
         bundle = default!;
 
-        if (!product.TryGetProperty("machine_name", out var machineElement) || (machineElement.ValueKind != JsonValueKind.String) || string.IsNullOrWhiteSpace(machineElement.GetString()))
+        if (!product.TryGetProperty("machine_name", out var machineElement) ||
+            (machineElement.ValueKind != JsonValueKind.String) ||
+            string.IsNullOrWhiteSpace(machineElement.GetString()))
         {
             return false;
         }
@@ -104,7 +106,8 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
         var startsAt = ParseDateTime(product, "start_date|datetime");
         var endsAt = ParseDateTime(product, "end_date|datetime");
 
-        bundle = new ScrapedBundle(machineName, category, stamp, title, shortName, absoluteUrl, tileImage, tileLogo, heroImage ?? string.Empty, shortDescription, startsAt, endsAt, observedUtc);
+        bundle = new ScrapedBundle(machineName, category, stamp, title, shortName, absoluteUrl, tileImage, tileLogo, heroImage ?? string.Empty, shortDescription, startsAt, endsAt,
+                                   observedUtc);
 
         return true;
     }

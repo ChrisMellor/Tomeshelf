@@ -163,7 +163,8 @@ public partial class InitialCreate : Migration
 
         migrationBuilder.CreateIndex("IX_PersonImages_PersonId", "PersonImages", "PersonId");
 
-        migrationBuilder.CreateIndex("IX_Schedules_EventAppearanceId_ExternalId", "Schedules", new[] { "EventAppearanceId", "ExternalId" }, unique: true, filter: "[ExternalId] IS NOT NULL");
+        migrationBuilder.CreateIndex("IX_Schedules_EventAppearanceId_ExternalId", "Schedules", new[] { "EventAppearanceId", "ExternalId" }, unique: true,
+                                     filter: "[ExternalId] IS NOT NULL");
 
         migrationBuilder.CreateIndex("IX_Schedules_VenueLocationId", "Schedules", "VenueLocationId");
 

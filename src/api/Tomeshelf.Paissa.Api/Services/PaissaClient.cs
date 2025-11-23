@@ -9,14 +9,23 @@ using Tomeshelf.Paissa.Api.Models;
 
 namespace Tomeshelf.Paissa.Api.Services;
 
-internal sealed class PaissaClient(HttpClient httpClient, ILogger<PaissaClient> logger) : IPaissaClient
+internal sealed class PaissaClient : IPaissaClient
 {
+    private readonly HttpClient _httpClient;
+    private readonly ILogger<PaissaClient> _logger;
+
+    public PaissaClient(HttpClient httpClient, ILogger<PaissaClient> logger)
+    {
+        _httpClient = httpClient;
+        _logger = logger;
+    }
+
     public async Task<PaissaWorldDto> GetWorldAsync(int worldId, CancellationToken cancellationToken)
     {
         var uri = $"worlds/{worldId}";
         try
         {
-            var result = await httpClient.GetFromJsonAsync<PaissaWorldDto>(uri, cancellationToken);
+            var result = await _httpClient.GetFromJsonAsync<PaissaWorldDto>(uri, cancellationToken);
             if (result is null)
             {
                 throw new InvalidOperationException("PaissaDB returned an empty payload.");
@@ -26,7 +35,7 @@ internal sealed class PaissaClient(HttpClient httpClient, ILogger<PaissaClient> 
         }
         catch (HttpRequestException ex) when (ex.StatusCode is HttpStatusCode.NotFound)
         {
-            logger.LogWarning(ex, "World {WorldId} not found in PaissaDB.", worldId);
+            _logger.LogWarning(ex, "World {WorldId} not found in PaissaDB.", worldId);
 
             throw;
         }

@@ -10,17 +10,12 @@ using Tomeshelf.Application.Options;
 
 namespace Tomeshelf.Infrastructure.Bundles.Upload;
 
-public interface IHumbleBundleUploadService
-{
-    Task<BundleUploadResult> UploadAsync(Stream archiveStream, string archiveFileName, GoogleDriveOptions? overrideOptions, CancellationToken cancellationToken);
-}
-
 public sealed class BundleUploadService : IHumbleBundleUploadService
 {
-    private readonly BundleFileOrganiser _organiser;
     private readonly IGoogleDriveClientFactory _driveFactory;
-    private readonly GoogleDriveOptions _options;
     private readonly ILogger<BundleUploadService> _logger;
+    private readonly GoogleDriveOptions _options;
+    private readonly BundleFileOrganiser _organiser;
 
     public BundleUploadService(BundleFileOrganiser organiser, IGoogleDriveClientFactory driveFactory, IOptions<GoogleDriveOptions> options, ILogger<BundleUploadService> logger)
     {
@@ -30,7 +25,7 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
         _options = options.Value;
     }
 
-    public async Task<BundleUploadResult> UploadAsync(Stream archiveStream, string archiveFileName, GoogleDriveOptions? overrideOptions, CancellationToken cancellationToken)
+    public async Task<BundleUploadResult> UploadAsync(Stream archiveStream, string archiveFileName, GoogleDriveOptions overrideOptions, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archiveStream);
 
@@ -72,7 +67,8 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
                 foreach (var file in plan.Files)
                 {
                     await using var stream = File.OpenRead(file.FullPath);
-                    var outcome = await driveClient.UploadFileAsync(folderId, file.TargetFileName, stream, file.Length, MimeTypes.GetMimeType(file.TargetFileName), cancellationToken);
+                    var outcome = await driveClient.UploadFileAsync(folderId, file.TargetFileName, stream, file.Length, MimeTypes.GetMimeType(file.TargetFileName),
+                                                                    cancellationToken);
                     if (outcome.Uploaded)
                     {
                         uploaded++;
@@ -87,7 +83,9 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
             }
 
             var result = BundleUploadResult.FromBooks(books, DateTimeOffset.UtcNow);
-            _logger.LogInformation("Uploaded bundle archive '{ArchiveName}' to Google Drive. Bundles: {BundleCount}, Books: {BookCount}, Files Uploaded: {Uploaded}, Files Skipped: {Skipped}.", archiveFileName, result.BundlesProcessed, result.BooksProcessed, result.FilesUploaded, result.FilesSkipped);
+            _logger.LogInformation(
+                    "Uploaded bundle archive '{ArchiveName}' to Google Drive. Bundles: {BundleCount}, Books: {BookCount}, Files Uploaded: {Uploaded}, Files Skipped: {Skipped}.",
+                    archiveFileName, result.BundlesProcessed, result.BooksProcessed, result.FilesUploaded, result.FilesSkipped);
 
             return result;
         }
@@ -116,13 +114,14 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
         var extension = Path.GetExtension(archivePath);
         if (extension.Equals(".zip", StringComparison.OrdinalIgnoreCase))
         {
-            ZipFile.ExtractToDirectory(archivePath, destinationDirectory, overwriteFiles: true);
+            ZipFile.ExtractToDirectory(archivePath, destinationDirectory, true);
+
             return Task.CompletedTask;
         }
 
         cancellationToken.ThrowIfCancellationRequested();
         var destination = Path.Combine(destinationDirectory, Path.GetFileName(archivePath));
-        File.Copy(archivePath, destination, overwrite: true);
+        File.Copy(archivePath, destination, true);
 
         return Task.CompletedTask;
     }
@@ -133,7 +132,7 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
         {
             if (Directory.Exists(path))
             {
-                Directory.Delete(path, recursive: true);
+                Directory.Delete(path, true);
             }
         }
         catch (Exception ex)
@@ -142,7 +141,7 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
         }
     }
 
-    private GoogleDriveOptions MergeOptions(GoogleDriveOptions? overrideOptions)
+    private GoogleDriveOptions MergeOptions(GoogleDriveOptions overrideOptions)
     {
         if (overrideOptions is null)
         {
@@ -151,14 +150,18 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
 
         return new GoogleDriveOptions
         {
-            ApplicationName = _options.ApplicationName,
-            RootFolderPath = string.IsNullOrWhiteSpace(overrideOptions.RootFolderPath) ? _options.RootFolderPath : overrideOptions.RootFolderPath,
-            RootFolderId = string.IsNullOrWhiteSpace(overrideOptions.RootFolderId) ? _options.RootFolderId : overrideOptions.RootFolderId,
-            ClientId = overrideOptions.ClientId ?? _options.ClientId,
-            ClientSecret = overrideOptions.ClientSecret ?? _options.ClientSecret,
-            RefreshToken = overrideOptions.RefreshToken ?? _options.RefreshToken,
-            UserEmail = overrideOptions.UserEmail ?? _options.UserEmail,
-            SharedDriveId = overrideOptions.SharedDriveId ?? _options.SharedDriveId
+                ApplicationName = _options.ApplicationName,
+                RootFolderPath = string.IsNullOrWhiteSpace(overrideOptions.RootFolderPath)
+                        ? _options.RootFolderPath
+                        : overrideOptions.RootFolderPath,
+                RootFolderId = string.IsNullOrWhiteSpace(overrideOptions.RootFolderId)
+                        ? _options.RootFolderId
+                        : overrideOptions.RootFolderId,
+                ClientId = overrideOptions.ClientId ?? _options.ClientId,
+                ClientSecret = overrideOptions.ClientSecret ?? _options.ClientSecret,
+                RefreshToken = overrideOptions.RefreshToken ?? _options.RefreshToken,
+                UserEmail = overrideOptions.UserEmail ?? _options.UserEmail,
+                SharedDriveId = overrideOptions.SharedDriveId ?? _options.SharedDriveId
         };
     }
 }

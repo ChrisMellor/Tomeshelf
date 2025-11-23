@@ -77,7 +77,8 @@ public sealed class PaissaHousingService
         var entries = plot.LotteryEntries.GetValueOrDefault();
         var eligibility = MapPurchaseCategory(plot.PurchaseSystem);
 
-        return new PaissaPlotResponse(plot.WardNumber + 1, plot.PlotNumber + 1, plot.Price, entries, lastUpdated, eligibility.AllowsPersonal, eligibility.AllowsFreeCompany, eligibility.IsUnknown);
+        return new PaissaPlotResponse(plot.WardNumber + 1, plot.PlotNumber + 1, plot.Price, entries, lastUpdated, eligibility.AllowsPersonal, eligibility.AllowsFreeCompany,
+                                      eligibility.IsUnknown);
     }
 
     private static string? MapSizeKey(int rawSize)

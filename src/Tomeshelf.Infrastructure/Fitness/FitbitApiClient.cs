@@ -83,7 +83,7 @@ internal sealed class FitbitApiClient : IFitbitApiClient
             throw new InvalidOperationException("Fitbit OAuth credentials are not configured. Configure an initial access/refresh token pair.");
         }
 
-        const int MaxAttempts = 5;
+        const int maxAttempts = 5;
         var attempts = 0;
 
         while (true)
@@ -118,9 +118,9 @@ internal sealed class FitbitApiClient : IFitbitApiClient
             if (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
                 var retryDelay = GetRetryAfterDelay(response);
-                var attemptInfo = $"{attempts}/{MaxAttempts}";
+                var attemptInfo = $"{attempts}/{maxAttempts}";
 
-                if (attempts >= MaxAttempts)
+                if (attempts >= maxAttempts)
                 {
                     var payload = await response.Content.ReadAsStringAsync(cancellationToken)
                                                 .ConfigureAwait(false);
@@ -129,7 +129,8 @@ internal sealed class FitbitApiClient : IFitbitApiClient
                 }
 
                 var delay = retryDelay ?? TimeSpan.FromSeconds(30);
-                _logger.LogWarning("Fitbit API rate limit hit for {Path}. Waiting {DelaySeconds}s before retrying (attempt {AttemptInfo}).", path, (int)delay.TotalSeconds, attemptInfo);
+                _logger.LogWarning("Fitbit API rate limit hit for {Path}. Waiting {DelaySeconds}s before retrying (attempt {AttemptInfo}).", path, (int)delay.TotalSeconds,
+                                   attemptInfo);
                 await Task.Delay(delay, cancellationToken)
                           .ConfigureAwait(false);
 
@@ -293,126 +294,5 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         _tokenCache.Update(payload.AccessToken, newRefreshToken, expiresAt);
 
         return true;
-    }
-}
-
-public sealed class FitbitRateLimitExceededException : Exception
-{
-    public FitbitRateLimitExceededException(string rawMessage, TimeSpan? retryAfter) : base(BuildMessage(rawMessage))
-    {
-        RetryAfter = retryAfter;
-    }
-
-    public TimeSpan? RetryAfter { get; }
-
-    private static string BuildMessage(string raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            return "Fitbit rate limit reached. Please try again shortly.";
-        }
-
-        var trimmed = raw.Trim();
-
-        if (trimmed.StartsWith("{", StringComparison.Ordinal))
-        {
-            try
-            {
-                using var document = JsonDocument.Parse(trimmed);
-                if ((document.RootElement.ValueKind == JsonValueKind.Object) && document.RootElement.TryGetProperty("message", out var messageElement) && (messageElement.ValueKind == JsonValueKind.String))
-                {
-                    var message = messageElement.GetString();
-                    if (!string.IsNullOrWhiteSpace(message))
-                    {
-                        return message.Trim();
-                    }
-                }
-            }
-            catch (JsonException)
-            {
-                // ignore malformed json
-            }
-        }
-
-        if (trimmed.StartsWith("\"", StringComparison.Ordinal) && trimmed.EndsWith("\"", StringComparison.Ordinal))
-        {
-            try
-            {
-                var deserialised = JsonSerializer.Deserialize<string>(trimmed);
-                if (!string.IsNullOrWhiteSpace(deserialised))
-                {
-                    return deserialised.Trim();
-                }
-            }
-            catch (JsonException)
-            {
-                // ignore malformed json
-            }
-        }
-
-        if (trimmed.StartsWith("<", StringComparison.Ordinal))
-        {
-            return "Fitbit rate limit reached. Please try again shortly.";
-        }
-
-        return trimmed;
-    }
-}
-
-public sealed class FitbitBadRequestException : Exception
-{
-    public FitbitBadRequestException(string rawMessage) : base(BuildMessage(rawMessage)) { }
-
-    private static string BuildMessage(string raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            return "Fitbit rejected the request. Please re-authorize and try again.";
-        }
-
-        var trimmed = raw.Trim();
-
-        if (trimmed.StartsWith("{", StringComparison.Ordinal))
-        {
-            try
-            {
-                using var document = JsonDocument.Parse(trimmed);
-                if ((document.RootElement.ValueKind == JsonValueKind.Object) && document.RootElement.TryGetProperty("message", out var messageElement) && (messageElement.ValueKind == JsonValueKind.String))
-                {
-                    var message = messageElement.GetString();
-                    if (!string.IsNullOrWhiteSpace(message))
-                    {
-                        return message.Trim();
-                    }
-                }
-            }
-            catch (JsonException)
-            {
-                // ignore malformed json
-            }
-        }
-
-        if (trimmed.StartsWith("\"", StringComparison.Ordinal) && trimmed.EndsWith("\"", StringComparison.Ordinal))
-        {
-            try
-            {
-                var deserialised = JsonSerializer.Deserialize<string>(trimmed);
-                if (!string.IsNullOrWhiteSpace(deserialised))
-                {
-                    return deserialised.Trim();
-                }
-            }
-            catch (JsonException)
-            {
-                // ignore malformed json
-            }
-        }
-
-        if (trimmed.StartsWith("<", StringComparison.Ordinal))
-        {
-            return "Fitbit could not process the request. Please re-authorize and try again.";
-        }
-
-        return trimmed;
     }
 }

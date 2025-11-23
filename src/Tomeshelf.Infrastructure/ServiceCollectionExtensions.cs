@@ -1,6 +1,6 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure.Bundles;
 using Tomeshelf.Infrastructure.Bundles.Upload;

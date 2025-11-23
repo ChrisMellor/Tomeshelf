@@ -7,7 +7,7 @@ namespace Tomeshelf.Executor.Models;
 /// </summary>
 public sealed class CronBuilderViewModel
 {
-    public CronBuilderViewModel(string inputId, string inputName, string? initialValue)
+    public CronBuilderViewModel(string inputId, string inputName, string initialValue)
     {
         InputId = inputId ?? throw new ArgumentNullException(nameof(inputId));
         InputName = inputName ?? throw new ArgumentNullException(nameof(inputName));

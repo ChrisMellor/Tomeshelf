@@ -9,11 +9,6 @@ using Tomeshelf.Executor.Jobs;
 
 namespace Tomeshelf.Executor.Services;
 
-public interface IEndpointPingService
-{
-    Task<EndpointPingResult> SendAsync(Uri target, string method, Dictionary<string, string>? headers, CancellationToken cancellationToken);
-}
-
 public sealed class EndpointPingService : IEndpointPingService
 {
     private readonly IHttpClientFactory _httpClientFactory;
@@ -25,7 +20,7 @@ public sealed class EndpointPingService : IEndpointPingService
         _logger = logger;
     }
 
-    public async Task<EndpointPingResult> SendAsync(Uri target, string method, Dictionary<string, string>? headers, CancellationToken cancellationToken)
+    public async Task<EndpointPingResult> SendAsync(Uri target, string method, Dictionary<string, string> headers, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(target);
 
@@ -57,7 +52,7 @@ public sealed class EndpointPingService : IEndpointPingService
         }
     }
 
-    private static HttpRequestMessage BuildRequest(Uri target, string? method, Dictionary<string, string>? headers)
+    private static HttpRequestMessage BuildRequest(Uri target, string method, Dictionary<string, string> headers)
     {
         var httpMethod = CreateMethod(method);
         var request = new HttpRequestMessage(httpMethod, target);
@@ -66,7 +61,7 @@ public sealed class EndpointPingService : IEndpointPingService
         return request;
     }
 
-    private static HttpMethod CreateMethod(string? methodName)
+    private static HttpMethod CreateMethod(string methodName)
     {
         if (string.IsNullOrWhiteSpace(methodName))
         {
@@ -83,7 +78,7 @@ public sealed class EndpointPingService : IEndpointPingService
         }
     }
 
-    private static void AddHeaders(Dictionary<string, string>? headers, HttpRequestMessage request)
+    private static void AddHeaders(Dictionary<string, string> headers, HttpRequestMessage request)
     {
         if (headers is null)
         {
@@ -102,5 +97,3 @@ public sealed class EndpointPingService : IEndpointPingService
         }
     }
 }
-
-public sealed record EndpointPingResult(bool Success, int? StatusCode, string Message, string? Body, TimeSpan Duration);

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Application.Contracts;
 
-public sealed record PersonDto
+public sealed class PersonDto
 {
     [JsonPropertyName("id")]
     public string Id { get; init; } = null!;

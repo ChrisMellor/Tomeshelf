@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Web.Models.ComicCon;
 
-public sealed record CategoryModel
+public sealed class CategoryModel
 {
     [JsonPropertyName("id")]
     public string Id { get; init; } = null!;

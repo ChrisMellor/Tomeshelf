@@ -19,7 +19,8 @@ public class HomeController : Controller
     private readonly IExecutorSchedulerOrchestrator _scheduler;
     private readonly IExecutorConfigurationStore _store;
 
-    public HomeController(IExecutorConfigurationStore store, IExecutorSchedulerOrchestrator scheduler, IApiEndpointDiscoveryService discovery, IEndpointPingService pingService, ILogger<HomeController> logger)
+    public HomeController(IExecutorConfigurationStore store, IExecutorSchedulerOrchestrator scheduler, IApiEndpointDiscoveryService discovery, IEndpointPingService pingService,
+            ILogger<HomeController> logger)
     {
         _store = store;
         _scheduler = scheduler;
@@ -43,7 +44,11 @@ public class HomeController : Controller
         _logger.LogDebug("Rendering endpoint creation view.");
         var options = await _store.GetAsync(cancellationToken);
 
-        return View(await CreateViewModelAsync(options, new EndpointEditorModel { Enabled = true, Method = "POST" }, null, null, cancellationToken));
+        return View(await CreateViewModelAsync(options, new EndpointEditorModel
+        {
+                Enabled = true,
+                Method = "POST"
+        }, null, null, cancellationToken));
     }
 
     [HttpGet]
@@ -59,6 +64,11 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Toggle(bool enabled, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         _logger.LogInformation("Toggling scheduler {State}.", enabled
                                        ? "on"
                                        : "off");
@@ -77,15 +87,16 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind(Prefix = "Editor")] EndpointEditorModel model, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Creating scheduled endpoint {Name}.", model.Name);
         var options = await _store.GetAsync(cancellationToken);
 
         if (!ModelState.IsValid)
         {
-            _logger.LogWarning("Validation failed creating endpoint {Name}.", model.Name);
+            _logger.LogWarning("Validation failed creating endpoint {Name}.", model?.Name ?? "(unspecified)");
 
             return View("Create", await CreateViewModelAsync(options, model, null, null, cancellationToken));
         }
+
+        _logger.LogInformation("Creating scheduled endpoint {Name}.", model.Name);
 
         if (options.Endpoints.Any(ep => string.Equals(ep.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
         {
@@ -123,19 +134,21 @@ public class HomeController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit([FromRoute(Name = "name")] string? routeName, [FromForm(Name = "originalName")] string? originalName, [Bind(Prefix = "")] EndpointEditorModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Edit([FromRoute(Name = "name")] string routeName, [FromForm(Name = "originalName")] string originalName,
+            [Bind(Prefix = "")] EndpointEditorModel model, CancellationToken cancellationToken)
     {
         var name = originalName ?? routeName;
-        _logger.LogInformation("Updating endpoint {OriginalName} -> {NewName}.", name, model.Name);
         var options = await _store.GetAsync(cancellationToken);
 
         if (!ModelState.IsValid)
         {
-            _logger.LogWarning("Validation failed editing endpoint {Name}.", name);
+            _logger.LogWarning("Validation failed editing endpoint {Name}.", name ?? "(unspecified)");
             ViewData["OriginalName"] = name;
 
             return View(model);
         }
+
+        _logger.LogInformation("Updating endpoint {OriginalName} -> {NewName}.", name, model.Name);
 
         var endpoint = options.Endpoints.FirstOrDefault(ep => string.Equals(ep.Name, name, StringComparison.OrdinalIgnoreCase));
         if (endpoint is null)
@@ -147,7 +160,8 @@ public class HomeController : Controller
             return View(model);
         }
 
-        if (!string.Equals(name, model.Name, StringComparison.OrdinalIgnoreCase) && options.Endpoints.Any(ep => string.Equals(ep.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
+        if (!string.Equals(name, model.Name, StringComparison.OrdinalIgnoreCase) &&
+            options.Endpoints.Any(ep => string.Equals(ep.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
         {
             _logger.LogWarning("New endpoint name {NewName} already exists.", model.Name);
             ModelState.AddModelError(nameof(EndpointEditorModel.Name), "Another endpoint already uses this name.");
@@ -168,6 +182,11 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(string name, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         _logger.LogInformation("Deleting endpoint {Name}.", name);
         var options = await _store.GetAsync(cancellationToken);
         var removed = options.Endpoints.RemoveAll(ep => string.Equals(ep.Name, name, StringComparison.OrdinalIgnoreCase));
@@ -208,10 +227,14 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Ping([Bind(Prefix = "Ping")] EndpointPingModel model, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Pinging target {Url} with {Method}.", model.Url, model.Method);
         var options = await _store.GetAsync(cancellationToken);
 
-        if (!ModelState.IsValid || !Uri.TryCreate(model.Url, UriKind.Absolute, out var uri))
+        if (!ModelState.IsValid)
+        {
+            return View("Ping", await CreateViewModelAsync(options, null, model, null, cancellationToken));
+        }
+
+        if (!Uri.TryCreate(model.Url, UriKind.Absolute, out var uri))
         {
             if (ModelState.IsValid)
             {
@@ -221,13 +244,15 @@ public class HomeController : Controller
             return View("Ping", await CreateViewModelAsync(options, null, model, null, cancellationToken));
         }
 
+        _logger.LogInformation("Pinging target {Url} with {Method}.", model.Url, model.Method);
+
         var headers = ParseHeaders(model.Headers);
         var result = await _pingService.SendAsync(uri, model.Method, headers, cancellationToken);
         var viewModel = await CreateViewModelAsync(options, null, model, ToPingResult(result), cancellationToken);
 
         if (result.Success)
         {
-            TempData["StatusMessage"] = $"Ping succeeded with status {(result.StatusCode?.ToString() ?? "n/a")} ({result.Duration.TotalMilliseconds:N0} ms).";
+            TempData["StatusMessage"] = $"Ping succeeded with status {result.StatusCode?.ToString() ?? "n/a"} ({result.Duration.TotalMilliseconds:N0} ms).";
         }
 
         return View("Ping", viewModel);
@@ -239,7 +264,8 @@ public class HomeController : Controller
         await _scheduler.RefreshAsync(options, cancellationToken);
     }
 
-    private async Task<ExecutorConfigurationViewModel> CreateViewModelAsync(ExecutorOptions options, EndpointEditorModel? editor, EndpointPingModel? ping, EndpointPingResultViewModel? pingResult, CancellationToken cancellationToken)
+    private async Task<ExecutorConfigurationViewModel> CreateViewModelAsync(ExecutorOptions options, EndpointEditorModel editor, EndpointPingModel ping,
+            EndpointPingResultViewModel pingResult, CancellationToken cancellationToken)
     {
         var apis = await _discovery.GetApisAsync(cancellationToken);
 
@@ -255,11 +281,7 @@ public class HomeController : Controller
                         Enabled = true,
                         Method = "POST"
                 },
-                Ping = ping ??
-                new EndpointPingModel
-                {
-                        Method = "GET"
-                },
+                Ping = ping ?? new EndpointPingModel { Method = "GET" },
                 PingResult = pingResult,
                 ApiServices = apis.Select(api => new ApiServiceOptionViewModel
                                    {
@@ -344,7 +366,7 @@ public class HomeController : Controller
         target.Headers = ParseHeaders(model.Headers);
     }
 
-    private static Dictionary<string, string>? ParseHeaders(string? headers)
+    private static Dictionary<string, string> ParseHeaders(string headers)
     {
         if (string.IsNullOrWhiteSpace(headers))
         {
@@ -374,7 +396,7 @@ public class HomeController : Controller
         return dictionary;
     }
 
-    private static string? TrimBody(string? body)
+    private static string TrimBody(string body)
     {
         const int maxLength = 2000;
         if (string.IsNullOrEmpty(body))
@@ -387,7 +409,7 @@ public class HomeController : Controller
                 : $"{body[..maxLength]}... (truncated)";
     }
 
-    private static string NormalizeUrl(string? url)
+    private static string NormalizeUrl(string url)
     {
         var trimmed = url?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(trimmed))

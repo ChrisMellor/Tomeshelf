@@ -13,9 +13,10 @@ public sealed class ExecutorSchedulerHostedService : IHostedService
     private readonly ILogger<ExecutorSchedulerHostedService> _logger;
     private readonly IOptionsMonitor<ExecutorOptions> _optionsMonitor;
     private readonly IExecutorSchedulerOrchestrator _orchestrator;
-    private IDisposable? _subscription;
+    private IDisposable _subscription;
 
-    public ExecutorSchedulerHostedService(IExecutorSchedulerOrchestrator orchestrator, IOptionsMonitor<ExecutorOptions> optionsMonitor, ILogger<ExecutorSchedulerHostedService> logger)
+    public ExecutorSchedulerHostedService(IExecutorSchedulerOrchestrator orchestrator, IOptionsMonitor<ExecutorOptions> optionsMonitor,
+            ILogger<ExecutorSchedulerHostedService> logger)
     {
         _orchestrator = orchestrator;
         _optionsMonitor = optionsMonitor;

@@ -9,14 +9,21 @@ using Tomeshelf.Executor.Services;
 
 namespace Tomeshelf.Executor.Jobs;
 
-public class TriggerEndpointJob(IEndpointPingService pingService, IOptionsMonitor<ExecutorOptions> executorOptions, ILogger<TriggerEndpointJob> logger) : IJob
+public class TriggerEndpointJob : IJob
 {
     public const string EndpointNameKey = "Executor.EndpointName";
     public const string HttpClientName = "Executor.EndpointClient";
-    private readonly IOptionsMonitor<ExecutorOptions> _executorOptions = executorOptions;
+    private readonly IOptionsMonitor<ExecutorOptions> _executorOptions;
+    private readonly ILogger<TriggerEndpointJob> _logger;
 
-    private readonly IEndpointPingService _pingService = pingService;
-    private readonly ILogger<TriggerEndpointJob> _logger = logger;
+    private readonly IEndpointPingService _pingService;
+
+    public TriggerEndpointJob(IEndpointPingService pingService, IOptionsMonitor<ExecutorOptions> executorOptions, ILogger<TriggerEndpointJob> logger)
+    {
+        _executorOptions = executorOptions;
+        _pingService = pingService;
+        _logger = logger;
+    }
 
     public async Task Execute(IJobExecutionContext context)
     {
@@ -75,7 +82,7 @@ public class TriggerEndpointJob(IEndpointPingService pingService, IOptionsMonito
         }
     }
 
-    public static TimeZoneInfo ResolveTimeZone(string? timeZoneId)
+    public static TimeZoneInfo ResolveTimeZone(string timeZoneId)
     {
         if (string.IsNullOrWhiteSpace(timeZoneId))
         {

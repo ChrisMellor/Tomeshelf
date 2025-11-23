@@ -27,7 +27,7 @@ public class GuestServiceTests
         {
                 ComicCon = new List<Location>
                 {
-                        new()
+                        new Location
                         {
                                 City = city,
                                 Key = key
@@ -101,7 +101,7 @@ public class GuestServiceTests
         {
                 ComicCon = new List<Location>
                 {
-                        new()
+                        new Location
                         {
                                 City = city,
                                 Key = key
@@ -157,7 +157,7 @@ public class GuestServiceTests
         {
                 ComicCon = new List<Location>
                 {
-                        new()
+                        new Location
                         {
                                 City = "London",
                                 Key = key

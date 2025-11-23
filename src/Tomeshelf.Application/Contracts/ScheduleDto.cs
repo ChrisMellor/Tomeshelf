@@ -2,7 +2,7 @@
 
 namespace Tomeshelf.Application.Contracts;
 
-public sealed record ScheduleDto
+public sealed class ScheduleDto
 {
     [JsonPropertyName("id")]
     public string Id { get; init; } = null!;

@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -6,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Bundles;
 
 namespace Tomeshelf.Web.Services;
@@ -13,11 +13,22 @@ namespace Tomeshelf.Web.Services;
 /// <summary>
 ///     HTTP client for the bundle file uploader API.
 /// </summary>
-public sealed class FileUploadsApi(HttpClient http, ILogger<FileUploadsApi> logger) : IFileUploadsApi
+public sealed class FileUploadsApi : IFileUploadsApi
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
+    private readonly HttpClient _http;
+    private readonly ILogger<FileUploadsApi> _logger;
 
-    public async Task<BundleUploadResultModel> UploadBundleAsync(Stream archiveStream, string fileName, GoogleDriveAuthModel? auth, CancellationToken cancellationToken)
+    /// <summary>
+    ///     HTTP client for the bundle file uploader API.
+    /// </summary>
+    public FileUploadsApi(HttpClient http, ILogger<FileUploadsApi> logger)
+    {
+        _http = http;
+        _logger = logger;
+    }
+
+    public async Task<BundleUploadResultModel> UploadBundleAsync(Stream archiveStream, string fileName, GoogleDriveAuthModel auth, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archiveStream);
 
@@ -54,14 +65,15 @@ public sealed class FileUploadsApi(HttpClient http, ILogger<FileUploadsApi> logg
             const string url = "uploads";
             var started = DateTimeOffset.UtcNow;
 
-            using var response = await http.PostAsync(url, content, cancellationToken);
+            using var response = await _http.PostAsync(url, content, cancellationToken);
             var duration = DateTimeOffset.UtcNow - started;
-            logger.LogInformation("HTTP POST {Url} -> {Status} in {Duration}ms", url, (int)response.StatusCode, (int)duration.TotalMilliseconds);
+            _logger.LogInformation("HTTP POST {Url} -> {Status} in {Duration}ms", url, (int)response.StatusCode, (int)duration.TotalMilliseconds);
 
             response.EnsureSuccessStatusCode();
 
             await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-            var result = await JsonSerializer.DeserializeAsync<BundleUploadResultModel>(stream, SerializerOptions, cancellationToken) ?? throw new InvalidOperationException("Empty upload response payload");
+            var result = await JsonSerializer.DeserializeAsync<BundleUploadResultModel>(stream, SerializerOptions, cancellationToken) ??
+                         throw new InvalidOperationException("Empty upload response payload");
 
             return result;
         }

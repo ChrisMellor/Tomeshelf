@@ -8,12 +8,19 @@ using Tomeshelf.Web.Services;
 namespace Tomeshelf.Web.Controllers;
 
 [Route("paissa")]
-public sealed class PaissaController(IPaissaApi api) : Controller
+public sealed class PaissaController : Controller
 {
+    private readonly IPaissaApi _api;
+
+    public PaissaController(IPaissaApi api)
+    {
+        _api = api;
+    }
+
     [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        var world = await api.GetWorldAsync(cancellationToken);
+        var world = await _api.GetWorldAsync(cancellationToken);
 
         var total = world.Districts.Sum(d => d.Tabs.Sum(t => t.Plots.Count));
 

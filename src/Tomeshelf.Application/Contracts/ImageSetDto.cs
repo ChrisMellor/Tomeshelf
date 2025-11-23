@@ -2,7 +2,7 @@
 
 namespace Tomeshelf.Application.Contracts;
 
-public sealed record ImageSetDto
+public sealed class ImageSetDto
 {
     [JsonPropertyName("big")]
     public string Big { get; init; }

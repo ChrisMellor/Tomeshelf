@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Web.Models.ComicCon;
 
-public sealed record ImageSetModel
+public sealed class ImageSetModel
 {
     [JsonPropertyName("big")]
     public string Big { get; init; }

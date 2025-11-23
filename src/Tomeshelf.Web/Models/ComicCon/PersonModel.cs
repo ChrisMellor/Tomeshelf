@@ -4,7 +4,7 @@ using Tomeshelf.Application;
 
 namespace Tomeshelf.Web.Models.ComicCon;
 
-public sealed record PersonModel
+public sealed class PersonModel
 {
     [JsonPropertyName("id")]
     public string Id { get; init; } = null!;

@@ -27,7 +27,8 @@ public sealed class FitbitAuthorizationService
     private readonly IOptionsMonitor<FitbitOptions> _options;
     private readonly FitbitTokenCache _tokenCache;
 
-    public FitbitAuthorizationService(IHttpClientFactory httpClientFactory, FitbitTokenCache tokenCache, IMemoryCache memoryCache, ILogger<FitbitAuthorizationService> logger, IOptionsMonitor<FitbitOptions> options, IHttpContextAccessor httpContextAccessor)
+    public FitbitAuthorizationService(IHttpClientFactory httpClientFactory, FitbitTokenCache tokenCache, IMemoryCache memoryCache, ILogger<FitbitAuthorizationService> logger,
+            IOptionsMonitor<FitbitOptions> options, IHttpContextAccessor httpContextAccessor)
     {
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _tokenCache = tokenCache ?? throw new ArgumentNullException(nameof(tokenCache));
@@ -199,7 +200,8 @@ public sealed class FitbitAuthorizationService
             throw new ArgumentNullException(nameof(options));
         }
 
-        var path = string.IsNullOrWhiteSpace(options.CallbackPath) ? new PathString("/api/fitbit/auth/callback") : options.CallbackPath.StartsWith("/", StringComparison.Ordinal) ? new PathString(options.CallbackPath) : new PathString("/" + options.CallbackPath);
+        var path = string.IsNullOrWhiteSpace(options.CallbackPath) ? new PathString("/api/fitbit/auth/callback") :
+                options.CallbackPath.StartsWith("/", StringComparison.Ordinal) ? new PathString(options.CallbackPath) : new PathString("/" + options.CallbackPath);
 
         Uri baseUri;
 
@@ -247,6 +249,4 @@ public sealed class FitbitAuthorizationService
 
         return new Uri(baseUri, pathValue);
     }
-
-    private sealed record AuthorizationState(string CodeVerifier, string ReturnUrl);
 }

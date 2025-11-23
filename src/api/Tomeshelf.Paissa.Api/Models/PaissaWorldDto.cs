@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Paissa.Api.Models;
 
-public sealed record PaissaWorldDto
+public sealed class PaissaWorldDto
 {
     [JsonPropertyName("id")]
     public int Id { get; init; }

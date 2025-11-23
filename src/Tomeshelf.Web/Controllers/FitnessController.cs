@@ -138,17 +138,34 @@ public sealed class FitnessController : Controller
 
     private static bool HasAnyMetrics(DaySummaryViewModel summary)
     {
-        if (summary.Weight.StartingWeightKg.HasValue || summary.Weight.CurrentWeightKg.HasValue || summary.Weight.ChangeKg.HasValue || summary.Weight.BodyFatPercentage.HasValue || summary.Weight.LeanMassKg.HasValue)
+        if (summary.Weight.StartingWeightKg.HasValue ||
+            summary.Weight.CurrentWeightKg.HasValue ||
+            summary.Weight.ChangeKg.HasValue ||
+            summary.Weight.BodyFatPercentage.HasValue ||
+            summary.Weight.LeanMassKg.HasValue)
         {
             return true;
         }
 
-        if (summary.Calories.IntakeCalories.HasValue || summary.Calories.BurnedCalories.HasValue || summary.Calories.NetCalories.HasValue || summary.Calories.CarbsGrams.HasValue || summary.Calories.FatGrams.HasValue || summary.Calories.FiberGrams.HasValue || summary.Calories.ProteinGrams.HasValue || summary.Calories.SodiumMilligrams.HasValue)
+        if (summary.Calories.IntakeCalories.HasValue ||
+            summary.Calories.BurnedCalories.HasValue ||
+            summary.Calories.NetCalories.HasValue ||
+            summary.Calories.CarbsGrams.HasValue ||
+            summary.Calories.FatGrams.HasValue ||
+            summary.Calories.FiberGrams.HasValue ||
+            summary.Calories.ProteinGrams.HasValue ||
+            summary.Calories.SodiumMilligrams.HasValue)
         {
             return true;
         }
 
-        if (summary.Sleep.TotalSleepHours.HasValue || summary.Sleep.TotalAwakeHours.HasValue || summary.Sleep.EfficiencyPercentage.HasValue || summary.Sleep.Levels.DeepMinutes.HasValue || summary.Sleep.Levels.LightMinutes.HasValue || summary.Sleep.Levels.RemMinutes.HasValue || summary.Sleep.Levels.WakeMinutes.HasValue)
+        if (summary.Sleep.TotalSleepHours.HasValue ||
+            summary.Sleep.TotalAwakeHours.HasValue ||
+            summary.Sleep.EfficiencyPercentage.HasValue ||
+            summary.Sleep.Levels.DeepMinutes.HasValue ||
+            summary.Sleep.Levels.LightMinutes.HasValue ||
+            summary.Sleep.Levels.RemMinutes.HasValue ||
+            summary.Sleep.Levels.WakeMinutes.HasValue)
         {
             return true;
         }

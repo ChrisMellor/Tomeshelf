@@ -44,7 +44,8 @@ public sealed class BundleQueries
                                            : 1)
                           .ThenBy(b => b.EndsAt)
                           .ThenBy(b => b.Title)
-                          .Select(b => new BundleDto(b.MachineName, b.Category, b.Stamp, b.Title, b.ShortName, b.Url, b.TileImageUrl, b.TileLogoUrl, b.HeroImageUrl, b.ShortDescription, b.StartsAt, b.EndsAt, b.FirstSeenUtc, b.LastSeenUtc, b.LastUpdatedUtc, generatedAt))
+                          .Select(b => new BundleDto(b.MachineName, b.Category, b.Stamp, b.Title, b.ShortName, b.Url, b.TileImageUrl, b.TileLogoUrl, b.HeroImageUrl,
+                                                     b.ShortDescription, b.StartsAt, b.EndsAt, b.FirstSeenUtc, b.LastSeenUtc, b.LastUpdatedUtc, generatedAt))
                           .ToListAsync(cancellationToken);
     }
 }

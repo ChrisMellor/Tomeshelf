@@ -1,22 +1,28 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Tomeshelf.Web.Infrastructure;
 using Tomeshelf.Web.Models.Bundles;
 using Tomeshelf.Web.Services;
-using Tomeshelf.Web.Infrastructure;
 
 namespace Tomeshelf.Web.Controllers;
 
 [Route("bundles")]
-public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsApi) : Controller
+public sealed class BundlesController : Controller
 {
     private const string LastViewedCookieName = "tomeshelf_bundles_lastViewedUtc";
-    private readonly IBundlesApi _api = api;
-    private readonly IFileUploadsApi _uploadsApi = uploadsApi;
+    private readonly IBundlesApi _api;
+    private readonly IFileUploadsApi _uploadsApi;
+
+    public BundlesController(IBundlesApi api, IFileUploadsApi uploadsApi)
+    {
+        _api = api;
+        _uploadsApi = uploadsApi;
+    }
 
     /// <summary>
     ///     Displays Humble Bundle listings fetched from the backend API.
@@ -26,8 +32,14 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
     [HttpGet("")]
     public async Task<IActionResult> Index([FromQuery] bool includeExpired = false, CancellationToken cancellationToken = default)
     {
+        if (!ModelState.IsValid)
+        {
+            return View();
+        }
+
         DateTimeOffset? lastViewed = null;
-        if (Request.Cookies.TryGetValue(LastViewedCookieName, out var cookieValue) && DateTimeOffset.TryParse(cookieValue, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed))
+        if (Request.Cookies.TryGetValue(LastViewedCookieName, out var cookieValue) &&
+            DateTimeOffset.TryParse(cookieValue, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed))
         {
             lastViewed = parsed;
         }
@@ -44,30 +56,30 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
 
                                      return new BundleViewModel
                                      {
-                                         MachineName = bundle.MachineName,
-                                         Category = bundle.Category,
-                                         Stamp = bundle.Stamp,
-                                         Title = string.IsNullOrWhiteSpace(bundle.Title)
+                                             MachineName = bundle.MachineName,
+                                             Category = bundle.Category,
+                                             Stamp = bundle.Stamp,
+                                             Title = string.IsNullOrWhiteSpace(bundle.Title)
                                                      ? bundle.ShortName ?? bundle.MachineName
                                                      : bundle.Title,
-                                         ShortName = bundle.ShortName,
-                                         Url = bundle.Url,
-                                         TileImageUrl = bundle.TileImageUrl,
-                                         TileLogoUrl = bundle.TileLogoUrl,
-                                         HeroImageUrl = bundle.HeroImageUrl,
-                                         ShortDescription = bundle.ShortDescription,
-                                         StartsAt = bundle.StartsAt,
-                                         EndsAt = bundle.EndsAt,
-                                         FirstSeenUtc = bundle.FirstSeenUtc,
-                                         LastSeenUtc = bundle.LastSeenUtc,
-                                         LastUpdatedUtc = bundle.LastUpdatedUtc,
-                                         IsExpired = isExpired,
-                                         TimeRemaining = isExpired
+                                             ShortName = bundle.ShortName,
+                                             Url = bundle.Url,
+                                             TileImageUrl = bundle.TileImageUrl,
+                                             TileLogoUrl = bundle.TileLogoUrl,
+                                             HeroImageUrl = bundle.HeroImageUrl,
+                                             ShortDescription = bundle.ShortDescription,
+                                             StartsAt = bundle.StartsAt,
+                                             EndsAt = bundle.EndsAt,
+                                             FirstSeenUtc = bundle.FirstSeenUtc,
+                                             LastSeenUtc = bundle.LastSeenUtc,
+                                             LastUpdatedUtc = bundle.LastUpdatedUtc,
+                                             IsExpired = isExpired,
+                                             TimeRemaining = isExpired
                                                      ? null
                                                      : timeRemaining,
-                                         SecondsRemaining = bundle.SecondsRemaining,
-                                         IsNewSinceLastFetch = isNew,
-                                         IsUpdatedSinceLastFetch = isUpdated
+                                             SecondsRemaining = bundle.SecondsRemaining,
+                                             IsNewSinceLastFetch = isNew,
+                                             IsUpdatedSinceLastFetch = isUpdated
                                      };
                                  })
                                 .ToList();
@@ -94,21 +106,21 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
         {
             Response.Cookies.Append(LastViewedCookieName, dataTimestamp.ToString("O"), new CookieOptions
             {
-                Expires = DateTimeOffset.UtcNow.AddDays(14),
-                HttpOnly = false,
-                IsEssential = true
+                    Expires = DateTimeOffset.UtcNow.AddDays(14),
+                    HttpOnly = false,
+                    IsEssential = true
             });
         }
 
         var model = new BundlesIndexViewModel
         {
-            ActiveBundles = active,
-            ExpiredBundles = expired,
-            IncludeExpired = includeExpired,
-            DataTimestampUtc = dataTimestamp,
-            LastViewedUtc = lastViewed,
-            NewBundlesCount = viewModels.Count(vm => vm.IsNewSinceLastFetch),
-            UpdatedBundlesCount = viewModels.Count(vm => vm.IsUpdatedSinceLastFetch && !vm.IsNewSinceLastFetch)
+                ActiveBundles = active,
+                ExpiredBundles = expired,
+                IncludeExpired = includeExpired,
+                DataTimestampUtc = dataTimestamp,
+                LastViewedUtc = lastViewed,
+                NewBundlesCount = viewModels.Count(vm => vm.IsNewSinceLastFetch),
+                UpdatedBundlesCount = viewModels.Count(vm => vm.IsUpdatedSinceLastFetch && !vm.IsNewSinceLastFetch)
         };
 
         return View(model);
@@ -121,9 +133,12 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
     public IActionResult Upload()
     {
         var hasTokens = HasDriveTokens();
+
         return View(new BundleUploadViewModel
         {
-            Error = hasTokens ? null : "Google Drive is not authorised yet. Run the OAuth flow first."
+                Error = hasTokens
+                        ? null
+                        : "Google Drive is not authorised yet. Run the OAuth flow first."
         });
     }
 
@@ -138,6 +153,11 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Upload([FromForm] IFormFile archive, CancellationToken cancellationToken = default)
     {
+        if (!ModelState.IsValid)
+        {
+            return View(new BundleUploadViewModel { Error = "Please correct the form and try again." });
+        }
+
         if (archive is null || (archive.Length == 0))
         {
             return View(new BundleUploadViewModel { Error = "Please choose a Humble Bundle zip archive to upload." });
@@ -164,12 +184,12 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
 
     private bool HasDriveTokens()
     {
-        return !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId))
-               && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret))
-               && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken));
+        return !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId)) &&
+               !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret)) &&
+               !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken));
     }
 
-    private GoogleDriveAuthModel? GetDriveAuth()
+    private GoogleDriveAuthModel GetDriveAuth()
     {
         var clientId = HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId);
         var clientSecret = HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret);
@@ -183,10 +203,10 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
 
         return new GoogleDriveAuthModel
         {
-            ClientId = clientId,
-            ClientSecret = clientSecret,
-            RefreshToken = refreshToken,
-            UserEmail = userEmail
+                ClientId = clientId,
+                ClientSecret = clientSecret,
+                RefreshToken = refreshToken,
+                UserEmail = userEmail
         };
     }
 

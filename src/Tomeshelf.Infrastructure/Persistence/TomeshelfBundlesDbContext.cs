@@ -6,9 +6,14 @@ namespace Tomeshelf.Infrastructure.Persistence;
 /// <summary>
 ///     EF Core database context for Tomeshelf's bundle domain entities.
 /// </summary>
-/// <param name="options">DbContext options configured by DI.</param>
-public class TomeshelfBundlesDbContext(DbContextOptions<TomeshelfBundlesDbContext> options) : DbContext(options)
+public class TomeshelfBundlesDbContext : DbContext
 {
+    /// <summary>
+    ///     EF Core database context for Tomeshelf's bundle domain entities.
+    /// </summary>
+    /// <param name="options">DbContext options configured by DI.</param>
+    public TomeshelfBundlesDbContext(DbContextOptions<TomeshelfBundlesDbContext> options) : base(options) { }
+
     /// <summary>
     ///     Catalog of Humble Bundle listings captured from the public site.
     /// </summary>

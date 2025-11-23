@@ -26,7 +26,7 @@ public sealed class AbsoluteUrlAttribute : ValidationAttribute, IClientModelVali
         MergeAttribute(context.Attributes, "data-val-absoluteurl-schemes", string.Join(",", DefaultSchemes));
     }
 
-    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
         if (value is null)
         {
@@ -57,7 +57,7 @@ public sealed class AbsoluteUrlAttribute : ValidationAttribute, IClientModelVali
         return ValidationResult.Success;
     }
 
-    private static bool TryCreateAbsolute(string value, [NotNullWhen(true)] out Uri? uri)
+    private static bool TryCreateAbsolute(string value, [NotNullWhen(true)] out Uri uri)
     {
         if (Uri.TryCreate(value, UriKind.Absolute, out uri) && AllowedSchemes.Contains(uri.Scheme))
         {

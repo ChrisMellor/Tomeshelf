@@ -1,11 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Docker.Resources.ServiceNodes;
 using Microsoft.Extensions.Configuration;
-using Projects;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Tomeshelf.AppHost.Records;
 
 namespace Tomeshelf.AppHost;
@@ -46,8 +45,8 @@ internal class Program
                 {
                     compose.AddVolume(new Volume
                     {
-                        Name = ExecutorSettingsVolumeName,
-                        Driver = "local"
+                            Name = ExecutorSettingsVolumeName,
+                            Driver = "local"
                     });
                 })
                .WithDashboard(rb => rb.WithHostPort(18888));
@@ -153,6 +152,7 @@ internal class Program
         {
             api.WithEnvironment("GoogleDrive__RootFolderPath", rootFolder);
         }
+
         var rootFolderId = builder.Configuration.GetValue<string>("GoogleDrive:RootFolderId");
         if (!string.IsNullOrWhiteSpace(rootFolderId))
         {
@@ -214,6 +214,7 @@ internal class Program
         {
             web.WithEnvironment("GoogleDrive__ClientId", clientId);
         }
+
         var rootFolderId = drive.GetValue<string>("RootFolderId");
         if (!string.IsNullOrWhiteSpace(rootFolderId))
         {
@@ -246,11 +247,11 @@ internal class Program
         var hostExecutorSettingsDirectory = ResolveHostExecutorSettingsDirectory();
         var volume = new Volume
         {
-            Name = ExecutorSettingsVolumeName,
-            Type = "volume",
-            Source = ExecutorSettingsVolumeName,
-            Target = ContainerExecutorSettingsDirectory,
-            ReadOnly = false
+                Name = ExecutorSettingsVolumeName,
+                Type = "volume",
+                Source = ExecutorSettingsVolumeName,
+                Target = ContainerExecutorSettingsDirectory,
+                ReadOnly = false
         };
 
         var executor = builder.AddProject<Tomeshelf_Executor>("executor")
@@ -261,7 +262,7 @@ internal class Program
                                {
                                    service.Restart = "unless-stopped";
                                    service.User = "root";
-                                   service.Environment ??= new Dictionary<string, string?>();
+                                   service.Environment ??= new Dictionary<string, string>();
                                    service.Environment[ExecutorSettingsDirectoryVariable] = ContainerExecutorSettingsDirectory;
                                    service.AddVolume(volume);
                                });

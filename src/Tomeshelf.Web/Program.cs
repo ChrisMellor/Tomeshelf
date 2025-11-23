@@ -1,13 +1,13 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Tomeshelf.ServiceDefaults;
 using Tomeshelf.Web.Services;
 
@@ -33,7 +33,12 @@ public class Program
         {
             builder.Services.AddHttpLogging(o =>
             {
-                o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod | HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration | HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
+                o.LoggingFields = HttpLoggingFields.RequestPath |
+                                  HttpLoggingFields.RequestMethod |
+                                  HttpLoggingFields.ResponseStatusCode |
+                                  HttpLoggingFields.Duration |
+                                  HttpLoggingFields.RequestHeaders |
+                                  HttpLoggingFields.ResponseHeaders;
                 o.RequestHeaders.Add("User-Agent");
                 o.MediaTypeOptions.AddText("text/html");
             });
@@ -143,10 +148,10 @@ public class Program
                     client.Timeout = TimeSpan.FromSeconds(100);
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-               {
-                   AutomaticDecompression = DecompressionMethods.None,
-                   AllowAutoRedirect = false
-               });
+                {
+                        AutomaticDecompression = DecompressionMethods.None,
+                        AllowAutoRedirect = false
+                });
 
         builder.Services.AddHttpClient<IPaissaApi, PaissaApi>(client =>
                 {

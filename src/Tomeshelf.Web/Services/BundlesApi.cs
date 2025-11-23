@@ -12,9 +12,20 @@ namespace Tomeshelf.Web.Services;
 /// <summary>
 ///     HTTP client for the Humble Bundle backend API.
 /// </summary>
-public sealed class BundlesApi(HttpClient http, ILogger<BundlesApi> logger) : IBundlesApi
+public sealed class BundlesApi : IBundlesApi
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
+    private readonly HttpClient _http;
+    private readonly ILogger<BundlesApi> _logger;
+
+    /// <summary>
+    ///     HTTP client for the Humble Bundle backend API.
+    /// </summary>
+    public BundlesApi(HttpClient http, ILogger<BundlesApi> logger)
+    {
+        _http = http;
+        _logger = logger;
+    }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<BundleModel>> GetBundlesAsync(bool includeExpired, CancellationToken cancellationToken)
@@ -23,14 +34,15 @@ public sealed class BundlesApi(HttpClient http, ILogger<BundlesApi> logger) : IB
                                                           .ToLowerInvariant()}";
         var started = DateTimeOffset.UtcNow;
 
-        using var response = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         var duration = DateTimeOffset.UtcNow - started;
-        logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)response.StatusCode, (int)duration.TotalMilliseconds);
+        _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)response.StatusCode, (int)duration.TotalMilliseconds);
 
         response.EnsureSuccessStatusCode();
 
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        var bundles = await JsonSerializer.DeserializeAsync<List<BundleModel>>(stream, SerializerOptions, cancellationToken) ?? throw new InvalidOperationException("Empty bundle payload");
+        var bundles = await JsonSerializer.DeserializeAsync<List<BundleModel>>(stream, SerializerOptions, cancellationToken) ??
+                      throw new InvalidOperationException("Empty bundle payload");
 
         return bundles;
     }
