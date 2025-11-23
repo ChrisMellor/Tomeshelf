@@ -1,4 +1,4 @@
-@model CronBuilderViewModel
+@model Tomeshelf.Executor.Models.CronBuilderViewModel
 @{
     var builderId = $"cron-builder-{Guid.NewGuid():N}";
     var hasInitial = !string.IsNullOrWhiteSpace(Model.InitialValue);

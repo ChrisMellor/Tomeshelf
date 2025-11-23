@@ -1,4 +1,5 @@
-@model EndpointEditorModel
+@using Tomeshelf.Executor.Models
+@model Tomeshelf.Executor.Models.EndpointEditorModel
 @{
     ViewData["Title"] = "Edit Endpoint";
     var originalName = ViewData["OriginalName"] as string ?? Model.Name;

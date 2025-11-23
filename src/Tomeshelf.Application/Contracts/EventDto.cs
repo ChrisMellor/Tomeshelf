@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Application.Contracts;
 
-public sealed class EventDto
+public sealed record EventDto
 {
     [JsonPropertyName("event_id")]
     public string EventId { get; init; } = null!;

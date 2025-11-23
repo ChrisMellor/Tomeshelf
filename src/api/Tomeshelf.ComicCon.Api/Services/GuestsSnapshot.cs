@@ -16,7 +16,7 @@ public sealed record GuestsSnapshot
     /// <param name="total">Total number of guests across all groups.</param>
     /// <param name="groups">Date-grouped results.</param>
     /// <param name="generatedUtc">When the snapshot was generated (UTC).</param>
-    public GuestsSnapshot(string city, int total, IReadOnlyList<GuestQueries.GuestsGroupResult> groups, DateTimeOffset generatedUtc)
+    public GuestsSnapshot(string city, int total, IReadOnlyList<GuestsGroupResult> groups, DateTimeOffset generatedUtc)
     {
         City = city;
         Total = total;
@@ -31,12 +31,12 @@ public sealed record GuestsSnapshot
     public int Total { get; init; }
 
     /// <summary>Date-grouped results.</summary>
-    public IReadOnlyList<GuestQueries.GuestsGroupResult> Groups { get; init; }
+    public IReadOnlyList<GuestsGroupResult> Groups { get; init; }
 
     /// <summary>When the snapshot was generated (UTC).</summary>
     public DateTimeOffset GeneratedUtc { get; init; }
 
-    public void Deconstruct(out string city, out int total, out IReadOnlyList<GuestQueries.GuestsGroupResult> groups, out DateTimeOffset generatedUtc)
+    public void Deconstruct(out string city, out int total, out IReadOnlyList<GuestsGroupResult> groups, out DateTimeOffset generatedUtc)
     {
         city = City;
         total = Total;

@@ -1,14 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Tomeshelf.Domain.Entities.HumbleBundle;
 using Tomeshelf.HumbleBundle.Api.Controllers;
+using Tomeshelf.HumbleBundle.Api.Records;
 using Tomeshelf.Infrastructure.Bundles;
 using Tomeshelf.Infrastructure.Persistence;
 
@@ -39,32 +40,32 @@ public sealed class BundlesControllerTests : IDisposable
         var now = DateTimeOffset.UtcNow;
         _dbContext.Bundles.AddRange(new Bundle
         {
-                MachineName = "active_bundle",
-                Category = "software",
-                Stamp = "bundle",
-                Title = "Active Bundle",
-                ShortDescription = "Active bundle description",
-                Url = "https://humblebundle.com/active",
-                TileImageUrl = "https://img/active.png",
-                StartsAt = now.AddDays(-1),
-                EndsAt = now.AddDays(3),
-                FirstSeenUtc = now.AddDays(-2),
-                LastSeenUtc = now,
-                LastUpdatedUtc = now
+            MachineName = "active_bundle",
+            Category = "software",
+            Stamp = "bundle",
+            Title = "Active Bundle",
+            ShortDescription = "Active bundle description",
+            Url = "https://humblebundle.com/active",
+            TileImageUrl = "https://img/active.png",
+            StartsAt = now.AddDays(-1),
+            EndsAt = now.AddDays(3),
+            FirstSeenUtc = now.AddDays(-2),
+            LastSeenUtc = now,
+            LastUpdatedUtc = now
         }, new Bundle
         {
-                MachineName = "expired_bundle",
-                Category = "books",
-                Stamp = "bundle",
-                Title = "Expired Bundle",
-                ShortDescription = "Expired bundle description",
-                Url = "https://humblebundle.com/expired",
-                TileImageUrl = "https://img/expired.png",
-                StartsAt = now.AddDays(-10),
-                EndsAt = now.AddDays(-2),
-                FirstSeenUtc = now.AddDays(-11),
-                LastSeenUtc = now.AddDays(-2),
-                LastUpdatedUtc = now.AddDays(-2)
+            MachineName = "expired_bundle",
+            Category = "books",
+            Stamp = "bundle",
+            Title = "Expired Bundle",
+            ShortDescription = "Expired bundle description",
+            Url = "https://humblebundle.com/expired",
+            TileImageUrl = "https://img/expired.png",
+            StartsAt = now.AddDays(-10),
+            EndsAt = now.AddDays(-2),
+            FirstSeenUtc = now.AddDays(-11),
+            LastSeenUtc = now.AddDays(-2),
+            LastUpdatedUtc = now.AddDays(-2)
         });
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -97,28 +98,28 @@ public sealed class BundlesControllerTests : IDisposable
         var now = DateTimeOffset.UtcNow;
         _dbContext.Bundles.AddRange(new Bundle
         {
-                MachineName = "active_bundle",
-                Category = "software",
-                Stamp = "bundle",
-                Title = "Active Bundle",
-                Url = "https://humblebundle.com/active",
-                StartsAt = now.AddDays(-1),
-                EndsAt = now.AddDays(5),
-                FirstSeenUtc = now.AddDays(-2),
-                LastSeenUtc = now,
-                LastUpdatedUtc = now
+            MachineName = "active_bundle",
+            Category = "software",
+            Stamp = "bundle",
+            Title = "Active Bundle",
+            Url = "https://humblebundle.com/active",
+            StartsAt = now.AddDays(-1),
+            EndsAt = now.AddDays(5),
+            FirstSeenUtc = now.AddDays(-2),
+            LastSeenUtc = now,
+            LastUpdatedUtc = now
         }, new Bundle
         {
-                MachineName = "expired_bundle",
-                Category = "books",
-                Stamp = "bundle",
-                Title = "Expired Bundle",
-                Url = "https://humblebundle.com/expired",
-                StartsAt = now.AddDays(-10),
-                EndsAt = now.AddDays(-1),
-                FirstSeenUtc = now.AddDays(-11),
-                LastSeenUtc = now.AddDays(-1),
-                LastUpdatedUtc = now.AddDays(-1)
+            MachineName = "expired_bundle",
+            Category = "books",
+            Stamp = "bundle",
+            Title = "Expired Bundle",
+            Url = "https://humblebundle.com/expired",
+            StartsAt = now.AddDays(-10),
+            EndsAt = now.AddDays(-1),
+            FirstSeenUtc = now.AddDays(-11),
+            LastSeenUtc = now.AddDays(-1),
+            LastUpdatedUtc = now.AddDays(-1)
         });
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

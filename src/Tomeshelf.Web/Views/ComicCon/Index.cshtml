@@ -1,5 +1,7 @@
-@model IReadOnlyList
-<Tomeshelf.Web.Models.ComicCon.GuestsGroupModel>
+@using System.Globalization
+@using System.Net
+@using Tomeshelf.Web.Models.ComicCon
+@model IReadOnlyList<Tomeshelf.Web.Models.ComicCon.GuestsGroupModel>
 @{
     ViewData["Title"] = "Guests by City";
     var city = (string)ViewBag.City;
