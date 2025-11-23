@@ -1,12 +1,13 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Tomeshelf.Executor.Configuration;
 using Tomeshelf.Executor.Models;
+using Tomeshelf.Executor.Records;
 using Tomeshelf.Executor.Services;
 
 namespace Tomeshelf.Executor.Controllers;
@@ -19,8 +20,7 @@ public class HomeController : Controller
     private readonly IExecutorSchedulerOrchestrator _scheduler;
     private readonly IExecutorConfigurationStore _store;
 
-    public HomeController(IExecutorConfigurationStore store, IExecutorSchedulerOrchestrator scheduler, IApiEndpointDiscoveryService discovery, IEndpointPingService pingService,
-            ILogger<HomeController> logger)
+    public HomeController(IExecutorConfigurationStore store, IExecutorSchedulerOrchestrator scheduler, IApiEndpointDiscoveryService discovery, IEndpointPingService pingService, ILogger<HomeController> logger)
     {
         _store = store;
         _scheduler = scheduler;
@@ -46,8 +46,8 @@ public class HomeController : Controller
 
         return View(await CreateViewModelAsync(options, new EndpointEditorModel
         {
-                Enabled = true,
-                Method = "POST"
+            Enabled = true,
+            Method = "POST"
         }, null, null, cancellationToken));
     }
 
@@ -134,8 +134,7 @@ public class HomeController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit([FromRoute(Name = "name")] string routeName, [FromForm(Name = "originalName")] string originalName,
-            [Bind(Prefix = "")] EndpointEditorModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Edit([FromRoute(Name = "name")] string routeName, [FromForm(Name = "originalName")] string originalName, [Bind(Prefix = "")] EndpointEditorModel model, CancellationToken cancellationToken)
     {
         var name = originalName ?? routeName;
         var options = await _store.GetAsync(cancellationToken);
@@ -160,8 +159,7 @@ public class HomeController : Controller
             return View(model);
         }
 
-        if (!string.Equals(name, model.Name, StringComparison.OrdinalIgnoreCase) &&
-            options.Endpoints.Any(ep => string.Equals(ep.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
+        if (!string.Equals(name, model.Name, StringComparison.OrdinalIgnoreCase) && options.Endpoints.Any(ep => string.Equals(ep.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
         {
             _logger.LogWarning("New endpoint name {NewName} already exists.", model.Name);
             ModelState.AddModelError(nameof(EndpointEditorModel.Name), "Another endpoint already uses this name.");
@@ -211,13 +209,13 @@ public class HomeController : Controller
         var endpoints = await _discovery.GetEndpointsAsync(baseUri, cancellationToken);
         var payload = endpoints.Select(e => new
         {
-                id = e.Id,
-                method = e.Method,
-                relativePath = e.RelativePath,
-                displayName = e.DisplayName,
-                description = e.Description,
-                allowBody = e.AllowBody,
-                groupName = e.GroupName
+            id = e.Id,
+            method = e.Method,
+            relativePath = e.RelativePath,
+            displayName = e.DisplayName,
+            description = e.Description,
+            allowBody = e.AllowBody,
+            groupName = e.GroupName
         });
 
         return Ok(payload);
@@ -252,7 +250,7 @@ public class HomeController : Controller
 
         if (result.Success)
         {
-            TempData["StatusMessage"] = $"Ping succeeded with status {result.StatusCode?.ToString() ?? "n/a"} ({result.Duration.TotalMilliseconds:N0} ms).";
+            TempData["StatusMessage"] = $"Ping succeeded with status {result.StatusCode.ToString() ?? "n/a"} ({result.Duration.TotalMilliseconds:N0} ms).";
         }
 
         return View("Ping", viewModel);
@@ -264,31 +262,30 @@ public class HomeController : Controller
         await _scheduler.RefreshAsync(options, cancellationToken);
     }
 
-    private async Task<ExecutorConfigurationViewModel> CreateViewModelAsync(ExecutorOptions options, EndpointEditorModel editor, EndpointPingModel ping,
-            EndpointPingResultViewModel pingResult, CancellationToken cancellationToken)
+    private async Task<ExecutorConfigurationViewModel> CreateViewModelAsync(ExecutorOptions options, EndpointEditorModel editor, EndpointPingModel ping, EndpointPingResultViewModel pingResult, CancellationToken cancellationToken)
     {
         var apis = await _discovery.GetApisAsync(cancellationToken);
 
         return new ExecutorConfigurationViewModel
         {
-                Enabled = options.Enabled,
-                Endpoints = options.Endpoints.OrderBy(ep => ep.Name, StringComparer.OrdinalIgnoreCase)
+            Enabled = options.Enabled,
+            Endpoints = options.Endpoints.OrderBy(ep => ep.Name, StringComparer.OrdinalIgnoreCase)
                                    .Select(ToSummary)
                                    .ToList(),
-                Editor = editor ??
+            Editor = editor ??
                 new EndpointEditorModel
                 {
-                        Enabled = true,
-                        Method = "POST"
+                    Enabled = true,
+                    Method = "POST"
                 },
-                Ping = ping ?? new EndpointPingModel { Method = "GET" },
-                PingResult = pingResult,
-                ApiServices = apis.Select(api => new ApiServiceOptionViewModel
-                                   {
-                                           ServiceName = api.ServiceName,
-                                           DisplayName = api.DisplayName,
-                                           BaseAddress = api.BaseAddress
-                                   })
+            Ping = ping ?? new EndpointPingModel { Method = "GET" },
+            PingResult = pingResult,
+            ApiServices = apis.Select(api => new ApiServiceOptionViewModel
+            {
+                ServiceName = api.ServiceName,
+                DisplayName = api.DisplayName,
+                BaseAddress = api.BaseAddress
+            })
                                   .ToList()
         };
     }
@@ -301,12 +298,12 @@ public class HomeController : Controller
 
         return new EndpointSummaryViewModel
         {
-                Name = endpoint.Name,
-                Url = endpoint.Url,
-                Method = endpoint.Method,
-                Cron = endpoint.Cron,
-                Enabled = endpoint.Enabled,
-                HeadersDisplay = headersDisplay
+            Name = endpoint.Name,
+            Url = endpoint.Url,
+            Method = endpoint.Method,
+            Cron = endpoint.Cron,
+            Enabled = endpoint.Enabled,
+            HeadersDisplay = headersDisplay
         };
     }
 
@@ -318,12 +315,12 @@ public class HomeController : Controller
 
         return new EndpointEditorModel
         {
-                Name = endpoint.Name,
-                Url = endpoint.Url,
-                Method = endpoint.Method,
-                Cron = endpoint.Cron,
-                Enabled = endpoint.Enabled,
-                Headers = headers
+            Name = endpoint.Name,
+            Url = endpoint.Url,
+            Method = endpoint.Method,
+            Cron = endpoint.Cron,
+            Enabled = endpoint.Enabled,
+            Headers = headers
         };
     }
 
@@ -331,13 +328,13 @@ public class HomeController : Controller
     {
         var endpoint = new EndpointScheduleOptions
         {
-                Name = model.Name,
-                Url = NormalizeUrl(model.Url),
-                Method = model.Method,
-                Cron = model.Cron,
-                TimeZone = null,
-                Enabled = model.Enabled,
-                Headers = ParseHeaders(model.Headers)
+            Name = model.Name,
+            Url = NormalizeUrl(model.Url),
+            Method = model.Method,
+            Cron = model.Cron,
+            TimeZone = null,
+            Enabled = model.Enabled,
+            Headers = ParseHeaders(model.Headers)
         };
 
         return endpoint;
@@ -347,11 +344,11 @@ public class HomeController : Controller
     {
         return new EndpointPingResultViewModel
         {
-                Success = result.Success,
-                StatusCode = result.StatusCode,
-                Message = result.Message,
-                ResponseBody = TrimBody(result.Body),
-                Duration = result.Duration
+            Success = result.Success,
+            StatusCode = result.StatusCode,
+            Message = result.Message,
+            ResponseBody = TrimBody(result.Body),
+            Duration = result.Duration
         };
     }
 

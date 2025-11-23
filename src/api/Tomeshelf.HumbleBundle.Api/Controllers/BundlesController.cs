@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.HumbleBundle.Api.Records;
-using Tomeshelf.Infrastructure.Bundles;
+using Tomeshelf.Infrastructure.Domains.Bundles.Queries;
+using Tomeshelf.Infrastructure.Domains.Bundles.Services;
 
 namespace Tomeshelf.HumbleBundle.Api.Controllers;
 
@@ -56,8 +57,7 @@ public sealed class BundlesController : ControllerBase
         var scraped = await _scraper.ScrapeAsync(cancellationToken);
         var ingestResult = await _ingest.UpsertAsync(scraped, cancellationToken);
 
-        _logger.LogInformation("Bundles refresh completed via API call - processed {Processed} bundles (created: {Created}, updated: {Updated}, unchanged: {Unchanged})",
-                               ingestResult.Processed, ingestResult.Created, ingestResult.Updated, ingestResult.Unchanged);
+        _logger.LogInformation("Bundles refresh completed via API call - processed {Processed} bundles (created: {Created}, updated: {Updated}, unchanged: {Unchanged})", ingestResult.Processed, ingestResult.Created, ingestResult.Updated, ingestResult.Unchanged);
 
         return Ok(new RefreshBundlesResponse(ingestResult.Created, ingestResult.Updated, ingestResult.Unchanged, ingestResult.Processed, ingestResult.ObservedAtUtc));
     }

@@ -6,13 +6,13 @@ public class Schedule
 {
     public int Id { get; set; }
 
-    public string ExternalId { get; set; } = null!;
+    public string ExternalId { get; set; } = null;
 
     public int EventAppearanceId { get; set; }
 
-    public EventAppearance EventAppearance { get; set; } = null!;
+    public EventAppearance EventAppearance { get; set; } = null;
 
-    public string Title { get; set; } = null!;
+    public string Title { get; set; } = null;
 
     public string Description { get; set; }
 

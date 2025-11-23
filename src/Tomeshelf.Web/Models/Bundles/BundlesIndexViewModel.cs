@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tomeshelf.Web.Models.Bundles.Records;
 
 namespace Tomeshelf.Web.Models.Bundles;
 

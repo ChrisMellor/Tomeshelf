@@ -28,9 +28,7 @@ public sealed record BundleResponse
     /// <param name="lastUpdatedUtc">Last time metadata changed.</param>
     /// <param name="secondsRemaining">Seconds remaining until expiry, when applicable.</param>
     /// <param name="generatedUtc">Timestamp when this projection was generated.</param>
-    public BundleResponse(string machineName, string category, string stamp, string title, string shortName, string url, string tileImageUrl, string tileLogoUrl,
-            string heroImageUrl, string shortDescription, DateTimeOffset? startsAt, DateTimeOffset? endsAt, DateTimeOffset firstSeenUtc, DateTimeOffset lastSeenUtc,
-            DateTimeOffset lastUpdatedUtc, double? secondsRemaining, DateTimeOffset generatedUtc)
+    public BundleResponse(string machineName, string category, string stamp, string title, string shortName, string url, string tileImageUrl, string tileLogoUrl, string heroImageUrl, string shortDescription, DateTimeOffset? startsAt, DateTimeOffset? endsAt, DateTimeOffset firstSeenUtc, DateTimeOffset lastSeenUtc, DateTimeOffset lastUpdatedUtc, double? secondsRemaining, DateTimeOffset generatedUtc)
     {
         MachineName = machineName;
         Category = category;
@@ -114,13 +112,10 @@ public sealed record BundleResponse
             }
         }
 
-        return new BundleResponse(dto.MachineName, dto.Category, dto.Stamp, dto.Title, dto.ShortName, dto.Url, dto.TileImageUrl, dto.TileLogoUrl, dto.HeroImageUrl,
-                                  dto.ShortDescription, dto.StartsAt, dto.EndsAt, dto.FirstSeenUtc, dto.LastSeenUtc, dto.LastUpdatedUtc, secondsRemaining, dto.GeneratedUtc);
+        return new BundleResponse(dto.MachineName, dto.Category, dto.Stamp, dto.Title, dto.ShortName, dto.Url, dto.TileImageUrl, dto.TileLogoUrl, dto.HeroImageUrl, dto.ShortDescription, dto.StartsAt, dto.EndsAt, dto.FirstSeenUtc, dto.LastSeenUtc, dto.LastUpdatedUtc, secondsRemaining, dto.GeneratedUtc);
     }
 
-    public void Deconstruct(out string machineName, out string category, out string stamp, out string title, out string shortName, out string url, out string tileImageUrl,
-            out string tileLogoUrl, out string heroImageUrl, out string shortDescription, out DateTimeOffset? startsAt, out DateTimeOffset? endsAt, out DateTimeOffset firstSeenUtc,
-            out DateTimeOffset lastSeenUtc, out DateTimeOffset lastUpdatedUtc, out double? secondsRemaining, out DateTimeOffset generatedUtc)
+    public void Deconstruct(out string machineName, out string category, out string stamp, out string title, out string shortName, out string url, out string tileImageUrl, out string tileLogoUrl, out string heroImageUrl, out string shortDescription, out DateTimeOffset? startsAt, out DateTimeOffset? endsAt, out DateTimeOffset firstSeenUtc, out DateTimeOffset lastSeenUtc, out DateTimeOffset lastUpdatedUtc, out double? secondsRemaining, out DateTimeOffset generatedUtc)
     {
         machineName = MachineName;
         category = Category;

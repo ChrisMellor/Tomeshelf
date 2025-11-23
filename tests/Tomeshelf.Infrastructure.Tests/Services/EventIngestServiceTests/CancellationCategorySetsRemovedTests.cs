@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Tomeshelf.Application.Contracts;
+using Tomeshelf.Infrastructure.Domains.Guests.Services;
 using Tomeshelf.Infrastructure.Persistence;
-using Tomeshelf.Infrastructure.Services;
 
 namespace Tomeshelf.Infrastructure.Tests.Services.EventIngestServiceTests;
 
@@ -28,7 +28,7 @@ public class CancellationCategorySetsRemovedTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = "P-C1",
                                 Uid = "U1",
@@ -37,7 +37,7 @@ public class CancellationCategorySetsRemovedTests
                                 LastName = "Person",
                                 GlobalCategories = new List<CategoryDto>
                                 {
-                                        new CategoryDto
+                                        new()
                                         {
                                                 Id = "X",
                                                 Name = "Canceled"
@@ -55,7 +55,7 @@ public class CancellationCategorySetsRemovedTests
         person.PubliclyVisible.Should()
               .BeFalse();
         person.RemovedUtc.Should()
-              .NotBeNull();
+              .NotBe(default);
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class CancellationCategorySetsRemovedTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = "P-C2",
                                 Uid = "U2",
@@ -84,7 +84,7 @@ public class CancellationCategorySetsRemovedTests
                                 LastName = "Person",
                                 GlobalCategories = new List<CategoryDto>
                                 {
-                                        new CategoryDto
+                                        new()
                                         {
                                                 Id = "X",
                                                 Name = "Canceled"
@@ -102,7 +102,7 @@ public class CancellationCategorySetsRemovedTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = "P-C2",
                                 Uid = "U2",
@@ -122,6 +122,6 @@ public class CancellationCategorySetsRemovedTests
         person.PubliclyVisible.Should()
               .BeTrue();
         person.RemovedUtc.Should()
-              .BeNull();
+              .Be(default);
     }
 }

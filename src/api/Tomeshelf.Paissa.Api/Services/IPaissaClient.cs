@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Paissa.Api.Models;
+using Tomeshelf.Paissa.Api.Dtos;
 
 namespace Tomeshelf.Paissa.Api.Services;
 

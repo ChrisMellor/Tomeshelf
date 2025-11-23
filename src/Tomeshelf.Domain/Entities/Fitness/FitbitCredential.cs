@@ -13,5 +13,5 @@ public sealed class FitbitCredential
 
     public string RefreshToken { get; set; }
 
-    public DateTimeOffset? ExpiresAtUtc { get; set; }
+    public DateTimeOffset ExpiresAtUtc { get; set; }
 }

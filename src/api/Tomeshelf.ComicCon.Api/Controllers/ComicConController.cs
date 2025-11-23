@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Tomeshelf.ComicCon.Api.Enums;
+using Tomeshelf.ComicCon.Api.Records;
 using Tomeshelf.ComicCon.Api.Services;
-using Tomeshelf.Infrastructure.Queries;
-using Tomeshelf.Infrastructure.Services;
+using Tomeshelf.Infrastructure.Domains.Guests.Queries;
+using Tomeshelf.Infrastructure.Domains.Guests.Services;
 
 namespace Tomeshelf.ComicCon.Api.Controllers;
 
@@ -106,9 +107,9 @@ public class ComicConController : ControllerBase
 
             return Ok(new
             {
-                    city = snapshot.City,
-                    total = snapshot.Total,
-                    groups = snapshot.Groups
+                city = snapshot.City,
+                total = snapshot.Total,
+                groups = snapshot.Groups
             });
         }
 
@@ -123,9 +124,9 @@ public class ComicConController : ControllerBase
 
             return Ok(new
             {
-                    city,
-                    total,
-                    groups
+                city,
+                total,
+                groups
             });
         }
         catch (Exception ex)

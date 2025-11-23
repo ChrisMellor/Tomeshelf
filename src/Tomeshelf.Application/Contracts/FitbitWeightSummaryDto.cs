@@ -3,15 +3,15 @@ namespace Tomeshelf.Application.Contracts;
 /// <summary>
 ///     Weight change summary details.
 /// </summary>
-public sealed class FitbitWeightSummaryDto
+public sealed record FitbitWeightSummaryDto
 {
-    public double? StartingWeightKg { get; init; }
+    public double StartingWeightKg { get; init; }
 
-    public double? CurrentWeightKg { get; init; }
+    public double CurrentWeightKg { get; init; }
 
-    public double? ChangeKg { get; init; }
+    public double ChangeKg { get; init; }
 
-    public double? BodyFatPercentage { get; init; }
+    public double BodyFatPercentage { get; init; }
 
-    public double? LeanMassKg { get; init; }
+    public double LeanMassKg { get; init; }
 }

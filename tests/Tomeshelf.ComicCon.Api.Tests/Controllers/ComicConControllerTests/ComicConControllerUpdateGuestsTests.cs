@@ -1,16 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Tomeshelf.Application.Contracts;
+using Tomeshelf.Infrastructure.Domains.Guests.Queries;
+using Tomeshelf.Infrastructure.Domains.Guests.Services;
 using Tomeshelf.Infrastructure.Persistence;
-using Tomeshelf.Infrastructure.Queries;
-using Tomeshelf.Infrastructure.Services;
 
 namespace Tomeshelf.ComicCon.Api.Tests.Controllers.ComicConControllerTests;
 
@@ -25,7 +25,7 @@ public class ComicConControllerUpdateGuestsTests
          .Returns(new List<PersonDto>());
 
         using var db = new TomeshelfMcmDbContext(new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                                 .ToString())
+                                                                                                                              .ToString())
                                                                                                      .Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
         var cache = A.Fake<IGuestsCache>();
@@ -49,7 +49,7 @@ public class ComicConControllerUpdateGuestsTests
         A.CallTo(() => svc.GetGuestsAsync("Birmingham", A<CancellationToken>._))
          .Throws(new ApplicationException("nope"));
         using var db = new TomeshelfMcmDbContext(new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                                 .ToString())
+                                                                                                                              .ToString())
                                                                                                      .Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
         var cache = A.Fake<IGuestsCache>();

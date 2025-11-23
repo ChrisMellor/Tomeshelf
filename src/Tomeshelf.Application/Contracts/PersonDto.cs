@@ -3,10 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace Tomeshelf.Application.Contracts;
 
-public sealed class PersonDto
+public sealed record PersonDto
 {
     [JsonPropertyName("id")]
-    public string Id { get; init; } = null!;
+    public string Id { get; init; } = null;
 
     [JsonPropertyName("uid")]
     public string Uid { get; init; }
@@ -73,15 +73,15 @@ public sealed class PersonDto
 
     [JsonConverter(typeof(NullableFlexibleDecimalConverter))]
     [JsonPropertyName("autograph_amount")]
-    public decimal? AutographAmount { get; init; }
+    public decimal AutographAmount { get; init; }
 
     [JsonConverter(typeof(NullableFlexibleDecimalConverter))]
     [JsonPropertyName("photo_op_amount")]
-    public decimal? PhotoOpAmount { get; init; }
+    public decimal PhotoOpAmount { get; init; }
 
     [JsonConverter(typeof(NullableFlexibleDecimalConverter))]
     [JsonPropertyName("photo_op_table_amount")]
-    public decimal? PhotoOpTableAmount { get; init; }
+    public decimal PhotoOpTableAmount { get; init; }
 
     [JsonPropertyName("people_categories")]
     public List<object> PeopleCategories { get; init; }

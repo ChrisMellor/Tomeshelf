@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Tomeshelf.Domain.Entities.ComicCon;
+using Tomeshelf.Infrastructure.Domains.Guests.Queries;
+using Tomeshelf.Infrastructure.Domains.Guests.Services;
 using Tomeshelf.Infrastructure.Persistence;
-using Tomeshelf.Infrastructure.Queries;
-using Tomeshelf.Infrastructure.Services;
 
 namespace Tomeshelf.ComicCon.Api.Tests.Controllers.ComicConControllerTests;
 
@@ -20,7 +20,7 @@ public class ComicConControllerGetByCityTests
         // Arrange
         var svc = A.Fake<IGuestService>();
         using var db = new TomeshelfMcmDbContext(new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                             .ToString())
+                                                                                                                              .ToString())
                                                                                                      .Options);
         var queries = new GuestQueries(db, NullLogger<GuestQueries>.Instance);
         var cache = A.Fake<IGuestsCache>();
@@ -39,7 +39,7 @@ public class ComicConControllerGetByCityTests
     {
         // Arrange
         using var db = new TomeshelfMcmDbContext(new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()
-                                                                                                             .ToString())
+                                                                                                                              .ToString())
                                                                                                      .Options);
 
         var ev = new Event
@@ -76,8 +76,8 @@ public class ComicConControllerGetByCityTests
         // Assert
         result.Result.Should()
               .BeOfType<OkObjectResult>();
-        var okResult = (OkObjectResult)result.Result!;
-        var okPayload = okResult.Value!;
+        var okResult = (OkObjectResult)result.Result;
+        var okPayload = okResult.Value;
         okPayload.Should()
                  .BeEquivalentTo(new
                   {

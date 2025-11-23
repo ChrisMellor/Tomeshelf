@@ -7,13 +7,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Tomeshelf.Paissa.Api.Models;
+using Tomeshelf.Paissa.Api.Dtos;
+using Tomeshelf.Paissa.Api.Records;
 
 namespace Tomeshelf.Paissa.Api.Services;
 
 public sealed class PaissaHousingService
 {
-    private static readonly (string Key, string Label)[] SizeDefinitions = { ("large", "Large"), ("medium", "Medium"), ("small", "Small") };
+    private static readonly (string Key, string Label)[] SizeDefinitions = [("large", "Large"), ("medium", "Medium"), ("small", "Small")];
 
     private readonly IPaissaClient _client;
     private readonly int _worldId;
@@ -77,8 +78,7 @@ public sealed class PaissaHousingService
         var entries = plot.LotteryEntries.GetValueOrDefault();
         var eligibility = MapPurchaseCategory(plot.PurchaseSystem);
 
-        return new PaissaPlotResponse(plot.WardNumber + 1, plot.PlotNumber + 1, plot.Price, entries, lastUpdated, eligibility.AllowsPersonal, eligibility.AllowsFreeCompany,
-                                      eligibility.IsUnknown);
+        return new PaissaPlotResponse(plot.WardNumber + 1, plot.PlotNumber + 1, plot.Price, entries, lastUpdated, eligibility.AllowsPersonal, eligibility.AllowsFreeCompany, eligibility.IsUnknown);
     }
 
     private static string? MapSizeKey(int rawSize)

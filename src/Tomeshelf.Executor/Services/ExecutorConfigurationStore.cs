@@ -1,11 +1,13 @@
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Tomeshelf.Executor.Configuration;
+using Tomeshelf.Executor.Extensions;
+using Tomeshelf.Executor.Records;
 
 namespace Tomeshelf.Executor.Services;
 
@@ -100,17 +102,5 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
     private string ResolveWritePath()
     {
         return _environmentFilePath ?? _defaultFilePath;
-    }
-
-    private sealed class ExecutorSettingsDocument
-    {
-        public ExecutorSettingsDocument() { }
-
-        public ExecutorSettingsDocument(ExecutorOptions options)
-        {
-            Executor = options.Clone();
-        }
-
-        public ExecutorOptions Executor { get; set; } = new();
     }
 }

@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Tomeshelf.Web.Exceptions;
 using Tomeshelf.Web.Models.Fitness;
 using Tomeshelf.Web.Services;
 
@@ -12,12 +13,12 @@ namespace Tomeshelf.Web.Controllers;
 [Route("fitness")]
 public sealed class FitnessController : Controller
 {
-    private readonly IFitbitApi _fitbitApi;
+    private readonly IFitbitService _fitbitService;
     private readonly ILogger<FitnessController> _logger;
 
-    public FitnessController(IFitbitApi fitbitApi, ILogger<FitnessController> logger)
+    public FitnessController(IFitbitService fitbitService, ILogger<FitnessController> logger)
     {
-        _fitbitApi = fitbitApi;
+        _fitbitService = fitbitService;
         _logger = logger;
     }
 
@@ -30,8 +31,8 @@ public sealed class FitnessController : Controller
 
         using var scope = _logger.BeginScope(new
         {
-                Date = targetDate,
-                Refresh = shouldRefresh
+            Date = targetDate,
+            Refresh = shouldRefresh
         });
         _logger.LogInformation("Rendering Fitbit dashboard for {Date} (Refresh: {Refresh})", targetDate, shouldRefresh);
 
@@ -40,7 +41,7 @@ public sealed class FitnessController : Controller
             var dateParameter = targetDate.ToString("yyyy-MM-dd");
             var returnUrl = Url.ActionLink("Index", "Fitness", new { date = dateParameter }) ?? $"{Request.Scheme}://{Request.Host}/fitness";
 
-            var dashboard = await _fitbitApi.GetDashboardAsync(dateParameter, shouldRefresh, returnUrl, cancellationToken);
+            var dashboard = await _fitbitService.GetDashboardAsync(dateParameter, shouldRefresh, returnUrl, cancellationToken);
 
             if (dashboard is null)
             {
@@ -50,16 +51,16 @@ public sealed class FitnessController : Controller
             var summary = CreateSummary(dashboard);
             var model = new FitnessDashboardViewModel
             {
-                    SelectedDate = dateParameter,
-                    TodayIso = today.ToString("yyyy-MM-dd"),
-                    PreviousDate = targetDate.AddDays(-1)
+                SelectedDate = dateParameter,
+                TodayIso = today.ToString("yyyy-MM-dd"),
+                PreviousDate = targetDate.AddDays(-1)
                                              .ToString("yyyy-MM-dd"),
-                    NextDate = targetDate < today
+                NextDate = targetDate < today
                             ? targetDate.AddDays(1)
                                         .ToString("yyyy-MM-dd")
                             : null,
-                    Summary = summary,
-                    ErrorMessage = summary is null
+                Summary = summary,
+                ErrorMessage = summary is null
                             ? "No Fitbit data is available for the selected date."
                             : null
             };
@@ -72,7 +73,7 @@ public sealed class FitnessController : Controller
 
             try
             {
-                var authorizeUri = await _fitbitApi.ResolveAuthorizationAsync(authEx.Location, cancellationToken);
+                var authorizeUri = await _fitbitService.ResolveAuthorizationAsync(authEx.Location, cancellationToken);
 
                 return Redirect(authorizeUri.ToString());
             }
@@ -113,12 +114,12 @@ public sealed class FitnessController : Controller
     {
         var summary = new DaySummaryViewModel
         {
-                Date = ParseDate(model.Date),
-                GeneratedUtc = model.GeneratedUtc,
-                Weight = model.Weight ?? new FitbitWeightModel(),
-                Calories = model.Calories ?? new FitbitCaloriesModel(),
-                Sleep = model.Sleep ?? new FitbitSleepModel(),
-                Activity = model.Activity ?? new FitbitActivityModel()
+            Date = ParseDate(model.Date),
+            GeneratedUtc = model.GeneratedUtc,
+            Weight = model.Weight ?? new FitbitWeightModel(),
+            Calories = model.Calories ?? new FitbitCaloriesModel(),
+            Sleep = model.Sleep ?? new FitbitSleepModel(),
+            Activity = model.Activity ?? new FitbitActivityModel()
         };
 
         return HasAnyMetrics(summary)
@@ -138,34 +139,17 @@ public sealed class FitnessController : Controller
 
     private static bool HasAnyMetrics(DaySummaryViewModel summary)
     {
-        if (summary.Weight.StartingWeightKg.HasValue ||
-            summary.Weight.CurrentWeightKg.HasValue ||
-            summary.Weight.ChangeKg.HasValue ||
-            summary.Weight.BodyFatPercentage.HasValue ||
-            summary.Weight.LeanMassKg.HasValue)
+        if (summary.Weight.StartingWeightKg.HasValue || summary.Weight.CurrentWeightKg.HasValue || summary.Weight.ChangeKg.HasValue || summary.Weight.BodyFatPercentage.HasValue || summary.Weight.LeanMassKg.HasValue)
         {
             return true;
         }
 
-        if (summary.Calories.IntakeCalories.HasValue ||
-            summary.Calories.BurnedCalories.HasValue ||
-            summary.Calories.NetCalories.HasValue ||
-            summary.Calories.CarbsGrams.HasValue ||
-            summary.Calories.FatGrams.HasValue ||
-            summary.Calories.FiberGrams.HasValue ||
-            summary.Calories.ProteinGrams.HasValue ||
-            summary.Calories.SodiumMilligrams.HasValue)
+        if (summary.Calories.IntakeCalories.HasValue || summary.Calories.BurnedCalories.HasValue || summary.Calories.NetCalories.HasValue || summary.Calories.CarbsGrams.HasValue || summary.Calories.FatGrams.HasValue || summary.Calories.FiberGrams.HasValue || summary.Calories.ProteinGrams.HasValue || summary.Calories.SodiumMilligrams.HasValue)
         {
             return true;
         }
 
-        if (summary.Sleep.TotalSleepHours.HasValue ||
-            summary.Sleep.TotalAwakeHours.HasValue ||
-            summary.Sleep.EfficiencyPercentage.HasValue ||
-            summary.Sleep.Levels.DeepMinutes.HasValue ||
-            summary.Sleep.Levels.LightMinutes.HasValue ||
-            summary.Sleep.Levels.RemMinutes.HasValue ||
-            summary.Sleep.Levels.WakeMinutes.HasValue)
+        if (summary.Sleep.TotalSleepHours.HasValue || summary.Sleep.TotalAwakeHours.HasValue || summary.Sleep.EfficiencyPercentage.HasValue || summary.Sleep.Levels.DeepMinutes.HasValue || summary.Sleep.Levels.LightMinutes.HasValue || summary.Sleep.Levels.RemMinutes.HasValue || summary.Sleep.Levels.WakeMinutes.HasValue)
         {
             return true;
         }

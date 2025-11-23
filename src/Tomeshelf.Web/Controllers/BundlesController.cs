@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Infrastructure;
 using Tomeshelf.Web.Models.Bundles;
+using Tomeshelf.Web.Models.Bundles.Records;
 using Tomeshelf.Web.Services;
 
 namespace Tomeshelf.Web.Controllers;
@@ -15,13 +16,13 @@ namespace Tomeshelf.Web.Controllers;
 public sealed class BundlesController : Controller
 {
     private const string LastViewedCookieName = "tomeshelf_bundles_lastViewedUtc";
-    private readonly IBundlesApi _api;
-    private readonly IFileUploadsApi _uploadsApi;
+    private readonly IBundlesService _service;
+    private readonly IFileUploadsService _uploadsService;
 
-    public BundlesController(IBundlesApi api, IFileUploadsApi uploadsApi)
+    public BundlesController(IBundlesService service, IFileUploadsService uploadsService)
     {
-        _api = api;
-        _uploadsApi = uploadsApi;
+        _service = service;
+        _uploadsService = uploadsService;
     }
 
     /// <summary>
@@ -38,13 +39,12 @@ public sealed class BundlesController : Controller
         }
 
         DateTimeOffset? lastViewed = null;
-        if (Request.Cookies.TryGetValue(LastViewedCookieName, out var cookieValue) &&
-            DateTimeOffset.TryParse(cookieValue, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed))
+        if (Request.Cookies.TryGetValue(LastViewedCookieName, out var cookieValue) && DateTimeOffset.TryParse(cookieValue, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed))
         {
             lastViewed = parsed;
         }
 
-        var bundles = await _api.GetBundlesAsync(includeExpired, cancellationToken);
+        var bundles = await _service.GetBundlesAsync(includeExpired, cancellationToken);
         var now = DateTimeOffset.UtcNow;
 
         var viewModels = bundles.Select(bundle =>
@@ -172,7 +172,7 @@ public sealed class BundlesController : Controller
             }
 
             await using var stream = archive.OpenReadStream();
-            var result = await _uploadsApi.UploadBundleAsync(stream, archive.FileName, auth, cancellationToken);
+            var result = await _uploadsService.UploadBundleAsync(stream, archive.FileName, auth, cancellationToken);
 
             return View(new BundleUploadViewModel { Result = result });
         }
@@ -184,9 +184,7 @@ public sealed class BundlesController : Controller
 
     private bool HasDriveTokens()
     {
-        return !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId)) &&
-               !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret)) &&
-               !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken));
+        return !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken));
     }
 
     private GoogleDriveAuthModel GetDriveAuth()

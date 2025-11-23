@@ -1,9 +1,9 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Tomeshelf.Executor.Configuration;
 using Tomeshelf.Executor.Services;
 
@@ -62,14 +62,14 @@ public class TriggerEndpointJob : IJob
         try
         {
             var result = await _pingService.SendAsync(uri, endpoint.Method, endpoint.Headers, context.CancellationToken);
-            if (result.Success && result.StatusCode.HasValue)
+            if (result.Success && (result.StatusCode != 0))
             {
-                _logger.LogInformation("Executed endpoint '{EndpointName}' with status {StatusCode}.", endpointName, result.StatusCode.Value);
+                _logger.LogInformation("Executed endpoint '{EndpointName}' with status {StatusCode}.", endpointName, result.StatusCode);
             }
-            else if (result.StatusCode.HasValue)
+            else if (result.StatusCode != 0)
             {
                 var responseBody = result.Body ?? result.Message;
-                _logger.LogError("Endpoint '{EndpointName}' responded with status {StatusCode}. Body: {Body}", endpointName, result.StatusCode.Value, responseBody);
+                _logger.LogError("Endpoint '{EndpointName}' responded with status {StatusCode}. Body: {Body}", endpointName, result.StatusCode, responseBody);
             }
             else
             {

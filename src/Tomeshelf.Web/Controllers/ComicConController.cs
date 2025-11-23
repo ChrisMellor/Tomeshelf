@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Services;
 
 namespace Tomeshelf.Web.Controllers;
@@ -9,11 +9,11 @@ namespace Tomeshelf.Web.Controllers;
 [Route("comiccon")]
 public class ComicConController : Controller
 {
-    private readonly IGuestsApi _api;
+    private readonly IGuestsService _service;
 
-    public ComicConController(IGuestsApi api)
+    public ComicConController(IGuestsService service)
     {
-        _api = api;
+        _service = service;
     }
 
     /// <summary>
@@ -27,7 +27,7 @@ public class ComicConController : Controller
     public async Task<IActionResult> Index([FromRoute] string city, CancellationToken cancellationToken = default)
     {
         var sw = Stopwatch.StartNew();
-        var result = await _api.GetComicConGuestsByCityResultAsync(city, cancellationToken);
+        var result = await _service.GetComicConGuestsByCityResultAsync(city, cancellationToken);
         sw.Stop();
 
         ViewBag.City = city;

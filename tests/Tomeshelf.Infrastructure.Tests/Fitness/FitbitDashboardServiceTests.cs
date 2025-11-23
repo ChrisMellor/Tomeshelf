@@ -6,8 +6,10 @@ using FakeItEasy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
-using Tomeshelf.Infrastructure.Fitness;
-using Tomeshelf.Infrastructure.Fitness.Models;
+using Tomeshelf.Infrastructure.Domains.Fitness.Clients;
+using Tomeshelf.Infrastructure.Domains.Fitness.Models;
+using Tomeshelf.Infrastructure.Domains.Fitness.Responses;
+using Tomeshelf.Infrastructure.Domains.Fitness.Services;
 using Tomeshelf.Infrastructure.Persistence;
 
 namespace Tomeshelf.Infrastructure.Tests.Fitness;
@@ -32,14 +34,14 @@ public sealed class FitbitDashboardServiceTests
         A.CallTo(() => client.GetActivitiesAsync(date, A<CancellationToken>._))
          .Returns(Task.FromResult(new ActivitiesResponse
           {
-                  Summary = new ActivitiesResponse.ActivitiesSummary
+                  Summary = new ActivitiesSummary
                   {
                           CaloriesOut = 2000,
                           Steps = 5000,
                           Floors = 10,
-                          Distances = new List<ActivitiesResponse.ActivityDistance>
+                          Distances = new List<ActivityDistance>
                           {
-                                  new ActivitiesResponse.ActivityDistance
+                                  new()
                                   {
                                           Activity = "total",
                                           Distance = 3.5
@@ -49,7 +51,7 @@ public sealed class FitbitDashboardServiceTests
           }));
 
         A.CallTo(() => client.GetCaloriesInAsync(date, A<CancellationToken>._))
-         .Returns(Task.FromResult(new FoodLogSummaryResponse { Summary = new FoodLogSummaryResponse.FoodSummary { Calories = 2100 } }));
+         .Returns(Task.FromResult(new FoodLogSummaryResponse { Summary = new FoodSummary { Calories = 2100 } }));
 
         A.CallTo(() => client.GetWeightAsync(date, A<int>._, A<CancellationToken>._))
          .Returns(Task.FromResult(new WeightResponse()));
@@ -57,9 +59,9 @@ public sealed class FitbitDashboardServiceTests
         A.CallTo(() => client.GetSleepAsync(date, A<CancellationToken>._))
          .Returns(Task.FromResult(new SleepResponse
           {
-                  Entries = new List<SleepResponse.SleepEntry>
+                  Entries = new List<SleepEntry>
                   {
-                          new SleepResponse.SleepEntry
+                          new()
                           {
                                   DateOfSleep = "2025-10-16",
                                   StartTime = "2025-10-16T22:15:00.000",
@@ -67,14 +69,14 @@ public sealed class FitbitDashboardServiceTests
                                   MinutesAsleep = 450,
                                   MinutesAwake = 30,
                                   Efficiency = 95,
-                                  Levels = new SleepResponse.SleepLevels
+                                  Levels = new SleepLevels
                                   {
-                                          Summary = new SleepResponse.SleepLevelSummary
+                                          Summary = new SleepLevelSummary
                                           {
-                                                  Deep = new SleepResponse.SleepLevelSummaryItem { Minutes = 90 },
-                                                  Light = new SleepResponse.SleepLevelSummaryItem { Minutes = 270 },
-                                                  Rem = new SleepResponse.SleepLevelSummaryItem { Minutes = 90 },
-                                                  Wake = new SleepResponse.SleepLevelSummaryItem { Minutes = 30 }
+                                                  Deep = new SleepLevelSummaryItem { Minutes = 90 },
+                                                  Light = new SleepLevelSummaryItem { Minutes = 270 },
+                                                  Rem = new SleepLevelSummaryItem { Minutes = 90 },
+                                                  Wake = new SleepLevelSummaryItem { Minutes = 30 }
                                           }
                                   }
                           }
@@ -115,12 +117,12 @@ public sealed class FitbitDashboardServiceTests
 
               return Task.FromResult(new ActivitiesResponse
               {
-                      Summary = new ActivitiesResponse.ActivitiesSummary
+                      Summary = new ActivitiesSummary
                       {
                               Steps = fetchCount,
                               Floors = 1,
                               CaloriesOut = 2000,
-                              Distances = new List<ActivitiesResponse.ActivityDistance>()
+                              Distances = new List<ActivityDistance>()
                       }
               });
           });

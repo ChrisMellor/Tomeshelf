@@ -70,7 +70,7 @@
             : "alert-danger";
     <div class="alert @alertClass mt-4">
         <div>
-            <strong>Status:</strong> @(Model.PingResult.StatusCode?.ToString() ?? "n/a")
+            <strong>Status:</strong> @(Model.PingResult.StatusCode.ToString() ?? "n/a")
         </div>
         <div>
             <strong>Message:</strong> @Model.PingResult.Message

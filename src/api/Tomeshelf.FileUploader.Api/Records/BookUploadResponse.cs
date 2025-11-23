@@ -1,4 +1,4 @@
-using Tomeshelf.Infrastructure.Bundles.Upload;
+using Tomeshelf.Infrastructure.Domains.Upload.Records;
 
 namespace Tomeshelf.FileUploader.Api.Records;
 

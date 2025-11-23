@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Tomeshelf.Infrastructure.Bundles.Upload;
+using Tomeshelf.Infrastructure.Domains.Upload.Records;
 
 namespace Tomeshelf.FileUploader.Api.Records;
 
 public sealed record BundleUploadResponse
 {
-    public BundleUploadResponse(DateTimeOffset uploadedAtUtc, int bundlesProcessed, int booksProcessed, int filesUploaded, int filesSkipped,
-            IReadOnlyList<BookUploadResponse> books)
+    public BundleUploadResponse(DateTimeOffset uploadedAtUtc, int bundlesProcessed, int booksProcessed, int filesUploaded, int filesSkipped, IReadOnlyList<BookUploadResponse> books)
     {
         UploadedAtUtc = uploadedAtUtc;
         BundlesProcessed = bundlesProcessed;
@@ -38,8 +37,7 @@ public sealed record BundleUploadResponse
         return new BundleUploadResponse(result.UploadedAtUtc, result.BundlesProcessed, result.BooksProcessed, result.FilesUploaded, result.FilesSkipped, books);
     }
 
-    public void Deconstruct(out DateTimeOffset uploadedAtUtc, out int bundlesProcessed, out int booksProcessed, out int filesUploaded, out int filesSkipped,
-            out IReadOnlyList<BookUploadResponse> books)
+    public void Deconstruct(out DateTimeOffset uploadedAtUtc, out int bundlesProcessed, out int booksProcessed, out int filesUploaded, out int filesSkipped, out IReadOnlyList<BookUploadResponse> books)
     {
         uploadedAtUtc = UploadedAtUtc;
         bundlesProcessed = BundlesProcessed;

@@ -6,7 +6,7 @@ public class PersonImage
 
     public int PersonId { get; set; }
 
-    public Person Person { get; set; } = null!;
+    public Person Person { get; set; } = null;
 
     public string Big { get; set; }
 

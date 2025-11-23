@@ -8,7 +8,7 @@ public sealed class EndpointPingResultViewModel
 
     public string Message { get; init; } = string.Empty;
 
-    public int? StatusCode { get; init; }
+    public int StatusCode { get; init; }
 
     public string ResponseBody { get; init; }
 

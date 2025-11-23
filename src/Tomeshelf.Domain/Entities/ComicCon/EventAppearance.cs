@@ -8,21 +8,21 @@ public class EventAppearance
 
     public int EventId { get; set; }
 
-    public Event Event { get; set; } = null!;
+    public Event Event { get; set; } = null;
 
     public int PersonId { get; set; }
 
-    public Person Person { get; set; } = null!;
+    public Person Person { get; set; } = null;
 
     public string DaysAtShow { get; set; }
 
     public string BoothNumber { get; set; }
 
-    public decimal? AutographAmount { get; set; }
+    public decimal AutographAmount { get; set; }
 
-    public decimal? PhotoOpAmount { get; set; }
+    public decimal PhotoOpAmount { get; set; }
 
-    public decimal? PhotoOpTableAmount { get; set; }
+    public decimal PhotoOpTableAmount { get; set; }
 
     public ICollection<Schedule> Schedules { get; set; } = [];
 }

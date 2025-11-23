@@ -1,13 +1,13 @@
-using System;
-using System.Linq;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using System;
+using System.Linq;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Domain.Entities.Fitness;
-using Tomeshelf.Infrastructure.Fitness;
+using Tomeshelf.Infrastructure.Domains.Fitness.Services;
 using Tomeshelf.Infrastructure.Persistence;
 
 namespace Tomeshelf.Infrastructure.Tests.Fitness;
@@ -28,9 +28,9 @@ public sealed class FitbitTokenCacheTests
             context.Database.EnsureCreated();
             context.FitbitCredentials.Add(new FitbitCredential
             {
-                    AccessToken = "stored-access",
-                    RefreshToken = "stored-refresh",
-                    ExpiresAtUtc = DateTimeOffset.UtcNow.AddHours(1)
+                AccessToken = "stored-access",
+                RefreshToken = "stored-refresh",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddHours(1)
             });
             context.SaveChanges();
         }
@@ -54,8 +54,8 @@ public sealed class FitbitTokenCacheTests
         var scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
         var options = new FitbitOptions
         {
-                AccessToken = "bootstrap-access",
-                RefreshToken = "bootstrap-refresh"
+            AccessToken = "bootstrap-access",
+            RefreshToken = "bootstrap-refresh"
         };
 
         using (var scope = scopeFactory.CreateScope())
@@ -156,7 +156,7 @@ public sealed class FitbitTokenCacheTests
             credential.RefreshToken.Should()
                       .BeNull();
             credential.ExpiresAtUtc.Should()
-                      .BeNull();
+                      .NotBe(default);
         }
     }
 

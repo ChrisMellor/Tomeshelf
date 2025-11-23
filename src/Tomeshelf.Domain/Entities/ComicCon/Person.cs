@@ -7,7 +7,7 @@ public class Person
 {
     public int Id { get; set; }
 
-    public string ExternalId { get; set; } = null!;
+    public string ExternalId { get; set; } = null;
 
     public string Uid { get; set; }
 
@@ -53,7 +53,7 @@ public class Person
 
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
-    public DateTime? UpdatedUtc { get; set; }
+    public DateTime UpdatedUtc { get; set; }
 
-    public DateTime? RemovedUtc { get; set; }
+    public DateTime RemovedUtc { get; set; }
 }

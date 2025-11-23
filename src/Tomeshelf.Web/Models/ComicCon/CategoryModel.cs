@@ -5,10 +5,10 @@ namespace Tomeshelf.Web.Models.ComicCon;
 public sealed class CategoryModel
 {
     [JsonPropertyName("id")]
-    public string Id { get; init; } = null!;
+    public string Id { get; init; } = null;
 
     [JsonPropertyName("name")]
-    public string Name { get; init; } = null!;
+    public string Name { get; init; } = null;
 
     [JsonPropertyName("color")]
     public string Color { get; init; }

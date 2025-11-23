@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Executor.Jobs;
+using Tomeshelf.Executor.Records;
 
 namespace Tomeshelf.Executor.Services;
 
@@ -48,7 +49,7 @@ public sealed class EndpointPingService : IEndpointPingService
             stopwatch.Stop();
             _logger.LogWarning(ex, "Request to {Url} failed.", target);
 
-            return new EndpointPingResult(false, null, ex.Message, null, stopwatch.Elapsed);
+            return new EndpointPingResult(false, 0, ex.Message, null, stopwatch.Elapsed);
         }
     }
 

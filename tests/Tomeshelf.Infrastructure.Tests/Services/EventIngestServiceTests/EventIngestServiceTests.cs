@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Tomeshelf.Application.Contracts;
+using Tomeshelf.Infrastructure.Domains.Guests.Services;
 using Tomeshelf.Infrastructure.Persistence;
-using Tomeshelf.Infrastructure.Services;
 
 namespace Tomeshelf.Infrastructure.Tests.Services.EventIngestServiceTests;
 
@@ -29,7 +29,7 @@ public class EventIngestServiceTests
                 EventSlug = "2025-london",
                 People = new List<PersonDto>
                 {
-                        new PersonDto
+                        new()
                         {
                                 Id = Guid.NewGuid()
                                          .ToString(),

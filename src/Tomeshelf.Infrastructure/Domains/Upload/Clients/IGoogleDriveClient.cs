@@ -1,0 +1,14 @@
+using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using Tomeshelf.Infrastructure.Domains.Upload.Records;
+
+namespace Tomeshelf.Infrastructure.Domains.Upload.Clients;
+
+public interface IGoogleDriveClient : IDisposable
+{
+    Task<string> EnsureFolderPathAsync(string folderPath, CancellationToken cancellationToken);
+
+    Task<UploadOutcome> UploadFileAsync(string parentFolderId, string fileName, Stream content, long contentLength, string contentType, CancellationToken cancellationToken);
+}

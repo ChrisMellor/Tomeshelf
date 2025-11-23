@@ -7,7 +7,7 @@ namespace Tomeshelf.Web.Models.ComicCon;
 public sealed class PersonModel
 {
     [JsonPropertyName("id")]
-    public string Id { get; init; } = null!;
+    public string Id { get; init; } = null;
 
     [JsonPropertyName("uid")]
     public string Uid { get; init; }

@@ -62,12 +62,12 @@ public class Bundle
     /// <summary>
     ///     Timestamp the bundle becomes available (UTC).
     /// </summary>
-    public DateTimeOffset? StartsAt { get; set; }
+    public DateTimeOffset StartsAt { get; set; }
 
     /// <summary>
     ///     Timestamp the bundle is scheduled to end (UTC).
     /// </summary>
-    public DateTimeOffset? EndsAt { get; set; }
+    public DateTimeOffset EndsAt { get; set; }
 
     /// <summary>
     ///     First time the scraper observed this bundle.

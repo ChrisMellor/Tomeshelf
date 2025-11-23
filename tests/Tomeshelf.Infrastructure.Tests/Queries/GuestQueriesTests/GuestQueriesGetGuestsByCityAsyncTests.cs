@@ -1,12 +1,12 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Tomeshelf.Domain.Entities.ComicCon;
+using Tomeshelf.Infrastructure.Domains.Guests.Queries;
 using Tomeshelf.Infrastructure.Persistence;
-using Tomeshelf.Infrastructure.Queries;
 
 namespace Tomeshelf.Infrastructure.Tests.Queries.GuestQueriesTests;
 
@@ -23,33 +23,33 @@ public class GuestQueriesGetGuestsByCityAsyncTests
 
         var ev = new Event
         {
-                ExternalId = Guid.NewGuid()
+            ExternalId = Guid.NewGuid()
                                  .ToString(),
-                Name = "Event",
-                Slug = "2025-london"
+            Name = "Event",
+            Slug = "2025-london"
         };
         db.Events.Add(ev);
         var p1 = new Person
         {
-                ExternalId = "P1",
-                FirstName = "Ada",
-                LastName = "Lovelace"
+            ExternalId = "P1",
+            FirstName = "Ada",
+            LastName = "Lovelace"
         };
         var p2 = new Person
         {
-                ExternalId = "P2",
-                FirstName = "Grace",
-                LastName = "Hopper"
+            ExternalId = "P2",
+            FirstName = "Grace",
+            LastName = "Hopper"
         };
         db.People.AddRange(p1, p2);
         db.EventAppearances.AddRange(new EventAppearance
         {
-                Event = ev,
-                Person = p1
+            Event = ev,
+            Person = p1
         }, new EventAppearance
         {
-                Event = ev,
-                Person = p2
+            Event = ev,
+            Person = p2
         });
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 

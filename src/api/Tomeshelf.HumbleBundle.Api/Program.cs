@@ -1,11 +1,11 @@
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Tomeshelf.Infrastructure;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.ServiceDefaults;
@@ -27,13 +27,7 @@ public class Program
         {
             builder.Services.AddHttpLogging(o =>
             {
-                o.LoggingFields = HttpLoggingFields.RequestPath |
-                                  HttpLoggingFields.RequestMethod |
-                                  HttpLoggingFields.RequestQuery |
-                                  HttpLoggingFields.ResponseStatusCode |
-                                  HttpLoggingFields.Duration |
-                                  HttpLoggingFields.RequestHeaders |
-                                  HttpLoggingFields.ResponseHeaders;
+                o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestQuery | HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration | HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
                 o.RequestHeaders.Add("User-Agent");
                 o.MediaTypeOptions.AddText("application/json");
                 o.RequestBodyLogLimit = 0;

@@ -2,19 +2,19 @@
 
 namespace Tomeshelf.Application.Contracts;
 
-public sealed class ScheduleDto
+public sealed record ScheduleDto
 {
     [JsonPropertyName("id")]
-    public string Id { get; init; } = null!;
+    public string Id { get; init; } = null;
 
     [JsonPropertyName("title")]
-    public string Title { get; init; } = null!;
+    public string Title { get; init; } = null;
 
     [JsonPropertyName("description")]
     public string Description { get; init; }
 
     [JsonPropertyName("start_time")]
-    public string StartTime { get; init; } = null!;
+    public string StartTime { get; init; } = null;
 
     [JsonPropertyName("end_time")]
     public string EndTime { get; init; }

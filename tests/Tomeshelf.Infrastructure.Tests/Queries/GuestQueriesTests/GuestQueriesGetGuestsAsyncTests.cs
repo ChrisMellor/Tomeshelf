@@ -1,11 +1,11 @@
-using System;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using System;
+using System.Threading.Tasks;
 using Tomeshelf.Domain.Entities.ComicCon;
+using Tomeshelf.Infrastructure.Domains.Guests.Queries;
 using Tomeshelf.Infrastructure.Persistence;
-using Tomeshelf.Infrastructure.Queries;
 
 namespace Tomeshelf.Infrastructure.Tests.Queries.GuestQueriesTests;
 
@@ -21,34 +21,34 @@ public class GuestQueriesGetGuestsAsyncTests
         using var db = new TomeshelfMcmDbContext(dbOptions);
         var ev = new Event
         {
-                ExternalId = "E1",
-                Name = "Event",
-                Slug = "2025-london"
+            ExternalId = "E1",
+            Name = "Event",
+            Slug = "2025-london"
         };
         db.Events.Add(ev);
         var ada = new Person
         {
-                ExternalId = "P1",
-                FirstName = "Ada",
-                LastName = "Lovelace",
-                KnownFor = "Math"
+            ExternalId = "P1",
+            FirstName = "Ada",
+            LastName = "Lovelace",
+            KnownFor = "Math"
         };
         var grace = new Person
         {
-                ExternalId = "P2",
-                FirstName = "Grace",
-                LastName = "Hopper",
-                KnownFor = "COBOL"
+            ExternalId = "P2",
+            FirstName = "Grace",
+            LastName = "Hopper",
+            KnownFor = "COBOL"
         };
         db.People.AddRange(ada, grace);
         db.EventAppearances.AddRange(new EventAppearance
         {
-                Event = ev,
-                Person = ada
+            Event = ev,
+            Person = ada
         }, new EventAppearance
         {
-                Event = ev,
-                Person = grace
+            Event = ev,
+            Person = grace
         });
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 

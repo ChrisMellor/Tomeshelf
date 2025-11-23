@@ -1,13 +1,17 @@
-using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System;
 using Tomeshelf.Application.Options;
-using Tomeshelf.Infrastructure.Bundles;
-using Tomeshelf.Infrastructure.Bundles.Upload;
-using Tomeshelf.Infrastructure.Clients;
-using Tomeshelf.Infrastructure.Fitness;
-using Tomeshelf.Infrastructure.Queries;
-using Tomeshelf.Infrastructure.Services;
+using Tomeshelf.Infrastructure.Domains.Bundles.Queries;
+using Tomeshelf.Infrastructure.Domains.Bundles.Services;
+using Tomeshelf.Infrastructure.Domains.Fitness.Clients;
+using Tomeshelf.Infrastructure.Domains.Fitness.Services;
+using Tomeshelf.Infrastructure.Domains.Guests.Clients;
+using Tomeshelf.Infrastructure.Domains.Guests.Queries;
+using Tomeshelf.Infrastructure.Domains.Guests.Services;
+using Tomeshelf.Infrastructure.Domains.Upload;
+using Tomeshelf.Infrastructure.Domains.Upload.Factories;
+using Tomeshelf.Infrastructure.Domains.Upload.Services;
 
 namespace Tomeshelf.Infrastructure;
 
@@ -42,7 +46,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<BundleFileOrganiser>();
         services.AddSingleton<IGoogleDriveClientFactory, GoogleDriveClientFactory>();
-        services.AddScoped<IHumbleBundleUploadService, BundleUploadService>();
+        services.AddScoped<IBundleUploadService, BundleUploadService>();
 
         return services;
     }

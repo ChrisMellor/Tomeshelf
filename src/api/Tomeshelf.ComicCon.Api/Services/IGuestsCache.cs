@@ -1,3 +1,5 @@
+using Tomeshelf.ComicCon.Api.Records;
+
 namespace Tomeshelf.ComicCon.Api.Services;
 
 /// <summary>

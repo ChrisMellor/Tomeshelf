@@ -33,12 +33,7 @@ public class Program
         {
             builder.Services.AddHttpLogging(o =>
             {
-                o.LoggingFields = HttpLoggingFields.RequestPath |
-                                  HttpLoggingFields.RequestMethod |
-                                  HttpLoggingFields.ResponseStatusCode |
-                                  HttpLoggingFields.Duration |
-                                  HttpLoggingFields.RequestHeaders |
-                                  HttpLoggingFields.ResponseHeaders;
+                o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod | HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration | HttpLoggingFields.RequestHeaders | HttpLoggingFields.ResponseHeaders;
                 o.RequestHeaders.Add("User-Agent");
                 o.MediaTypeOptions.AddText("text/html");
             });
@@ -59,7 +54,7 @@ public class Program
             options.MultipartBodyLengthLimit = 1_073_741_824; // ~1GB
         });
 
-        builder.Services.AddHttpClient<IGuestsApi, GuestsApi>(client =>
+        builder.Services.AddHttpClient<IGuestsService, GuestsService>(client =>
                 {
                     var configured = builder.Configuration["Services:ApiBase"];
 
@@ -89,7 +84,7 @@ public class Program
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
 
-        builder.Services.AddHttpClient<IBundlesApi, BundlesApi>(client =>
+        builder.Services.AddHttpClient<IBundlesService, BundlesService>(client =>
                 {
                     var configured = builder.Configuration["Services:HumbleBundleApiBase"];
 
@@ -119,7 +114,7 @@ public class Program
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
 
-        builder.Services.AddHttpClient<IFitbitApi, FitbitApi>(client =>
+        builder.Services.AddHttpClient<IFitbitService, FitbitService>(client =>
                 {
                     var configured = builder.Configuration["Services:FitbitApiBase"];
 
@@ -153,7 +148,7 @@ public class Program
                         AllowAutoRedirect = false
                 });
 
-        builder.Services.AddHttpClient<IPaissaApi, PaissaApi>(client =>
+        builder.Services.AddHttpClient<IPaissaService, PaissaService>(client =>
                 {
                     var configured = builder.Configuration["Services:PaissaApiBase"];
 
@@ -183,7 +178,7 @@ public class Program
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
 
-        builder.Services.AddHttpClient<IFileUploadsApi, FileUploadsApi>(client =>
+        builder.Services.AddHttpClient<IFileUploadsService, FileUploadsService>(client =>
                 {
                     var configured = builder.Configuration["Services:FileUploaderApiBase"];
 

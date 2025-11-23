@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,8 +7,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Tomeshelf.Executor.Records;
 using Tomeshelf.ServiceDefaults;
 
 namespace Tomeshelf.Executor.Services;
@@ -18,7 +19,7 @@ public sealed class ApiEndpointDiscoveryService : IApiEndpointDiscoveryService
 {
     public const string HttpClientName = "ExecutorDiscovery";
 
-    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
 
     private readonly IConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;

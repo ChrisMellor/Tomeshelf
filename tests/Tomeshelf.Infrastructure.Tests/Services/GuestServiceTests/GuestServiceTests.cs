@@ -9,9 +9,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Application.Options;
-using Tomeshelf.Infrastructure.Clients;
+using Tomeshelf.Infrastructure.Domains.Guests.Clients;
+using Tomeshelf.Infrastructure.Domains.Guests.Services;
 using Tomeshelf.Infrastructure.Persistence;
-using Tomeshelf.Infrastructure.Services;
 
 namespace Tomeshelf.Infrastructure.Tests.Services.GuestServiceTests;
 
@@ -27,7 +27,7 @@ public class GuestServiceTests
         {
                 ComicCon = new List<Location>
                 {
-                        new Location
+                        new()
                         {
                                 City = city,
                                 Key = key
@@ -101,7 +101,7 @@ public class GuestServiceTests
         {
                 ComicCon = new List<Location>
                 {
-                        new Location
+                        new()
                         {
                                 City = city,
                                 Key = key
@@ -157,7 +157,7 @@ public class GuestServiceTests
         {
                 ComicCon = new List<Location>
                 {
-                        new Location
+                        new()
                         {
                                 City = "London",
                                 Key = key

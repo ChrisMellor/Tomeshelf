@@ -17,7 +17,7 @@ public class ComicConControllerTests
     public async Task Index_ReturnsView_WithModelAndViewBag()
     {
         // Arrange
-        var api = A.Fake<IGuestsApi>();
+        var api = A.Fake<IGuestsService>();
         var groups = new List<GuestsGroupModel> { new GuestsGroupModel { Items = new List<PersonModel>() } };
         var resultModel = new GuestsByCityResult(groups, 1);
         A.CallTo(() => api.GetComicConGuestsByCityResultAsync("London", A<CancellationToken>._))

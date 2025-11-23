@@ -2,7 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Tomeshelf.Paissa.Api.Models;
+using Tomeshelf.Paissa.Api.Records;
 using Tomeshelf.Paissa.Api.Services;
 
 namespace Tomeshelf.Paissa.Api.Controllers;

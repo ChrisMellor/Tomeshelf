@@ -1,14 +1,15 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Tomeshelf.ComicCon.Api.Enums;
+using Tomeshelf.ComicCon.Api.Records;
 using Tomeshelf.ComicCon.Api.Services;
-using Tomeshelf.Infrastructure.Queries;
-using Tomeshelf.Infrastructure.Services;
+using Tomeshelf.Infrastructure.Domains.Guests.Queries;
+using Tomeshelf.Infrastructure.Domains.Guests.Services;
 
 namespace Tomeshelf.ComicCon.Api.Hosted;
 

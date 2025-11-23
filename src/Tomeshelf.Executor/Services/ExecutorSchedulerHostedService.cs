@@ -1,9 +1,9 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Tomeshelf.Executor.Configuration;
 
 namespace Tomeshelf.Executor.Services;
@@ -15,8 +15,7 @@ public sealed class ExecutorSchedulerHostedService : IHostedService
     private readonly IExecutorSchedulerOrchestrator _orchestrator;
     private IDisposable _subscription;
 
-    public ExecutorSchedulerHostedService(IExecutorSchedulerOrchestrator orchestrator, IOptionsMonitor<ExecutorOptions> optionsMonitor,
-            ILogger<ExecutorSchedulerHostedService> logger)
+    public ExecutorSchedulerHostedService(IExecutorSchedulerOrchestrator orchestrator, IOptionsMonitor<ExecutorOptions> optionsMonitor, ILogger<ExecutorSchedulerHostedService> logger)
     {
         _orchestrator = orchestrator;
         _optionsMonitor = optionsMonitor;

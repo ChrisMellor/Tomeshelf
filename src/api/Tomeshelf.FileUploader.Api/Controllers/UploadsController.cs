@@ -1,12 +1,12 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Threading;
+using System.Threading.Tasks;
 using Tomeshelf.Application.Options;
 using Tomeshelf.FileUploader.Api.Records;
-using Tomeshelf.Infrastructure.Bundles.Upload;
+using Tomeshelf.Infrastructure.Domains.Upload.Services;
 
 namespace Tomeshelf.FileUploader.Api.Controllers;
 
@@ -16,9 +16,9 @@ public sealed class UploadsController : ControllerBase
 {
     private readonly GoogleDriveOptions _defaultDriveOptions;
     private readonly ILogger<UploadsController> _logger;
-    private readonly IHumbleBundleUploadService _uploadService;
+    private readonly IBundleUploadService _uploadService;
 
-    public UploadsController(IHumbleBundleUploadService uploadService, IOptions<GoogleDriveOptions> driveOptions, ILogger<UploadsController> logger)
+    public UploadsController(IBundleUploadService uploadService, IOptions<GoogleDriveOptions> driveOptions, ILogger<UploadsController> logger)
     {
         _uploadService = uploadService;
         _defaultDriveOptions = driveOptions.Value;
@@ -36,8 +36,7 @@ public sealed class UploadsController : ControllerBase
     [RequestSizeLimit(1_073_741_824)] // ~1GB
     [ProducesResponseType(typeof(BundleUploadResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<BundleUploadResponse>> Upload([FromForm] IFormFile archive, [FromForm] OAuthCredentials credentials,
-            CancellationToken cancellationToken = default)
+    public async Task<ActionResult<BundleUploadResponse>> Upload([FromForm] IFormFile archive, [FromForm] OAuthCredentials credentials, CancellationToken cancellationToken = default)
     {
         if (archive is null || (archive.Length == 0))
         {
@@ -60,30 +59,25 @@ public sealed class UploadsController : ControllerBase
 
     private GoogleDriveOptions ToOptions(OAuthCredentials credentials)
     {
-        if (credentials is null ||
-            string.IsNullOrWhiteSpace(credentials.ClientId) ||
-            string.IsNullOrWhiteSpace(credentials.ClientSecret) ||
-            string.IsNullOrWhiteSpace(credentials.RefreshToken))
+        if (credentials is null || string.IsNullOrWhiteSpace(credentials.ClientId) || string.IsNullOrWhiteSpace(credentials.ClientSecret) || string.IsNullOrWhiteSpace(credentials.RefreshToken))
         {
-            return string.IsNullOrWhiteSpace(_defaultDriveOptions.ClientId) ||
-                   string.IsNullOrWhiteSpace(_defaultDriveOptions.ClientSecret) ||
-                   string.IsNullOrWhiteSpace(_defaultDriveOptions.RefreshToken)
+            return string.IsNullOrWhiteSpace(_defaultDriveOptions.ClientId) || string.IsNullOrWhiteSpace(_defaultDriveOptions.ClientSecret) || string.IsNullOrWhiteSpace(_defaultDriveOptions.RefreshToken)
                     ? null
                     : _defaultDriveOptions;
         }
 
         return new GoogleDriveOptions
         {
-                ApplicationName = _defaultDriveOptions.ApplicationName,
-                RootFolderPath = _defaultDriveOptions.RootFolderPath,
-                RootFolderId = _defaultDriveOptions.RootFolderId,
-                ClientId = credentials.ClientId,
-                ClientSecret = credentials.ClientSecret,
-                RefreshToken = credentials.RefreshToken,
-                UserEmail = string.IsNullOrWhiteSpace(credentials.UserEmail)
+            ApplicationName = _defaultDriveOptions.ApplicationName,
+            RootFolderPath = _defaultDriveOptions.RootFolderPath,
+            RootFolderId = _defaultDriveOptions.RootFolderId,
+            ClientId = credentials.ClientId,
+            ClientSecret = credentials.ClientSecret,
+            RefreshToken = credentials.RefreshToken,
+            UserEmail = string.IsNullOrWhiteSpace(credentials.UserEmail)
                         ? _defaultDriveOptions.UserEmail
                         : credentials.UserEmail,
-                SharedDriveId = _defaultDriveOptions.SharedDriveId
+            SharedDriveId = _defaultDriveOptions.SharedDriveId
         };
     }
 }
