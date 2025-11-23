@@ -1,8 +1,7 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Tomeshelf.Executor.Validation;
 
@@ -57,7 +56,7 @@ public sealed class AbsoluteUrlAttribute : ValidationAttribute, IClientModelVali
         return ValidationResult.Success;
     }
 
-    private static bool TryCreateAbsolute(string value, [NotNullWhen(true)] out Uri uri)
+    private static bool TryCreateAbsolute(string value, out Uri uri)
     {
         if (Uri.TryCreate(value, UriKind.Absolute, out uri) && AllowedSchemes.Contains(uri.Scheme))
         {

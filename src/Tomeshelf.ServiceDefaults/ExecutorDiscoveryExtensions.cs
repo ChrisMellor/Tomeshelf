@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Linq;
 
 namespace Tomeshelf.ServiceDefaults;
 
@@ -19,7 +21,7 @@ public static class ExecutorDiscoveryExtensions
     /// <param name="app">Endpoint route builder.</param>
     /// <param name="pattern">Optional custom path.</param>
     /// <returns>The supplied endpoint route builder for chaining.</returns>
-    public static IEndpointRouteBuilder MapExecutorDiscoveryEndpoint(this IEndpointRouteBuilder app, string? pattern = null)
+    public static IEndpointRouteBuilder MapExecutorDiscoveryEndpoint(this IEndpointRouteBuilder app, string pattern = null)
     {
         ArgumentNullException.ThrowIfNull(app);
 
@@ -38,7 +40,6 @@ public static class ExecutorDiscoveryExtensions
                                         .Where(d => d is not null && !string.IsNullOrWhiteSpace(d.RelativePath) && !string.IsNullOrWhiteSpace(d.HttpMethod))
                                         .Select(CreateEndpoint)
                                         .Where(static e => e is not null)
-                                        .Cast<ExecutorDiscoveredEndpoint>()
                                         .GroupBy(e => $"{e.Method}:{e.RelativePath}", StringComparer.OrdinalIgnoreCase)
                                         .Select(g => g.First())
                                         .OrderBy(e => e.RelativePath, StringComparer.OrdinalIgnoreCase)
@@ -54,7 +55,7 @@ public static class ExecutorDiscoveryExtensions
         return app;
     }
 
-    private static ExecutorDiscoveredEndpoint? CreateEndpoint(ApiDescription description)
+    private static ExecutorDiscoveredEndpoint CreateEndpoint(ApiDescription description)
     {
         var method = description.HttpMethod?.ToUpperInvariant();
         if (string.IsNullOrWhiteSpace(method))
@@ -69,10 +70,10 @@ public static class ExecutorDiscoveryExtensions
                                         ?.FirstOrDefault()
                                         ?.StatusCode switch
         {
-                StatusCodes.Status200OK => "Returns 200 OK",
-                StatusCodes.Status202Accepted => "Returns 202 Accepted",
-                StatusCodes.Status204NoContent => "Returns 204 No Content",
-                _ => null
+            StatusCodes.Status200OK => "Returns 200 OK",
+            StatusCodes.Status202Accepted => "Returns 202 Accepted",
+            StatusCodes.Status204NoContent => "Returns 204 No Content",
+            _ => null
         };
 
         var allowBody = AllowsBody(description);

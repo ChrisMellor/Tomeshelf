@@ -15,7 +15,7 @@ public sealed record ExecutorDiscoveredEndpoint
     /// <param name="description">Optional description snippet.</param>
     /// <param name="allowBody">Indicates whether the endpoint supports a request body.</param>
     /// <param name="groupName">Optional group/category name.</param>
-    public ExecutorDiscoveredEndpoint(string id, string method, string relativePath, string? displayName, string? description, bool allowBody, string? groupName)
+    public ExecutorDiscoveredEndpoint(string id, string method, string relativePath, string displayName, string description, bool allowBody, string groupName)
     {
         Id = id;
         Method = method;
@@ -36,18 +36,18 @@ public sealed record ExecutorDiscoveredEndpoint
     public string RelativePath { get; init; }
 
     /// <summary>Optional human-friendly name.</summary>
-    public string? DisplayName { get; init; }
+    public string DisplayName { get; init; }
 
     /// <summary>Optional description snippet.</summary>
-    public string? Description { get; init; }
+    public string Description { get; init; }
 
     /// <summary>Indicates whether the endpoint supports a request body.</summary>
     public bool AllowBody { get; init; }
 
     /// <summary>Optional group/category name.</summary>
-    public string? GroupName { get; init; }
+    public string GroupName { get; init; }
 
-    public void Deconstruct(out string id, out string method, out string relativePath, out string? displayName, out string? description, out bool allowBody, out string? groupName)
+    public void Deconstruct(out string id, out string method, out string relativePath, out string displayName, out string description, out bool allowBody, out string groupName)
     {
         id = Id;
         method = Method;
