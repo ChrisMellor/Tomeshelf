@@ -32,14 +32,14 @@ internal class Program
 
         var database = SetupDatabase(builder);
 
-        var comicConApi = SetupComicConApi(builder, database);
+        var mcmApi = SetupMcmApi(builder, database);
         var humbleBundleApi = SetupHumbleBundleApi(builder, database);
         var fitbitApi = SetupFitbitApi(builder, database);
         var paissaApi = SetupPaissaApi(builder);
         var fileUploaderApi = SetupFileUploaderApi(builder);
 
-        _ = SetupExecutor(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi);
-        _ = SetupWeb(builder, comicConApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi);
+        _ = SetupExecutor(builder, mcmApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi);
+        _ = SetupWeb(builder, mcmApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi);
 
         builder.AddDockerComposeEnvironment("tomeshelf")
                .ConfigureComposeFile(compose =>
@@ -71,8 +71,7 @@ internal class Program
 
     private static IResourceBuilder<ProjectResource> SetupComicConApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
     {
-        var db = database.AddDatabase("mcmdb");
-
+        var db = database.AddDatabase("comiccondb");
         var api = builder.AddProject<Tomeshelf_ComicCon_Api>("comicconapi")
                          .WithHttpHealthCheck("/health")
                          .WithReference(db)
@@ -81,16 +80,30 @@ internal class Program
                           {
                               service.Restart = "unless-stopped";
                           });
-
         var sites = builder.Configuration.GetSection("ComicCon")
                            .Get<List<ComicConSite>>() ?? [];
-
         for (var i = 0; i < sites.Count; i++)
         {
             api.WithEnvironment($"ComicCon__{i}__City", sites[i].City)
                .WithEnvironment($"ComicCon__{i}__Key", sites[i]
                                                       .Key.ToString());
         }
+
+        return api;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupMcmApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
+    {
+        var db = database.AddDatabase("mcmdb");
+
+        var api = builder.AddProject<Tomeshelf_MCM_Api>("mcmapi")
+                         .WithHttpHealthCheck("/health")
+                         .WithReference(db)
+                         .WaitFor(db)
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
 
         return api;
     }
@@ -153,6 +166,7 @@ internal class Program
         {
             api.WithEnvironment("GoogleDrive__RootFolderPath", rootFolder);
         }
+
         var rootFolderId = builder.Configuration.GetValue<string>("GoogleDrive:RootFolderId");
         if (!string.IsNullOrWhiteSpace(rootFolderId))
         {
@@ -214,6 +228,7 @@ internal class Program
         {
             web.WithEnvironment("GoogleDrive__ClientId", clientId);
         }
+
         var rootFolderId = drive.GetValue<string>("RootFolderId");
         if (!string.IsNullOrWhiteSpace(rootFolderId))
         {
