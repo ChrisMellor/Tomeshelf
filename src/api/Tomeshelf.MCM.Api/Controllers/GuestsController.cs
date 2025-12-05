@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Tomeshelf.MCM.Api.Contracts;
 using Tomeshelf.MCM.Api.Enums;
+using Tomeshelf.MCM.Api.Services;
 
 namespace Tomeshelf.MCM.Api.Controllers;
 
@@ -18,73 +21,66 @@ namespace Tomeshelf.MCM.Api.Controllers;
 [Route("[controller]")]
 public class GuestsController : ControllerBase
 {
-    private readonly ILogger<GuestsController> _logger;
+    private readonly IGuestsService _guestsService;
 
     /// <summary>
-    ///     Initializes a new instance of the GuestsController class with the specified logger.
+    ///     Initializes a new instance of the GuestsController class with the specified guests service.
     /// </summary>
-    /// <param name="logger">
-    ///     The logger instance used to record diagnostic and operational information for the controller.
-    ///     Cannot be null.
-    /// </param>
-    public GuestsController(ILogger<GuestsController> logger)
+    /// <param name="guestsService">The service used to manage guest-related operations. Cannot be null.</param>
+    public GuestsController(IGuestsService guestsService)
     {
-        _logger = logger;
+        _guestsService = guestsService;
     }
 
     /// <summary>
-    ///     Synchronizes guest information for the specified city.
-    /// </summary>
-    /// <remarks>
-    ///     This action is typically used to trigger a manual update of guest data for a given city. The
-    ///     operation is performed via an HTTP POST request to the endpoint formatted as '/{city}/sync'.
-    /// </remarks>
-    /// <param name="city">The city for which guest data will be updated. Cannot be null.</param>
-    /// <returns>
-    ///     An <see cref="IActionResult" /> indicating the result of the synchronization operation. Returns a success message
-    ///     if the update completes successfully.
-    /// </returns>
-    [HttpPost("{city}/sync")]
-    public IActionResult Sync([FromRoute] City city)
-    {
-        _logger.LogInformation("UpdateGuests called for city: {City}", city);
-        // Placeholder implementation
-        _logger.LogInformation("Guests updated successfully for city: {City}", city);
-
-        return Ok(new
-        {
-            city,
-            status = "Succeeded"
-        });
-    }
-
-    /// <summary>
-    ///     Retrieves a paginated list of guests for the specified city.
+    ///     Synchronizes guest data for the specified city and returns the result of the synchronization operation.
     /// </summary>
     /// <param name="city">
-    ///     The city for which to retrieve guest information. This value is provided from the route and must correspond to a
-    ///     valid city.
+    ///     The city for which guest data should be synchronized. Must be a valid city identifier provided in
+    ///     the route.
     /// </param>
-    /// <param name="page">The page number of results to return. Must be greater than or equal to 1. Defaults to 1.</param>
-    /// <param name="pageSize">
-    ///     The maximum number of guests to include in a single page of results. Must be greater than 0.
-    ///     Defaults to 50.
-    /// </param>
-    /// <returns>An <see cref="IActionResult" /> containing the guest data for the specified city and page.</returns>
-    [HttpGet("{city}")]
-    public IActionResult Get([FromRoute] City city, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
+    /// <param name="cancellationToken">A token that can be used to cancel the synchronization operation.</param>
+    /// <returns>
+    ///     An <see cref="IActionResult" /> containing a <see cref="GuestSyncResultDto" /> with the results of the
+    ///     synchronization. Returns status code 200 (OK) if successful.
+    /// </returns>
+    [HttpPost("{city}/sync")]
+    [ProducesResponseType(typeof(GuestSyncResultDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Sync([FromRoute] City city, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Get called for city: {City}", city);
-        // Placeholder implementation
-        _logger.LogInformation("Guests retrieved successfully for city: {City}", city);
+        var syncResult = await _guestsService.SyncAsync(city, cancellationToken);
 
-        return Ok(new
+        return Ok(syncResult);
+    }
+
+    /// <summary>
+    ///     Retrieves a paged list of guests for the specified city.
+    /// </summary>
+    /// <param name="city">The city for which to retrieve guest information.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
+    /// <param name="page">The page number of results to retrieve. Must be greater than or equal to 1.</param>
+    /// <param name="pageSize">The number of guests to include per page. Must be between 1 and 200.</param>
+    /// <returns>
+    ///     An <see cref="IActionResult" /> containing a paged result of guests for the specified city. Returns a validation
+    ///     problem response if the page or pageSize parameters are outside their valid ranges.
+    /// </returns>
+    [HttpGet("{city}")]
+    [ProducesResponseType(typeof(PagedResult<GuestDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Get([FromRoute] City city, CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
+    {
+        if (page < 1)
         {
-            city,
-            page,
-            pageSize,
-            guests = Array.Empty<object>()
-        });
+            return ValidationProblem("page must be >= 1");
+        }
+
+        if (pageSize is < 1 or > 200)
+        {
+            return ValidationProblem("pageSize must be between 1 and 200");
+        }
+
+        var result = await _guestsService.GetAsync(city, page, pageSize, cancellationToken);
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -96,11 +92,10 @@ public class GuestsController : ControllerBase
     ///     deleted.
     /// </returns>
     [HttpDelete("{city}")]
-    public IActionResult DeleteGuests([FromRoute] City city)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteGuests([FromRoute] City city, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("DeleteGuests called for city: {City}", city);
-        // Placeholder implementation
-        _logger.LogInformation("Guests deleted successfully for city: {City}", city);
+        await _guestsService.DeleteAsync(city, cancellationToken);
 
         return NoContent();
     }

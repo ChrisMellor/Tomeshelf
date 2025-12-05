@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json.Serialization;
+using Tomeshelf.MCM.Api.Services;
 using Tomeshelf.MCM.Api.Transformers;
 
 namespace Tomeshelf.MCM.Api;
@@ -40,6 +41,10 @@ public class Program
         {
             options.AddSchemaTransformer<EnumAsStringSchemaTransformer>();
         });
+
+        builder.Services.AddScoped<IGuestsService, GuestsService>();
+        //builder.Services.AddScoped<IMcmGuestsClient, McmGuestsClient>();
+        //builder.Services.AddScoped<IGuestsRepository, GuestsRepository>();
 
         var app = builder.Build();
 
