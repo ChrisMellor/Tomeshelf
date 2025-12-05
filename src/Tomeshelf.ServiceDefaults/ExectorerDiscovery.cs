@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Tomeshelf.ServiceDefaults;
 
@@ -68,7 +71,6 @@ public static class ExecutorDiscoveryExtensions
                                         .Where(d => d is not null && !string.IsNullOrWhiteSpace(d.RelativePath) && !string.IsNullOrWhiteSpace(d.HttpMethod))
                                         .Select(CreateEndpoint)
                                         .Where(static e => e is not null)
-                                        .Cast<ExecutorDiscoveredEndpoint>()
                                         .GroupBy(e => $"{e.Method}:{e.RelativePath}", StringComparer.OrdinalIgnoreCase)
                                         .Select(g => g.First())
                                         .OrderBy(e => e.RelativePath, StringComparer.OrdinalIgnoreCase)
@@ -99,10 +101,10 @@ public static class ExecutorDiscoveryExtensions
                                         ?.FirstOrDefault()
                                         ?.StatusCode switch
         {
-                StatusCodes.Status200OK => "Returns 200 OK",
-                StatusCodes.Status202Accepted => "Returns 202 Accepted",
-                StatusCodes.Status204NoContent => "Returns 204 No Content",
-                _ => null
+            StatusCodes.Status200OK => "Returns 200 OK",
+            StatusCodes.Status202Accepted => "Returns 202 Accepted",
+            StatusCodes.Status204NoContent => "Returns 204 No Content",
+            _ => null
         };
 
         var allowBody = AllowsBody(description);
