@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.MCM.Api.Enums;
 using Tomeshelf.MCM.Api.Records;
 
 namespace Tomeshelf.MCM.Api.Clients;
@@ -24,5 +24,5 @@ public interface IMcmGuestsClient
     ///     A task that represents the asynchronous operation. The task result contains a read-only list of guest records
     ///     for the specified city. If no guests are found, the list will be empty.
     /// </returns>
-    Task<IReadOnlyList<McmGuestRecord>> FetchGuestsAsync(City city, CancellationToken cancellationToken);
+    Task<IReadOnlyList<GuestRecord>> FetchGuestsAsync(Guid eventId, CancellationToken cancellationToken);
 }

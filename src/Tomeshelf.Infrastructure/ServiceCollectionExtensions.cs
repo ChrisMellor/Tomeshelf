@@ -4,25 +4,12 @@ using System;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure.Bundles;
 using Tomeshelf.Infrastructure.Bundles.Upload;
-using Tomeshelf.Infrastructure.Clients;
 using Tomeshelf.Infrastructure.Fitness;
-using Tomeshelf.Infrastructure.Queries;
-using Tomeshelf.Infrastructure.Services;
 
 namespace Tomeshelf.Infrastructure;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
-    {
-        services.AddScoped<GuestQueries>();
-        services.AddScoped<EventIngestService>();
-        services.AddHttpClient<IGuestsClient, GuestsClient>();
-        services.AddTransient<IGuestService, GuestService>();
-
-        return services;
-    }
-
     public static IServiceCollection AddBundleInfrastructure(this IServiceCollection services)
     {
         services.AddScoped<BundleQueries>();

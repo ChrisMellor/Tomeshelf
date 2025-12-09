@@ -1,5 +1,4 @@
 ﻿using System;
-using Tomeshelf.MCM.Api.Enums;
 
 namespace Tomeshelf.MCM.Api.Contracts;
 
@@ -17,4 +16,4 @@ namespace Tomeshelf.MCM.Api.Contracts;
 /// <param name="Removed">The number of guests that were removed during the synchronization.</param>
 /// <param name="Total">The total number of guests present after the synchronization.</param>
 /// <param name="RanAtUtc">The date and time, in UTC, when the synchronization operation was executed.</param>
-public sealed record GuestSyncResultDto(City City, string Status, int Added, int Updated, int Removed, int Total, DateTimeOffset RanAtUtc);
+public sealed record GuestSyncResultDto(string eventName, string Status, int Added, int Updated, int Removed, int Total, DateTimeOffset RanAtUtc);

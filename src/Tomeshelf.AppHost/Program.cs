@@ -6,7 +6,6 @@ using Projects;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Tomeshelf.AppHost.Records;
 
 namespace Tomeshelf.AppHost;
 
@@ -67,29 +66,6 @@ internal class Program
                                });
 
         return database;
-    }
-
-    private static IResourceBuilder<ProjectResource> SetupComicConApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
-    {
-        var db = database.AddDatabase("comiccondb");
-        var api = builder.AddProject<Tomeshelf_ComicCon_Api>("comicconapi")
-                         .WithHttpHealthCheck("/health")
-                         .WithReference(db)
-                         .WaitFor(db)
-                         .PublishAsDockerComposeService((resource, service) =>
-                          {
-                              service.Restart = "unless-stopped";
-                          });
-        var sites = builder.Configuration.GetSection("ComicCon")
-                           .Get<List<ComicConSite>>() ?? [];
-        for (var i = 0; i < sites.Count; i++)
-        {
-            api.WithEnvironment($"ComicCon__{i}__City", sites[i].City)
-               .WithEnvironment($"ComicCon__{i}__Key", sites[i]
-                                                      .Key.ToString());
-        }
-
-        return api;
     }
 
     private static IResourceBuilder<ProjectResource> SetupMcmApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)

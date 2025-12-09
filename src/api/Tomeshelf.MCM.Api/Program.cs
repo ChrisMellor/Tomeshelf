@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json.Serialization;
+using Tomeshelf.Infrastructure.Persistence;
+using Tomeshelf.MCM.Api.Clients;
+using Tomeshelf.MCM.Api.Repositories;
 using Tomeshelf.MCM.Api.Services;
 using Tomeshelf.MCM.Api.Transformers;
 
@@ -42,9 +45,12 @@ public class Program
             options.AddSchemaTransformer<EnumAsStringSchemaTransformer>();
         });
 
+        builder.AddSqlServerDbContext<TomeshelfMcmDbContext>("mcmdb");
+
         builder.Services.AddScoped<IGuestsService, GuestsService>();
-        //builder.Services.AddScoped<IMcmGuestsClient, McmGuestsClient>();
-        //builder.Services.AddScoped<IGuestsRepository, GuestsRepository>();
+        builder.Services.AddScoped<IMcmGuestsClient, McmGuestsClient>();
+        builder.Services.AddScoped<IGuestsRepository, GuestsRepository>();
+        builder.Services.AddScoped<IEventConfigService, EventConfigService>();
 
         var app = builder.Build();
 

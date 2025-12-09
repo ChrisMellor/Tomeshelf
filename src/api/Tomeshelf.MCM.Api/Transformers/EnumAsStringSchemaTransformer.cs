@@ -13,8 +13,7 @@ namespace Tomeshelf.MCM.Api.Transformers;
 /// <remarks>
 ///     This transformer modifies the OpenAPI schema so that enums are described as string values rather than
 ///     their underlying numeric values. For enums marked with the <see cref="FlagsAttribute" />, the schema will indicate
-///     a
-///     string type without enumerating possible values. This class is intended for internal use in schema generation
+///     a string type without enumerating possible values. This class is intended for internal use in schema generation
 ///     pipelines and is not thread-safe.
 /// </remarks>
 internal sealed class EnumAsStringSchemaTransformer : IOpenApiSchemaTransformer

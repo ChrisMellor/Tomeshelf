@@ -3,19 +3,20 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.MCM.Api.Contracts;
-using Tomeshelf.MCM.Api.Enums;
+using Tomeshelf.MCM.Api.Models;
 using Tomeshelf.MCM.Api.Services;
 
 namespace Tomeshelf.MCM.Api.Controllers;
 
 /// <summary>
-///     Provides API endpoints for managing guest-related operations.
+///     Handles HTTP requests related to guest management for a specific event configuration.
 /// </summary>
 /// <remarks>
-///     This controller is intended to be used as part of an ASP.NET Core application. All routes are
-///     prefixed with 'Guests', and actions within this controller handle requests related to guests. The controller is
-///     decorated with the <see cref="ApiControllerAttribute" /> to enable automatic model validation and other
-///     API-specific behaviors.
+///     This controller provides endpoints to synchronize, retrieve, and delete guests associated with an
+///     event. All actions require an event configuration to be specified in the route. The controller relies on an
+///     injected
+///     guests service to perform guest-related operations. Responses follow standard HTTP status codes for success and
+///     validation errors.
 /// </remarks>
 [ApiController]
 [Route("[controller]")]
@@ -33,40 +34,48 @@ public class GuestsController : ControllerBase
     }
 
     /// <summary>
-    ///     Synchronizes guest data for the specified city and returns the result of the synchronization operation.
+    ///     Synchronizes guest data for the specified event configuration.
     /// </summary>
-    /// <param name="city">
-    ///     The city for which guest data should be synchronized. Must be a valid city identifier provided in
-    ///     the route.
+    /// <param name="model">
+    ///     The event configuration model containing details of the event for which guest data should be synchronized. Must
+    ///     not be null.
     /// </param>
-    /// <param name="cancellationToken">A token that can be used to cancel the synchronization operation.</param>
+    /// <param name="cancellationToken">
+    ///     A token to monitor for cancellation requests. Passing a non-default token allows the
+    ///     operation to be cancelled.
+    /// </param>
     /// <returns>
     ///     An <see cref="IActionResult" /> containing a <see cref="GuestSyncResultDto" /> with the results of the
-    ///     synchronization. Returns status code 200 (OK) if successful.
+    ///     synchronization operation. Returns HTTP 200 (OK) with the result data.
     /// </returns>
-    [HttpPost("{city}/sync")]
+    [HttpPost("sync")]
     [ProducesResponseType(typeof(GuestSyncResultDto), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Sync([FromRoute] City city, CancellationToken cancellationToken)
+    public async Task<IActionResult> Sync([FromRoute] EventConfigModel model, CancellationToken cancellationToken)
     {
-        var syncResult = await _guestsService.SyncAsync(city, cancellationToken);
+        var syncResult = await _guestsService.SyncAsync(model, cancellationToken);
 
         return Ok(syncResult);
     }
 
     /// <summary>
-    ///     Retrieves a paged list of guests for the specified city.
+    ///     Retrieves a paged list of guests for the specified event configuration.
     /// </summary>
-    /// <param name="city">The city for which to retrieve guest information.</param>
-    /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
-    /// <param name="page">The page number of results to retrieve. Must be greater than or equal to 1.</param>
-    /// <param name="pageSize">The number of guests to include per page. Must be between 1 and 200.</param>
+    /// <param name="model">
+    ///     The event configuration identifying the event for which to retrieve guests. Must be provided in the
+    ///     route.
+    /// </param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <param name="page">The page number to retrieve. Must be greater than or equal to 1. Defaults to 1.</param>
+    /// <param name="pageSize">The number of guests to include per page. Must be between 1 and 200. Defaults to 50.</param>
     /// <returns>
-    ///     An <see cref="IActionResult" /> containing a paged result of guests for the specified city. Returns a validation
-    ///     problem response if the page or pageSize parameters are outside their valid ranges.
+    ///     An <see cref="IActionResult" /> containing a <see cref="PagedResult{GuestDto}" /> with the guests for the
+    ///     specified event and page. Returns a 400 Bad Request response if the page or pageSize parameters are out of
+    ///     range.
     /// </returns>
-    [HttpGet("{city}")]
+    [HttpGet]
     [ProducesResponseType(typeof(PagedResult<GuestDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Get([FromRoute] City city, CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Get([FromRoute] EventConfigModel model, CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
     {
         if (page < 1)
         {
@@ -78,24 +87,22 @@ public class GuestsController : ControllerBase
             return ValidationProblem("pageSize must be between 1 and 200");
         }
 
-        var result = await _guestsService.GetAsync(city, page, pageSize, cancellationToken);
+        var result = await _guestsService.GetAsync(model, page, pageSize, cancellationToken);
 
         return Ok(result);
     }
 
     /// <summary>
-    ///     Deletes all guests associated with the specified city.
+    ///     Deletes all guests associated with the specified event configuration.
     /// </summary>
-    /// <param name="city">An object representing the city for which guests should be deleted. Must not be null.</param>
-    /// <returns>
-    ///     An IActionResult indicating the result of the delete operation. Returns a success response if the guests were
-    ///     deleted.
-    /// </returns>
-    [HttpDelete("{city}")]
+    /// <param name="model">The event configuration identifying the guests to delete. Must not be null.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
+    /// <returns>A response indicating that the guests were successfully deleted. Returns HTTP 204 No Content on success.</returns>
+    [HttpDelete]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteGuests([FromRoute] City city, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteGuests([FromRoute] EventConfigModel model, CancellationToken cancellationToken)
     {
-        await _guestsService.DeleteAsync(city, cancellationToken);
+        await _guestsService.DeleteAsync(model, cancellationToken);
 
         return NoContent();
     }

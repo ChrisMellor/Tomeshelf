@@ -1,86 +1,74 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.MCM.Api.Clients;
 using Tomeshelf.MCM.Api.Contracts;
-using Tomeshelf.MCM.Api.Enums;
+using Tomeshelf.MCM.Api.Models;
 using Tomeshelf.MCM.Api.Repositories;
 
 namespace Tomeshelf.MCM.Api.Services;
 
 /// <summary>
-///     Provides operations for synchronizing, retrieving, and deleting guest data for a specified city.
+///     Provides operations for synchronizing, retrieving, and deleting guest data for events using an external guests
+///     management system and a local repository.
 /// </summary>
-/// <remarks>
-///     This service coordinates guest data between an external source and the local repository. All
-///     operations are asynchronous and require a valid city context. Thread safety is ensured for concurrent calls to
-///     service methods.
-/// </remarks>
 internal sealed class GuestsService : IGuestsService
 {
     private readonly IMcmGuestsClient _client;
+    private readonly ILogger<IGuestsService> _logger;
     private readonly IGuestsRepository _repository;
 
     /// <summary>
-    ///     Initializes a new instance of the GuestsService class using the specified guests client and repository.
+    ///     Initializes a new instance of the GuestsService class with the specified client, repository, and logger.
     /// </summary>
-    /// <param name="client">The client used to interact with the external guests management system. Cannot be null.</param>
-    /// <param name="repository">The repository used for local guests data storage and retrieval. Cannot be null.</param>
-    public GuestsService(IMcmGuestsClient client, IGuestsRepository repository)
+    /// <param name="client">The client used to interact with the external guests management system.</param>
+    /// <param name="repository">The repository used for accessing and persisting guest data.</param>
+    /// <param name="logger">The logger used for recording operational and error information for the service.</param>
+    public GuestsService(IMcmGuestsClient client, IGuestsRepository repository, ILogger<IGuestsService> logger)
     {
         _client = client;
         _repository = repository;
+        _logger = logger;
     }
 
     /// <summary>
-    ///     Synchronizes guest data for the specified city by fetching the latest information and updating the local
-    ///     snapshot.
+    ///     Synchronizes guest data for the specified event and returns the result of the synchronization operation.
     /// </summary>
-    /// <remarks>
-    ///     This method performs both data retrieval and update operations. The returned result reflects
-    ///     the changes made during synchronization. The operation is asynchronous and may be cancelled via the provided
-    ///     token.
-    /// </remarks>
-    /// <param name="city">The city for which guest data will be synchronized. Cannot be null.</param>
+    /// <param name="model">The event configuration containing the event identifier and related settings. Cannot be null.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the synchronization operation.</param>
     /// <returns>
-    ///     A <see cref="GuestSyncResultDto" /> containing the results of the synchronization, including counts of added,
+    ///     A <see cref="GuestSyncResultDto" /> containing the outcome of the synchronization, including counts of added,
     ///     updated, and removed guests.
     /// </returns>
-    public async Task<GuestSyncResultDto> SyncAsync(City city, CancellationToken cancellationToken)
+    public async Task<GuestSyncResultDto> SyncAsync(EventConfigModel model, CancellationToken cancellationToken)
     {
-        var fetched = await _client.FetchGuestsAsync(city, cancellationToken);
-        var delta = await _repository.UpsertSnapshotAsync(city, fetched, cancellationToken);
+        var fetched = await _client.FetchGuestsAsync(model.Id, cancellationToken);
+        var delta = await _repository.UpsertSnapshotAsync(model.Id, fetched, cancellationToken);
 
-        var guestSyncResult = new GuestSyncResultDto(city, "Succeeded", delta.Added, delta.Updated, delta.Removed, delta.Total, DateTimeOffset.UtcNow);
+        var guestSyncResult = new GuestSyncResultDto(model.Name, "Succeeded", delta.Added, delta.Updated, delta.Removed, delta.Total, DateTimeOffset.UtcNow);
 
         return guestSyncResult;
     }
 
     /// <summary>
-    ///     Asynchronously retrieves a paged list of guests for the specified city.
+    ///     Retrieves a paged list of guests for the specified event configuration.
     /// </summary>
-    /// <remarks>
-    ///     If the specified page exceeds the available data, the returned list of guests will be empty.
-    ///     This method does not filter or sort guests beyond paging.
-    /// </remarks>
-    /// <param name="city">The city for which to retrieve guest information.</param>
-    /// <param name="page">
-    ///     The zero-based page index indicating which page of results to return. Must be greater than or equal
-    ///     to 0.
+    /// <param name="model">
+    ///     The event configuration model that identifies the event for which to retrieve guests. Cannot be
+    ///     null.
     /// </param>
+    /// <param name="page">The zero-based page index of the results to retrieve. Must be greater than or equal to 0.</param>
     /// <param name="pageSize">The maximum number of guests to include in a single page. Must be greater than 0.</param>
-    /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains a
-    ///     <see
-    ///         cref="PagedResult{GuestDto}" />
-    ///     with the guests for the specified city and page.
+    ///     A task that represents the asynchronous operation. The task result contains a paged result of guest data transfer
+    ///     objects for the specified event.
     /// </returns>
-    public async Task<PagedResult<GuestDto>> GetAsync(City city, int page, int pageSize, CancellationToken cancellationToken)
+    public async Task<PagedResult<GuestDto>> GetAsync(EventConfigModel model, int page, int pageSize, CancellationToken cancellationToken)
     {
-        var snapshot = await _repository.GetPageAsync(city, page, pageSize, cancellationToken);
+        var snapshot = await _repository.GetPageAsync(model.Id, page, pageSize, cancellationToken);
 
         var items = snapshot.Items.Select(x => new GuestDto(x.Name, x.Description, x.ProfileUrl, x.ImageUrl))
                             .ToList();
@@ -91,13 +79,13 @@ internal sealed class GuestsService : IGuestsService
     }
 
     /// <summary>
-    ///     Asynchronously deletes all records associated with the specified city.
+    ///     Asynchronously deletes all event configuration data associated with the specified model.
     /// </summary>
-    /// <param name="city">The city for which all associated records will be deleted. Cannot be null.</param>
+    /// <param name="model">The event configuration model whose associated data will be deleted. Cannot be null.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
     /// <returns>A task that represents the asynchronous delete operation.</returns>
-    public async Task DeleteAsync(City city, CancellationToken cancellationToken)
+    public async Task DeleteAsync(EventConfigModel model, CancellationToken cancellationToken)
     {
-        await _repository.DeleteAllAsync(city, cancellationToken);
+        await _repository.DeleteAllAsync(model.Id, cancellationToken);
     }
 }

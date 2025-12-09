@@ -76,7 +76,7 @@ public static class Program
         builder.Services.AddSingleton<IGuestsCache, GuestsCache>();
         builder.Services.AddHostedService<ComicConUpdateBackgroundService>();
 
-        builder.AddSqlServerDbContext<TomeshelfMcmDbContext>("mcmdb");
+        builder.AddSqlServerDbContext<TomeshelfComicConDbContext>("mcmdb");
 
         var app = builder.Build();
 
@@ -107,7 +107,7 @@ public static class Program
 
         using (var scope = app.Services.CreateScope())
         {
-            var db = scope.ServiceProvider.GetRequiredService<TomeshelfMcmDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<TomeshelfComicConDbContext>();
             await db.Database.MigrateAsync();
         }
 
