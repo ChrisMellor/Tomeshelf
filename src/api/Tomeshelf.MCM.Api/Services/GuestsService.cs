@@ -1,9 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.MCM.Api.Clients;
 using Tomeshelf.MCM.Api.Contracts;
 using Tomeshelf.MCM.Api.Models;
 using Tomeshelf.MCM.Api.Repositories;
@@ -17,7 +15,6 @@ namespace Tomeshelf.MCM.Api.Services;
 internal sealed class GuestsService : IGuestsService
 {
     private readonly IMcmGuestsClient _client;
-    private readonly ILogger<IGuestsService> _logger;
     private readonly IGuestsRepository _repository;
 
     /// <summary>
@@ -25,12 +22,10 @@ internal sealed class GuestsService : IGuestsService
     /// </summary>
     /// <param name="client">The client used to interact with the external guests management system.</param>
     /// <param name="repository">The repository used for accessing and persisting guest data.</param>
-    /// <param name="logger">The logger used for recording operational and error information for the service.</param>
-    public GuestsService(IMcmGuestsClient client, IGuestsRepository repository, ILogger<IGuestsService> logger)
+    public GuestsService(IMcmGuestsClient client, IGuestsRepository repository)
     {
         _client = client;
         _repository = repository;
-        _logger = logger;
     }
 
     /// <summary>

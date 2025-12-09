@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.MCM.Api.Records;
 
-namespace Tomeshelf.MCM.Api.Repositories;
+namespace Tomeshelf.Mcm.Api.Repositories;
 
 /// <summary>
 ///     Provides in-memory storage and management of guest records for events, supporting asynchronous operations to
@@ -20,7 +19,7 @@ namespace Tomeshelf.MCM.Api.Repositories;
 /// </remarks>
 public class GuestsRepository : IGuestsRepository
 {
-    private readonly ConcurrentDictionary<Guid, List<GuestRecord>> _store = new ConcurrentDictionary<Guid, List<GuestRecord>>();
+    private readonly ConcurrentDictionary<Guid, List<GuestRecord>> _store = new();
 
     /// <summary>
     ///     Asynchronously deletes all items associated with the specified event identifier.

@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{1E44240B-313
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.FileUploader.Api", "src\api\Tomeshelf.FileUploader.Api\Tomeshelf.FileUploader.Api.csproj", "{5F3B9E8A-4CC6-4D10-B882-935E4BC65590}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.MCM.Api", "src\api\Tomeshelf.MCM.Api\Tomeshelf.MCM.Api.csproj", "{F268F65D-7A2A-688B-3533-704F6FBF8C8C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomeshelf.Mcm.Api", "src\api\Tomeshelf.MCM.Api\Tomeshelf.Mcm.Api.csproj", "{F268F65D-7A2A-688B-3533-704F6FBF8C8C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "web", "web", "{1E97B167-7F81-43AB-9433-420E07191E39}"
 EndProject

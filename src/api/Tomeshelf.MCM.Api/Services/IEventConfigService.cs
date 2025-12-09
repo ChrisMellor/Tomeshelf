@@ -21,17 +21,6 @@ namespace Tomeshelf.MCM.Api.Services;
 public interface IEventConfigService
 {
     /// <summary>
-    ///     Asynchronously retrieves the event configuration entity with the specified unique identifier.
-    /// </summary>
-    /// <param name="id">The unique identifier of the event configuration entity to retrieve.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
-    /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains the event configuration entity if
-    ///     found; otherwise, null.
-    /// </returns>
-    Task<EventConfigEntity> GetByIdAsync(Guid id, CancellationToken cancellationToken);
-
-    /// <summary>
     ///     Asynchronously retrieves all event configuration entities.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>

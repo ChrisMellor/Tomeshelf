@@ -1,4 +1,4 @@
-﻿namespace Tomeshelf.MCM.Api.Records;
+﻿namespace Tomeshelf.Mcm.Api.Records;
 
 /// <summary>
 ///     Represents a guest profile for the MCM system, including name, description, profile URL, and image URL.

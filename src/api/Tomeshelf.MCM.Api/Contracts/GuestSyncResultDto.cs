@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tomeshelf.MCM.Api.Contracts;
+namespace Tomeshelf.Mcm.Api2.Contracts;
 
 /// <summary>
 ///     Represents the result of a guest synchronization operation for a specific city, including status and counts of

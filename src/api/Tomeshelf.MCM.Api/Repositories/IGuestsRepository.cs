@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.MCM.Api.Records;
+using Tomeshelf.Mcm.Api.Records;
 
-namespace Tomeshelf.MCM.Api.Repositories;
+namespace Tomeshelf.Mcm.Api.Repositories;
 
 /// <summary>
 ///     Defines a contract for managing guest records and snapshots associated with events, including operations to

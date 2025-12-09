@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Tomeshelf.MCM.Api.Contracts;
+﻿namespace Tomeshelf.Mcm.Api2.Contracts;
 
 /// <summary>
 ///     Represents a single page of results from a larger collection, including paging metadata and the items for the

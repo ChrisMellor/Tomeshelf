@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.MCM.Api.Records;
+using Tomeshelf.Mcm.Api.Records;
 
-namespace Tomeshelf.MCM.Api.Clients;
+namespace Tomeshelf.Mcm.Api.Clients;
 
 /// <summary>
 ///     Provides methods for retrieving guest records for a specified city.
@@ -13,13 +13,13 @@ namespace Tomeshelf.MCM.Api.Clients;
 public class McmGuestsClient : IMcmGuestsClient
 {
     /// <summary>
-    ///     Asynchronously retrieves the list of guest records for the specified city.
+    ///     Asynchronously retrieves the list of guests associated with the specified event.
     /// </summary>
-    /// <param name="city">The city for which to fetch guest records.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+    /// <param name="eventId">The unique identifier of the event for which to fetch guest records.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains a read-only list of guest records
-    ///     for the specified city. The list is empty if there are no guests for the city.
+    ///     A task that represents the asynchronous operation. The task result contains a read-only list of guest records for
+    ///     the specified event. The list will be empty if no guests are found.
     /// </returns>
     public async Task<IReadOnlyList<GuestRecord>> FetchGuestsAsync(Guid eventId, CancellationToken cancellationToken)
     {

@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi;
-using System;
+﻿using System;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
 
-namespace Tomeshelf.MCM.Api.Transformers;
+namespace Tomeshelf.Mcm.Api.Transformers;
 
 /// <summary>
 ///     Transforms OpenAPI schemas for .NET enum types to represent them as strings in the generated schema.

@@ -7,7 +7,7 @@
   </PropertyGroup>
 
  <ItemGroup>
-	<ProjectReference Include="..\api\Tomeshelf.MCM.Api\Tomeshelf.MCM.Api.csproj" />
+	<ProjectReference Include="..\api\Tomeshelf.MCM.Api\Tomeshelf.Mcm.Api.csproj" />
 	<ProjectReference Include="..\web\Tomeshelf.Executor\Tomeshelf.Executor.csproj" />
 	<ProjectReference Include="..\api\Tomeshelf.Fitbit.Api\Tomeshelf.Fitbit.Api.csproj" />
 	<ProjectReference Include="..\api\Tomeshelf.FileUploader.Api\Tomeshelf.FileUploader.Api.csproj" />

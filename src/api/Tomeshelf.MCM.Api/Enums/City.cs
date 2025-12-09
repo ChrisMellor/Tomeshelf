@@ -1,4 +1,4 @@
-namespace Tomeshelf.MCM.Api.Enums;
+namespace Tomeshelf.Mcm.Api2.Enums;
 
 /// <summary>
 ///     Specifies the supported cities for location-based operations.
