@@ -1,4 +1,4 @@
-﻿namespace Tomeshelf.MCM.Api.Contracts;
+﻿namespace Tomeshelf.Mcm.Api.Contracts;
 
 /// <summary>
 ///     Represents a guest with identifying information, description, and profile resources.

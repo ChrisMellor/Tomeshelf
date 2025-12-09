@@ -2,11 +2,12 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.MCM.Api.Contracts;
-using Tomeshelf.MCM.Api.Models;
-using Tomeshelf.MCM.Api.Repositories;
+using Tomeshelf.Mcm.Api.Clients;
+using Tomeshelf.Mcm.Api.Contracts;
+using Tomeshelf.Mcm.Api.Models;
+using Tomeshelf.Mcm.Api.Repositories;
 
-namespace Tomeshelf.MCM.Api.Services;
+namespace Tomeshelf.Mcm.Api.Services;
 
 /// <summary>
 ///     Provides operations for synchronizing, retrieving, and deleting guest data for events using an external guests

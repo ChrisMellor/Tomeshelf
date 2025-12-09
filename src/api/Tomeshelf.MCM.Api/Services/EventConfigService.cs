@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Domain.Entities.Mcm;
-using Tomeshelf.MCM.Api.Models;
-using Tomeshelf.MCM.Api.Repositories;
+using Tomeshelf.Mcm.Api.Models;
+using Tomeshelf.Mcm.Api.Repositories;
 
-namespace Tomeshelf.MCM.Api.Services;
+namespace Tomeshelf.Mcm.Api.Services;
 
 /// <summary>
 ///     Provides methods for managing event configuration data, including retrieval, insertion, updating, and deletion of

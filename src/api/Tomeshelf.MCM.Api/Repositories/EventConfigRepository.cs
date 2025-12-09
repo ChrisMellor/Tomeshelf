@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Tomeshelf.Domain.Entities.Mcm;
 using Tomeshelf.Infrastructure.Persistence;
-using Tomeshelf.MCM.Api.Models;
+using Tomeshelf.Mcm.Api.Models;
 
-namespace Tomeshelf.MCM.Api.Repositories;
+namespace Tomeshelf.Mcm.Api.Repositories;
 
 /// <summary>
 ///     Provides methods for managing event configuration entities in the data store, including retrieval, insertion,

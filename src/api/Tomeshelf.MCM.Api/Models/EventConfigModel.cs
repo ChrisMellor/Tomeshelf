@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tomeshelf.MCM.Api.Models;
+namespace Tomeshelf.Mcm.Api.Models;
 
 /// <summary>
 ///     Represents a configuration entity with a unique identifier and a name.

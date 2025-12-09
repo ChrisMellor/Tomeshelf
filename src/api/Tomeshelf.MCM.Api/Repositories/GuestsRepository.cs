@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.Mcm.Api.Records;
 
 namespace Tomeshelf.Mcm.Api.Repositories;
 

@@ -3,11 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Mcm.Api.Contracts;
-using Tomeshelf.MCM.Api.Contracts;
-using Tomeshelf.MCM.Api.Models;
-using Tomeshelf.MCM.Api.Services;
+using Tomeshelf.Mcm.Api.Models;
+using Tomeshelf.Mcm.Api.Services;
 
-namespace Tomeshelf.MCM.Api.Controllers;
+namespace Tomeshelf.Mcm.Api.Controllers;
 
 /// <summary>
 ///     Handles HTTP requests related to guest management for a specific event configuration.

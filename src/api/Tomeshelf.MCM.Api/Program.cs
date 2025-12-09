@@ -1,14 +1,14 @@
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Text.Json.Serialization;
 using Tomeshelf.Infrastructure.Persistence;
-using Tomeshelf.MCM.Api.Clients;
-using Tomeshelf.MCM.Api.Repositories;
-using Tomeshelf.MCM.Api.Services;
-using Tomeshelf.MCM.Api.Transformers;
+using Tomeshelf.Mcm.Api.Clients;
+using Tomeshelf.Mcm.Api.Repositories;
+using Tomeshelf.Mcm.Api.Services;
+using Tomeshelf.Mcm.Api.Transformers;
 
-namespace Tomeshelf.MCM.Api;
+namespace Tomeshelf.Mcm.Api;
 
 /// <summary>
 ///     Provides the entry point for the application and configures the web host, services, and HTTP request pipeline.
@@ -62,7 +62,7 @@ public class Program
             app.UseSwaggerUI(options =>
             {
                 options.RoutePrefix = string.Empty;
-                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf.MCM.Api v1");
+                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf.Mcm.Api v1");
             });
         }
 
