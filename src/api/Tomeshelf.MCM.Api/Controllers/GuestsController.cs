@@ -19,7 +19,7 @@ namespace Tomeshelf.Mcm.Api.Controllers;
 ///     validation errors.
 /// </remarks>
 [ApiController]
-[Route("[controller]")]
+[Route("[controller]/{model}")]
 public class GuestsController : ControllerBase
 {
     private readonly IGuestsService _guestsService;
@@ -50,7 +50,7 @@ public class GuestsController : ControllerBase
     /// </returns>
     [HttpPost("sync")]
     [ProducesResponseType(typeof(GuestSyncResultDto), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Sync([FromRoute] EventConfigModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Sync([FromBody] EventConfigModel model, CancellationToken cancellationToken)
     {
         var syncResult = await _guestsService.SyncAsync(model, cancellationToken);
 

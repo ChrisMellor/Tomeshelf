@@ -21,4 +21,4 @@ namespace Tomeshelf.Mcm.Api.Contracts;
 /// <param name="PageSize">The maximum number of items included in each page. Must be greater than 0.</param>
 /// <param name="Total">The total number of items available across all pages.</param>
 /// <param name="Items">The collection of items contained in the current page. Cannot be null.</param>
-public sealed record PagedResult<T>(int Page, int PageSize, int Total, IReadOnlyList<T> Items);
+public sealed record PagedResult<T>(int Total, IReadOnlyList<T> Items, int Page = 1, int PageSize = 50);

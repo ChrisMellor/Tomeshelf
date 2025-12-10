@@ -69,7 +69,7 @@ internal sealed class GuestsService : IGuestsService
         var items = snapshot.Items.Select(x => new GuestDto(x.Name, x.Description, x.ProfileUrl, x.ImageUrl))
                             .ToList();
 
-        var pagedResult = new PagedResult<GuestDto>(page, pageSize, snapshot.Total, items);
+        var pagedResult = new PagedResult<GuestDto>(snapshot.Total, items, page, pageSize);
 
         return pagedResult;
     }
