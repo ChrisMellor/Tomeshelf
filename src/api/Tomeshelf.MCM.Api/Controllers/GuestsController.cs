@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Mcm.Api.Contracts;
@@ -19,7 +20,7 @@ namespace Tomeshelf.Mcm.Api.Controllers;
 ///     validation errors.
 /// </remarks>
 [ApiController]
-[Route("[controller]/{model}")]
+[Route("events/{eventId:guid}/guests")]
 public class GuestsController : ControllerBase
 {
     private readonly IGuestsService _guestsService;
@@ -34,48 +35,51 @@ public class GuestsController : ControllerBase
     }
 
     /// <summary>
-    ///     Synchronizes guest data for the specified event configuration.
+    ///     Synchronizes guest data for the specified event and returns the result of the synchronization operation.
     /// </summary>
-    /// <param name="model">
-    ///     The event configuration model containing details of the event for which guest data should be synchronized. Must
-    ///     not be null.
+    /// <param name="eventId">The unique identifier of the event for which guest data will be synchronized.</param>
+    /// <param name="eventName">
+    ///     The name of the event. If null or empty, the synchronization will proceed using only the event
+    ///     identifier.
     /// </param>
-    /// <param name="cancellationToken">
-    ///     A token to monitor for cancellation requests. Passing a non-default token allows the
-    ///     operation to be cancelled.
-    /// </param>
+    /// <param name="cancellationToken">A token that can be used to cancel the synchronization operation.</param>
     /// <returns>
     ///     An <see cref="IActionResult" /> containing a <see cref="GuestSyncResultDto" /> with the results of the
-    ///     synchronization operation. Returns HTTP 200 (OK) with the result data.
+    ///     synchronization. Returns HTTP 200 OK on success.
     /// </returns>
     [HttpPost("sync")]
     [ProducesResponseType(typeof(GuestSyncResultDto), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Sync([FromBody] EventConfigModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Sync([FromRoute] Guid eventId, [FromQuery] string? eventName, CancellationToken cancellationToken)
     {
+        var model = new EventConfigModel
+        {
+            Id = eventId,
+            Name = eventName ?? string.Empty
+        };
         var syncResult = await _guestsService.SyncAsync(model, cancellationToken);
 
         return Ok(syncResult);
     }
 
     /// <summary>
-    ///     Retrieves a paged list of guests for the specified event configuration.
+    ///     Retrieves a paged list of guests for the specified event.
     /// </summary>
-    /// <param name="model">
-    ///     The event configuration identifying the event for which to retrieve guests. Must be provided in the
-    ///     route.
+    /// <param name="eventId">The unique identifier of the event for which guests are to be retrieved.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
+    /// <param name="page">The page number of results to retrieve. Must be greater than or equal to 1.</param>
+    /// <param name="pageSize">The number of guests to include per page. Must be between 1 and 200.</param>
+    /// <param name="eventName">
+    ///     An optional event name to filter the guests by. If not specified, all guests for the event are
+    ///     returned.
     /// </param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <param name="page">The page number to retrieve. Must be greater than or equal to 1. Defaults to 1.</param>
-    /// <param name="pageSize">The number of guests to include per page. Must be between 1 and 200. Defaults to 50.</param>
     /// <returns>
     ///     An <see cref="IActionResult" /> containing a <see cref="PagedResult{GuestDto}" /> with the guests for the
-    ///     specified event and page. Returns a 400 Bad Request response if the page or pageSize parameters are out of
-    ///     range.
+    ///     specified event. Returns a 400 Bad Request response if the page or pageSize parameters are out of range.
     /// </returns>
     [HttpGet]
     [ProducesResponseType(typeof(PagedResult<GuestDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Get([FromRoute] EventConfigModel model, CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
+    public async Task<IActionResult> Get([FromRoute] Guid eventId, CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int pageSize = 50, [FromQuery] string? eventName = null)
     {
         if (page < 1)
         {
@@ -87,21 +91,36 @@ public class GuestsController : ControllerBase
             return ValidationProblem("pageSize must be between 1 and 200");
         }
 
+        var model = new EventConfigModel
+        {
+            Id = eventId,
+            Name = eventName ?? string.Empty
+        };
         var result = await _guestsService.GetAsync(model, page, pageSize, cancellationToken);
 
         return Ok(result);
     }
 
     /// <summary>
-    ///     Deletes all guests associated with the specified event configuration.
+    ///     Deletes all guests associated with the specified event.
     /// </summary>
-    /// <param name="model">The event configuration identifying the guests to delete. Must not be null.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
-    /// <returns>A response indicating that the guests were successfully deleted. Returns HTTP 204 No Content on success.</returns>
+    /// <remarks>
+    ///     This action removes all guests linked to the event identified by <paramref name="eventId" />.
+    ///     If no guests exist for the event, the operation completes without error. The response is always HTTP 204 (No
+    ///     Content).
+    /// </remarks>
+    /// <param name="eventId">The unique identifier of the event for which guests will be deleted.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the delete operation.</param>
+    /// <returns>A result indicating that the operation completed successfully with no content.</returns>
     [HttpDelete]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteGuests([FromRoute] EventConfigModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteGuests([FromRoute] Guid eventId, CancellationToken cancellationToken)
     {
+        var model = new EventConfigModel
+        {
+            Id = eventId,
+            Name = string.Empty
+        };
         await _guestsService.DeleteAsync(model, cancellationToken);
 
         return NoContent();

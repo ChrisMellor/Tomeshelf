@@ -35,7 +35,7 @@ public interface IGuestsService
     ///     Asynchronously retrieves a paged list of guests for the specified event configuration.
     /// </summary>
     /// <param name="model">The event configuration model that specifies the criteria for selecting guests. Cannot be null.</param>
-    /// <param name="page">The zero-based index of the page to retrieve. Must be greater than or equal to 0.</param>
+    /// <param name="page">The one-based index of the page to retrieve. Must be greater than or equal to 1.</param>
     /// <param name="pageSize">The maximum number of guests to include in a single page. Must be greater than 0.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>

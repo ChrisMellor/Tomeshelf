@@ -55,7 +55,7 @@ internal sealed class GuestsService : IGuestsService
     ///     The event configuration model that identifies the event for which to retrieve guests. Cannot be
     ///     null.
     /// </param>
-    /// <param name="page">The zero-based page index of the results to retrieve. Must be greater than or equal to 0.</param>
+    /// <param name="page">The one-based page index of the results to retrieve. Must be greater than or equal to 1.</param>
     /// <param name="pageSize">The maximum number of guests to include in a single page. Must be greater than 0.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>
