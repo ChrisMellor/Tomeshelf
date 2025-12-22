@@ -1,137 +1,162 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.Domain.Entities.Mcm;
+using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Mcm.Api.Records;
 
 namespace Tomeshelf.Mcm.Api.Repositories;
 
 /// <summary>
-///     Provides in-memory storage and management of guest records for events, supporting asynchronous operations to
-///     retrieve, update, and delete guest data by event identifier.
+///     Provides methods for managing guest records associated with events, including retrieval, synchronization, and
+///     deletion operations.
 /// </summary>
 /// <remarks>
-///     This repository is intended for scenarios where thread-safe, in-memory management of guest lists is
-///     sufficient, such as testing or lightweight applications. All operations are performed asynchronously and are safe
-///     for concurrent access. The repository maintains guest records per event and supports paged retrieval, snapshot
-///     upserts, and bulk deletion. Data is not persisted beyond the lifetime of the repository instance.
+///     This repository encapsulates data access logic for guest-related operations within the event context.
+///     All methods are asynchronous and require a valid database context. Thread safety is determined by the underlying
+///     database context implementation.
 /// </remarks>
 public class GuestsRepository : IGuestsRepository
 {
-    private readonly ConcurrentDictionary<Guid, List<GuestRecord>> _store = new();
+    private readonly TomeshelfMcmDbContext _dbContext;
 
     /// <summary>
-    ///     Asynchronously deletes all items associated with the specified event identifier.
+    ///     Initializes a new instance of the GuestsRepository class using the specified database context.
     /// </summary>
-    /// <param name="eventId">The unique identifier of the event whose items are to be deleted.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
-    /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains the number of items that were
-    ///     deleted. Returns 0 if no items were found for the specified event identifier.
-    /// </returns>
-    public Task<int> DeleteAllAsync(Guid eventId, CancellationToken cancellationToken)
+    /// <param name="dbContext">The database context to be used for data access operations. Cannot be null.</param>
+    public GuestsRepository(TomeshelfMcmDbContext dbContext)
     {
-        if (_store.TryRemove(eventId, out var existing))
-        {
-            return Task.FromResult(existing.Count);
-        }
-
-        return Task.FromResult(0);
+        _dbContext = dbContext;
     }
 
     /// <summary>
-    ///     Retrieves a paged list of guest records for the specified event.
+    ///     Asynchronously deletes all event records with the specified event identifier.
+    /// </summary>
+    /// <param name="eventId">
+    ///     The unique identifier of the event to delete. Only records matching this identifier will be
+    ///     removed.
+    /// </param>
+    /// <param name="cancellationToken">A token that can be used to cancel the delete operation.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the number of records deleted.</returns>
+    public async Task<int> DeleteAllAsync(Guid eventId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Events.Where(x => x.Id == eventId)
+                               .ExecuteDeleteAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Asynchronously retrieves a paged list of guest records for the specified event.
     /// </summary>
     /// <param name="eventId">The unique identifier of the event for which to retrieve guest records.</param>
     /// <param name="page">The one-based page number to retrieve. Must be greater than or equal to 1.</param>
     /// <param name="pageSize">The maximum number of guest records to include in the page. Must be greater than 0.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains a snapshot of the total number of
-    ///     guests and the guest records for the specified page. If the page is beyond the available data, the list of guest
-    ///     records will be empty.
+    ///     A task that represents the asynchronous operation. The task result contains a snapshot of guest records for the
+    ///     specified page, including the total number of guests and the list of guest records for the page. If the page is
+    ///     beyond the available data, the list will be empty.
     /// </returns>
-    public Task<GuestSnapshot> GetPageAsync(Guid eventId, int page, int pageSize, CancellationToken cancellationToken)
+    public async Task<GuestSnapshot> GetPageAsync(Guid eventId, int page, int pageSize, CancellationToken cancellationToken)
     {
-        var list = _store.GetOrAdd(eventId, _ => []);
+        ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1);
 
-        var total = list.Count;
+        var query = _dbContext.Guests.AsNoTracking()
+                              .Where(g => g.Id == eventId);
+
+        var total = await query.CountAsync(cancellationToken);
         var skip = (page - 1) * pageSize;
 
-        IReadOnlyList<GuestRecord> items = skip >= total
-                ? Array.Empty<GuestRecord>()
-                : list.Skip(skip)
-                      .Take(pageSize)
-                      .ToList();
+        var items = await query.OrderBy(g => g.Information.FirstName)
+                               .Skip(skip)
+                               .Take(pageSize)
+                               .Select(g => new GuestRecord(g.Name, g.Description, g.ProfileUrl, g.ImageUrl))
+                               .ToListAsync(cancellationToken);
 
-        return Task.FromResult(new GuestSnapshot(total, items));
+        return await Task.FromResult(new GuestSnapshot(total, items));
     }
 
     /// <summary>
-    ///     Creates or updates the guest snapshot for the specified event and returns a summary of changes applied.
+    ///     Synchronizes the event's guest list with the provided snapshot, adding, updating, or removing guests as
+    ///     necessary.
     /// </summary>
     /// <remarks>
-    ///     If a snapshot for the specified event does not exist, it is created. Existing guest records are
-    ///     compared to the provided list to determine additions, updates, and removals. The operation is idempotent for
-    ///     identical input.
+    ///     Guests are matched by name using a case-insensitive comparison. Existing guests not present in
+    ///     the provided snapshot are removed. The operation is performed atomically within the database context.
     /// </remarks>
-    /// <param name="eventId">The unique identifier of the event for which the guest snapshot is to be upserted.</param>
+    /// <param name="eventId">The unique identifier of the event whose guest list is to be synchronized.</param>
     /// <param name="guests">
-    ///     A read-only list of guest records representing the desired state of the event's guest list. Each guest record
-    ///     must have a unique key as determined by the implementation.
+    ///     A read-only list of guest entities representing the desired state of the event's guest list. Each entity should
+    ///     have a unique name (case-insensitive) within the list.
     /// </param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains a SyncDelta object summarizing the
-    ///     number of guests added, updated, removed, and the total count after the operation.
+    ///     A SyncDelta object containing the number of guests added, updated, removed, and the total number of guests after
+    ///     synchronization.
     /// </returns>
-    public Task<SyncDelta> UpsertSnapshotAsync(Guid eventId, IReadOnlyList<GuestRecord> guests, CancellationToken cancellationToken)
+    public async Task<SyncDelta> UpsertSnapshotAsync(Guid eventId, IReadOnlyList<EventEntity> guests, CancellationToken cancellationToken)
     {
-        var incomingByKey = guests.ToDictionary(KeyOf, g => g);
+        var incomingByKey = guests.GroupBy(KeyOf, StringComparer.OrdinalIgnoreCase)
+                                  .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
-        var existing = _store.GetOrAdd(eventId, _ => []);
-        var existingByKey = existing.ToDictionary(KeyOf, g => g);
+        var existing = await _dbContext.Event.Where(g => g.Id == eventId)
+                                       .ToListAsync(cancellationToken);
+
+        var existingByKey = existing.ToDictionary(g => g.Name, StringComparer.OrdinalIgnoreCase);
 
         var added = 0;
         var updated = 0;
-        var removed = 0;
 
-        foreach (var (guestName, incomingGuestRecord) in incomingByKey)
+        foreach (var (key, incoming) in incomingByKey)
         {
-            if (!existingByKey.TryGetValue(guestName, out var existingGuestRecord))
+            if (!existingByKey.TryGetValue(key, out var entity))
             {
                 added++;
+                _dbContext.Event.Add(new EventEntity
+                {
+                    Id = eventId,
+                    Name = incoming.Name,
+                    Description = incoming.Description,
+                    ProfileUrl = incoming.ProfileUrl,
+                    ImageUrl = incoming.ImageUrl
+                });
 
                 continue;
             }
 
-            if (!Equals(existingGuestRecord, incomingGuestRecord))
+            if (!Equals(entity, incoming))
             {
                 updated++;
+                entity.Description = incoming.Description;
+                entity.ProfileUrl = incoming.ProfileUrl;
+                entity.ImageUrl = incoming.ImageUrl;
             }
         }
 
-        foreach (var guestName in existingByKey.Keys)
+        var incomingKeys = incomingByKey.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var toRemove = existing.Where(e => !incomingKeys.Contains(e.Name))
+                               .ToList();
+        var removed = toRemove.Count;
+
+        if (removed > 0)
         {
-            if (!incomingByKey.ContainsKey(guestName))
-            {
-                removed++;
-            }
+            _dbContext.Event.RemoveRange(toRemove);
         }
 
-        _store[eventId] = guests.ToList();
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return Task.FromResult(new SyncDelta(added, updated, removed, _store[eventId].Count));
+        return new SyncDelta(added, updated, removed, incomingByKey.Count);
     }
 
     /// <summary>
-    ///     Retrieves the unique key associated with the specified guest record.
+    ///     Retrieves the key associated with the specified guest record.
     /// </summary>
     /// <param name="guestRecord">The guest record from which to obtain the key. Cannot be null.</param>
-    /// <returns>A string representing the unique key for the guest record.</returns>
-    private static string KeyOf(GuestRecord guestRecord)
+    /// <returns>A string representing the key for the specified guest record.</returns>
+    private static string KeyOf(EventEntity guestRecord)
     {
         return guestRecord.Name;
     }

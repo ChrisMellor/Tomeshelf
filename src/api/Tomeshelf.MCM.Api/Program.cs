@@ -1,7 +1,7 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Text.Json.Serialization;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Mcm.Api.Clients;
 using Tomeshelf.Mcm.Api.Repositories;
@@ -51,8 +51,8 @@ public class Program
         builder.Services.AddScoped<IGuestsService, GuestsService>();
         builder.Services.AddScoped<IMcmGuestsClient, McmGuestsClient>();
 
-        builder.Services.AddScoped<IEventConfigRepository, EventConfigRepository>();
-        builder.Services.AddScoped<IEventConfigService, EventConfigService>();
+        builder.Services.AddScoped<IEventRepository, EventRepository>();
+        builder.Services.AddScoped<IEventService, EventService>();
 
         var app = builder.Build();
 

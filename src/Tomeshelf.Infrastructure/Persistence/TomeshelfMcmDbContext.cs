@@ -7,13 +7,19 @@ public sealed class TomeshelfMcmDbContext : DbContext
 {
     public TomeshelfMcmDbContext(DbContextOptions<TomeshelfMcmDbContext> options) : base(options) { }
 
-    public DbSet<EventConfigEntity> EventConfigs => Set<EventConfigEntity>();
+    public DbSet<EventEntity> Events => Set<EventEntity>();
+
+    public DbSet<GuestEntity> Guests => Set<GuestEntity>();
+
+    public DbSet<GuestInfoEntity> Information => Set<GuestInfoEntity>();
+
+    public DbSet<GuestSocial> Social => Set<GuestSocial>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<EventConfigEntity>(e =>
+        modelBuilder.Entity<EventEntity>(e =>
         {
-            e.ToTable("EventConfigs");
+            e.ToTable("Events");
 
             e.HasKey(x => x.Id);
 
@@ -23,6 +29,21 @@ public sealed class TomeshelfMcmDbContext : DbContext
 
             e.Property(x => x.UpdatedAt)
              .IsRequired();
+        });
+
+        modelBuilder.Entity<GuestEntity>(g =>
+        {
+            g.ToTable("Guests");
+        });
+
+        modelBuilder.Entity<GuestInfoEntity>(g =>
+        {
+            g.ToTable("GuestInformation");
+        });
+
+        modelBuilder.Entity<GuestSocial>(s =>
+        {
+            s.ToTable("GuestSocials");
         });
     }
 }

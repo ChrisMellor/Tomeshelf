@@ -141,7 +141,7 @@ public class McmEventResponse
         ///     Gets or sets the YouTube channel or video identifier associated with this entity.
         /// </summary>
         [JsonProperty("youtube")]
-        public string Youtube { get; set; }
+        public string YouTube { get; set; }
 
         /// <summary>
         ///     Gets or sets the Twitch username associated with this entity.

@@ -16,7 +16,7 @@ namespace Tomeshelf.Mcm.Api.Repositories;
 ///     interface is intended to abstract the persistence mechanism for event configurations, enabling flexible storage
 ///     strategies.
 /// </remarks>
-public interface IEventConfigRepository
+public interface IEventRepository
 {
     /// <summary>
     ///     Asynchronously deletes the entity with the specified identifier.
@@ -37,7 +37,7 @@ public interface IEventConfigRepository
     ///     A task that represents the asynchronous operation. The task result contains a read-only list of all event
     ///     configuration entities. The list will be empty if no entities are found.
     /// </returns>
-    Task<IReadOnlyList<EventConfigEntity>> GetAllAsync(CancellationToken cancellationToken);
+    Task<IReadOnlyList<EventEntity>> GetAllAsync(CancellationToken cancellationToken);
 
     /// <summary>
     ///     Creates a new event configuration or updates an existing one asynchronously.

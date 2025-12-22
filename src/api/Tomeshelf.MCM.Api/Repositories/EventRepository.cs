@@ -19,15 +19,15 @@ namespace Tomeshelf.Mcm.Api.Repositories;
 ///     operations. It is intended to be used with dependency injection and requires a valid database context for
 ///     operation.
 /// </remarks>
-public class EventConfigRepository : IEventConfigRepository
+public class EventRepository : IEventRepository
 {
     private readonly TomeshelfMcmDbContext _dbContext;
 
     /// <summary>
-    ///     Initializes a new instance of the EventConfigRepository class using the specified database context.
+    ///     Initializes a new instance of the EventRepository class using the specified database context.
     /// </summary>
     /// <param name="dbContext">The database context to be used for data access operations. Cannot be null.</param>
-    public EventConfigRepository(TomeshelfMcmDbContext dbContext)
+    public EventRepository(TomeshelfMcmDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -43,13 +43,13 @@ public class EventConfigRepository : IEventConfigRepository
     /// </returns>
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.EventConfigs.FindAsync([id], cancellationToken);
+        var entity = await _dbContext.Events.FindAsync([id], cancellationToken);
         if (entity is null)
         {
             return false;
         }
 
-        _dbContext.EventConfigs.Remove(entity);
+        _dbContext.Events.Remove(entity);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return true;
@@ -63,9 +63,9 @@ public class EventConfigRepository : IEventConfigRepository
     ///     A read-only list of all event configuration entities, ordered alphabetically by name. The list will be empty if
     ///     no entities are found.
     /// </returns>
-    public async Task<IReadOnlyList<EventConfigEntity>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<EventEntity>> GetAllAsync(CancellationToken cancellationToken)
     {
-        return await _dbContext.EventConfigs.AsNoTracking()
+        return await _dbContext.Events.AsNoTracking()
                                .OrderBy(x => x.Name)
                                .ToListAsync(cancellationToken);
     }
@@ -83,18 +83,18 @@ public class EventConfigRepository : IEventConfigRepository
     /// <returns>A task that represents the asynchronous upsert operation.</returns>
     public async Task UpsertAsync(EventConfigModel model, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.EventConfigs.FindAsync([model.Id], cancellationToken);
+        var entity = await _dbContext.Events.FindAsync([model.Id], cancellationToken);
 
         if (entity is null)
         {
-            entity = new EventConfigEntity
+            entity = new EventEntity
             {
                     Id = model.Id,
                     Name = model.Name,
                     UpdatedAt = DateTimeOffset.UtcNow
             };
 
-            _dbContext.EventConfigs.Add(entity);
+            _dbContext.Events.Add(entity);
         }
         else
         {

@@ -21,15 +21,15 @@ namespace Tomeshelf.Mcm.Api.Controllers;
 [Route("[controller]")]
 public class ConfigController : ControllerBase
 {
-    private readonly IEventConfigService _eventConfigService;
+    private readonly IEventService _eventService;
 
     /// <summary>
     ///     Initializes a new instance of the ConfigController class with the specified event configuration service.
     /// </summary>
-    /// <param name="eventConfigService">The service used to manage and retrieve event configuration data. Cannot be null.</param>
-    public ConfigController(IEventConfigService eventConfigService)
+    /// <param name="eventService">The service used to manage and retrieve event configuration data. Cannot be null.</param>
+    public ConfigController(IEventService eventService)
     {
-        _eventConfigService = eventConfigService;
+        _eventService = eventService;
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class ConfigController : ControllerBase
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> Update(EventConfigModel model, CancellationToken cancellationToken)
     {
-        await _eventConfigService.UpsertAsync(model, cancellationToken);
+        await _eventService.UpsertAsync(model, cancellationToken);
 
         return Ok();
     }
@@ -64,7 +64,7 @@ public class ConfigController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<EventConfigModel>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var eventConfigs = await _eventConfigService.GetAllAsync(cancellationToken);
+        var eventConfigs = await _eventService.GetAllAsync(cancellationToken);
 
         return Ok(eventConfigs);
     }
@@ -83,7 +83,7 @@ public class ConfigController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
     {
-        var isDeleted = await _eventConfigService.DeleteAsync(id, cancellationToken);
+        var isDeleted = await _eventService.DeleteAsync(id, cancellationToken);
 
         if (!isDeleted)
         {

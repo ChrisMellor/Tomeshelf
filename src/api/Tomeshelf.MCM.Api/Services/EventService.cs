@@ -17,17 +17,17 @@ namespace Tomeshelf.Mcm.Api.Services;
 ///     operations for event configuration entities. All methods support cancellation via a cancellation token. Thread
 ///     safety and transaction management depend on the underlying repository implementation.
 /// </remarks>
-public class EventConfigService : IEventConfigService
+public class EventService : IEventService
 {
-    private readonly IEventConfigRepository _eventConfigRepository;
+    private readonly IEventRepository _eventRepository;
 
     /// <summary>
-    ///     Initializes a new instance of the EventConfigService class using the specified event configuration repository.
+    ///     Initializes a new instance of the EventService class using the specified event configuration repository.
     /// </summary>
-    /// <param name="eventConfigRepository">The repository used to access and manage event configuration data. Cannot be null.</param>
-    public EventConfigService(IEventConfigRepository eventConfigRepository)
+    /// <param name="eventRepository">The repository used to access and manage event configuration data. Cannot be null.</param>
+    public EventService(IEventRepository eventRepository)
     {
-        _eventConfigRepository = eventConfigRepository;
+        _eventRepository = eventRepository;
     }
 
     /// <summary>
@@ -41,7 +41,7 @@ public class EventConfigService : IEventConfigService
     /// </returns>
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await _eventConfigRepository.DeleteAsync(id, cancellationToken);
+        return await _eventRepository.DeleteAsync(id, cancellationToken);
     }
 
     /// <summary>
@@ -52,9 +52,9 @@ public class EventConfigService : IEventConfigService
     ///     A task that represents the asynchronous operation. The task result contains a read-only list of all event
     ///     configuration entities. The list will be empty if no entities are found.
     /// </returns>
-    public async Task<IReadOnlyList<EventConfigEntity>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<EventEntity>> GetAllAsync(CancellationToken cancellationToken)
     {
-        return await _eventConfigRepository.GetAllAsync(cancellationToken);
+        return await _eventRepository.GetAllAsync(cancellationToken);
     }
 
     /// <summary>
@@ -65,6 +65,6 @@ public class EventConfigService : IEventConfigService
     /// <returns>A task that represents the asynchronous upsert operation.</returns>
     public async Task UpsertAsync(EventConfigModel model, CancellationToken cancellationToken)
     {
-        await _eventConfigRepository.UpsertAsync(model, cancellationToken);
+        await _eventRepository.UpsertAsync(model, cancellationToken);
     }
 }

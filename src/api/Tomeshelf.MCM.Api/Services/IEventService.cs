@@ -18,7 +18,7 @@ namespace Tomeshelf.Mcm.Api.Services;
 ///     when entities are not found. This interface is typically used to abstract event configuration storage and access
 ///     logic from application code.
 /// </remarks>
-public interface IEventConfigService
+public interface IEventService
 {
     /// <summary>
     ///     Asynchronously retrieves all event configuration entities.
@@ -28,7 +28,7 @@ public interface IEventConfigService
     ///     A task that represents the asynchronous operation. The task result contains a read-only list of all event
     ///     configuration entities. The list will be empty if no entities are found.
     /// </returns>
-    Task<IReadOnlyList<EventConfigEntity>> GetAllAsync(CancellationToken cancellationToken);
+    Task<IReadOnlyList<EventEntity>> GetAllAsync(CancellationToken cancellationToken);
 
     /// <summary>
     ///     Creates a new event configuration or updates an existing one asynchronously.
