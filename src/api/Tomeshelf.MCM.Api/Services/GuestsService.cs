@@ -30,22 +30,14 @@ internal sealed class GuestsService : IGuestsService
     }
 
     /// <summary>
-    ///     Synchronizes guest data for the specified event and returns the result of the synchronization operation.
+    ///     Asynchronously deletes all event configuration data associated with the specified model.
     /// </summary>
-    /// <param name="model">The event configuration containing the event identifier and related settings. Cannot be null.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the synchronization operation.</param>
-    /// <returns>
-    ///     A <see cref="GuestSyncResultDto" /> containing the outcome of the synchronization, including counts of added,
-    ///     updated, and removed guests.
-    /// </returns>
-    public async Task<GuestSyncResultDto> SyncAsync(EventConfigModel model, CancellationToken cancellationToken)
+    /// <param name="model">The event configuration model whose associated data will be deleted. Cannot be null.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
+    public async Task DeleteAsync(EventConfigModel model, CancellationToken cancellationToken)
     {
-        var fetched = await _client.FetchGuestsAsync(model.Id, cancellationToken);
-        var delta = await _repository.UpsertSnapshotAsync(model.Id, fetched, cancellationToken);
-
-        var guestSyncResult = new GuestSyncResultDto(model.Name, "Succeeded", delta.Added, delta.Updated, delta.Removed, delta.Total, DateTimeOffset.UtcNow);
-
-        return guestSyncResult;
+        await _repository.DeleteAllAsync(model.Id, cancellationToken);
     }
 
     /// <summary>
@@ -75,13 +67,28 @@ internal sealed class GuestsService : IGuestsService
     }
 
     /// <summary>
-    ///     Asynchronously deletes all event configuration data associated with the specified model.
+    ///     Synchronizes the guest list for the specified event by fetching the latest guest data and updating the local
+    ///     snapshot asynchronously.
     /// </summary>
-    /// <param name="model">The event configuration model whose associated data will be deleted. Cannot be null.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
-    /// <returns>A task that represents the asynchronous delete operation.</returns>
-    public async Task DeleteAsync(EventConfigModel model, CancellationToken cancellationToken)
+    /// <remarks>
+    ///     This method fetches the current guest list from the external source and updates the local
+    ///     repository to reflect any changes. The returned result provides details about the synchronization, such as the
+    ///     number of guests added, updated, or removed. If the operation is canceled via the provided token, the task is
+    ///     canceled.
+    /// </remarks>
+    /// <param name="eventId">The unique identifier of the event whose guest list is to be synchronized.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains a <see cref="GuestSyncResultDto" />
+    ///     describing the outcome of the synchronization, including counts of added, updated, and removed guests.
+    /// </returns>
+    public async Task<GuestSyncResultDto> SyncAsync(Guid eventId, CancellationToken cancellationToken)
     {
-        await _repository.DeleteAllAsync(model.Id, cancellationToken);
+        var fetched = await _client.FetchGuestsAsync(eventId, cancellationToken);
+        var delta = await _repository.UpsertSnapshotAsync(eventId, fetched, cancellationToken);
+
+        var guestSyncResult = new GuestSyncResultDto("Succeeded", delta.Added, delta.Updated, delta.Removed, delta.Total, DateTimeOffset.UtcNow);
+
+        return guestSyncResult;
     }
 }

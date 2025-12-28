@@ -21,6 +21,17 @@ namespace Tomeshelf.Mcm.Api.Services;
 public interface IEventService
 {
     /// <summary>
+    ///     Asynchronously deletes the entity with the specified identifier.
+    /// </summary>
+    /// <param name="id">The unique identifier of the entity to delete.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous delete operation. The task result is <see langword="true" /> if the entity
+    ///     was successfully deleted; otherwise, <see langword="false" />.
+    /// </returns>
+    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Asynchronously retrieves all event configuration entities.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
@@ -37,15 +48,4 @@ public interface IEventService
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous upsert operation.</returns>
     Task UpsertAsync(EventConfigModel model, CancellationToken cancellationToken);
-
-    /// <summary>
-    ///     Asynchronously deletes the entity with the specified identifier.
-    /// </summary>
-    /// <param name="id">The unique identifier of the entity to delete.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
-    /// <returns>
-    ///     A task that represents the asynchronous delete operation. The task result is <see langword="true" /> if the
-    ///     entity was successfully deleted; otherwise, <see langword="false" />.
-    /// </returns>
-    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken);
 }

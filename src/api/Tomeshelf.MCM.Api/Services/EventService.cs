@@ -31,15 +31,15 @@ public class EventService : IEventService
     }
 
     /// <summary>
-    ///     Asynchronously deletes the event configuration with the specified identifier.
+    ///     Asynchronously deletes the event with the specified identifier.
     /// </summary>
-    /// <param name="id">The unique identifier of the event configuration to delete.</param>
+    /// <param name="id">The unique identifier of the event to delete.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
     /// <returns>
-    ///     A task that represents the asynchronous delete operation. The task result is <see langword="true" /> if the event
-    ///     configuration was deleted successfully; otherwise, <see langword="false" />.
+    ///     A task that represents the asynchronous operation. The task result is <see langword="true" /> if the event was
+    ///     successfully deleted; otherwise, <see langword="false" />.
     /// </returns>
-    public async Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _eventRepository.DeleteAsync(id, cancellationToken);
     }

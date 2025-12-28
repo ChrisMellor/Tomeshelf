@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.Domain.Entities.Mcm;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Mcm.Api.Records;
 
@@ -46,6 +47,27 @@ public class GuestsRepository : IGuestsRepository
     }
 
     /// <summary>
+    ///     Asynchronously retrieves the event with the specified identifier, including its guests and related information.
+    /// </summary>
+    /// <remarks>
+    ///     The returned event includes its guests, each guest's information, and their associated social
+    ///     profiles. If no event with the specified identifier exists, the result is null.
+    /// </remarks>
+    /// <param name="eventId">The unique identifier of the event to retrieve.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains the event entity with its guests and
+    ///     their associated information if found; otherwise, null.
+    /// </returns>
+    public async Task<EventEntity> GetGuestsByIdAsync(Guid eventId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Events.Include(e => e.Guests)
+                               .ThenInclude(g => g.Information)
+                               .ThenInclude(i => i.Socials)
+                               .SingleOrDefaultAsync(e => e.Id == eventId, cancellationToken);
+    }
+
+    /// <summary>
     ///     Asynchronously retrieves a paged list of guest records for the specified event.
     /// </summary>
     /// <param name="eventId">The unique identifier of the event for which to retrieve guest records.</param>
@@ -76,5 +98,15 @@ public class GuestsRepository : IGuestsRepository
                                .ToListAsync(cancellationToken);
 
         return new GuestSnapshot(total, items);
+    }
+
+    /// <summary>
+    ///     Asynchronously saves all changes made in the context to the underlying database.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the save operation.</param>
+    /// <returns>A task that represents the asynchronous save operation.</returns>
+    public async Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

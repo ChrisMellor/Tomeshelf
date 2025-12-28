@@ -24,10 +24,10 @@ public interface IEventRepository
     /// <param name="id">The unique identifier of the entity to delete.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
     /// <returns>
-    ///     A task that represents the asynchronous delete operation. The task result contains the number of entities
-    ///     deleted. The result is 0 if no entity with the specified identifier exists.
+    ///     A task that represents the asynchronous delete operation. The task result is <see langword="true" /> if the entity
+    ///     was successfully deleted; otherwise, <see langword="false" />.
     /// </returns>
-    Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Asynchronously retrieves all event configuration entities.

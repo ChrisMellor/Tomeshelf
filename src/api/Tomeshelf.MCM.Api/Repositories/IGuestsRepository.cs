@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.Domain.Entities.Mcm;
 using Tomeshelf.Mcm.Api.Records;
 
 namespace Tomeshelf.Mcm.Api.Repositories;
@@ -32,6 +33,17 @@ public interface IGuestsRepository
     Task<int> DeleteAllAsync(Guid eventId, CancellationToken cancellationToken);
 
     /// <summary>
+    ///     Asynchronously retrieves the event and its associated guests for the specified event identifier.
+    /// </summary>
+    /// <param name="eventId">The unique identifier of the event for which to retrieve guest information.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains an <see cref="EventEntity" /> with the
+    ///     event and its guests, or <see langword="null" /> if the event is not found.
+    /// </returns>
+    Task<EventEntity> GetGuestsByIdAsync(Guid eventId, CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Asynchronously retrieves a paged list of guests for the specified event.
     /// </summary>
     /// <param name="eventId">The unique identifier of the event for which to retrieve guest information.</param>
@@ -43,4 +55,11 @@ public interface IGuestsRepository
     ///     specified page. If no guests are found, the snapshot will contain an empty collection.
     /// </returns>
     Task<GuestSnapshot> GetPageAsync(Guid eventId, int page, int pageSize, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Asynchronously saves all changes made in this context to the underlying data store.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous save operation.</param>
+    /// <returns>A task that represents the asynchronous save operation.</returns>
+    Task SaveChangesAsync(CancellationToken cancellationToken);
 }

@@ -33,29 +33,6 @@ public class EventRepository : IEventRepository
     }
 
     /// <summary>
-    ///     Asynchronously deletes the event with the specified identifier from the data store.
-    /// </summary>
-    /// <param name="id">The unique identifier of the event to delete.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
-    /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains the number of entities deleted.
-    ///     Returns 0 if no event with the specified identifier exists.
-    /// </returns>
-    public async Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken)
-    {
-        var entity = await _dbContext.Events.FindAsync([id], cancellationToken);
-        if (entity is null)
-        {
-            return 0;
-        }
-
-        _dbContext.Events.Remove(entity);
-        var itemsDeleted = await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return itemsDeleted;
-    }
-
-    /// <summary>
     ///     Asynchronously retrieves all event configuration entities, ordered by name.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
@@ -106,5 +83,29 @@ public class EventRepository : IEventRepository
         }
 
         return await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Asynchronously deletes the event with the specified identifier from the data store.
+    /// </summary>
+    /// <param name="id">The unique identifier of the event to delete.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result is <see langword="true" /> if the event was
+    ///     found
+    ///     and deleted; otherwise, <see langword="false" />.
+    /// </returns>
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var entity = await _dbContext.Events.FindAsync([id], cancellationToken);
+        if (entity is null)
+        {
+            return false;
+        }
+
+        _dbContext.Events.Remove(entity);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return true;
     }
 }

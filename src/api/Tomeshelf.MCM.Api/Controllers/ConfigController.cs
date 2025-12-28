@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Mcm.Api.Models;
 using Tomeshelf.Mcm.Api.Services;
 
@@ -33,43 +33,6 @@ public class ConfigController : ControllerBase
     }
 
     /// <summary>
-    ///     Updates the event configuration with the specified settings.
-    /// </summary>
-    /// <param name="model">The event configuration data to update. Cannot be null.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>
-    ///     An <see cref="IActionResult" /> that indicates the result of the update operation. Returns HTTP 202 (Accepted) if
-    ///     the
-    ///     update is successful.
-    /// </returns>
-    [HttpPut]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status202Accepted)]
-    public async Task<IActionResult> Update(EventConfigModel model, CancellationToken cancellationToken)
-    {
-        await _eventService.UpsertAsync(model, cancellationToken);
-
-        return Ok();
-    }
-
-    /// <summary>
-    ///     Retrieves all event configuration models.
-    /// </summary>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-    /// <returns>
-    ///     An <see cref="IActionResult" /> containing a collection of <see cref="EventConfigModel" /> objects with HTTP status
-    ///     code 200 (OK).
-    /// </returns>
-    [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<EventConfigModel>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Get(CancellationToken cancellationToken)
-    {
-        var eventConfigs = await _eventService.GetAllAsync(cancellationToken);
-
-        return Ok(eventConfigs);
-    }
-
-    /// <summary>
     ///     Deletes the event configuration with the specified identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the event configuration to delete.</param>
@@ -91,5 +54,42 @@ public class ConfigController : ControllerBase
         }
 
         return NoContent();
+    }
+
+    /// <summary>
+    ///     Retrieves all event configuration models.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>
+    ///     An <see cref="IActionResult" /> containing a collection of <see cref="EventConfigModel" /> objects with HTTP status
+    ///     code 200 (OK).
+    /// </returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<EventConfigModel>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Get(CancellationToken cancellationToken)
+    {
+        var eventConfigs = await _eventService.GetAllAsync(cancellationToken);
+
+        return Ok(eventConfigs);
+    }
+
+    /// <summary>
+    ///     Updates the event configuration with the specified settings.
+    /// </summary>
+    /// <param name="model">The event configuration data to update. Cannot be null.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>
+    ///     An <see cref="IActionResult" /> that indicates the result of the update operation. Returns HTTP 202 (Accepted) if
+    ///     the
+    ///     update is successful.
+    /// </returns>
+    [HttpPut]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    public async Task<IActionResult> Update(EventConfigModel model, CancellationToken cancellationToken)
+    {
+        await _eventService.UpsertAsync(model, cancellationToken);
+
+        return Ok();
     }
 }

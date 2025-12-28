@@ -24,41 +24,45 @@ namespace Tomeshelf.Mcm.Api.Controllers;
 public class GuestsController : ControllerBase
 {
     private readonly IGuestsService _guestsService;
+    private readonly IGuestSyncService _guestSyncService;
 
     /// <summary>
-    ///     Initializes a new instance of the GuestsController class with the specified guests service.
+    ///     Initializes a new instance of the GuestsController class with the specified services.
     /// </summary>
-    /// <param name="guestsService">The service used to manage guest-related operations. Cannot be null.</param>
-    public GuestsController(IGuestsService guestsService)
+    /// <param name="guestsService">The service used to manage guest data and operations. Cannot be null.</param>
+    /// <param name="guestSyncService">
+    ///     The service responsible for synchronizing guest information with external systems.
+    ///     Cannot be null.
+    /// </param>
+    public GuestsController(IGuestsService guestsService, IGuestSyncService guestSyncService)
     {
         _guestsService = guestsService;
+        _guestSyncService = guestSyncService;
     }
 
     /// <summary>
-    ///     Synchronizes guest data for the specified event and returns the result of the synchronization operation.
+    ///     Deletes all guests associated with the specified event.
     /// </summary>
-    /// <param name="eventId">The unique identifier of the event for which guest data will be synchronized.</param>
-    /// <param name="eventName">
-    ///     The name of the event. If null or empty, the synchronization will proceed using only the event
-    ///     identifier.
-    /// </param>
-    /// <param name="cancellationToken">A token that can be used to cancel the synchronization operation.</param>
-    /// <returns>
-    ///     An <see cref="IActionResult" /> containing a <see cref="GuestSyncResultDto" /> with the results of the
-    ///     synchronization. Returns HTTP 200 OK on success.
-    /// </returns>
-    [HttpPost("sync")]
-    [ProducesResponseType(typeof(GuestSyncResultDto), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Sync([FromRoute] Guid eventId, [FromQuery] string? eventName, CancellationToken cancellationToken)
+    /// <remarks>
+    ///     This action removes all guests linked to the event identified by <paramref name="eventId" />.
+    ///     If no guests exist for the event, the operation completes without error. The response is always HTTP 204 (No
+    ///     Content).
+    /// </remarks>
+    /// <param name="eventId">The unique identifier of the event for which guests will be deleted.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the delete operation.</param>
+    /// <returns>A result indicating that the operation completed successfully with no content.</returns>
+    [HttpDelete]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteGuests([FromRoute] Guid eventId, CancellationToken cancellationToken)
     {
         var model = new EventConfigModel
         {
             Id = eventId,
-            Name = eventName ?? string.Empty
+            Name = string.Empty
         };
-        var syncResult = await _guestsService.SyncAsync(model, cancellationToken);
+        await _guestsService.DeleteAsync(model, cancellationToken);
 
-        return Ok(syncResult);
+        return NoContent();
     }
 
     /// <summary>
@@ -102,27 +106,21 @@ public class GuestsController : ControllerBase
     }
 
     /// <summary>
-    ///     Deletes all guests associated with the specified event.
+    ///     Synchronizes guest data for the specified event.
     /// </summary>
-    /// <remarks>
-    ///     This action removes all guests linked to the event identified by <paramref name="eventId" />.
-    ///     If no guests exist for the event, the operation completes without error. The response is always HTTP 204 (No
-    ///     Content).
-    /// </remarks>
-    /// <param name="eventId">The unique identifier of the event for which guests will be deleted.</param>
-    /// <param name="cancellationToken">A token that can be used to cancel the delete operation.</param>
-    /// <returns>A result indicating that the operation completed successfully with no content.</returns>
-    [HttpDelete]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteGuests([FromRoute] Guid eventId, CancellationToken cancellationToken)
+    /// <param name="eventId">The unique identifier of the event for which guest data should be synchronized.</param>
+    /// <param name="cancellationToken">A token that can be used to request cancellation of the operation.</param>
+    /// <returns>
+    ///     An <see cref="IActionResult" /> containing the result of the synchronization operation. Returns a 200 OK response
+    ///     with a <see cref="GuestSyncResultDto" /> on success.
+    /// </returns>
+    [HttpPost("sync")]
+    [ProducesResponseType(typeof(GuestSyncResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult<GuestSyncResultDto>> Sync([FromRoute] Guid eventId, CancellationToken cancellationToken)
     {
-        var model = new EventConfigModel
-        {
-            Id = eventId,
-            Name = string.Empty
-        };
-        await _guestsService.DeleteAsync(model, cancellationToken);
+        var snapshotRecords = await _guestSyncService.SyncGuestsAsync(eventId, cancellationToken);
 
-        return NoContent();
+        return Ok();
     }
 }

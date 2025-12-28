@@ -5,7 +5,6 @@ namespace Tomeshelf.Mcm.Api.Contracts;
 /// <summary>
 ///     Represents the result of a guest synchronization operation, including event details and counts of changes applied.
 /// </summary>
-/// <param name="EventName">The name of the event for which the guest synchronization was performed.</param>
 /// <param name="Status">The status of the synchronization operation, such as 'Success' or 'Failed'.</param>
 /// <param name="Added">The number of guest records that were added during the synchronization.</param>
 /// <param name="Updated">The number of guest records that were updated during the synchronization.</param>
@@ -15,4 +14,4 @@ namespace Tomeshelf.Mcm.Api.Contracts;
 ///     The date and time, in Coordinated Universal Time (UTC), when the synchronization operation was
 ///     executed.
 /// </param>
-public sealed record GuestSyncResultDto(string EventName, string Status, int Added, int Updated, int Removed, int Total, DateTimeOffset RanAtUtc);
+public sealed record GuestSyncResultDto(string Status, int Added, int Updated, int Removed, int Total, DateTimeOffset RanAtUtc);
