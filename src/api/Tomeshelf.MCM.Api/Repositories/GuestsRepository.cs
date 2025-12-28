@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Domain.Entities.Mcm;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Mcm.Api.Records;
 
@@ -71,93 +69,12 @@ public class GuestsRepository : IGuestsRepository
         var skip = (page - 1) * pageSize;
 
         var items = await query.OrderBy(g => g.Information.FirstName)
+                               .ThenBy(g => g.Information.LastName)
                                .Skip(skip)
                                .Take(pageSize)
-                               .Select(g => new GuestRecord(g.Name, g.Description, g.ProfileUrl, g.ImageUrl))
+                               .Select(g => new GuestRecord(g.Information.FirstName + " " + g.Information.LastName, g.Information.Bio, g.Information.Socials.Imdb))
                                .ToListAsync(cancellationToken);
 
-        return await Task.FromResult(new GuestSnapshot(total, items));
-    }
-
-    /// <summary>
-    ///     Synchronizes the event's guest list with the provided snapshot, adding, updating, or removing guests as
-    ///     necessary.
-    /// </summary>
-    /// <remarks>
-    ///     Guests are matched by name using a case-insensitive comparison. Existing guests not present in
-    ///     the provided snapshot are removed. The operation is performed atomically within the database context.
-    /// </remarks>
-    /// <param name="eventId">The unique identifier of the event whose guest list is to be synchronized.</param>
-    /// <param name="guests">
-    ///     A read-only list of guest entities representing the desired state of the event's guest list. Each entity should
-    ///     have a unique name (case-insensitive) within the list.
-    /// </param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
-    /// <returns>
-    ///     A SyncDelta object containing the number of guests added, updated, removed, and the total number of guests after
-    ///     synchronization.
-    /// </returns>
-    public async Task<SyncDelta> UpsertSnapshotAsync(Guid eventId, IReadOnlyList<EventEntity> guests, CancellationToken cancellationToken)
-    {
-        var incomingByKey = guests.GroupBy(KeyOf, StringComparer.OrdinalIgnoreCase)
-                                  .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
-
-        var existing = await _dbContext.Event.Where(g => g.Id == eventId)
-                                       .ToListAsync(cancellationToken);
-
-        var existingByKey = existing.ToDictionary(g => g.Name, StringComparer.OrdinalIgnoreCase);
-
-        var added = 0;
-        var updated = 0;
-
-        foreach (var (key, incoming) in incomingByKey)
-        {
-            if (!existingByKey.TryGetValue(key, out var entity))
-            {
-                added++;
-                _dbContext.Event.Add(new EventEntity
-                {
-                    Id = eventId,
-                    Name = incoming.Name,
-                    Description = incoming.Description,
-                    ProfileUrl = incoming.ProfileUrl,
-                    ImageUrl = incoming.ImageUrl
-                });
-
-                continue;
-            }
-
-            if (!Equals(entity, incoming))
-            {
-                updated++;
-                entity.Description = incoming.Description;
-                entity.ProfileUrl = incoming.ProfileUrl;
-                entity.ImageUrl = incoming.ImageUrl;
-            }
-        }
-
-        var incomingKeys = incomingByKey.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var toRemove = existing.Where(e => !incomingKeys.Contains(e.Name))
-                               .ToList();
-        var removed = toRemove.Count;
-
-        if (removed > 0)
-        {
-            _dbContext.Event.RemoveRange(toRemove);
-        }
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return new SyncDelta(added, updated, removed, incomingByKey.Count);
-    }
-
-    /// <summary>
-    ///     Retrieves the key associated with the specified guest record.
-    /// </summary>
-    /// <param name="guestRecord">The guest record from which to obtain the key. Cannot be null.</param>
-    /// <returns>A string representing the key for the specified guest record.</returns>
-    private static string KeyOf(EventEntity guestRecord)
-    {
-        return guestRecord.Name;
+        return new GuestSnapshot(total, items);
     }
 }

@@ -24,10 +24,10 @@ public interface IEventRepository
     /// <param name="id">The unique identifier of the entity to delete.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
     /// <returns>
-    ///     A task that represents the asynchronous delete operation. The task result is <see langword="true" /> if the
-    ///     entity was successfully deleted; otherwise, <see langword="false" />.
+    ///     A task that represents the asynchronous delete operation. The task result contains the number of entities
+    ///     deleted. The result is 0 if no entity with the specified identifier exists.
     /// </returns>
-    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Asynchronously retrieves all event configuration entities.
@@ -40,10 +40,13 @@ public interface IEventRepository
     Task<IReadOnlyList<EventEntity>> GetAllAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Creates a new event configuration or updates an existing one asynchronously.
+    ///     Inserts a new event configuration or updates an existing one asynchronously.
     /// </summary>
-    /// <param name="model">The event configuration to create or update. Cannot be null.</param>
+    /// <param name="model">The event configuration to insert or update. Cannot be null.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
-    /// <returns>A task that represents the asynchronous upsert operation.</returns>
-    Task UpsertAsync(EventConfigModel model, CancellationToken cancellationToken);
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains the number of records affected by the
+    ///     operation.
+    /// </returns>
+    Task<int> UpsertAsync(EventConfigModel model, CancellationToken cancellationToken);
 }

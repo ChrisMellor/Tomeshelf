@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Mcm.Api.Records;
@@ -44,16 +43,4 @@ public interface IGuestsRepository
     ///     specified page. If no guests are found, the snapshot will contain an empty collection.
     /// </returns>
     Task<GuestSnapshot> GetPageAsync(Guid eventId, int page, int pageSize, CancellationToken cancellationToken);
-
-    /// <summary>
-    ///     Creates or updates a snapshot of guest records for the specified event asynchronously.
-    /// </summary>
-    /// <param name="eventId">The unique identifier of the event for which the guest snapshot is to be upserted.</param>
-    /// <param name="guests">A read-only list of guest records to include in the snapshot. Cannot be null.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains a SyncDelta object describing the
-    ///     changes applied to the snapshot.
-    /// </returns>
-    Task<SyncDelta> UpsertSnapshotAsync(Guid eventId, IReadOnlyList<GuestRecord> guests, CancellationToken cancellationToken);
 }
