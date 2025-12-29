@@ -11,6 +11,7 @@ using Tomeshelf.Mcm.Api.Mappers;
 using Tomeshelf.Mcm.Api.Repositories;
 using Tomeshelf.Mcm.Api.Services;
 using Tomeshelf.Mcm.Api.Transformers;
+using Tomeshelf.ServiceDefaults;
 
 namespace Tomeshelf.Mcm.Api;
 
@@ -38,6 +39,8 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.AddServiceDefaults();
 
         builder.Services
                .AddControllers()
@@ -86,6 +89,9 @@ public class Program
             var db = scope.ServiceProvider.GetRequiredService<TomeshelfMcmDbContext>();
             await db.Database.MigrateAsync();
         }
+
+        app.MapExecutorDiscoveryEndpoint();
+        app.MapDefaultEndpoints();
 
         await app.RunAsync();
     }
