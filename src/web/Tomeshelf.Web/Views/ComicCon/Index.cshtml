@@ -3,8 +3,8 @@
 @using Tomeshelf.Web.Models.ComicCon
 @model IReadOnlyList<Tomeshelf.Web.Models.ComicCon.GuestsGroupModel>
 @{
-    ViewData["Title"] = "Guests by City";
-    var city = (string)ViewBag.City;
+    ViewData["Title"] = "Guests by Event";
+    var eventName = (string)ViewBag.EventName;
     var total = (int)ViewBag.Total;
     var culture = CultureInfo.CurrentCulture;
     Func<int, string> ord = d =>
@@ -39,7 +39,7 @@
 <div class="py-3">
     <div class="bg-light rounded-3 p-3 p-md-4 mb-3 d-flex align-items-center justify-content-between">
         <div>
-            <h1 class="h4 mb-1">Guests &ndash; @city</h1>
+            <h1 class="h4 mb-1">Guests &ndash; @eventName</h1>
             <div class="text-muted small">
                 @total guest@(total == 1
                                     ? ""

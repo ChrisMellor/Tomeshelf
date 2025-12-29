@@ -1,38 +1,58 @@
-using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Web.Models;
 using Tomeshelf.Web.Models.ComicCon;
+using Tomeshelf.Web.Models.Mcm;
 
 namespace Tomeshelf.Web.Services;
 
 /// <summary>
-///     Abstraction for retrieving Comic Con guests from the API.
+///     Defines methods for retrieving Comic Con guest and event information from the API.
 /// </summary>
+/// <remarks>
+///     Implementations of this interface provide asynchronous access to guest lists and event configurations
+///     for Comic Con events. Methods may throw exceptions if the API response is unsuccessful or cannot be parsed. All
+///     operations support cancellation via a provided token.
+/// </remarks>
 public interface IGuestsApi
 {
     /// <summary>
-    ///     Retrieves Comic Con guests for a given city from the API.
+    ///     Asynchronously retrieves a read-only list of Comic Con event configurations.
     /// </summary>
-    /// <param name="city">City name to query.</param>
-    /// <param name="cancellationToken">Cancellation token for the request.</param>
-    /// <returns>A tuple of groups and total guests.</returns>
-    /// <exception cref="HttpRequestException">Thrown when the HTTP response is unsuccessful.</exception>
-    /// <exception cref="JsonException">Thrown when the response body cannot be parsed.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the response payload is empty.</exception>
-    Task<(IReadOnlyList<GuestsGroupModel> Groups, int Total)> GetComicConGuestsByCityAsync(string city, CancellationToken cancellationToken);
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains a read-only list of Comic Con event
+    ///     configuration models. The list will be empty if no events are available.
+    /// </returns>
+    Task<IReadOnlyList<McmEventConfigModel>> GetComicConEventsAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Retrieves Comic Con guests for a given city from the API and returns a typed result model.
+    ///     Asynchronously retrieves the list of guest groups and the total number of guests for a specified Comic Con
+    ///     event.
     /// </summary>
-    /// <param name="city">City name to query.</param>
-    /// <param name="cancellationToken">Cancellation token for the request.</param>
-    /// <returns>The parsed response payload.</returns>
-    /// <exception cref="HttpRequestException">Thrown when the HTTP response is unsuccessful.</exception>
-    /// <exception cref="JsonException">Thrown when the response body cannot be parsed.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the response payload is empty.</exception>
-    Task<GuestsByCityResult> GetComicConGuestsByCityResultAsync(string city, CancellationToken cancellationToken);
+    /// <param name="eventId">
+    ///     The unique identifier of the Comic Con event for which to retrieve guest information. Cannot be
+    ///     null or empty.
+    /// </param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains a tuple with a read-only list of
+    ///     guest groups and the total number of guests for the specified event.
+    /// </returns>
+    Task<(IReadOnlyList<GuestsGroupModel> Groups, int Total)> GetComicConGuestsByEventAsync(string eventId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Asynchronously retrieves the list of guests attending a specified Comic Con event.
+    /// </summary>
+    /// <param name="eventId">
+    ///     The unique identifier of the Comic Con event for which to retrieve guest information. Cannot be
+    ///     null or empty.
+    /// </param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains a <see cref="GuestsByEventResult" />
+    ///     object with details about the guests for the specified event.
+    /// </returns>
+    Task<GuestsByEventResult> GetComicConGuestsByEventResultAsync(string eventId, CancellationToken cancellationToken);
 }

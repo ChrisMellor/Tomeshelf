@@ -144,6 +144,16 @@ public class GuestMapper : IGuestMapper
         if (target.IsDeleted)
         {
             target.IsDeleted = false;
+            if (target.RemovedAt is not null)
+            {
+                target.RemovedAt = null;
+            }
+
+            if (target.AddedAt == default)
+            {
+                target.AddedAt = DateTimeOffset.UtcNow;
+            }
+
             changed = true;
         }
 

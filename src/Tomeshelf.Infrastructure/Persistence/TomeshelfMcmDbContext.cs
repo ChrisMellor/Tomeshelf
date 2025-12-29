@@ -34,6 +34,12 @@ public sealed class TomeshelfMcmDbContext : DbContext
         modelBuilder.Entity<GuestEntity>(g =>
         {
             g.ToTable("Guests");
+
+            g.Property(x => x.AddedAt)
+             .IsRequired()
+             .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+            g.Property(x => x.RemovedAt);
         });
 
         modelBuilder.Entity<GuestInfoEntity>(g =>

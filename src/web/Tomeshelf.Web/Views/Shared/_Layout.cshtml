@@ -37,12 +37,7 @@
                             Comic Con
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="comicConDropdown">
-                            <li>
-                                <a class="dropdown-item" asp-controller="ComicCon" asp-action="Index" asp-route-city="London">London</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" asp-controller="ComicCon" asp-action="Index" asp-route-city="Birmingham">Birmingham</a>
-                            </li>
+                            @await Component.InvokeAsync("ComicConEvents")
                         </ul>
                     </li>
                 </ul>

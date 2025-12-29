@@ -3,8 +3,8 @@
 namespace Tomeshelf.Mcm.Api.Records;
 
 /// <summary>
-///     Represents an immutable snapshot of guest records, including the total count and a read-only list of guests.
+///     Represents an immutable snapshot of the current guest list, including the total number of guests and their details.
 /// </summary>
-/// <param name="Total">The total number of guest records included in the snapshot.</param>
-/// <param name="Items">A read-only list containing the guest records represented by this snapshot. Cannot be null.</param>
-public sealed record GuestSnapshot(int Total, IReadOnlyList<GuestRecord> Items);
+/// <param name="Total">The total number of guests included in the snapshot.</param>
+/// <param name="Items">A read-only list containing the details of each guest in the snapshot. Cannot be null.</param>
+public sealed record GuestSnapshot(int Total, IReadOnlyList<GuestListItem> Items);

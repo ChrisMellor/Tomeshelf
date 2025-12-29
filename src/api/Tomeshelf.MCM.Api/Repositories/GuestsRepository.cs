@@ -61,36 +61,56 @@ public class GuestsRepository : IGuestsRepository
     }
 
     /// <summary>
-    ///     Asynchronously retrieves a paged list of guest records for the specified event.
+    ///     Asynchronously retrieves a paged list of guests for the specified event.
     /// </summary>
-    /// <param name="eventId">The unique identifier of the event for which to retrieve guest records.</param>
+    /// <param name="eventId">The unique identifier of the event for which to retrieve guests.</param>
     /// <param name="page">The one-based page number to retrieve. Must be greater than or equal to 1.</param>
-    /// <param name="pageSize">The number of guest records to include in each page. Must be greater than or equal to 1.</param>
+    /// <param name="pageSize">The number of guests to include in each page. Must be greater than or equal to 1.</param>
+    /// <param name="includeDeleted">true to include guests marked as deleted; otherwise, false.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains a <see cref="GuestSnapshot" /> with the
-    ///     total number of guests and the guest records for the specified page. If no guests are found, the items collection
-    ///     will be empty.
+    ///     A task that represents the asynchronous operation. The task result contains a GuestSnapshot with the total number
+    ///     of
+    ///     guests and the list of guests for the specified page.
     /// </returns>
-    public async Task<GuestSnapshot> GetPageAsync(string eventId, int page, int pageSize, CancellationToken cancellationToken)
+    public async Task<GuestSnapshot> GetPageAsync(string eventId, int page, int pageSize, bool includeDeleted, CancellationToken cancellationToken)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
         ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1);
 
         var query = _dbContext.Guests
                               .AsNoTracking()
-                              .Where(g => (g.EventId == eventId) && !g.IsDeleted);
+                              .Where(g => g.EventId == eventId);
+
+        if (!includeDeleted)
+        {
+            query = query.Where(g => !g.IsDeleted);
+        }
 
         var total = await query.CountAsync(cancellationToken);
         var skip = (page - 1) * pageSize;
 
-        var items = await query.OrderBy(g => g.Information.FirstName)
-                               .ThenBy(g => g.Information.LastName)
+        var items = await query.OrderBy(g => g.Information != null
+                                            ? g.Information.FirstName
+                                            : string.Empty)
+                               .ThenBy(g => g.Information != null
+                                           ? g.Information.LastName
+                                           : string.Empty)
                                .Skip(skip)
                                .Take(pageSize)
-                               .Select(g => new GuestRecord(g.Information.FirstName + " " + g.Information.LastName, g.Information.Bio, g.Information.Socials != null
-                                                                ? g.Information.Socials.Imdb
-                                                                : null, g.Information.ImageUrl))
+                               .Select(g => new GuestListItem(g.Id, (g.Information != null
+                                                                        ? g.Information.FirstName
+                                                                        : string.Empty) +
+                                                                    " " +
+                                                                    (g.Information != null
+                                                                        ? g.Information.LastName
+                                                                        : string.Empty), g.Information != null
+                                                                  ? g.Information.Bio ?? string.Empty
+                                                                  : string.Empty, (g.Information != null) && (g.Information.Socials != null)
+                                                                  ? g.Information.Socials.Imdb ?? string.Empty
+                                                                  : string.Empty, g.Information != null
+                                                                  ? g.Information.ImageUrl ?? string.Empty
+                                                                  : string.Empty, g.AddedAt, g.RemovedAt, g.IsDeleted))
                                .ToListAsync(cancellationToken);
 
         return new GuestSnapshot(total, items);

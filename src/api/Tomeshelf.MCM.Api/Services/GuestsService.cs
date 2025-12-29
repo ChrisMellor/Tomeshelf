@@ -42,29 +42,27 @@ internal sealed class GuestsService : IGuestsService
     }
 
     /// <summary>
-    ///     Asynchronously retrieves a paged list of guests for the specified event configuration.
+    ///     Retrieves a paged list of guests for the specified event configuration.
     /// </summary>
     /// <param name="model">
-    ///     The event configuration model that specifies the event for which to retrieve guests. Cannot be
+    ///     The event configuration model that identifies the event for which to retrieve guests. Cannot be
     ///     null.
     /// </param>
     /// <param name="page">The zero-based page index of the results to retrieve. Must be greater than or equal to 0.</param>
     /// <param name="pageSize">The maximum number of guests to include in a single page. Must be greater than 0.</param>
+    /// <param name="includeDeleted">true to include guests that have been marked as deleted; otherwise, false.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains a
-    ///     <see
-    ///         cref="PagedResult{GuestDto}" />
-    ///     with the guests for the specified event and page.
+    ///     A task that represents the asynchronous operation. The task result contains a paged result of guest data transfer
+    ///     objects for the specified event.
     /// </returns>
-    public async Task<PagedResult<GuestDto>> GetAsync(EventConfigModel model, int page, int pageSize, CancellationToken cancellationToken)
+    public async Task<PagedResult<GuestDto>> GetAsync(EventConfigModel model, int page, int pageSize, bool includeDeleted, CancellationToken cancellationToken)
     {
-        var snapshot = await _repository.GetPageAsync(model.Id, page, pageSize, cancellationToken);
+        var snapshot = await _repository.GetPageAsync(model.Id, page, pageSize, includeDeleted, cancellationToken);
 
-        var items = snapshot
-                   .Items
-                   .Select(x => new GuestDto(x.Name, x.Description, x.ProfileUrl, x.ImageUrl))
-                   .ToList();
+        var items = snapshot.Items
+                            .Select(x => new GuestDto(x.Id, x.Name, x.Description, x.ProfileUrl, x.ImageUrl, x.AddedAt, x.RemovedAt, x.IsDeleted))
+                            .ToList();
 
         var pagedResult = new PagedResult<GuestDto>(snapshot.Total, items, page, pageSize);
 
@@ -138,6 +136,8 @@ internal sealed class GuestsService : IGuestsService
             }
 
             var inserted = _mapper.CloneForEvent(model.Id, source);
+            inserted.AddedAt = DateTimeOffset.UtcNow;
+            inserted.RemovedAt = null;
             eventEntity.Guests.Add(inserted);
             _repository.AddGuest(inserted);
             existingByKey.Add(key, inserted);
@@ -155,6 +155,7 @@ internal sealed class GuestsService : IGuestsService
             if (!seenKeys.Contains(key) && !guest.IsDeleted)
             {
                 guest.IsDeleted = true;
+                guest.RemovedAt = DateTimeOffset.UtcNow;
                 removed++;
             }
         }

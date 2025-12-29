@@ -6,6 +6,10 @@ public class GuestEntity
 {
     public Guid Id { get; set; }
 
+    public DateTimeOffset AddedAt { get; set; }
+
+    public DateTimeOffset? RemovedAt { get; set; }
+
     public bool IsDeleted { get; set; }
 
     public Guid GuestInfoId { get; set; }

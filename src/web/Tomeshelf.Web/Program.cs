@@ -43,6 +43,7 @@ public class Program
         builder.Services.AddAuthorization();
         builder.Services.AddLocalization();
         builder.Services.AddDistributedMemoryCache();
+        builder.Services.AddMemoryCache();
         builder.Services.AddSession(options =>
         {
             options.Cookie.HttpOnly = true;
@@ -56,13 +57,13 @@ public class Program
 
         builder.Services.AddHttpClient<IGuestsApi, GuestsApi>(client =>
                 {
-                    var configured = builder.Configuration["Services:ApiBase"];
+                    var configured = builder.Configuration["Services:McmApiBase"] ?? builder.Configuration["Services:ApiBase"];
 
                     if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
                     {
                         if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
                         {
-                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:ApiBase'.");
+                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:McmApiBase'.");
                         }
 
                         client.BaseAddress = configuredUri;
@@ -75,7 +76,7 @@ public class Program
                             protocol = "http";
                         }
 
-                        client.BaseAddress = new Uri($"{protocol}://comicconapi");
+                        client.BaseAddress = new Uri($"{protocol}://mcmapi");
                     }
 
                     client.DefaultRequestVersion = HttpVersion.Version11;
