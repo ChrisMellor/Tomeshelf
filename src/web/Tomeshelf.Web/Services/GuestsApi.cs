@@ -201,7 +201,8 @@ public sealed class GuestsApi : IGuestsApi
         var started = DateTimeOffset.UtcNow;
         using var res = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         var duration = DateTimeOffset.UtcNow - started;
-        _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)res.StatusCode, (int)duration.TotalMilliseconds);
+        var safeUrl = url.Replace("\r", string.Empty).Replace("\n", string.Empty);
+        _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", safeUrl, (int)res.StatusCode, (int)duration.TotalMilliseconds);
 
         res.EnsureSuccessStatusCode();
 
