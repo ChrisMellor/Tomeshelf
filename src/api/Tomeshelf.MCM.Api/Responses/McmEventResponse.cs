@@ -237,7 +237,7 @@ public class McmEventResponse
         ///     Gets or sets a value indicating whether the resource is discoverable by others.
         /// </summary>
         [JsonProperty("discoverable")]
-        public bool Discoverable { get; set; }
+        public bool? Discoverable { get; set; }
 
         /// <summary>
         ///     Gets or sets the URL of the associated EPIC photo.

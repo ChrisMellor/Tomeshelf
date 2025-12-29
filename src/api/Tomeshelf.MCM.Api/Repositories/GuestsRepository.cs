@@ -33,6 +33,15 @@ public class GuestsRepository : IGuestsRepository
     }
 
     /// <summary>
+    ///     Adds a guest entity to the data context for tracking and persistence.
+    /// </summary>
+    /// <param name="guest">The guest entity to add to the context. Cannot be null.</param>
+    public void AddGuest(GuestEntity guest)
+    {
+        _dbContext.Guests.Add(guest);
+    }
+
+    /// <summary>
     ///     Asynchronously retrieves an event by its identifier, including its associated guests and their related information
     ///     and socials.
     /// </summary>

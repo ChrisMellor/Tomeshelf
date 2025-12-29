@@ -44,6 +44,12 @@ public interface IGuestsRepository
     Task<GuestSnapshot> GetPageAsync(string eventId, int page, int pageSize, CancellationToken cancellationToken);
 
     /// <summary>
+    ///     Adds a new guest entity to the current context for insertion.
+    /// </summary>
+    /// <param name="guest">The guest entity to add. Cannot be null.</param>
+    void AddGuest(GuestEntity guest);
+
+    /// <summary>
     ///     Asynchronously saves all changes made in this context to the underlying data store.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous save operation.</param>

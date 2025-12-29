@@ -139,6 +139,7 @@ internal sealed class GuestsService : IGuestsService
 
             var inserted = _mapper.CloneForEvent(model.Id, source);
             eventEntity.Guests.Add(inserted);
+            _repository.AddGuest(inserted);
             existingByKey.Add(key, inserted);
             added++;
         }
