@@ -66,7 +66,11 @@ public class McmGuestsClient : IMcmGuestsClient
         using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogWarning("MCM API returned {StatusCode} for event {EventId}.", response.StatusCode, eventId);
+            var safeEventId = eventId?
+                .Replace("\r", string.Empty)
+                .Replace("\n", string.Empty);
+
+            _logger.LogWarning("MCM API returned {StatusCode} for event {EventId}.", response.StatusCode, safeEventId);
             response.EnsureSuccessStatusCode();
         }
 
