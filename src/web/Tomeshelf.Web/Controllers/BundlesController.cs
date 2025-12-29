@@ -1,13 +1,13 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Tomeshelf.Web.Infrastructure;
 using Tomeshelf.Web.Models.Bundles;
 using Tomeshelf.Web.Services;
-using Tomeshelf.Web.Infrastructure;
 
 namespace Tomeshelf.Web.Controllers;
 
@@ -17,6 +17,65 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
     private const string LastViewedCookieName = "tomeshelf_bundles_lastViewedUtc";
     private readonly IBundlesApi _api = api;
     private readonly IFileUploadsApi _uploadsApi = uploadsApi;
+
+    private static TimeSpan? CalculateRemaining(DateTimeOffset? endsAt, DateTimeOffset now)
+    {
+        if (!endsAt.HasValue)
+        {
+            return null;
+        }
+
+        var remaining = endsAt.Value - now;
+
+        return remaining > TimeSpan.Zero
+            ? remaining
+            : null;
+    }
+
+    private static string Capitalize(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "Other";
+        }
+
+        return char.ToUpperInvariant(value[0]) + value[1..];
+    }
+
+    private static string Categorise(BundleViewModel vm)
+    {
+        return string.IsNullOrWhiteSpace(vm.Category)
+            ? string.IsNullOrWhiteSpace(vm.Stamp)
+                ? "Other"
+                : Capitalize(vm.Stamp)
+            : Capitalize(vm.Category);
+    }
+
+    private GoogleDriveAuthModel? GetDriveAuth()
+    {
+        var clientId = HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId);
+        var clientSecret = HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret);
+        var refreshToken = HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken);
+        var userEmail = HttpContext.Session.GetString(GoogleDriveSessionKeys.UserEmail);
+
+        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret) || string.IsNullOrWhiteSpace(refreshToken))
+        {
+            return null;
+        }
+
+        return new GoogleDriveAuthModel
+        {
+            ClientId = clientId,
+            ClientSecret = clientSecret,
+            RefreshToken = refreshToken,
+            UserEmail = userEmail
+        };
+    }
+
+    private bool HasDriveTokens()
+    {
+        return !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken));
+    }
 
     /// <summary>
     ///     Displays Humble Bundle listings fetched from the backend API.
@@ -48,8 +107,8 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
                                          Category = bundle.Category,
                                          Stamp = bundle.Stamp,
                                          Title = string.IsNullOrWhiteSpace(bundle.Title)
-                                                     ? bundle.ShortName ?? bundle.MachineName
-                                                     : bundle.Title,
+                                             ? bundle.ShortName ?? bundle.MachineName
+                                             : bundle.Title,
                                          ShortName = bundle.ShortName,
                                          Url = bundle.Url,
                                          TileImageUrl = bundle.TileImageUrl,
@@ -63,8 +122,8 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
                                          LastUpdatedUtc = bundle.LastUpdatedUtc,
                                          IsExpired = isExpired,
                                          TimeRemaining = isExpired
-                                                     ? null
-                                                     : timeRemaining,
+                                             ? null
+                                             : timeRemaining,
                                          SecondsRemaining = bundle.SecondsRemaining,
                                          IsNewSinceLastFetch = isNew,
                                          IsUpdatedSinceLastFetch = isUpdated
@@ -87,8 +146,8 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
                                 .ToList();
 
         var dataTimestamp = bundles.Count > 0
-                ? bundles.Max(b => b.GeneratedUtc)
-                : now;
+            ? bundles.Max(b => b.GeneratedUtc)
+            : now;
 
         if (bundles.Count > 0)
         {
@@ -121,9 +180,12 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
     public IActionResult Upload()
     {
         var hasTokens = HasDriveTokens();
+
         return View(new BundleUploadViewModel
         {
-            Error = hasTokens ? null : "Google Drive is not authorised yet. Run the OAuth flow first."
+            Error = hasTokens
+                ? null
+                : "Google Drive is not authorised yet. Run the OAuth flow first."
         });
     }
 
@@ -140,7 +202,10 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
     {
         if (archive is null || (archive.Length == 0))
         {
-            return View(new BundleUploadViewModel { Error = "Please choose a Humble Bundle zip archive to upload." });
+            return View(new BundleUploadViewModel
+            {
+                Error = "Please choose a Humble Bundle zip archive to upload."
+            });
         }
 
         try
@@ -148,78 +213,26 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
             var auth = GetDriveAuth();
             if (auth is null)
             {
-                return View(new BundleUploadViewModel { Error = "Google Drive is not authorised. Please run the OAuth flow first." });
+                return View(new BundleUploadViewModel
+                {
+                    Error = "Google Drive is not authorised. Please run the OAuth flow first."
+                });
             }
 
             await using var stream = archive.OpenReadStream();
             var result = await _uploadsApi.UploadBundleAsync(stream, archive.FileName, auth, cancellationToken);
 
-            return View(new BundleUploadViewModel { Result = result });
+            return View(new BundleUploadViewModel
+            {
+                Result = result
+            });
         }
         catch (Exception ex)
         {
-            return View(new BundleUploadViewModel { Error = $"Upload failed: {ex.Message}" });
+            return View(new BundleUploadViewModel
+            {
+                Error = $"Upload failed: {ex.Message}"
+            });
         }
-    }
-
-    private bool HasDriveTokens()
-    {
-        return !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId))
-               && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret))
-               && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken));
-    }
-
-    private GoogleDriveAuthModel? GetDriveAuth()
-    {
-        var clientId = HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId);
-        var clientSecret = HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret);
-        var refreshToken = HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken);
-        var userEmail = HttpContext.Session.GetString(GoogleDriveSessionKeys.UserEmail);
-
-        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret) || string.IsNullOrWhiteSpace(refreshToken))
-        {
-            return null;
-        }
-
-        return new GoogleDriveAuthModel
-        {
-            ClientId = clientId,
-            ClientSecret = clientSecret,
-            RefreshToken = refreshToken,
-            UserEmail = userEmail
-        };
-    }
-
-    private static TimeSpan? CalculateRemaining(DateTimeOffset? endsAt, DateTimeOffset now)
-    {
-        if (!endsAt.HasValue)
-        {
-            return null;
-        }
-
-        var remaining = endsAt.Value - now;
-
-        return remaining > TimeSpan.Zero
-                ? remaining
-                : null;
-    }
-
-    private static string Categorise(BundleViewModel vm)
-    {
-        return string.IsNullOrWhiteSpace(vm.Category)
-                ? string.IsNullOrWhiteSpace(vm.Stamp)
-                        ? "Other"
-                        : Capitalize(vm.Stamp)
-                : Capitalize(vm.Category);
-    }
-
-    private static string Capitalize(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return "Other";
-        }
-
-        return char.ToUpperInvariant(value[0]) + value[1..];
     }
 }

@@ -1,9 +1,9 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Fitness;
 using Tomeshelf.Web.Services;
 
@@ -30,8 +30,8 @@ public sealed class FitnessController : Controller
 
         using var scope = _logger.BeginScope(new
         {
-                Date = targetDate,
-                Refresh = shouldRefresh
+            Date = targetDate,
+            Refresh = shouldRefresh
         });
         _logger.LogInformation("Rendering Fitbit dashboard for {Date} (Refresh: {Refresh})", targetDate, shouldRefresh);
 
@@ -50,16 +50,16 @@ public sealed class FitnessController : Controller
             var summary = CreateSummary(dashboard);
             var model = new FitnessDashboardViewModel
             {
-                    SelectedDate = dateParameter,
-                    TodayIso = today.ToString("yyyy-MM-dd"),
-                    PreviousDate = targetDate.AddDays(-1)
+                SelectedDate = dateParameter,
+                TodayIso = today.ToString("yyyy-MM-dd"),
+                PreviousDate = targetDate.AddDays(-1)
                                              .ToString("yyyy-MM-dd"),
-                    NextDate = targetDate < today
+                NextDate = targetDate < today
                             ? targetDate.AddDays(1)
                                         .ToString("yyyy-MM-dd")
                             : null,
-                    Summary = summary,
-                    ErrorMessage = summary is null
+                Summary = summary,
+                ErrorMessage = summary is null
                             ? "No Fitbit data is available for the selected date."
                             : null
             };
@@ -113,12 +113,12 @@ public sealed class FitnessController : Controller
     {
         var summary = new DaySummaryViewModel
         {
-                Date = ParseDate(model.Date),
-                GeneratedUtc = model.GeneratedUtc,
-                Weight = model.Weight ?? new FitbitWeightModel(),
-                Calories = model.Calories ?? new FitbitCaloriesModel(),
-                Sleep = model.Sleep ?? new FitbitSleepModel(),
-                Activity = model.Activity ?? new FitbitActivityModel()
+            Date = ParseDate(model.Date),
+            GeneratedUtc = model.GeneratedUtc,
+            Weight = model.Weight ?? new FitbitWeightModel(),
+            Calories = model.Calories ?? new FitbitCaloriesModel(),
+            Sleep = model.Sleep ?? new FitbitSleepModel(),
+            Activity = model.Activity ?? new FitbitActivityModel()
         };
 
         return HasAnyMetrics(summary)

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -5,8 +7,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Tomeshelf.Executor.Configuration;
 
 namespace Tomeshelf.Executor.Services;
@@ -123,8 +123,8 @@ internal static class ExecutorOptionsExtensions
     {
         var clone = new ExecutorOptions
         {
-                Enabled = source.Enabled,
-                Endpoints = source.Endpoints.Select(Clone)
+            Enabled = source.Enabled,
+            Endpoints = source.Endpoints.Select(Clone)
                                   .ToList()
         };
 
@@ -135,13 +135,13 @@ internal static class ExecutorOptionsExtensions
     {
         return new EndpointScheduleOptions
         {
-                Name = source.Name,
-                Url = source.Url,
-                Method = source.Method,
-                Cron = source.Cron,
-                Enabled = source.Enabled,
-                TimeZone = source.TimeZone,
-                Headers = source.Headers is null
+            Name = source.Name,
+            Url = source.Url,
+            Method = source.Method,
+            Cron = source.Cron,
+            Enabled = source.Enabled,
+            TimeZone = source.TimeZone,
+            Headers = source.Headers is null
                         ? null
                         : new Dictionary<string, string>(source.Headers, StringComparer.OrdinalIgnoreCase)
         };

@@ -57,6 +57,25 @@ public sealed class EndpointPingService : IEndpointPingService
         }
     }
 
+    private static void AddHeaders(Dictionary<string, string>? headers, HttpRequestMessage request)
+    {
+        if (headers is null)
+        {
+            return;
+        }
+
+        foreach (var header in headers)
+        {
+            if (request.Headers.TryAddWithoutValidation(header.Key, header.Value))
+            {
+                continue;
+            }
+
+            request.Content ??= new StringContent(string.Empty);
+            request.Content.Headers.TryAddWithoutValidation(header.Key, header.Value);
+        }
+    }
+
     private static HttpRequestMessage BuildRequest(Uri target, string? method, Dictionary<string, string>? headers)
     {
         var httpMethod = CreateMethod(method);
@@ -80,25 +99,6 @@ public sealed class EndpointPingService : IEndpointPingService
         catch (FormatException)
         {
             return HttpMethod.Post;
-        }
-    }
-
-    private static void AddHeaders(Dictionary<string, string>? headers, HttpRequestMessage request)
-    {
-        if (headers is null)
-        {
-            return;
-        }
-
-        foreach (var header in headers)
-        {
-            if (request.Headers.TryAddWithoutValidation(header.Key, header.Value))
-            {
-                continue;
-            }
-
-            request.Content ??= new StringContent(string.Empty);
-            request.Content.Headers.TryAddWithoutValidation(header.Key, header.Value);
         }
     }
 }

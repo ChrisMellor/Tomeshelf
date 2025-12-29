@@ -33,10 +33,11 @@ public sealed class ExecutorSchedulerOrchestrator : IExecutorSchedulerOrchestrat
         options ??= _executorOptions.CurrentValue;
 
         var desiredEndpoints = options.Enabled
-                ? options.Endpoints.Where(IsValid)
-                         .ToList()
-                : Array.Empty<EndpointScheduleOptions>()
-                       .ToList();
+            ? options.Endpoints
+                     .Where(IsValid)
+                     .ToList()
+            : Array.Empty<EndpointScheduleOptions>()
+                   .ToList();
 
         var existingJobKeys = await scheduler.GetJobKeys(GroupMatcher<JobKey>.GroupEquals(JobGroup), cancellationToken);
         var desiredJobNames = new HashSet<string>(desiredEndpoints.Select(ep => ep.Name), StringComparer.OrdinalIgnoreCase);
@@ -67,7 +68,10 @@ public sealed class ExecutorSchedulerOrchestrator : IExecutorSchedulerOrchestrat
                                          })
                                         .Build();
 
-            await scheduler.ScheduleJob(job, new HashSet<ITrigger> { trigger }, true, cancellationToken);
+            await scheduler.ScheduleJob(job, new HashSet<ITrigger>
+            {
+                trigger
+            }, true, cancellationToken);
         }
 
         if (!options.Enabled)

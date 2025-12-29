@@ -33,15 +33,15 @@ public sealed class FitnessDashboardViewModel
 
         return new FitnessDashboardViewModel
         {
-                SelectedDate = selectedDate,
-                TodayIso = today.ToString("yyyy-MM-dd"),
-                PreviousDate = selected.AddDays(-1)
-                                       .ToString("yyyy-MM-dd"),
-                NextDate = selected < today
-                        ? selected.AddDays(1)
-                                  .ToString("yyyy-MM-dd")
-                        : null,
-                ErrorMessage = message
+            SelectedDate = selectedDate,
+            TodayIso = today.ToString("yyyy-MM-dd"),
+            PreviousDate = selected.AddDays(-1)
+                                   .ToString("yyyy-MM-dd"),
+            NextDate = selected < today
+                ? selected.AddDays(1)
+                          .ToString("yyyy-MM-dd")
+                : null,
+            ErrorMessage = message
         };
     }
 }

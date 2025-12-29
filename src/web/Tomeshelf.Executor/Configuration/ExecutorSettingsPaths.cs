@@ -9,41 +9,20 @@ internal static class ExecutorSettingsPaths
     public const string SettingsDirectoryEnvironmentVariable = "EXECUTOR_SETTINGS_DIR";
     private const string DefaultSettingsFileName = "executorSettings.json";
 
-    public static string GetDirectory(IHostEnvironment environment, bool ensureExists = false)
+    private static void CopyIfMissing(string sourcePath, string targetPath)
     {
-        ArgumentNullException.ThrowIfNull(environment);
-
-        var directory = Environment.GetEnvironmentVariable(SettingsDirectoryEnvironmentVariable);
-        if (string.IsNullOrWhiteSpace(directory))
+        if (!File.Exists(sourcePath) || File.Exists(targetPath))
         {
-            directory = environment.ContentRootPath;
-        }
-        else if (!Path.IsPathRooted(directory))
-        {
-            directory = Path.Combine(environment.ContentRootPath, directory);
+            return;
         }
 
-        if (ensureExists)
+        var targetDirectory = Path.GetDirectoryName(targetPath);
+        if (!string.IsNullOrEmpty(targetDirectory))
         {
-            Directory.CreateDirectory(directory);
+            Directory.CreateDirectory(targetDirectory);
         }
 
-        return directory;
-    }
-
-    public static string GetDefaultFilePath(IHostEnvironment environment, bool ensureDirectory = false)
-    {
-        return Path.Combine(GetDirectory(environment, ensureDirectory), DefaultSettingsFileName);
-    }
-
-    public static string? GetEnvironmentFilePath(IHostEnvironment environment, bool ensureDirectory = false)
-    {
-        if (string.IsNullOrWhiteSpace(environment.EnvironmentName))
-        {
-            return null;
-        }
-
-        return Path.Combine(GetDirectory(environment, ensureDirectory), $"executorSettings.{environment.EnvironmentName}.json");
+        File.Copy(sourcePath, targetPath);
     }
 
     public static void EnsureSeedFiles(IHostEnvironment environment)
@@ -67,19 +46,40 @@ internal static class ExecutorSettingsPaths
         }
     }
 
-    private static void CopyIfMissing(string sourcePath, string targetPath)
+    public static string GetDefaultFilePath(IHostEnvironment environment, bool ensureDirectory = false)
     {
-        if (!File.Exists(sourcePath) || File.Exists(targetPath))
+        return Path.Combine(GetDirectory(environment, ensureDirectory), DefaultSettingsFileName);
+    }
+
+    public static string GetDirectory(IHostEnvironment environment, bool ensureExists = false)
+    {
+        ArgumentNullException.ThrowIfNull(environment);
+
+        var directory = Environment.GetEnvironmentVariable(SettingsDirectoryEnvironmentVariable);
+        if (string.IsNullOrWhiteSpace(directory))
         {
-            return;
+            directory = environment.ContentRootPath;
+        }
+        else if (!Path.IsPathRooted(directory))
+        {
+            directory = Path.Combine(environment.ContentRootPath, directory);
         }
 
-        var targetDirectory = Path.GetDirectoryName(targetPath);
-        if (!string.IsNullOrEmpty(targetDirectory))
+        if (ensureExists)
         {
-            Directory.CreateDirectory(targetDirectory);
+            Directory.CreateDirectory(directory);
         }
 
-        File.Copy(sourcePath, targetPath);
+        return directory;
+    }
+
+    public static string? GetEnvironmentFilePath(IHostEnvironment environment, bool ensureDirectory = false)
+    {
+        if (string.IsNullOrWhiteSpace(environment.EnvironmentName))
+        {
+            return null;
+        }
+
+        return Path.Combine(GetDirectory(environment, ensureDirectory), $"executorSettings.{environment.EnvironmentName}.json");
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using System.IO;
 
@@ -8,7 +7,8 @@ internal static class MimeTypes
 {
     public static string GetMimeType(string fileName)
     {
-        var ext = Path.GetExtension(fileName)?.ToLower(CultureInfo.InvariantCulture);
+        var ext = Path.GetExtension(fileName)
+                     ?.ToLower(CultureInfo.InvariantCulture);
 
         return ext switch
         {

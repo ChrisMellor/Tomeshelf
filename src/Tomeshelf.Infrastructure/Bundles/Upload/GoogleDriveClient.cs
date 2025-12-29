@@ -29,26 +29,37 @@ public sealed record UploadOutcome(bool Uploaded, string FileId);
 
 internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
 {
-    private readonly ConcurrentDictionary<string, string> _folderCache = new(StringComparer.OrdinalIgnoreCase);
     private readonly DriveService _drive;
-    private readonly GoogleDriveOptions _options;
+    private readonly ConcurrentDictionary<string, string> _folderCache = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     private readonly ILogger<GoogleDriveClient> _logger;
+    private readonly GoogleDriveOptions _options;
     private readonly string? _sharedDriveId;
+    private bool _disposed;
     private string? _rootFolderId;
     private bool _validatedRoot;
-    private bool _disposed;
 
     public GoogleDriveClient(IOptions<GoogleDriveOptions> options, ILogger<GoogleDriveClient> logger)
     {
         _options = options.Value;
         _sharedDriveId = string.IsNullOrWhiteSpace(_options.SharedDriveId)
-                ? null
-                : _options.SharedDriveId;
+            ? null
+            : _options.SharedDriveId;
         _rootFolderId = string.IsNullOrWhiteSpace(_options.RootFolderId)
-                ? null
-                : _options.RootFolderId;
+            ? null
+            : _options.RootFolderId;
         _logger = logger;
         _drive = BuildDriveService(_options);
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _drive.Dispose();
+        _disposed = true;
     }
 
     public async Task<string> EnsureFolderPathAsync(string folderPath, CancellationToken cancellationToken)
@@ -56,8 +67,10 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         var segments = folderPath.Split(['/', '\\'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var currentPath = string.Empty;
         var parentId = string.IsNullOrWhiteSpace(_sharedDriveId)
-                ? string.IsNullOrWhiteSpace(_rootFolderId) ? "root" : _rootFolderId
-                : _sharedDriveId;
+            ? string.IsNullOrWhiteSpace(_rootFolderId)
+                ? "root"
+                : _rootFolderId
+            : _sharedDriveId;
 
         if (!_validatedRoot && !string.IsNullOrWhiteSpace(_rootFolderId))
         {
@@ -79,17 +92,17 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         foreach (var segment in segments)
         {
             currentPath = string.IsNullOrEmpty(currentPath)
-                    ? segment
-                    : $"{currentPath}/{segment}";
+                ? segment
+                : $"{currentPath}/{segment}";
 
             if (_folderCache.TryGetValue(currentPath, out var cached))
             {
                 parentId = cached;
+
                 continue;
             }
 
-            var folderId = await FindFolderAsync(parentId, segment, cancellationToken)
-                           ?? await CreateFolderAsync(parentId, segment, cancellationToken);
+            var folderId = await FindFolderAsync(parentId, segment, cancellationToken) ?? await CreateFolderAsync(parentId, segment, cancellationToken);
 
             _folderCache[currentPath] = folderId;
             parentId = folderId;
@@ -110,12 +123,13 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         {
             var existing = await FindFileAsync(parentFolderId, fileName, cancellationToken);
             var mimeType = string.IsNullOrWhiteSpace(contentType)
-                    ? "application/octet-stream"
-                    : contentType;
+                ? "application/octet-stream"
+                : contentType;
 
-            if (existing is not null && existing.Size.HasValue && existing.Size.Value == contentLength && content.CanSeek)
+            if (existing is not null && existing.Size.HasValue && (existing.Size.Value == contentLength) && content.CanSeek)
             {
                 _logger.LogInformation("Skipping upload for {File} in folder {FolderId} because a matching file already exists with the same size.", fileName, parentFolderId);
+
                 return new UploadOutcome(false, existing.Id);
             }
 
@@ -126,7 +140,10 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
 
             if (existing is not null)
             {
-                var update = _drive.Files.Update(new DriveFile { Name = fileName }, existing.Id, content, mimeType);
+                var update = _drive.Files.Update(new DriveFile
+                {
+                    Name = fileName
+                }, existing.Id, content, mimeType);
                 update.Fields = "id";
                 update.SupportsAllDrives = true;
                 update.ChunkSize = ResumableUpload.MinimumChunkSize * 32; // ~8MB chunks
@@ -134,6 +151,7 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
                 ValidateUpload(result, fileName, existing.Id);
 
                 _logger.LogInformation("Replaced Google Drive file {FileId} with new content for {FileName}.", existing.Id, fileName);
+
                 return new UploadOutcome(true, existing.Id);
             }
             else
@@ -152,25 +170,16 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
 
                 var id = create.ResponseBody?.Id ?? throw new InvalidOperationException("Google Drive did not return a file id.");
                 _logger.LogInformation("Uploaded {FileName} to Google Drive folder {FolderId} as {FileId}.", fileName, parentFolderId, id);
+
                 return new UploadOutcome(true, id);
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Google Drive upload failed for {FileName} (length {Length}) to parent {ParentId}.", fileName, contentLength, parentFolderId);
+
             throw;
         }
-    }
-
-    public void Dispose()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        _drive.Dispose();
-        _disposed = true;
     }
 
     private DriveService BuildDriveService(GoogleDriveOptions options)
@@ -181,36 +190,19 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         {
             HttpClientInitializer = credential,
             ApplicationName = string.IsNullOrWhiteSpace(options.ApplicationName)
-                    ? "Tomeshelf"
-                    : options.ApplicationName
+                ? "Tomeshelf"
+                : options.ApplicationName
         };
 
         var service = new DriveService(initializer);
         service.HttpClient.Timeout = TimeSpan.FromMinutes(30);
+
         return service;
-    }
-
-    private void ValidateUpload(Google.Apis.Upload.IUploadProgress progress, string fileName, string targetId)
-    {
-        if (progress.Exception is not null)
-        {
-            _logger.LogError(progress.Exception, "Google Drive upload for {FileName} failed targeting {TargetId} with status {Status}.", fileName, targetId, progress.Status);
-            throw progress.Exception;
-        }
-
-        if (progress.Status != Google.Apis.Upload.UploadStatus.Completed)
-        {
-            var message = $"Google Drive upload for '{fileName}' did not complete. Status: {progress.Status}";
-            _logger.LogError(message + " (target {TargetId}).", targetId);
-            throw new InvalidOperationException(message);
-        }
     }
 
     private static IConfigurableHttpClientInitializer CreateCredential(GoogleDriveOptions options)
     {
-        if (!string.IsNullOrWhiteSpace(options.RefreshToken) &&
-            !string.IsNullOrWhiteSpace(options.ClientId) &&
-            !string.IsNullOrWhiteSpace(options.ClientSecret))
+        if (!string.IsNullOrWhiteSpace(options.RefreshToken) && !string.IsNullOrWhiteSpace(options.ClientId) && !string.IsNullOrWhiteSpace(options.ClientSecret))
         {
             var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
             {
@@ -233,24 +225,6 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         throw new InvalidOperationException("GoogleDrive OAuth credentials were not configured. Supply ClientId, ClientSecret, and RefreshToken.");
     }
 
-    private async Task<string?> FindFolderAsync(string parentId, string name, CancellationToken cancellationToken)
-    {
-        var list = _drive.Files.List();
-        list.Q = $"mimeType = 'application/vnd.google-apps.folder' and name = '{EscapeQueryLiteral(name)}' and '{parentId}' in parents and trashed = false";
-        list.Fields = "files(id, name)";
-        list.Spaces = "drive";
-        list.SupportsAllDrives = true;
-        list.IncludeItemsFromAllDrives = true;
-        if (!string.IsNullOrWhiteSpace(_sharedDriveId))
-        {
-            list.Corpora = "drive";
-            list.DriveId = _sharedDriveId;
-        }
-
-        var response = await list.ExecuteAsync(cancellationToken);
-        return response.Files?.FirstOrDefault()?.Id;
-    }
-
     private async Task<string> CreateFolderAsync(string parentId, string name, CancellationToken cancellationToken)
     {
         var request = _drive.Files.Create(new DriveFile
@@ -269,7 +243,13 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         }
 
         _logger.LogInformation("Created Google Drive folder '{Folder}' under parent {Parent}.", name, parentId);
+
         return created.Id;
+    }
+
+    private static string EscapeQueryLiteral(string value)
+    {
+        return value.Replace("'", "\\'", StringComparison.Ordinal);
     }
 
     private async Task<DriveFile?> FindFileAsync(string parentId, string fileName, CancellationToken cancellationToken)
@@ -287,12 +267,28 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         }
 
         var response = await list.ExecuteAsync(cancellationToken);
+
         return response.Files?.FirstOrDefault();
     }
 
-    private static string EscapeQueryLiteral(string value)
+    private async Task<string?> FindFolderAsync(string parentId, string name, CancellationToken cancellationToken)
     {
-        return value.Replace("'", "\\'", StringComparison.Ordinal);
+        var list = _drive.Files.List();
+        list.Q = $"mimeType = 'application/vnd.google-apps.folder' and name = '{EscapeQueryLiteral(name)}' and '{parentId}' in parents and trashed = false";
+        list.Fields = "files(id, name)";
+        list.Spaces = "drive";
+        list.SupportsAllDrives = true;
+        list.IncludeItemsFromAllDrives = true;
+        if (!string.IsNullOrWhiteSpace(_sharedDriveId))
+        {
+            list.Corpora = "drive";
+            list.DriveId = _sharedDriveId;
+        }
+
+        var response = await list.ExecuteAsync(cancellationToken);
+
+        return response.Files?.FirstOrDefault()
+                      ?.Id;
     }
 
     private async Task<string> ValidateRootFolderAsync(string folderId, CancellationToken cancellationToken)
@@ -303,13 +299,13 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
             request.Fields = "id, name, mimeType, shortcutDetails";
             request.SupportsAllDrives = true;
             var file = await request.ExecuteAsync(cancellationToken);
-            if (file is null || file.MimeType != "application/vnd.google-apps.folder")
+            if (file is null || (file.MimeType != "application/vnd.google-apps.folder"))
             {
-                if (string.Equals(file?.MimeType, "application/vnd.google-apps.shortcut", StringComparison.OrdinalIgnoreCase)
-                    && !string.IsNullOrWhiteSpace(file.ShortcutDetails?.TargetId))
+                if (string.Equals(file?.MimeType, "application/vnd.google-apps.shortcut", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(file.ShortcutDetails?.TargetId))
                 {
                     var targetId = file.ShortcutDetails.TargetId;
                     _logger.LogInformation("RootFolderId {FolderId} is a shortcut; resolving to target {TargetId}.", folderId, targetId);
+
                     return await ValidateRootFolderAsync(targetId, cancellationToken);
                 }
 
@@ -321,7 +317,26 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to access configured RootFolderId {FolderId}. Ensure the folder exists and the authorised user has access.", folderId);
+
             throw;
+        }
+    }
+
+    private void ValidateUpload(IUploadProgress progress, string fileName, string targetId)
+    {
+        if (progress.Exception is not null)
+        {
+            _logger.LogError(progress.Exception, "Google Drive upload for {FileName} failed targeting {TargetId} with status {Status}.", fileName, targetId, progress.Status);
+
+            throw progress.Exception;
+        }
+
+        if (progress.Status != UploadStatus.Completed)
+        {
+            var message = $"Google Drive upload for '{fileName}' did not complete. Status: {progress.Status}";
+            _logger.LogError(message + " (target {TargetId}).", targetId);
+
+            throw new InvalidOperationException(message);
         }
     }
 }

@@ -1,10 +1,10 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Tomeshelf.Executor.Configuration;
 using Tomeshelf.Executor.Models;
 using Tomeshelf.Executor.Services;
@@ -192,13 +192,13 @@ public class HomeController : Controller
         var endpoints = await _discovery.GetEndpointsAsync(baseUri, cancellationToken);
         var payload = endpoints.Select(e => new
         {
-                id = e.Id,
-                method = e.Method,
-                relativePath = e.RelativePath,
-                displayName = e.DisplayName,
-                description = e.Description,
-                allowBody = e.AllowBody,
-                groupName = e.GroupName
+            id = e.Id,
+            method = e.Method,
+            relativePath = e.RelativePath,
+            displayName = e.DisplayName,
+            description = e.Description,
+            allowBody = e.AllowBody,
+            groupName = e.GroupName
         });
 
         return Ok(payload);
@@ -245,28 +245,28 @@ public class HomeController : Controller
 
         return new ExecutorConfigurationViewModel
         {
-                Enabled = options.Enabled,
-                Endpoints = options.Endpoints.OrderBy(ep => ep.Name, StringComparer.OrdinalIgnoreCase)
+            Enabled = options.Enabled,
+            Endpoints = options.Endpoints.OrderBy(ep => ep.Name, StringComparer.OrdinalIgnoreCase)
                                    .Select(ToSummary)
                                    .ToList(),
-                Editor = editor ??
+            Editor = editor ??
                 new EndpointEditorModel
                 {
-                        Enabled = true,
-                        Method = "POST"
+                    Enabled = true,
+                    Method = "POST"
                 },
-                Ping = ping ??
+            Ping = ping ??
                 new EndpointPingModel
                 {
-                        Method = "GET"
+                    Method = "GET"
                 },
-                PingResult = pingResult,
-                ApiServices = apis.Select(api => new ApiServiceOptionViewModel
-                                   {
-                                           ServiceName = api.ServiceName,
-                                           DisplayName = api.DisplayName,
-                                           BaseAddress = api.BaseAddress
-                                   })
+            PingResult = pingResult,
+            ApiServices = apis.Select(api => new ApiServiceOptionViewModel
+            {
+                ServiceName = api.ServiceName,
+                DisplayName = api.DisplayName,
+                BaseAddress = api.BaseAddress
+            })
                                   .ToList()
         };
     }
@@ -279,12 +279,12 @@ public class HomeController : Controller
 
         return new EndpointSummaryViewModel
         {
-                Name = endpoint.Name,
-                Url = endpoint.Url,
-                Method = endpoint.Method,
-                Cron = endpoint.Cron,
-                Enabled = endpoint.Enabled,
-                HeadersDisplay = headersDisplay
+            Name = endpoint.Name,
+            Url = endpoint.Url,
+            Method = endpoint.Method,
+            Cron = endpoint.Cron,
+            Enabled = endpoint.Enabled,
+            HeadersDisplay = headersDisplay
         };
     }
 
@@ -296,12 +296,12 @@ public class HomeController : Controller
 
         return new EndpointEditorModel
         {
-                Name = endpoint.Name,
-                Url = endpoint.Url,
-                Method = endpoint.Method,
-                Cron = endpoint.Cron,
-                Enabled = endpoint.Enabled,
-                Headers = headers
+            Name = endpoint.Name,
+            Url = endpoint.Url,
+            Method = endpoint.Method,
+            Cron = endpoint.Cron,
+            Enabled = endpoint.Enabled,
+            Headers = headers
         };
     }
 
@@ -309,13 +309,13 @@ public class HomeController : Controller
     {
         var endpoint = new EndpointScheduleOptions
         {
-                Name = model.Name,
-                Url = NormalizeUrl(model.Url),
-                Method = model.Method,
-                Cron = model.Cron,
-                TimeZone = null,
-                Enabled = model.Enabled,
-                Headers = ParseHeaders(model.Headers)
+            Name = model.Name,
+            Url = NormalizeUrl(model.Url),
+            Method = model.Method,
+            Cron = model.Cron,
+            TimeZone = null,
+            Enabled = model.Enabled,
+            Headers = ParseHeaders(model.Headers)
         };
 
         return endpoint;
@@ -325,11 +325,11 @@ public class HomeController : Controller
     {
         return new EndpointPingResultViewModel
         {
-                Success = result.Success,
-                StatusCode = result.StatusCode,
-                Message = result.Message,
-                ResponseBody = TrimBody(result.Body),
-                Duration = result.Duration
+            Success = result.Success,
+            StatusCode = result.StatusCode,
+            Message = result.Message,
+            ResponseBody = TrimBody(result.Body),
+            Duration = result.Duration
         };
     }
 

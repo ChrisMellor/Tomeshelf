@@ -13,7 +13,7 @@ namespace Tomeshelf.Executor.Validation;
 public sealed class AbsoluteUrlAttribute : ValidationAttribute, IClientModelValidator
 {
     private static readonly string[] DefaultSchemes = ["http", "https", "ftp"];
-    private static readonly HashSet<string> AllowedSchemes = new(DefaultSchemes, StringComparer.OrdinalIgnoreCase);
+    private static readonly HashSet<string> AllowedSchemes = new HashSet<string>(DefaultSchemes, StringComparer.OrdinalIgnoreCase);
 
     public AbsoluteUrlAttribute() : base("The {0} field must be a fully-qualified http, https, or ftp URL.") { }
 
@@ -57,6 +57,18 @@ public sealed class AbsoluteUrlAttribute : ValidationAttribute, IClientModelVali
         return ValidationResult.Success;
     }
 
+    private static bool MergeAttribute(IDictionary<string, string> attributes, string key, string value)
+    {
+        if (attributes.ContainsKey(key))
+        {
+            return false;
+        }
+
+        attributes.Add(key, value);
+
+        return true;
+    }
+
     private static bool TryCreateAbsolute(string value, [NotNullWhen(true)] out Uri? uri)
     {
         if (Uri.TryCreate(value, UriKind.Absolute, out uri) && AllowedSchemes.Contains(uri.Scheme))
@@ -76,17 +88,5 @@ public sealed class AbsoluteUrlAttribute : ValidationAttribute, IClientModelVali
         uri = null;
 
         return false;
-    }
-
-    private static bool MergeAttribute(IDictionary<string, string> attributes, string key, string value)
-    {
-        if (attributes.ContainsKey(key))
-        {
-            return false;
-        }
-
-        attributes.Add(key, value);
-
-        return true;
     }
 }

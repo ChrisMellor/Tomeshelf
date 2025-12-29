@@ -26,8 +26,12 @@ internal sealed class GoogleDriveClientFactory : IGoogleDriveClientFactory
         var merged = new GoogleDriveOptions
         {
             ApplicationName = options.ApplicationName ?? _defaults.Value.ApplicationName,
-            RootFolderPath = string.IsNullOrWhiteSpace(options.RootFolderPath) ? _defaults.Value.RootFolderPath : options.RootFolderPath,
-            RootFolderId = string.IsNullOrWhiteSpace(options.RootFolderId) ? _defaults.Value.RootFolderId : options.RootFolderId,
+            RootFolderPath = string.IsNullOrWhiteSpace(options.RootFolderPath)
+                ? _defaults.Value.RootFolderPath
+                : options.RootFolderPath,
+            RootFolderId = string.IsNullOrWhiteSpace(options.RootFolderId)
+                ? _defaults.Value.RootFolderId
+                : options.RootFolderId,
             ClientId = options.ClientId ?? _defaults.Value.ClientId,
             ClientSecret = options.ClientSecret ?? _defaults.Value.ClientSecret,
             RefreshToken = options.RefreshToken ?? _defaults.Value.RefreshToken,

@@ -14,9 +14,9 @@ public class TriggerEndpointJob(IEndpointPingService pingService, IOptionsMonito
     public const string EndpointNameKey = "Executor.EndpointName";
     public const string HttpClientName = "Executor.EndpointClient";
     private readonly IOptionsMonitor<ExecutorOptions> _executorOptions = executorOptions;
+    private readonly ILogger<TriggerEndpointJob> _logger = logger;
 
     private readonly IEndpointPingService _pingService = pingService;
-    private readonly ILogger<TriggerEndpointJob> _logger = logger;
 
     public async Task Execute(IJobExecutionContext context)
     {

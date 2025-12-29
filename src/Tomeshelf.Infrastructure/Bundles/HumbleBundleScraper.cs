@@ -79,36 +79,6 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
         return bundles;
     }
 
-    private static bool TryCreateBundle(JsonElement product, string category, DateTimeOffset observedUtc, out ScrapedBundle bundle)
-    {
-        bundle = default!;
-
-        if (!product.TryGetProperty("machine_name", out var machineElement) || (machineElement.ValueKind != JsonValueKind.String) || string.IsNullOrWhiteSpace(machineElement.GetString()))
-        {
-            return false;
-        }
-
-        var machineName = machineElement.GetString()!;
-        var stamp = GetString(product, "tile_stamp") ?? string.Empty;
-        var title = GetString(product, "tile_name") ?? GetString(product, "marketing_blurb") ?? machineName;
-        var shortName = GetString(product, "tile_short_name") ?? string.Empty;
-        var shortDescription = GetString(product, "short_marketing_blurb") ?? string.Empty;
-
-        var relativeUrl = GetString(product, "product_url") ?? string.Empty;
-        var absoluteUrl = BuildAbsoluteUrl(relativeUrl);
-
-        var tileImage = GetString(product, "tile_image") ?? string.Empty;
-        var tileLogo = GetString(product, "tile_logo") ?? string.Empty;
-        var heroImage = GetString(product, "high_res_tile_image") ?? tileImage;
-
-        var startsAt = ParseDateTime(product, "start_date|datetime");
-        var endsAt = ParseDateTime(product, "end_date|datetime");
-
-        bundle = new ScrapedBundle(machineName, category, stamp, title, shortName, absoluteUrl, tileImage, tileLogo, heroImage ?? string.Empty, shortDescription, startsAt, endsAt, observedUtc);
-
-        return true;
-    }
-
     private static string BuildAbsoluteUrl(string relative)
     {
         if (string.IsNullOrWhiteSpace(relative))
@@ -122,37 +92,6 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
         }
 
         return new Uri(SiteBaseUri, relative.TrimStart('/')).ToString();
-    }
-
-    private static string GetString(JsonElement element, string propertyName)
-    {
-        if (element.TryGetProperty(propertyName, out var property) && (property.ValueKind == JsonValueKind.String))
-        {
-            var value = property.GetString();
-
-            return string.IsNullOrWhiteSpace(value)
-                    ? null
-                    : value;
-        }
-
-        return null;
-    }
-
-    private static DateTimeOffset? ParseDateTime(JsonElement element, string propertyName)
-    {
-        var text = GetString(element, propertyName);
-
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return null;
-        }
-
-        if (DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var parsed))
-        {
-            return parsed;
-        }
-
-        return null;
     }
 
     private static string ExtractEmbeddedJson(string html)
@@ -217,11 +156,72 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
                 if (depth == 0)
                 {
                     return span[..(i + 1)]
-                           .ToString();
+                       .ToString();
                 }
             }
         }
 
         throw new InvalidOperationException("Malformed Humble Bundle JSON payload.");
+    }
+
+    private static string GetString(JsonElement element, string propertyName)
+    {
+        if (element.TryGetProperty(propertyName, out var property) && (property.ValueKind == JsonValueKind.String))
+        {
+            var value = property.GetString();
+
+            return string.IsNullOrWhiteSpace(value)
+                ? null
+                : value;
+        }
+
+        return null;
+    }
+
+    private static DateTimeOffset? ParseDateTime(JsonElement element, string propertyName)
+    {
+        var text = GetString(element, propertyName);
+
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return null;
+        }
+
+        if (DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var parsed))
+        {
+            return parsed;
+        }
+
+        return null;
+    }
+
+    private static bool TryCreateBundle(JsonElement product, string category, DateTimeOffset observedUtc, out ScrapedBundle bundle)
+    {
+        bundle = default!;
+
+        if (!product.TryGetProperty("machine_name", out var machineElement) || (machineElement.ValueKind != JsonValueKind.String) || string.IsNullOrWhiteSpace(machineElement.GetString()))
+        {
+            return false;
+        }
+
+        var machineName = machineElement.GetString()!;
+        var stamp = GetString(product, "tile_stamp") ?? string.Empty;
+        var title = GetString(product, "tile_name") ?? GetString(product, "marketing_blurb") ?? machineName;
+        var shortName = GetString(product, "tile_short_name") ?? string.Empty;
+        var shortDescription = GetString(product, "short_marketing_blurb") ?? string.Empty;
+
+        var relativeUrl = GetString(product, "product_url") ?? string.Empty;
+        var absoluteUrl = BuildAbsoluteUrl(relativeUrl);
+
+        var tileImage = GetString(product, "tile_image") ?? string.Empty;
+        var tileLogo = GetString(product, "tile_logo") ?? string.Empty;
+        var heroImage = GetString(product, "high_res_tile_image") ?? tileImage;
+
+        var startsAt = ParseDateTime(product, "start_date|datetime");
+        var endsAt = ParseDateTime(product, "end_date|datetime");
+
+        bundle = new ScrapedBundle(machineName, category, stamp, title, shortName, absoluteUrl, tileImage, tileLogo, heroImage ?? string.Empty, shortDescription, startsAt, endsAt, observedUtc);
+
+        return true;
     }
 }

@@ -22,6 +22,21 @@ public class HomeController : Controller
     }
 
     /// <summary>
+    ///     Renders the error page with current request identifier.
+    /// </summary>
+    /// <returns>The error view.</returns>
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        var errorViewModel = new ErrorViewModel
+        {
+            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+        };
+
+        return View(errorViewModel);
+    }
+
+    /// <summary>
     ///     Renders the home page.
     /// </summary>
     /// <returns>The home view.</returns>
@@ -37,17 +52,5 @@ public class HomeController : Controller
     public IActionResult Privacy()
     {
         return View();
-    }
-
-    /// <summary>
-    ///     Renders the error page with current request identifier.
-    /// </summary>
-    /// <returns>The error view.</returns>
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        var errorViewModel = new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier };
-
-        return View(errorViewModel);
     }
 }

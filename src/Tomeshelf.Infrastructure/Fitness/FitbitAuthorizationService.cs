@@ -37,6 +37,14 @@ public sealed class FitbitAuthorizationService
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
+    private static string Base64UrlEncode(byte[] data)
+    {
+        return Convert.ToBase64String(data)
+                      .TrimEnd('=')
+                      .Replace('+', '-')
+                      .Replace('/', '_');
+    }
+
     public Uri BuildAuthorizationUri(string returnUrl, out string state)
     {
         var options = _options.CurrentValue;
@@ -44,8 +52,8 @@ public sealed class FitbitAuthorizationService
                     .ToString("N");
         var codeVerifier = CreateCodeVerifier();
         var targetReturnUrl = string.IsNullOrWhiteSpace(returnUrl)
-                ? "/fitness"
-                : returnUrl!;
+            ? "/fitness"
+            : returnUrl!;
         var authState = new AuthorizationState(codeVerifier, targetReturnUrl);
         _memoryCache.Set(GetStateCacheKey(state), authState, StateLifetime);
 
@@ -54,14 +62,14 @@ public sealed class FitbitAuthorizationService
 
         var query = new Dictionary<string, string>
         {
-                ["response_type"] = "code",
-                ["client_id"] = options.ClientId,
-                ["redirect_uri"] = callback.ToString(),
-                ["scope"] = options.Scope,
-                ["state"] = state,
-                ["prompt"] = "login",
-                ["code_challenge"] = codeChallenge,
-                ["code_challenge_method"] = "S256"
+            ["response_type"] = "code",
+            ["client_id"] = options.ClientId,
+            ["redirect_uri"] = callback.ToString(),
+            ["scope"] = options.Scope,
+            ["state"] = state,
+            ["prompt"] = "login",
+            ["code_challenge"] = codeChallenge,
+            ["code_challenge_method"] = "S256"
         };
 
         var builder = new StringBuilder("https://www.fitbit.com/oauth2/authorize?");
@@ -83,115 +91,6 @@ public sealed class FitbitAuthorizationService
         return new Uri(builder.ToString());
     }
 
-    public bool TryConsumeState(string state, out string codeVerifier, out string returnUrl)
-    {
-        if (string.IsNullOrWhiteSpace(state))
-        {
-            codeVerifier = string.Empty;
-            returnUrl = "/fitness";
-
-            return false;
-        }
-
-        var cacheKey = GetStateCacheKey(state);
-        if (_memoryCache.TryGetValue(cacheKey, out var stateObj) && stateObj is AuthorizationState stored)
-        {
-            _memoryCache.Remove(cacheKey);
-            codeVerifier = stored.CodeVerifier;
-            returnUrl = stored.ReturnUrl;
-
-            return true;
-        }
-
-        codeVerifier = string.Empty;
-        returnUrl = "/fitness";
-
-        return false;
-    }
-
-    public async Task ExchangeAuthorizationCodeAsync(string code, string codeVerifier, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(codeVerifier))
-        {
-            throw new InvalidOperationException("Missing PKCE code verifier for Fitbit authorization exchange.");
-        }
-
-        var options = _options.CurrentValue;
-
-        if (string.IsNullOrWhiteSpace(options.ClientId) || string.IsNullOrWhiteSpace(options.ClientSecret))
-        {
-            throw new InvalidOperationException("Fitbit client credentials are not configured.");
-        }
-
-        var callback = BuildCallbackUri(options, _httpContextAccessor.HttpContext?.Request);
-
-        var client = _httpClientFactory.CreateClient("FitbitOAuth");
-        using var request = new HttpRequestMessage(HttpMethod.Post, "oauth2/token")
-        {
-                Content = new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                        ["grant_type"] = "authorization_code",
-                        ["code"] = code,
-                        ["redirect_uri"] = callback.ToString(),
-                        ["code_verifier"] = codeVerifier
-                })
-        };
-
-        var credentials = $"{options.ClientId}:{options.ClientSecret}";
-        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials)));
-        request.Headers.Accept.ParseAdd("application/json");
-
-        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
-                                         .ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
-
-        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
-                                               .ConfigureAwait(false);
-        var payload = await JsonSerializer.DeserializeAsync<TokenRefreshResponse>(stream, cancellationToken: cancellationToken)
-                                          .ConfigureAwait(false);
-
-        if (payload?.AccessToken is null)
-        {
-            throw new InvalidOperationException("Fitbit token response was missing an access token.");
-        }
-
-        DateTimeOffset? expiresAt = payload.ExpiresIn.HasValue
-                ? DateTimeOffset.UtcNow.AddSeconds(payload.ExpiresIn.Value)
-                : null;
-
-        _tokenCache.Update(payload.AccessToken, payload.RefreshToken, expiresAt);
-        _logger.LogInformation("Successfully obtained Fitbit access token via authorization code grant.");
-    }
-
-    private static string GetStateCacheKey(string state)
-    {
-        return $"fitbit:oauth:state:{state}";
-    }
-
-    private static string CreateCodeVerifier()
-    {
-        var bytes = new byte[32];
-        RandomNumberGenerator.Fill(bytes);
-
-        return Base64UrlEncode(bytes);
-    }
-
-    private static string CreateCodeChallenge(string codeVerifier)
-    {
-        using var sha256 = SHA256.Create();
-        var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
-
-        return Base64UrlEncode(hash);
-    }
-
-    private static string Base64UrlEncode(byte[] data)
-    {
-        return Convert.ToBase64String(data)
-                      .TrimEnd('=')
-                      .Replace('+', '-')
-                      .Replace('/', '_');
-    }
-
     public static Uri BuildCallbackUri(FitbitOptions options, HttpRequest request)
     {
         if (options is null)
@@ -199,7 +98,8 @@ public sealed class FitbitAuthorizationService
             throw new ArgumentNullException(nameof(options));
         }
 
-        var path = string.IsNullOrWhiteSpace(options.CallbackPath) ? new PathString("/api/fitbit/auth/callback") : options.CallbackPath.StartsWith("/", StringComparison.Ordinal) ? new PathString(options.CallbackPath) : new PathString("/" + options.CallbackPath);
+        var path = string.IsNullOrWhiteSpace(options.CallbackPath) ? new PathString("/api/fitbit/auth/callback") :
+            options.CallbackPath.StartsWith("/", StringComparison.Ordinal) ? new PathString(options.CallbackPath) : new PathString("/" + options.CallbackPath);
 
         Uri baseUri;
 
@@ -237,8 +137,8 @@ public sealed class FitbitAuthorizationService
         }
 
         var pathValue = path.HasValue
-                ? path.Value
-                : "/api/fitbit/auth/callback";
+            ? path.Value
+            : "/api/fitbit/auth/callback";
 
         if ((pathValue.Length == 0) || (pathValue[0] != '/'))
         {
@@ -246,6 +146,108 @@ public sealed class FitbitAuthorizationService
         }
 
         return new Uri(baseUri, pathValue);
+    }
+
+    private static string CreateCodeChallenge(string codeVerifier)
+    {
+        using var sha256 = SHA256.Create();
+        var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
+
+        return Base64UrlEncode(hash);
+    }
+
+    private static string CreateCodeVerifier()
+    {
+        var bytes = new byte[32];
+        RandomNumberGenerator.Fill(bytes);
+
+        return Base64UrlEncode(bytes);
+    }
+
+    public async Task ExchangeAuthorizationCodeAsync(string code, string codeVerifier, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(codeVerifier))
+        {
+            throw new InvalidOperationException("Missing PKCE code verifier for Fitbit authorization exchange.");
+        }
+
+        var options = _options.CurrentValue;
+
+        if (string.IsNullOrWhiteSpace(options.ClientId) || string.IsNullOrWhiteSpace(options.ClientSecret))
+        {
+            throw new InvalidOperationException("Fitbit client credentials are not configured.");
+        }
+
+        var callback = BuildCallbackUri(options, _httpContextAccessor.HttpContext?.Request);
+
+        var client = _httpClientFactory.CreateClient("FitbitOAuth");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "oauth2/token")
+        {
+            Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = "authorization_code",
+                ["code"] = code,
+                ["redirect_uri"] = callback.ToString(),
+                ["code_verifier"] = codeVerifier
+            })
+        };
+
+        var credentials = $"{options.ClientId}:{options.ClientSecret}";
+        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials)));
+        request.Headers.Accept.ParseAdd("application/json");
+
+        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                                         .ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+
+        await using var stream = await response.Content
+                                               .ReadAsStreamAsync(cancellationToken)
+                                               .ConfigureAwait(false);
+        var payload = await JsonSerializer.DeserializeAsync<TokenRefreshResponse>(stream, cancellationToken: cancellationToken)
+                                          .ConfigureAwait(false);
+
+        if (payload?.AccessToken is null)
+        {
+            throw new InvalidOperationException("Fitbit token response was missing an access token.");
+        }
+
+        DateTimeOffset? expiresAt = payload.ExpiresIn.HasValue
+            ? DateTimeOffset.UtcNow.AddSeconds(payload.ExpiresIn.Value)
+            : null;
+
+        _tokenCache.Update(payload.AccessToken, payload.RefreshToken, expiresAt);
+        _logger.LogInformation("Successfully obtained Fitbit access token via authorization code grant.");
+    }
+
+    private static string GetStateCacheKey(string state)
+    {
+        return $"fitbit:oauth:state:{state}";
+    }
+
+    public bool TryConsumeState(string state, out string codeVerifier, out string returnUrl)
+    {
+        if (string.IsNullOrWhiteSpace(state))
+        {
+            codeVerifier = string.Empty;
+            returnUrl = "/fitness";
+
+            return false;
+        }
+
+        var cacheKey = GetStateCacheKey(state);
+        if (_memoryCache.TryGetValue(cacheKey, out var stateObj) && stateObj is AuthorizationState stored)
+        {
+            _memoryCache.Remove(cacheKey);
+            codeVerifier = stored.CodeVerifier;
+            returnUrl = stored.ReturnUrl;
+
+            return true;
+        }
+
+        codeVerifier = string.Empty;
+        returnUrl = "/fitness";
+
+        return false;
     }
 
     private sealed record AuthorizationState(string CodeVerifier, string ReturnUrl);

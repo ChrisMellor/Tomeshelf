@@ -23,11 +23,13 @@ public sealed class ComicConEventsViewComponent : ViewComponent
         try
         {
             var events = await _api.GetComicConEventsAsync(HttpContext.RequestAborted);
+
             return View(events);
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Unable to load Comic Con events for the navbar.");
+
             return View(Array.Empty<McmEventConfigModel>());
         }
     }

@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.ServiceDefaults;
@@ -36,7 +35,8 @@ public class Program
             });
         }
 
-        builder.Services.AddProblemDetails()
+        builder.Services
+               .AddProblemDetails()
                .AddOpenApi()
                .AddControllers();
 

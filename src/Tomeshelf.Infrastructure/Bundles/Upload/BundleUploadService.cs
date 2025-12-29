@@ -17,10 +17,10 @@ public interface IHumbleBundleUploadService
 
 public sealed class BundleUploadService : IHumbleBundleUploadService
 {
-    private readonly BundleFileOrganiser _organiser;
     private readonly IGoogleDriveClientFactory _driveFactory;
-    private readonly GoogleDriveOptions _options;
     private readonly ILogger<BundleUploadService> _logger;
+    private readonly GoogleDriveOptions _options;
+    private readonly BundleFileOrganiser _organiser;
 
     public BundleUploadService(BundleFileOrganiser organiser, IGoogleDriveClientFactory driveFactory, IOptions<GoogleDriveOptions> options, ILogger<BundleUploadService> logger)
     {
@@ -97,49 +97,21 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
         }
     }
 
-    private static async Task<string> SaveArchiveAsync(Stream archive, string archiveFileName, string workingDirectory, CancellationToken cancellationToken)
-    {
-        var safeName = string.IsNullOrWhiteSpace(archiveFileName)
-                ? "bundle.zip"
-                : Path.GetFileName(archiveFileName);
-
-        var destination = Path.Combine(workingDirectory, safeName);
-
-        await using var file = File.Create(destination);
-        await archive.CopyToAsync(file, cancellationToken);
-
-        return destination;
-    }
-
     private static Task ExtractAsync(string archivePath, string destinationDirectory, CancellationToken cancellationToken)
     {
         var extension = Path.GetExtension(archivePath);
         if (extension.Equals(".zip", StringComparison.OrdinalIgnoreCase))
         {
-            ZipFile.ExtractToDirectory(archivePath, destinationDirectory, overwriteFiles: true);
+            ZipFile.ExtractToDirectory(archivePath, destinationDirectory, true);
+
             return Task.CompletedTask;
         }
 
         cancellationToken.ThrowIfCancellationRequested();
         var destination = Path.Combine(destinationDirectory, Path.GetFileName(archivePath));
-        File.Copy(archivePath, destination, overwrite: true);
+        File.Copy(archivePath, destination, true);
 
         return Task.CompletedTask;
-    }
-
-    private void TryDeleteDirectory(string path)
-    {
-        try
-        {
-            if (Directory.Exists(path))
-            {
-                Directory.Delete(path, recursive: true);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to clean up temporary bundle upload directory {Path}.", path);
-        }
     }
 
     private GoogleDriveOptions MergeOptions(GoogleDriveOptions? overrideOptions)
@@ -152,13 +124,46 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
         return new GoogleDriveOptions
         {
             ApplicationName = _options.ApplicationName,
-            RootFolderPath = string.IsNullOrWhiteSpace(overrideOptions.RootFolderPath) ? _options.RootFolderPath : overrideOptions.RootFolderPath,
-            RootFolderId = string.IsNullOrWhiteSpace(overrideOptions.RootFolderId) ? _options.RootFolderId : overrideOptions.RootFolderId,
+            RootFolderPath = string.IsNullOrWhiteSpace(overrideOptions.RootFolderPath)
+                ? _options.RootFolderPath
+                : overrideOptions.RootFolderPath,
+            RootFolderId = string.IsNullOrWhiteSpace(overrideOptions.RootFolderId)
+                ? _options.RootFolderId
+                : overrideOptions.RootFolderId,
             ClientId = overrideOptions.ClientId ?? _options.ClientId,
             ClientSecret = overrideOptions.ClientSecret ?? _options.ClientSecret,
             RefreshToken = overrideOptions.RefreshToken ?? _options.RefreshToken,
             UserEmail = overrideOptions.UserEmail ?? _options.UserEmail,
             SharedDriveId = overrideOptions.SharedDriveId ?? _options.SharedDriveId
         };
+    }
+
+    private static async Task<string> SaveArchiveAsync(Stream archive, string archiveFileName, string workingDirectory, CancellationToken cancellationToken)
+    {
+        var safeName = string.IsNullOrWhiteSpace(archiveFileName)
+            ? "bundle.zip"
+            : Path.GetFileName(archiveFileName);
+
+        var destination = Path.Combine(workingDirectory, safeName);
+
+        await using var file = File.Create(destination);
+        await archive.CopyToAsync(file, cancellationToken);
+
+        return destination;
+    }
+
+    private void TryDeleteDirectory(string path)
+    {
+        try
+        {
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to clean up temporary bundle upload directory {Path}.", path);
+        }
     }
 }

@@ -34,7 +34,8 @@ public class Program
             });
         }
 
-        builder.Services.AddProblemDetails()
+        builder.Services
+               .AddProblemDetails()
                .AddOpenApi()
                .AddControllers()
                .AddJsonOptions(options =>
@@ -52,7 +53,8 @@ public class Program
 
         var config = builder.Configuration.GetSection("Fitbit");
 
-        builder.Services.AddOptions<FitbitOptions>()
+        builder.Services
+               .AddOptions<FitbitOptions>()
                .Bind(config)
                .ValidateDataAnnotations();
 

@@ -19,11 +19,11 @@ public sealed class PaissaController(IPaissaApi api) : Controller
 
         var model = new PaissaIndexViewModel
         {
-                WorldId = world.WorldId,
-                WorldName = world.WorldName,
-                RetrievedAtUtc = world.RetrievedAtUtc,
-                Districts = world.Districts,
-                TotalPlotCount = total
+            WorldId = world.WorldId,
+            WorldName = world.WorldName,
+            RetrievedAtUtc = world.RetrievedAtUtc,
+            Districts = world.Districts,
+            TotalPlotCount = total
         };
 
         return View(model);

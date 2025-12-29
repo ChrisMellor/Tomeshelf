@@ -70,8 +70,8 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
             var message = await response.Content.ReadAsStringAsync(cancellationToken);
 
             throw new FitbitBackendUnavailableException(string.IsNullOrWhiteSpace(message)
-                                                                ? "Fitbit rate limit reached. Please wait a moment and try again."
-                                                                : message);
+                                                            ? "Fitbit rate limit reached. Please wait a moment and try again."
+                                                            : message);
         }
 
         if (response.StatusCode == HttpStatusCode.BadGateway)
