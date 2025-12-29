@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.ServiceDiscovery;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -82,11 +81,6 @@ public static class Extensions
             http.AddServiceDiscovery();
         });
 
-        builder.Services.Configure<ServiceDiscoveryOptions>(options =>
-        {
-            options.AllowedSchemes = ["https"];
-        });
-
         return builder;
     }
 
@@ -115,7 +109,7 @@ public static class Extensions
                 {
                     tracing.AddSource(builder.Environment.ApplicationName)
                            .AddAspNetCoreInstrumentation(tracing => tracing.Filter = context => !context.Request.Path.StartsWithSegments(HealthEndpointPath) && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath))
-                            //.AddGrpcClientInstrumentation()
+                           //.AddGrpcClientInstrumentation()
                            .AddHttpClientInstrumentation();
                 });
 
