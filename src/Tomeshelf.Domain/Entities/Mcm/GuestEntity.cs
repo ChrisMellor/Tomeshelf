@@ -12,7 +12,7 @@ public class GuestEntity
 
     public GuestInfoEntity Information { get; set; }
 
-    public Guid EventId { get; set; }
+    public string EventId { get; set; }
 
     public EventEntity Event { get; set; }
 }

@@ -12,7 +12,7 @@ public sealed class EventEntity
     /// <summary>
     ///     Gets or sets the unique identifier for the entity.
     /// </summary>
-    public Guid Id { get; set; }
+    public string Id { get; set; }
 
     /// <summary>
     ///     Gets or sets the name associated with the object.

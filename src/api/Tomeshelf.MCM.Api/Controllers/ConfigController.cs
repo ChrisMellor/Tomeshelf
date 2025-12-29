@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Mcm.Api.Models;
@@ -10,12 +10,14 @@ using Tomeshelf.Mcm.Api.Services;
 namespace Tomeshelf.Mcm.Api.Controllers;
 
 /// <summary>
-///     Defines API endpoints for managing application configuration settings.
+///     Defines API endpoints for managing event configuration data, including retrieving, updating, and deleting event
+///     configurations.
 /// </summary>
 /// <remarks>
-///     This controller provides actions to update configuration values via HTTP requests. It is intended to
-///     be used by authorized clients to modify application settings at runtime. All routes are relative to the controller
-///     name (e.g., '/Config').
+///     This controller provides RESTful endpoints for event configuration management. All actions require
+///     appropriate authorization as configured in the application. The controller is registered at the route 'Config', and
+///     all endpoints are relative to this base route. Thread safety and request handling are managed by ASP.NET Core's
+///     controller infrastructure.
 /// </remarks>
 [ApiController]
 [Route("[controller]")]
@@ -24,27 +26,30 @@ public class ConfigController : ControllerBase
     private readonly IEventService _eventService;
 
     /// <summary>
-    ///     Initializes a new instance of the ConfigController class with the specified event configuration service.
+    ///     Initializes a new instance of the ConfigController class with the specified event service.
     /// </summary>
-    /// <param name="eventService">The service used to manage and retrieve event configuration data. Cannot be null.</param>
+    /// <param name="eventService">
+    ///     The event service used to handle event-related operations for the controller. Cannot be
+    ///     null.
+    /// </param>
     public ConfigController(IEventService eventService)
     {
         _eventService = eventService;
     }
 
     /// <summary>
-    ///     Deletes the event configuration with the specified identifier.
+    ///     Deletes the event with the specified identifier.
     /// </summary>
-    /// <param name="id">The unique identifier of the event configuration to delete.</param>
+    /// <param name="id">The unique identifier of the event to delete. Cannot be null or empty.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
     /// <returns>
-    ///     A 204 No Content response if the event configuration was deleted successfully; otherwise, a 404 Not Found response
-    ///     if no configuration with the specified identifier exists.
+    ///     A 204 No Content response if the event was successfully deleted; otherwise, a 404 Not Found response if no event
+    ///     with the specified identifier exists.
     /// </returns>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete([FromRoute] string id, CancellationToken cancellationToken)
     {
         var isDeleted = await _eventService.DeleteAsync(id, cancellationToken);
 
@@ -57,7 +62,7 @@ public class ConfigController : ControllerBase
     }
 
     /// <summary>
-    ///     Retrieves all event configuration models.
+    ///     Retrieves a collection of event configuration models.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>
@@ -68,20 +73,27 @@ public class ConfigController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<EventConfigModel>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var eventConfigs = await _eventService.GetAllAsync(cancellationToken);
+        var eventEntities = await _eventService.GetAllAsync(cancellationToken);
+
+        var eventConfigs = eventEntities
+                          .Select(entity => new EventConfigModel
+                          {
+                              Id = entity.Id,
+                              Name = entity.Name
+                          })
+                          .ToList();
 
         return Ok(eventConfigs);
     }
 
     /// <summary>
-    ///     Updates the event configuration with the specified settings.
+    ///     Updates the event configuration with the specified values.
     /// </summary>
     /// <param name="model">The event configuration data to update. Cannot be null.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the update operation.</param>
     /// <returns>
-    ///     An <see cref="IActionResult" /> that indicates the result of the update operation. Returns HTTP 202 (Accepted) if
-    ///     the
-    ///     update is successful.
+    ///     An <see cref="IActionResult" /> indicating the result of the update operation. Returns 200 OK if the update is
+    ///     successful.
     /// </returns>
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status200OK)]

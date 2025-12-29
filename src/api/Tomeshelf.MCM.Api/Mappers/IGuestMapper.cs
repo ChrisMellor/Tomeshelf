@@ -1,57 +1,35 @@
-﻿using System;
-using Tomeshelf.Domain.Entities.Mcm;
+﻿using Tomeshelf.Domain.Entities.Mcm;
 
 namespace Tomeshelf.Mcm.Api.Mappers;
 
 /// <summary>
-///     Defines methods for mapping, cloning, and updating guest entities within the context of events.
+///     Defines methods for retrieving, cloning, and updating guest entities within an event management context.
 /// </summary>
-/// <remarks>
-///     Implementations of this interface provide functionality to retrieve guest display names, clone guest
-///     data for different events, and update guest information. These operations are intended to facilitate consistent
-///     handling of guest entities across event-related workflows.
-/// </remarks>
 public interface IGuestMapper
 {
     /// <summary>
-    ///     Returns the full name of the specified guest, combining the first and last names if available.
+    ///     Creates a new guest entity for the specified event by cloning the details from an existing guest entity.
     /// </summary>
-    /// <param name="guest">The guest entity from which to retrieve the full name. Cannot be null.</param>
+    /// <param name="eventId">The unique identifier of the event for which the guest entity is to be created.</param>
+    /// <param name="source">The guest entity whose details are to be cloned. Cannot be null.</param>
     /// <returns>
-    ///     A string containing the guest's full name, or an empty string if both first and last names are missing or
-    ///     whitespace.
+    ///     A new GuestEntity instance associated with the specified event, containing the cloned details from the source
+    ///     entity.
     /// </returns>
+    GuestEntity CloneForEvent(string eventId, GuestEntity source);
+
+    /// <summary>
+    ///     Retrieves the unique key associated with the specified guest.
+    /// </summary>
+    /// <param name="guest">The guest entity for which to obtain the unique key. Cannot be null.</param>
+    /// <returns>A string containing the unique key for the specified guest.</returns>
     string GetGuestKey(GuestEntity guest);
 
     /// <summary>
-    ///     Creates a new GuestEntity instance for the specified event by cloning the provided source guest's information.
+    ///     Updates the properties of the specified guest entity with values from another guest entity.
     /// </summary>
-    /// <remarks>
-    ///     The cloned guest will have its IsDeleted property set to false, and new identifiers will be
-    ///     generated for any missing or empty IDs in the source. The method does not modify the source instance.
-    /// </remarks>
-    /// <param name="eventId">The unique identifier of the event to associate with the cloned guest.</param>
-    /// <param name="source">The GuestEntity instance to clone. Must not be null.</param>
-    /// <returns>
-    ///     A new GuestEntity instance containing the cloned information from the source, associated with the specified
-    ///     event.
-    /// </returns>
-    GuestEntity CloneForEvent(Guid eventId, GuestEntity source);
-
-    /// <summary>
-    ///     Updates the properties of the specified target guest entity with values from the source guest entity.
-    /// </summary>
-    /// <remarks>
-    ///     If the target entity is marked as deleted, this method restores it before applying updates.
-    ///     The method ensures that the target entity and its related information and social properties are initialized as
-    ///     needed. Only string properties are copied from the source to the target. No changes are made if the source
-    ///     entity's Information property is null.
-    /// </remarks>
-    /// <param name="target">The guest entity to update. This object will be modified with values from the source entity.</param>
-    /// <param name="source">
-    ///     The guest entity containing the updated values to copy to the target entity. Must have a non-null Information
-    ///     property.
-    /// </param>
-    /// <returns>true if any properties of the target entity were changed; otherwise, false.</returns>
+    /// <param name="target">The guest entity to be updated. Cannot be null.</param>
+    /// <param name="source">The guest entity containing the updated values. Cannot be null.</param>
+    /// <returns>true if the update was successful; otherwise, false.</returns>
     bool UpdateGuest(GuestEntity target, GuestEntity source);
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Domain.Entities.Mcm;
@@ -9,22 +8,23 @@ using Tomeshelf.Mcm.Api.Repositories;
 namespace Tomeshelf.Mcm.Api.Services;
 
 /// <summary>
-///     Provides methods for managing event configuration data, including retrieval, insertion, updating, and deletion of
-///     event configurations.
+///     Provides methods for managing event configuration entities, including retrieval, creation, update, and deletion
+///     operations.
 /// </summary>
 /// <remarks>
-///     This service acts as an abstraction over the event configuration data store, enabling asynchronous
-///     operations for event configuration entities. All methods support cancellation via a cancellation token. Thread
-///     safety and transaction management depend on the underlying repository implementation.
+///     The EventService class serves as the primary entry point for interacting with event configuration
+///     data. It abstracts the underlying data repository and exposes asynchronous methods for common event management
+///     tasks. This class is typically used in application layers that require access to event configuration
+///     functionality.
 /// </remarks>
 public class EventService : IEventService
 {
     private readonly IEventRepository _eventRepository;
 
     /// <summary>
-    ///     Initializes a new instance of the EventService class using the specified event configuration repository.
+    ///     Initializes a new instance of the EventService class using the specified event repository.
     /// </summary>
-    /// <param name="eventRepository">The repository used to access and manage event configuration data. Cannot be null.</param>
+    /// <param name="eventRepository">The repository used to access and manage event data. Cannot be null.</param>
     public EventService(IEventRepository eventRepository)
     {
         _eventRepository = eventRepository;
@@ -33,24 +33,24 @@ public class EventService : IEventService
     /// <summary>
     ///     Asynchronously deletes the event with the specified identifier.
     /// </summary>
-    /// <param name="id">The unique identifier of the event to delete.</param>
+    /// <param name="id">The unique identifier of the event to delete. Cannot be null or empty.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation. The task result is <see langword="true" /> if the event was
     ///     successfully deleted; otherwise, <see langword="false" />.
     /// </returns>
-    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<bool> DeleteAsync(string id, CancellationToken cancellationToken)
     {
         return await _eventRepository.DeleteAsync(id, cancellationToken);
     }
 
     /// <summary>
-    ///     Asynchronously retrieves all event configuration entities.
+    ///     Asynchronously retrieves all event entities from the data store.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation. The task result contains a read-only list of all event
-    ///     configuration entities. The list will be empty if no entities are found.
+    ///     entities.
     /// </returns>
     public async Task<IReadOnlyList<EventEntity>> GetAllAsync(CancellationToken cancellationToken)
     {
@@ -58,7 +58,7 @@ public class EventService : IEventService
     }
 
     /// <summary>
-    ///     Creates a new event configuration or updates an existing one asynchronously.
+    ///     Inserts a new event configuration or updates an existing one asynchronously.
     /// </summary>
     /// <param name="model">The event configuration model to insert or update. Cannot be null.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>

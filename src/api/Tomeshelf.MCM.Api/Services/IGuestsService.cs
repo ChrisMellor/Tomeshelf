@@ -6,49 +6,34 @@ using Tomeshelf.Mcm.Api.Models;
 namespace Tomeshelf.Mcm.Api.Services;
 
 /// <summary>
-///     Defines methods for synchronizing, retrieving, and deleting guest data associated with a specific event
-///     configuration.
+///     Defines methods for retrieving and synchronizing guest data for a specified event configuration.
 /// </summary>
-/// <remarks>
-///     Implementations of this interface provide asynchronous operations for managing guest information in
-///     the context of event configurations. All methods support cancellation via a <see cref="CancellationToken" /> to
-///     allow
-///     responsive and robust client applications.
-/// </remarks>
 public interface IGuestsService
 {
     /// <summary>
-    ///     Synchronizes guest data for the specified event configuration asynchronously.
-    /// </summary>
-    /// <param name="model">
-    ///     The event configuration model that defines the parameters and settings for the guest synchronization operation.
-    ///     Cannot be null.
-    /// </param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
-    /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains a <see cref="GuestSyncResultDto" />
-    ///     with the outcome of the guest synchronization.
-    /// </returns>
-    Task<GuestSyncResultDto> SyncAsync(EventConfigModel model, CancellationToken cancellationToken);
-
-    /// <summary>
     ///     Asynchronously retrieves a paged list of guests for the specified event configuration.
     /// </summary>
-    /// <param name="model">The event configuration model that specifies the criteria for selecting guests. Cannot be null.</param>
-    /// <param name="page">The one-based index of the page to retrieve. Must be greater than or equal to 1.</param>
+    /// <param name="model">The event configuration used to filter or identify the guests to retrieve. Cannot be null.</param>
+    /// <param name="page">The zero-based index of the page to retrieve. Must be greater than or equal to 0.</param>
     /// <param name="pageSize">The maximum number of guests to include in a single page. Must be greater than 0.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains a paged result of guest data
-    ///     transfer objects. The result will be empty if no guests match the specified criteria.
+    ///     A task that represents the asynchronous operation. The task result contains a
+    ///     <see
+    ///         cref="PagedResult{GuestDto}" />
+    ///     with the guests for the specified page. The result may be empty if no guests
+    ///     match the criteria.
     /// </returns>
     Task<PagedResult<GuestDto>> GetAsync(EventConfigModel model, int page, int pageSize, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Asynchronously deletes the specified event configuration.
+    ///     Synchronizes guest data based on the specified event configuration.
     /// </summary>
-    /// <param name="model">The event configuration to delete. Cannot be null.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the delete operation.</param>
-    /// <returns>A task that represents the asynchronous delete operation.</returns>
-    Task DeleteAsync(EventConfigModel model, CancellationToken cancellationToken);
+    /// <param name="model">The event configuration that determines which guest data to synchronize. Cannot be null.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the synchronization operation.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains a <see cref="GuestSyncResultDto" />
+    ///     with details about the synchronization outcome.
+    /// </returns>
+    Task<GuestSyncResultDto> SyncAsync(EventConfigModel model, CancellationToken cancellationToken);
 }

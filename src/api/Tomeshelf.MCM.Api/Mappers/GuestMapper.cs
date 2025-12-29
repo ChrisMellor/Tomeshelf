@@ -5,80 +5,70 @@ using Tomeshelf.Domain.Entities.Mcm;
 namespace Tomeshelf.Mcm.Api.Mappers;
 
 /// <summary>
-///     Provides methods for mapping, cloning, and updating guest entities, including utilities for generating guest
-///     display
-///     names and duplicating guest information for events.
+///     Provides methods for cloning, updating, and retrieving information about guest entities, including mapping guest
+///     data between different event contexts.
 /// </summary>
 /// <remarks>
-///     The GuestMapper class is intended for use in scenarios where guest data needs to be transformed,
-///     cloned, or updated across different event contexts. All methods operate on the provided guest entities and do not
-///     persist changes to a data store. Thread safety is not guaranteed; callers should ensure appropriate synchronization
-///     if accessing shared instances concurrently.
+///     The GuestMapper class is typically used to manage guest entity data within event management systems,
+///     enabling operations such as cloning guest records for new events, updating guest details, and generating display
+///     keys. All methods assume that input entities are valid and may throw exceptions if null arguments are provided.
+///     This
+///     class is not thread-safe.
 /// </remarks>
 public class GuestMapper : IGuestMapper
 {
     /// <summary>
-    ///     Returns the full name of the specified guest, combining the first and last names if available.
-    /// </summary>
-    /// <param name="guest">The guest entity from which to retrieve the full name. Cannot be null.</param>
-    /// <returns>
-    ///     A string containing the guest's full name, or an empty string if both first and last names are missing or
-    ///     whitespace.
-    /// </returns>
-    public string GetGuestKey(GuestEntity guest)
-    {
-        var firstName = guest.Information?.FirstName?.Trim() ?? string.Empty;
-        var lastName = guest.Information?.LastName?.Trim() ?? string.Empty;
-        var fullName = $"{firstName} {lastName}".Trim();
-
-        return string.IsNullOrWhiteSpace(fullName)
-                ? string.Empty
-                : fullName;
-    }
-
-    /// <summary>
-    ///     Creates a new GuestEntity instance for the specified event by cloning the provided source guest's information.
+    ///     Creates a new GuestEntity instance for the specified event by cloning the provided source guest entity.
     /// </summary>
     /// <remarks>
-    ///     The cloned guest will have its IsDeleted property set to false, and new identifiers will be
-    ///     generated for any missing or empty IDs in the source. The method does not modify the source instance.
+    ///     The cloned guest entity will have the same information and social details as the source, but will be
+    ///     associated with the provided event identifier. If the source or its nested entities do not have valid identifiers,
+    ///     new unique identifiers will be generated as needed. The IsDeleted property of the cloned entity is set to
+    ///     false.
     /// </remarks>
-    /// <param name="eventId">The unique identifier of the event to associate with the cloned guest.</param>
+    /// <param name="eventId">The identifier of the event to associate with the cloned guest entity.</param>
     /// <param name="source">The GuestEntity instance to clone. Must not be null.</param>
     /// <returns>
-    ///     A new GuestEntity instance containing the cloned information from the source, associated with the specified
-    ///     event.
+    ///     A new GuestEntity instance associated with the specified event, containing copied information from the source
+    ///     entity.
     /// </returns>
-    public GuestEntity CloneForEvent(Guid eventId, GuestEntity source)
+    public GuestEntity CloneForEvent(string eventId, GuestEntity source)
     {
         var guestId = source.Id != Guid.Empty
-                ? source.Id
-                : Guid.NewGuid();
+        ? source.Id
+        : Guid.NewGuid();
+
         var infoId = source.Information?.Id != Guid.Empty
-                ? source.Information!.Id
-                : Guid.NewGuid();
-        var socialId = source.Information?.Socials?.Id != Guid.Empty
-                ? source.Information!.Socials!.Id
-                : Guid.NewGuid();
+        ? source.Information!.Id
+        : Guid.NewGuid();
 
         var sourceInfo = source.Information ?? new GuestInfoEntity();
-        var sourceSocial = sourceInfo.Socials ?? new GuestSocial();
+        var sourceSocial = sourceInfo.Socials;
 
-        var social = new GuestSocial
+        GuestSocial social = null;
+
+        if (sourceSocial is not null)
         {
-            Id = socialId,
-            GuestInfoId = infoId,
-            Twitter = sourceSocial.Twitter,
-            Facebook = sourceSocial.Facebook,
-            Instagram = sourceSocial.Instagram,
-            Imdb = sourceSocial.Imdb,
-            YouTube = sourceSocial.YouTube,
-            Twitch = sourceSocial.Twitch,
-            Snapchat = sourceSocial.Snapchat,
-            DeviantArt = sourceSocial.DeviantArt,
-            Tumblr = sourceSocial.Tumblr,
-            Fandom = sourceSocial.Fandom
-        };
+            var socialId = sourceSocial.Id != Guid.Empty
+            ? sourceSocial.Id
+            : Guid.NewGuid();
+
+            social = new GuestSocial
+            {
+                Id = socialId,
+                GuestInfoId = infoId,
+                Twitter = sourceSocial.Twitter,
+                Facebook = sourceSocial.Facebook,
+                Instagram = sourceSocial.Instagram,
+                Imdb = sourceSocial.Imdb,
+                YouTube = sourceSocial.YouTube,
+                Twitch = sourceSocial.Twitch,
+                Snapchat = sourceSocial.Snapchat,
+                DeviantArt = sourceSocial.DeviantArt,
+                Tumblr = sourceSocial.Tumblr,
+                Fandom = sourceSocial.Fandom
+            };
+        }
 
         var information = new GuestInfoEntity
         {
@@ -107,20 +97,39 @@ public class GuestMapper : IGuestMapper
     }
 
     /// <summary>
-    ///     Updates the properties of the specified target guest entity with values from the source guest entity.
+    ///     Generates a display key for the specified guest based on their first and last name.
+    /// </summary>
+    /// <param name="guest">The guest entity from which to retrieve the display name. Cannot be null.</param>
+    /// <returns>
+    ///     A string containing the guest's full name, or an empty string if both first and last names are missing or
+    ///     whitespace.
+    /// </returns>
+    public string GetGuestKey(GuestEntity guest)
+    {
+        var firstName = guest.Information?.FirstName?.Trim() ?? string.Empty;
+        var lastName = guest.Information?.LastName?.Trim() ?? string.Empty;
+        var fullName = $"{firstName} {lastName}".Trim();
+
+        return string.IsNullOrWhiteSpace(fullName)
+        ? string.Empty
+        : fullName;
+    }
+
+    /// <summary>
+    ///     Updates the specified guest entity with information from another guest entity.
     /// </summary>
     /// <remarks>
-    ///     If the target entity is marked as deleted, this method restores it before applying updates.
-    ///     The method ensures that the target entity and its related information and social properties are initialized as
-    ///     needed. Only string properties are copied from the source to the target. No changes are made if the source
-    ///     entity's Information property is null.
+    ///     This method copies relevant properties from the source entity to the target entity, including
+    ///     nested information and social details. If the source entity's Information property is null, no updates are
+    ///     performed and false is returned. The method ensures that identifiers and relationships between the guest and its
+    ///     information are consistent after the update.
     /// </remarks>
     /// <param name="target">The guest entity to update. This object will be modified with values from the source entity.</param>
     /// <param name="source">
-    ///     The guest entity containing the updated values to copy to the target entity. Must have a non-null Information
-    ///     property.
+    ///     The guest entity containing the updated information to apply to the target entity. Must have a non-null
+    ///     Information property.
     /// </param>
-    /// <returns>true if any properties of the target entity were changed; otherwise, false.</returns>
+    /// <returns>true if any changes were made to the target entity; otherwise, false.</returns>
     public bool UpdateGuest(GuestEntity target, GuestEntity source)
     {
         var sourceInfo = source.Information;
@@ -130,6 +139,7 @@ public class GuestMapper : IGuestMapper
         }
 
         var changed = false;
+        var sourceSocial = sourceInfo.Socials;
 
         if (target.IsDeleted)
         {
@@ -137,40 +147,96 @@ public class GuestMapper : IGuestMapper
             changed = true;
         }
 
-        target.Information ??= new GuestInfoEntity
+        if (target.Information is null)
         {
-            Id = Guid.NewGuid(),
-            GuestId = target.Id
-        };
+            var infoId = target.GuestInfoId != Guid.Empty ? target.GuestInfoId : sourceInfo.Id != Guid.Empty ? sourceInfo.Id : Guid.NewGuid();
 
-        target.Information.Socials ??= new GuestSocial
+            target.Information = new GuestInfoEntity
+            {
+                Id = infoId,
+                GuestId = target.Id,
+                Socials = null
+            };
+
+            target.GuestInfoId = infoId;
+            changed = true;
+        }
+        else
         {
-            Id = Guid.NewGuid(),
-            GuestInfoId = target.Information.Id
-        };
+            if (target.Information.Id == Guid.Empty)
+            {
+                target.Information.Id = target.GuestInfoId != Guid.Empty ? target.GuestInfoId : sourceInfo.Id != Guid.Empty ? sourceInfo.Id : Guid.NewGuid();
+                changed = true;
+            }
+
+            if (target.GuestInfoId == Guid.Empty)
+            {
+                target.GuestInfoId = target.Information.Id;
+                changed = true;
+            }
+
+            if (target.Information.GuestId != target.Id)
+            {
+                target.Information.GuestId = target.Id;
+                changed = true;
+            }
+        }
 
         changed |= CopyStringProperties(target.Information, sourceInfo);
 
-        if (sourceInfo.Socials is not null)
+        if (sourceSocial is null)
         {
-            changed |= CopyStringProperties(target.Information.Socials, sourceInfo.Socials);
+            if (target.Information.Socials is not null)
+            {
+                target.Information.Socials = null;
+                changed = true;
+            }
+        }
+        else
+        {
+            target.Information.Socials ??= new GuestSocial
+            {
+                Id = sourceSocial.Id != Guid.Empty
+                ? sourceSocial.Id
+                : Guid.NewGuid(),
+                GuestInfoId = target.Information.Id
+            };
+
+            if (target.Information.Socials.Id == Guid.Empty)
+            {
+                target.Information.Socials.Id = sourceSocial.Id != Guid.Empty
+                ? sourceSocial.Id
+                : Guid.NewGuid();
+                changed = true;
+            }
+
+            if (target.Information.Socials.GuestInfoId != target.Information.Id)
+            {
+                target.Information.Socials.GuestInfoId = target.Information.Id;
+                changed = true;
+            }
+
+            changed |= CopyStringProperties(target.Information.Socials, sourceSocial);
         }
 
         return changed;
     }
 
     /// <summary>
-    ///     Copies all public instance string property values from the source object to the target object if they differ,
-    ///     using ordinal comparison.
+    ///     Copies all public instance string property values from the source object to the target object if they differ, using
+    ///     ordinal comparison.
     /// </summary>
     /// <remarks>
-    ///     Only public instance properties of type string that are both readable and writable are
-    ///     considered. Property values are compared using ordinal string comparison. Properties with equal values are not
-    ///     updated.
+    ///     Only public instance properties of type string that are both readable and writable are considered.
+    ///     Property values are compared using ordinal string comparison. Properties are set on the target only if the values
+    ///     differ. Both target and source must be of the same type.
     /// </remarks>
     /// <typeparam name="T">The type of the objects whose string properties are to be copied. Must be a reference type.</typeparam>
-    /// <param name="target">The object whose string properties will be updated to match those of the source. Cannot be null.</param>
-    /// <param name="source">The object from which string property values are copied. Cannot be null.</param>
+    /// <param name="target">
+    ///     The object whose string property values will be updated to match those of the source object. Must
+    ///     not be null.
+    /// </param>
+    /// <param name="source">The object from which string property values are copied. Must not be null.</param>
     /// <returns>true if at least one string property value was changed on the target object; otherwise, false.</returns>
     private static bool CopyStringProperties<T>(T target, T source) where T : class
     {
@@ -184,8 +250,8 @@ public class GuestMapper : IGuestMapper
                 continue;
             }
 
-            var sourceValue = (string)property.GetValue(source);
-            var targetValue = (string)property.GetValue(target);
+            var sourceValue = property.GetValue(source) as string;
+            var targetValue = property.GetValue(target) as string;
 
             if (!string.Equals(targetValue, sourceValue, StringComparison.Ordinal))
             {

@@ -1,19 +1,17 @@
-﻿using System;
-
-namespace Tomeshelf.Mcm.Api.Models;
+﻿namespace Tomeshelf.Mcm.Api.Models;
 
 /// <summary>
-///     Represents a configuration entity with a unique identifier and a name.
+///     Represents the configuration settings for an event, including its unique identifier and name.
 /// </summary>
 public class EventConfigModel
 {
     /// <summary>
-    ///     Gets or sets the unique identifier for the entity.
+    ///     Gets the unique identifier for this instance.
     /// </summary>
-    public Guid Id { get; init; }
+    public string Id { get; init; }
 
     /// <summary>
-    ///     Gets or sets the name associated with the object.
+    ///     Gets the name associated with the object.
     /// </summary>
     public string Name { get; init; }
 }

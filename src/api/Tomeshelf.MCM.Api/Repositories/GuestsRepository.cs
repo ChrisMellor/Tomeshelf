@@ -10,13 +10,14 @@ using Tomeshelf.Mcm.Api.Records;
 namespace Tomeshelf.Mcm.Api.Repositories;
 
 /// <summary>
-///     Provides methods for managing guest records associated with events, including retrieval, synchronization, and
-///     deletion operations.
+///     Provides data access methods for retrieving and managing guest and event information in the Tomeshelf system.
 /// </summary>
 /// <remarks>
-///     This repository encapsulates data access logic for guest-related operations within the event context.
-///     All methods are asynchronous and require a valid database context. Thread safety is determined by the underlying
-///     database context implementation.
+///     This repository encapsulates operations related to guests and their associated events, including
+///     retrieval of event details with guests, paginated guest listings, and saving changes to the database. All
+///     operations
+///     are performed asynchronously and require a valid database context. This class is not thread-safe; use a separate
+///     instance per operation scope as recommended for Entity Framework Core repositories.
 /// </remarks>
 public class GuestsRepository : IGuestsRepository
 {
@@ -32,36 +33,19 @@ public class GuestsRepository : IGuestsRepository
     }
 
     /// <summary>
-    ///     Asynchronously deletes all event records with the specified event identifier.
+    ///     Asynchronously retrieves an event by its identifier, including its associated guests and their related information
+    ///     and socials.
     /// </summary>
-    /// <param name="eventId">
-    ///     The unique identifier of the event to delete. Only records matching this identifier will be
-    ///     removed.
-    /// </param>
-    /// <param name="cancellationToken">A token that can be used to cancel the delete operation.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the number of records deleted.</returns>
-    public async Task<int> DeleteAllAsync(Guid eventId, CancellationToken cancellationToken)
-    {
-        return await _dbContext.Events.Where(x => x.Id == eventId)
-                               .ExecuteDeleteAsync(cancellationToken);
-    }
-
-    /// <summary>
-    ///     Asynchronously retrieves the event with the specified identifier, including its guests and related information.
-    /// </summary>
-    /// <remarks>
-    ///     The returned event includes its guests, each guest's information, and their associated social
-    ///     profiles. If no event with the specified identifier exists, the result is null.
-    /// </remarks>
-    /// <param name="eventId">The unique identifier of the event to retrieve.</param>
+    /// <param name="eventId">The unique identifier of the event to retrieve. Cannot be null.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation. The task result contains the event entity with its guests and
-    ///     their associated information if found; otherwise, null.
+    ///     their related information and socials, or null if no event with the specified identifier is found.
     /// </returns>
-    public async Task<EventEntity> GetGuestsByIdAsync(Guid eventId, CancellationToken cancellationToken)
+    public async Task<EventEntity> GetEventWithGuestsAsync(string eventId, CancellationToken cancellationToken)
     {
-        return await _dbContext.Events.Include(e => e.Guests)
+        return await _dbContext.Events
+                               .Include(e => e.Guests)
                                .ThenInclude(g => g.Information)
                                .ThenInclude(i => i.Socials)
                                .SingleOrDefaultAsync(e => e.Id == eventId, cancellationToken);
@@ -72,20 +56,21 @@ public class GuestsRepository : IGuestsRepository
     /// </summary>
     /// <param name="eventId">The unique identifier of the event for which to retrieve guest records.</param>
     /// <param name="page">The one-based page number to retrieve. Must be greater than or equal to 1.</param>
-    /// <param name="pageSize">The maximum number of guest records to include in the page. Must be greater than 0.</param>
+    /// <param name="pageSize">The number of guest records to include in each page. Must be greater than or equal to 1.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains a snapshot of guest records for the
-    ///     specified page, including the total number of guests and the list of guest records for the page. If the page is
-    ///     beyond the available data, the list will be empty.
+    ///     A task that represents the asynchronous operation. The task result contains a <see cref="GuestSnapshot" /> with the
+    ///     total number of guests and the guest records for the specified page. If no guests are found, the items collection
+    ///     will be empty.
     /// </returns>
-    public async Task<GuestSnapshot> GetPageAsync(Guid eventId, int page, int pageSize, CancellationToken cancellationToken)
+    public async Task<GuestSnapshot> GetPageAsync(string eventId, int page, int pageSize, CancellationToken cancellationToken)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
         ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1);
 
-        var query = _dbContext.Guests.AsNoTracking()
-                              .Where(g => g.Id == eventId);
+        var query = _dbContext.Guests
+                              .AsNoTracking()
+                              .Where(g => (g.EventId == eventId) && !g.IsDeleted);
 
         var total = await query.CountAsync(cancellationToken);
         var skip = (page - 1) * pageSize;
@@ -94,14 +79,16 @@ public class GuestsRepository : IGuestsRepository
                                .ThenBy(g => g.Information.LastName)
                                .Skip(skip)
                                .Take(pageSize)
-                               .Select(g => new GuestRecord(g.Information.FirstName + " " + g.Information.LastName, g.Information.Bio, g.Information.Socials.Imdb))
+                               .Select(g => new GuestRecord(g.Information.FirstName + " " + g.Information.LastName, g.Information.Bio, g.Information.Socials != null
+                                                                ? g.Information.Socials.Imdb
+                                                                : null, g.Information.ImageUrl))
                                .ToListAsync(cancellationToken);
 
         return new GuestSnapshot(total, items);
     }
 
     /// <summary>
-    ///     Asynchronously saves all changes made in the context to the underlying database.
+    ///     Asynchronously saves all changes made in the current context to the underlying database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the save operation.</param>
     /// <returns>A task that represents the asynchronous save operation.</returns>
