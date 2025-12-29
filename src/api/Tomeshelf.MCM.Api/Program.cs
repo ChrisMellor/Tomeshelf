@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Mcm.Api.Clients;
 using Tomeshelf.Mcm.Api.Mappers;
@@ -27,13 +29,13 @@ public class Program
     ///     Configures and runs the Tomeshelf.Mcm.Api web application.
     /// </summary>
     /// <remarks>
-    ///     This method sets up services, middleware, and endpoints for the ASP.NET Core application,
-    ///     including controllers, JSON serialization options, OpenAPI/Swagger documentation, database context, and HTTP
-    ///     clients. It is the entry point of the application and is typically called by the runtime. No return value is
-    ///     expected.
+    ///     This method sets up application services, configures controllers, OpenAPI/Swagger, database
+    ///     context, and HTTP clients, applies any pending database migrations, and starts the web server. It is the entry
+    ///     point for the application and is typically invoked by the runtime.
     /// </remarks>
     /// <param name="args">An array of command-line arguments to configure the application at startup.</param>
-    public static void Main(string[] args)
+    /// <returns>A task that represents the asynchronous operation of running the web application.</returns>
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -79,6 +81,12 @@ public class Program
         app.UseHttpsRedirection();
         app.MapControllers();
 
-        app.Run();
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<TomeshelfMcmDbContext>();
+            await db.Database.MigrateAsync();
+        }
+
+        await app.RunAsync();
     }
 }
