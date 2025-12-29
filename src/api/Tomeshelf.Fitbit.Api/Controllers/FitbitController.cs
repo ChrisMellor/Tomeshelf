@@ -1,11 +1,11 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Tomeshelf.Application.Contracts;
 using Tomeshelf.Infrastructure.Fitness;
 
@@ -41,8 +41,8 @@ public sealed class FitbitController : ControllerBase
 
         using var scope = _logger.BeginScope(new
         {
-                Date = targetDate,
-                Refresh = shouldRefresh
+            Date = targetDate,
+            Refresh = shouldRefresh
         });
         _logger.LogInformation("Fetching Fitbit snapshot for {Date} (Refresh: {Refresh})", targetDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), shouldRefresh);
 
@@ -74,8 +74,8 @@ public sealed class FitbitController : ControllerBase
             return retryAfterSeconds.HasValue
                     ? StatusCode(429, new
                     {
-                            message = ex.Message,
-                            retryAfterSeconds
+                        message = ex.Message,
+                        retryAfterSeconds
                     })
                     : StatusCode(429, new { message = ex.Message });
         }

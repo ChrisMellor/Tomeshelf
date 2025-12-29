@@ -22,7 +22,8 @@ public class Program
 
         builder.AddServiceDefaults();
 
-        builder.Services.AddProblemDetails()
+        builder.Services
+               .AddProblemDetails()
                .AddOpenApi()
                .AddControllers();
 

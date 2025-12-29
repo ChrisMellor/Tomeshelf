@@ -1,10 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Tomeshelf.Domain.Entities.HumbleBundle;
 using Tomeshelf.Infrastructure.Persistence;
 
@@ -56,8 +56,8 @@ public sealed class BundleIngestService
             {
                 entity = new Bundle
                 {
-                        MachineName = scraped.MachineName,
-                        FirstSeenUtc = scraped.ObservedUtc
+                    MachineName = scraped.MachineName,
+                    FirstSeenUtc = scraped.ObservedUtc
                 };
                 _dbContext.Bundles.Add(entity);
                 existing[scraped.MachineName] = entity;

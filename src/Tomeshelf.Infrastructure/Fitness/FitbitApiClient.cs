@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -9,8 +11,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure.Fitness.Models;
 
@@ -165,8 +165,8 @@ internal sealed class FitbitApiClient : IFitbitApiClient
     {
         if (response.Headers.RetryAfter is
             {
-                    Delta:
-                    { } delta
+                Delta:
+                { } delta
             })
         {
             return delta > TimeSpan.Zero
@@ -215,7 +215,7 @@ internal sealed class FitbitApiClient : IFitbitApiClient
     private async Task<bool> EnsureAccessTokenAsync(CancellationToken cancellationToken)
     {
         if (_tokenCache.ExpiresAtUtc is
-                    { } expiresAt &&
+            { } expiresAt &&
             (expiresAt <= DateTimeOffset.UtcNow.AddMinutes(-1)))
         {
             await TryRefreshTokenAsync(cancellationToken)
@@ -250,11 +250,11 @@ internal sealed class FitbitApiClient : IFitbitApiClient
 
         using var request = new HttpRequestMessage(HttpMethod.Post, "oauth2/token")
         {
-                Content = new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                        ["grant_type"] = "refresh_token",
-                        ["refresh_token"] = refreshToken
-                })
+            Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = "refresh_token",
+                ["refresh_token"] = refreshToken
+            })
         };
 
         var credentials = $"{options.ClientId}:{options.ClientSecret}";

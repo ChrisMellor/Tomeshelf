@@ -1,12 +1,12 @@
 #nullable enable
 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Tomeshelf.Paissa.Api.Models;
 
 namespace Tomeshelf.Paissa.Api.Services;
@@ -35,10 +35,10 @@ public sealed class PaissaHousingService
         foreach (var district in world.Districts)
         {
             var plotsBySize = district.OpenPlots.Select(plot => new
-                                       {
-                                               Plot = plot,
-                                               SizeKey = MapSizeKey(plot.Size)
-                                       })
+            {
+                Plot = plot,
+                SizeKey = MapSizeKey(plot.Size)
+            })
                                       .Where(x => x.SizeKey is not null && (x.Plot.LotteryPhase == (int)LotteryPhase.AcceptingEntries))
                                       .GroupBy(x => x.SizeKey!, StringComparer.OrdinalIgnoreCase)
                                       .ToDictionary(group => group.Key, group => group.Select(x => MapPlot(x.Plot))
@@ -84,10 +84,10 @@ public sealed class PaissaHousingService
     {
         return rawSize switch
         {
-                2 => "large",
-                1 => "medium",
-                0 => "small",
-                _ => null
+            2 => "large",
+            1 => "medium",
+            0 => "small",
+            _ => null
         };
     }
 

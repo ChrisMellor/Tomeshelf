@@ -34,7 +34,8 @@ public static class Program
             });
         }
 
-        builder.Services.AddProblemDetails()
+        builder.Services
+               .AddProblemDetails()
                .AddOpenApi()
                .AddControllers()
                .AddJsonOptions(options =>

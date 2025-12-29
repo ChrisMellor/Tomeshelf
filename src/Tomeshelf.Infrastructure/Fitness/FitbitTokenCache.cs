@@ -29,11 +29,11 @@ public sealed class FitbitTokenCache
         {
             var value = options.Value;
             _accessToken = string.IsNullOrWhiteSpace(value.AccessToken)
-                    ? null
-                    : value.AccessToken;
+                ? null
+                : value.AccessToken;
             _refreshToken = string.IsNullOrWhiteSpace(value.RefreshToken)
-                    ? null
-                    : value.RefreshToken;
+                ? null
+                : value.RefreshToken;
             _expiresAtUtc = null;
 
             if (_accessToken is not null || _refreshToken is not null)
@@ -76,21 +76,6 @@ public sealed class FitbitTokenCache
         }
     }
 
-    public void Update(string accessToken, string refreshToken, DateTimeOffset? expiresAtUtc)
-    {
-        lock (_sync)
-        {
-            _accessToken = accessToken;
-            if (!string.IsNullOrEmpty(refreshToken))
-            {
-                _refreshToken = refreshToken;
-            }
-
-            _expiresAtUtc = expiresAtUtc;
-            Persist();
-        }
-    }
-
     public void Clear()
     {
         lock (_sync)
@@ -99,33 +84,6 @@ public sealed class FitbitTokenCache
             _refreshToken = null;
             _expiresAtUtc = null;
             Persist();
-        }
-    }
-
-    private bool TryLoadFromDatabase()
-    {
-        try
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
-            var credential = dbContext.FitbitCredentials.AsNoTracking()
-                                      .SingleOrDefault();
-            if (credential is null)
-            {
-                return false;
-            }
-
-            _accessToken = credential.AccessToken;
-            _refreshToken = credential.RefreshToken;
-            _expiresAtUtc = credential.ExpiresAtUtc;
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to read Fitbit credentials from database.");
-
-            return false;
         }
     }
 
@@ -151,6 +109,49 @@ public sealed class FitbitTokenCache
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Failed to persist Fitbit credentials to database.");
+        }
+    }
+
+    private bool TryLoadFromDatabase()
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
+            var credential = dbContext.FitbitCredentials
+                                      .AsNoTracking()
+                                      .SingleOrDefault();
+            if (credential is null)
+            {
+                return false;
+            }
+
+            _accessToken = credential.AccessToken;
+            _refreshToken = credential.RefreshToken;
+            _expiresAtUtc = credential.ExpiresAtUtc;
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to read Fitbit credentials from database.");
+
+            return false;
+        }
+    }
+
+    public void Update(string accessToken, string refreshToken, DateTimeOffset? expiresAtUtc)
+    {
+        lock (_sync)
+        {
+            _accessToken = accessToken;
+            if (!string.IsNullOrEmpty(refreshToken))
+            {
+                _refreshToken = refreshToken;
+            }
+
+            _expiresAtUtc = expiresAtUtc;
+            Persist();
         }
     }
 }

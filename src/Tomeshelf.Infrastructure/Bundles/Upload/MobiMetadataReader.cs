@@ -6,6 +6,35 @@ namespace Tomeshelf.Infrastructure.Bundles.Upload;
 
 internal static class MobiMetadataReader
 {
+    private static string? DecodeNullTerminated(ReadOnlySpan<byte> bytes)
+    {
+        var zero = bytes.IndexOf((byte)0);
+        if (zero >= 0)
+        {
+            bytes = bytes[..zero];
+        }
+
+        var s = Encoding.Latin1
+                        .GetString(bytes)
+                        .Trim();
+
+        return string.IsNullOrWhiteSpace(s)
+            ? null
+            : s;
+    }
+
+    private static string DecodeText(ReadOnlySpan<byte> bytes)
+    {
+        try
+        {
+            return Encoding.UTF8.GetString(bytes);
+        }
+        catch
+        {
+            return Encoding.Latin1.GetString(bytes);
+        }
+    }
+
     public static DocumentMetadata GetMetadata(string path)
     {
         var data = File.ReadAllBytes(path);
@@ -52,35 +81,6 @@ internal static class MobiMetadataReader
         return meta;
     }
 
-    private static string? NullIfWhiteSpace(string? s)
-    {
-        return string.IsNullOrWhiteSpace(s) ? null : s.Trim();
-    }
-
-    private static string DecodeText(ReadOnlySpan<byte> bytes)
-    {
-        try { return Encoding.UTF8.GetString(bytes); }
-        catch { return Encoding.Latin1.GetString(bytes); }
-    }
-
-    private static string? DecodeNullTerminated(ReadOnlySpan<byte> bytes)
-    {
-        var zero = bytes.IndexOf((byte)0);
-        if (zero >= 0)
-        {
-            bytes = bytes[..zero];
-        }
-
-        var s = Encoding.Latin1.GetString(bytes).Trim();
-
-        return string.IsNullOrWhiteSpace(s) ? null : s;
-    }
-
-    private static uint ReadBE32(byte[] data, int offset)
-    {
-        return (uint)(data[offset] << 24 | data[offset + 1] << 16 | data[offset + 2] << 8 | data[offset + 3]);
-    }
-
     private static int IndexOf(byte[] haystack, byte[] needle)
     {
         for (var i = 0; i <= haystack.Length - needle.Length; i++)
@@ -101,5 +101,17 @@ internal static class MobiMetadataReader
         }
 
         return -1;
+    }
+
+    private static string? NullIfWhiteSpace(string? s)
+    {
+        return string.IsNullOrWhiteSpace(s)
+            ? null
+            : s.Trim();
+    }
+
+    private static uint ReadBE32(byte[] data, int offset)
+    {
+        return (uint)(data[offset] << 24 | data[offset + 1] << 16 | data[offset + 2] << 8 | data[offset + 3]);
     }
 }

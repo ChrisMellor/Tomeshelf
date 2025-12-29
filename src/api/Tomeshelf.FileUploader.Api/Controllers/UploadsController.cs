@@ -16,15 +16,39 @@ namespace Tomeshelf.FileUploader.Api.Controllers;
 [Route("uploads")]
 public sealed class UploadsController : ControllerBase
 {
-    private readonly IHumbleBundleUploadService _uploadService;
     private readonly GoogleDriveOptions _defaultDriveOptions;
     private readonly ILogger<UploadsController> _logger;
+    private readonly IHumbleBundleUploadService _uploadService;
 
     public UploadsController(IHumbleBundleUploadService uploadService, IOptions<GoogleDriveOptions> driveOptions, ILogger<UploadsController> logger)
     {
         _uploadService = uploadService;
         _defaultDriveOptions = driveOptions.Value;
         _logger = logger;
+    }
+
+    private GoogleDriveOptions? ToOptions(OAuthCredentials? creds)
+    {
+        if (creds is null || string.IsNullOrWhiteSpace(creds.ClientId) || string.IsNullOrWhiteSpace(creds.ClientSecret) || string.IsNullOrWhiteSpace(creds.RefreshToken))
+        {
+            return string.IsNullOrWhiteSpace(_defaultDriveOptions.ClientId) || string.IsNullOrWhiteSpace(_defaultDriveOptions.ClientSecret) || string.IsNullOrWhiteSpace(_defaultDriveOptions.RefreshToken)
+                ? null
+                : _defaultDriveOptions;
+        }
+
+        return new GoogleDriveOptions
+        {
+            ApplicationName = _defaultDriveOptions.ApplicationName,
+            RootFolderPath = _defaultDriveOptions.RootFolderPath,
+            RootFolderId = _defaultDriveOptions.RootFolderId,
+            ClientId = creds.ClientId,
+            ClientSecret = creds.ClientSecret,
+            RefreshToken = creds.RefreshToken,
+            UserEmail = string.IsNullOrWhiteSpace(creds.UserEmail)
+                ? _defaultDriveOptions.UserEmail
+                : creds.UserEmail,
+            SharedDriveId = _defaultDriveOptions.SharedDriveId
+        };
     }
 
     /// <summary>
@@ -39,7 +63,7 @@ public sealed class UploadsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<BundleUploadResponse>> Upload([FromForm] IFormFile archive, [FromForm] OAuthCredentials? credentials, CancellationToken cancellationToken = default)
     {
-        if (archive is null || archive.Length == 0)
+        if (archive is null || (archive.Length == 0))
         {
             return BadRequest("A bundle archive (.zip) file is required.");
         }
@@ -58,36 +82,13 @@ public sealed class UploadsController : ControllerBase
         return Ok(BundleUploadResponse.FromResult(result));
     }
 
-    private GoogleDriveOptions? ToOptions(OAuthCredentials? creds)
-    {
-        if (creds is null || string.IsNullOrWhiteSpace(creds.ClientId) || string.IsNullOrWhiteSpace(creds.ClientSecret) || string.IsNullOrWhiteSpace(creds.RefreshToken))
-        {
-            return string.IsNullOrWhiteSpace(_defaultDriveOptions.ClientId)
-                   || string.IsNullOrWhiteSpace(_defaultDriveOptions.ClientSecret)
-                   || string.IsNullOrWhiteSpace(_defaultDriveOptions.RefreshToken)
-                    ? null
-                    : _defaultDriveOptions;
-        }
-
-        return new GoogleDriveOptions
-        {
-            ApplicationName = _defaultDriveOptions.ApplicationName,
-            RootFolderPath = _defaultDriveOptions.RootFolderPath,
-            RootFolderId = _defaultDriveOptions.RootFolderId,
-            ClientId = creds.ClientId,
-            ClientSecret = creds.ClientSecret,
-            RefreshToken = creds.RefreshToken,
-            UserEmail = string.IsNullOrWhiteSpace(creds.UserEmail) ? _defaultDriveOptions.UserEmail : creds.UserEmail,
-            SharedDriveId = _defaultDriveOptions.SharedDriveId
-        };
-    }
-
     public sealed record BundleUploadResponse(DateTimeOffset UploadedAtUtc, int BundlesProcessed, int BooksProcessed, int FilesUploaded, int FilesSkipped, IReadOnlyList<BookUploadResponse> Books)
     {
         public static BundleUploadResponse FromResult(BundleUploadResult result)
         {
-            var books = result.Books.Select(BookUploadResponse.FromResult)
-                                    .ToList();
+            var books = result.Books
+                              .Select(BookUploadResponse.FromResult)
+                              .ToList();
 
             return new BundleUploadResponse(result.UploadedAtUtc, result.BundlesProcessed, result.BooksProcessed, result.FilesUploaded, result.FilesSkipped, books);
         }
@@ -104,8 +105,11 @@ public sealed class UploadsController : ControllerBase
     public sealed class OAuthCredentials
     {
         public string? ClientId { get; init; }
+
         public string? ClientSecret { get; init; }
+
         public string? RefreshToken { get; init; }
+
         public string? UserEmail { get; init; }
     }
 }

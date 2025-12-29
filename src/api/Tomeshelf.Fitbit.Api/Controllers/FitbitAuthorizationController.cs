@@ -64,8 +64,8 @@ public sealed class FitbitAuthorizationController : ControllerBase
 
         return Ok(new
         {
-                hasAccessToken = hasAccess,
-                hasRefreshToken = hasRefresh
+            hasAccessToken = hasAccess,
+            hasRefreshToken = hasRefresh
         });
     }
 }

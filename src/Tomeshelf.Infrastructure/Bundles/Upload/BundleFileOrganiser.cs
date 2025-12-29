@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Tomeshelf.Infrastructure.Bundles.Upload;
 
@@ -21,7 +20,9 @@ public sealed class BundleFileOrganiser
         foreach (var fileGroup in files)
         {
             var bundleName = GetBundleName(fileGroup.First()) ?? new DirectoryInfo(rootDirectory).Name;
-            bundleName = SanitizeForPath(string.IsNullOrWhiteSpace(bundleName) ? "Unknown Bundle" : bundleName);
+            bundleName = SanitizeForPath(string.IsNullOrWhiteSpace(bundleName)
+                                             ? "Unknown Bundle"
+                                             : bundleName);
 
             var bookTitle = TryGetTitle(fileGroup) ?? "Unknown Title";
             bookTitle = SanitizeForPath(bookTitle);
@@ -30,9 +31,10 @@ public sealed class BundleFileOrganiser
 
             foreach (var file in fileGroup)
             {
-                var isSupplement = file.Extension.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                   && file.Name.Contains("supplement", StringComparison.OrdinalIgnoreCase);
-                var targetBase = isSupplement ? $"{bookTitle} - Supplement" : bookTitle;
+                var isSupplement = file.Extension.Equals(".zip", StringComparison.OrdinalIgnoreCase) && file.Name.Contains("supplement", StringComparison.OrdinalIgnoreCase);
+                var targetBase = isSupplement
+                    ? $"{bookTitle} - Supplement"
+                    : bookTitle;
                 var destName = $"{targetBase}{file.Extension}";
 
                 bookFiles.Add(new BookFile(file.FullName, destName, file.Length));
@@ -58,6 +60,38 @@ public sealed class BundleFileOrganiser
         }
 
         return null;
+    }
+
+    private static DocumentMetadata GetDocumentMetadata(FileInfo file)
+    {
+        try
+        {
+            var documentMetadata = file.Extension.ToLower(CultureInfo.InvariantCulture) switch
+            {
+                ".pdf" => PdfMetadataReader.GetMetadata(file.FullName),
+                ".epub" => EpubMetadataReader.GetMetadata(file.FullName),
+                ".mobi" => MobiMetadataReader.GetMetadata(file.FullName),
+                _ => new DocumentMetadata()
+            };
+
+            return documentMetadata;
+        }
+        catch
+        {
+            return new DocumentMetadata();
+        }
+    }
+
+    private static string SanitizeForPath(string s)
+    {
+        s = s.Replace(":", " -", StringComparison.Ordinal)
+             .Replace("/", " -", StringComparison.Ordinal)
+             .ReplaceLineEndings(string.Empty);
+
+        s = Path.GetInvalidFileNameChars()
+                .Aggregate(s, (current, c) => current.Replace(c, ' '));
+
+        return s.Trim();
     }
 
     private static string? TryGetTitle(IGrouping<string, FileInfo> files)
@@ -87,38 +121,6 @@ public sealed class BundleFileOrganiser
         }
 
         return null;
-    }
-
-    private static string SanitizeForPath(string s)
-    {
-        s = s.Replace(":", " -", StringComparison.Ordinal)
-             .Replace("/", " -", StringComparison.Ordinal)
-             .ReplaceLineEndings(string.Empty);
-
-        s = Path.GetInvalidFileNameChars()
-                .Aggregate(s, (current, c) => current.Replace(c, ' '));
-
-        return s.Trim();
-    }
-
-    private static DocumentMetadata GetDocumentMetadata(FileInfo file)
-    {
-        try
-        {
-            var documentMetadata = file.Extension.ToLower(CultureInfo.InvariantCulture) switch
-            {
-                ".pdf" => PdfMetadataReader.GetMetadata(file.FullName),
-                ".epub" => EpubMetadataReader.GetMetadata(file.FullName),
-                ".mobi" => MobiMetadataReader.GetMetadata(file.FullName),
-                _ => new DocumentMetadata()
-            };
-
-            return documentMetadata;
-        }
-        catch
-        {
-            return new DocumentMetadata();
-        }
     }
 }
 
