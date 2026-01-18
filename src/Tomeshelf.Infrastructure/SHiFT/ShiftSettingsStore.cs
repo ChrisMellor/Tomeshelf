@@ -68,10 +68,7 @@ public sealed class ShiftSettingsStore : IShiftSettingsStore
         var row = await _db.ShiftSettings.SingleOrDefaultAsync(x => x.Id == 1, ct);
         if (row is null)
         {
-            row = new SettingsEntity
-            {
-                Id = 1
-            };
+            row = new SettingsEntity();
             _db.ShiftSettings.Add(row);
         }
 
@@ -84,6 +81,6 @@ public sealed class ShiftSettingsStore : IShiftSettingsStore
             row.EncryptedPassword = _protector.Protect(request.Password);
         }
 
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(ct);
     }
 }

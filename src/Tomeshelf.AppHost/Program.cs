@@ -247,7 +247,7 @@ internal class Program
     {
         var db = database.AddDatabase("shiftdb");
 
-        var api = builder.AddProject<Tomeshelf_SHiFT_Api>("shiftdb")
+        var api = builder.AddProject<Tomeshelf_SHiFT_Api>("shiftapi")
                          .WithHttpHealthCheck("/health")
                          .WithReference(db)
                          .WaitFor(db)

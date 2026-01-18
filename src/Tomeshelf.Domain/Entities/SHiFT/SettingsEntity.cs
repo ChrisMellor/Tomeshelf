@@ -4,7 +4,7 @@ namespace Tomeshelf.Domain.Entities.SHiFT;
 
 public sealed class SettingsEntity
 {
-    public int Id { get; set; } = 1;
+    public int Id { get; set; }
 
     public string Email { get; set; } = "";
 
