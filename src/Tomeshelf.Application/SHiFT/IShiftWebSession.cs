@@ -1,11 +1,13 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.Infrastructure.SHiFT;
 
 namespace Tomeshelf.Application.SHiFT;
 
 public interface IShiftWebSession
 {
-    Task<string> BuildRedeemBodyAsync(string code, string csrfToken, string service, CancellationToken ct = default);
+    Task<List<RedemptionOption>> BuildRedeemBodyAsync(string code, string csrfToken, string service, CancellationToken ct = default);
 
     ValueTask DisposeAsync();
 

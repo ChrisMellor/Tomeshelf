@@ -1,4 +1,5 @@
 ﻿using AngleSharp;
+using AngleSharp.Dom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +46,7 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
         return ValueTask.CompletedTask;
     }
 
-    public async Task<string> BuildRedeemBodyAsync(string code, string csrfToken, string service, CancellationToken ct = default)
+    public async Task<List<RedemptionOption>> BuildRedeemBodyAsync(string code, string csrfToken, string service, CancellationToken ct = default)
     {
         var url = $"entitlement_offer_codes?code={Uri.EscapeDataString(code)}";
 
@@ -62,43 +63,43 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
 
         var doc = await _dom.OpenAsync(r => r.Content(html), ct);
 
-        var targetForm = doc.QuerySelectorAll("form")
-                            .FirstOrDefault(f => f.QuerySelectorAll("input")
-                                                  .Any(i => string.Equals(i.GetAttribute("value"), service, StringComparison.OrdinalIgnoreCase)));
+        var matchingForms = doc.QuerySelectorAll("form")
+                               .Where(f =>
+                                {
+                                    var svc = f.QuerySelector("input[name='archway_code_redemption[service]']")
+                                              ?.GetAttribute("value");
 
-        if (targetForm is null)
+                                    return string.Equals(svc, service, StringComparison.OrdinalIgnoreCase);
+                                })
+                               .ToArray();
+
+        if (matchingForms.Length == 0)
         {
             throw new InvalidOperationException($"No redemption form found for service '{service}'.");
         }
 
-        var headers = new List<KeyValuePair<string, string>>
+        var options = new List<RedemptionOption>(matchingForms.Length);
+
+        foreach (var form in matchingForms)
         {
-            new KeyValuePair<string, string>("utf8", "✓")
-        };
+            var fields = ExtractNamedInputs(form);
 
-        foreach (var input in targetForm.QuerySelectorAll("input"))
-        {
-            var name = input.GetAttribute("name");
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                continue;
-            }
+            fields.TryAdd("utf8", "✓");
 
-            if (string.Equals(name, "utf8", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
+            fields.TryGetValue("archway_code_redemption[title]", out var title);
 
-            var value = input.GetAttribute("value");
-            if (value is null)
-            {
-                continue;
-            }
+            var body = ToFormUrlEncoded(fields);
 
-            headers.Add(new KeyValuePair<string, string>(name, value));
+            var displayName = form.QuerySelector("button")
+                                 ?.TextContent
+                                 ?.Trim();
+
+            options.Add(new RedemptionOption(service, title ?? string.Empty, string.IsNullOrWhiteSpace(displayName)
+                                                 ? null
+                                                 : displayName, body));
         }
 
-        return ToFormUrlEncoded(headers);
+        return options;
     }
 
     public async Task<string> GetCsrfFromHomeAsync(CancellationToken ct = default)
@@ -131,6 +132,7 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
         });
 
         using var res = await _http.SendAsync(req, ct);
+
         res.EnsureSuccessStatusCode();
     }
 
@@ -142,6 +144,7 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
         req.Content = new StringContent(redeemBody, Encoding.UTF8, "application/x-www-form-urlencoded");
 
         using var res = await _http.SendAsync(req, ct);
+
         res.EnsureSuccessStatusCode();
     }
 
@@ -168,6 +171,30 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
     private static string? ExtractCsrfTokenFromHtml(string html)
     {
         return AngleSharpTokenExtract(html);
+    }
+
+    private static Dictionary<string, string> ExtractNamedInputs(IElement form)
+    {
+        var dict = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var input in form.QuerySelectorAll("input"))
+        {
+            var name = input.GetAttribute("name");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                continue;
+            }
+
+            var value = input.GetAttribute("value");
+            if (value is null)
+            {
+                continue;
+            }
+
+            dict[name] = value;
+        }
+
+        return dict;
     }
 
     private async Task<string> GetCsrfFromPageAsync(string relativePath, CancellationToken ct)
