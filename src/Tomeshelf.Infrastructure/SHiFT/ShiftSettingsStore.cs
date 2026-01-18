@@ -1,8 +1,9 @@
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
 using Tomeshelf.Application.Contracts.SHiFT;
 using Tomeshelf.Application.SHiFT;
 using Tomeshelf.Domain.Entities.SHiFT;
@@ -31,26 +32,37 @@ public sealed class ShiftSettingsStore : IShiftSettingsStore
         return new ShiftSettingsDto(row.Email, row.DefaultService, !string.IsNullOrWhiteSpace(row.EncryptedPassword), row.UpdatedUtc);
     }
 
-    public async Task<(string Email, string Password, string Service)> GetForUseAsync(CancellationToken ct)
+    public async Task<IReadOnlyList<(string Email, string Password, string Service)>> GetForUseAsync(CancellationToken ct)
     {
-        var row = await _db.ShiftSettings
-                           .AsNoTracking()
-                           .SingleOrDefaultAsync(x => x.Id == 1, ct) ??
-                  throw new InvalidOperationException("SHiFT settings not configured.");
+        var rows = await _db.ShiftSettings
+                            .AsNoTracking()
+                            .ToListAsync(ct);
 
-        if (string.IsNullOrWhiteSpace(row.Email))
+        if (rows.Count == 0)
         {
-            throw new InvalidOperationException("SHiFT email not configured.");
+            throw new InvalidOperationException("SHiFT settings not configured.");
         }
 
-        if (string.IsNullOrWhiteSpace(row.EncryptedPassword))
+        var users = new List<(string Email, string Password, string Service)>(rows.Count);
+
+        foreach (var row in rows)
         {
-            throw new InvalidOperationException("SHiFT password not configured.");
+            if (string.IsNullOrWhiteSpace(row.Email))
+            {
+                throw new InvalidOperationException("SHiFT email not configured.");
+            }
+
+            if (string.IsNullOrWhiteSpace(row.EncryptedPassword))
+            {
+                throw new InvalidOperationException("SHiFT password not configured.");
+            }
+
+            var password = _protector.Unprotect(row.EncryptedPassword);
+
+            users.Add((row.Email, password, row.DefaultService));
         }
 
-        var password = _protector.Unprotect(row.EncryptedPassword);
-
-        return (row.Email, password, row.DefaultService);
+        return users;
     }
 
     public async Task UpsertAsync(ShiftSettingsUpdateRequest request, CancellationToken ct)

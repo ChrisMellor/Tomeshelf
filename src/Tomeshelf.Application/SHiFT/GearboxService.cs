@@ -27,21 +27,25 @@ public sealed class GearboxService : IGearboxService
             throw new ArgumentException("SHiFT code is required.", nameof(shiftCode));
         }
 
-        var (email, password, defaultService) = await _settings.GetForUseAsync(ct);
-        var service = string.IsNullOrWhiteSpace(serviceOverride)
-            ? defaultService
-            : serviceOverride.Trim();
+        var users = await _settings.GetForUseAsync(ct);
 
-        var csrfHome = await _session.GetCsrfFromHomeAsync(ct);
-        await _session.LoginAsync(email, password, csrfHome, ct);
-
-        var csrfRewards = await _session.GetCsrfFromRewardsAsync(ct);
-
-        var options = await _session.BuildRedeemBodyAsync(shiftCode.Trim(), csrfRewards, service, ct);
-
-        foreach (var option in options)
+        foreach (var (email, password, defaultService) in users)
         {
-            await _session.RedeemAsync(option.FormBody, ct);
+            var service = string.IsNullOrWhiteSpace(serviceOverride)
+                ? defaultService
+                : serviceOverride.Trim();
+
+            var csrfHome = await _session.GetCsrfFromHomeAsync(ct);
+            await _session.LoginAsync(email, password, csrfHome, ct);
+
+            var csrfRewards = await _session.GetCsrfFromRewardsAsync(ct);
+
+            var options = await _session.BuildRedeemBodyAsync(shiftCode.Trim(), csrfRewards, service, ct);
+
+            foreach (var option in options)
+            {
+                await _session.RedeemAsync(option.FormBody, ct);
+            }
         }
 
         return true;
