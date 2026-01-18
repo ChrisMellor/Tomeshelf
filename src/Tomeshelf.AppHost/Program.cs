@@ -36,9 +36,10 @@ internal class Program
         var fitbitApi = SetupFitbitApi(builder, database);
         var paissaApi = SetupPaissaApi(builder);
         var fileUploaderApi = SetupFileUploaderApi(builder);
+        var shiftApi = SetupShiftApi(builder, database);
 
-        _ = SetupExecutor(builder, mcmApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi);
-        _ = SetupWeb(builder, mcmApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi);
+        _ = SetupExecutor(builder, mcmApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi, shiftApi);
+        _ = SetupWeb(builder, mcmApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi, shiftApi);
 
         builder.AddDockerComposeEnvironment("tomeshelf")
                .ConfigureComposeFile(compose =>
@@ -234,6 +235,22 @@ internal class Program
     {
         var api = builder.AddProject<Tomeshelf_Paissa_Api>("paissaapi")
                          .WithHttpHealthCheck("/health")
+                         .PublishAsDockerComposeService((resource, service) =>
+                          {
+                              service.Restart = "unless-stopped";
+                          });
+
+        return api;
+    }
+
+    private static IResourceBuilder<ProjectResource> SetupShiftApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
+    {
+        var db = database.AddDatabase("shiftdb");
+
+        var api = builder.AddProject<Tomeshelf_SHiFT_Api>("shiftdb")
+                         .WithHttpHealthCheck("/health")
+                         .WithReference(db)
+                         .WaitFor(db)
                          .PublishAsDockerComposeService((resource, service) =>
                           {
                               service.Restart = "unless-stopped";

@@ -15,6 +15,5 @@ public interface IShiftWebSession
 
     Task LoginAsync(string email, string password, string csrfToken, CancellationToken ct = default);
 
-    Task RedeemAsync(string redeemBody, CancellationToken ct = default
-
+    Task RedeemAsync(string redeemBody, CancellationToken ct = default);
 }

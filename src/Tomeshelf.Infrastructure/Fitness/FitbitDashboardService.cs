@@ -1,12 +1,13 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+using Tomeshelf.Application.Contracts.Fitbit;
 using Tomeshelf.Domain.Entities.Fitness;
 using Tomeshelf.Infrastructure.Fitness.Models;
 using Tomeshelf.Infrastructure.Persistence;
