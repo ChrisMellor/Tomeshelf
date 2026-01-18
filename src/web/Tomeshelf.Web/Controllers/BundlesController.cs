@@ -1,10 +1,10 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Infrastructure;
 using Tomeshelf.Web.Models.Bundles;
 using Tomeshelf.Web.Services;
@@ -17,65 +17,6 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
     private const string LastViewedCookieName = "tomeshelf_bundles_lastViewedUtc";
     private readonly IBundlesApi _api = api;
     private readonly IFileUploadsApi _uploadsApi = uploadsApi;
-
-    private static TimeSpan? CalculateRemaining(DateTimeOffset? endsAt, DateTimeOffset now)
-    {
-        if (!endsAt.HasValue)
-        {
-            return null;
-        }
-
-        var remaining = endsAt.Value - now;
-
-        return remaining > TimeSpan.Zero
-            ? remaining
-            : null;
-    }
-
-    private static string Capitalize(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return "Other";
-        }
-
-        return char.ToUpperInvariant(value[0]) + value[1..];
-    }
-
-    private static string Categorise(BundleViewModel vm)
-    {
-        return string.IsNullOrWhiteSpace(vm.Category)
-            ? string.IsNullOrWhiteSpace(vm.Stamp)
-                ? "Other"
-                : Capitalize(vm.Stamp)
-            : Capitalize(vm.Category);
-    }
-
-    private GoogleDriveAuthModel? GetDriveAuth()
-    {
-        var clientId = HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId);
-        var clientSecret = HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret);
-        var refreshToken = HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken);
-        var userEmail = HttpContext.Session.GetString(GoogleDriveSessionKeys.UserEmail);
-
-        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret) || string.IsNullOrWhiteSpace(refreshToken))
-        {
-            return null;
-        }
-
-        return new GoogleDriveAuthModel
-        {
-            ClientId = clientId,
-            ClientSecret = clientSecret,
-            RefreshToken = refreshToken,
-            UserEmail = userEmail
-        };
-    }
-
-    private bool HasDriveTokens()
-    {
-        return !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken));
-    }
 
     /// <summary>
     ///     Displays Humble Bundle listings fetched from the backend API.
@@ -234,5 +175,64 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
                 Error = $"Upload failed: {ex.Message}"
             });
         }
+    }
+
+    private static TimeSpan? CalculateRemaining(DateTimeOffset? endsAt, DateTimeOffset now)
+    {
+        if (!endsAt.HasValue)
+        {
+            return null;
+        }
+
+        var remaining = endsAt.Value - now;
+
+        return remaining > TimeSpan.Zero
+            ? remaining
+            : null;
+    }
+
+    private static string Capitalize(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "Other";
+        }
+
+        return char.ToUpperInvariant(value[0]) + value[1..];
+    }
+
+    private static string Categorise(BundleViewModel vm)
+    {
+        return string.IsNullOrWhiteSpace(vm.Category)
+            ? string.IsNullOrWhiteSpace(vm.Stamp)
+                ? "Other"
+                : Capitalize(vm.Stamp)
+            : Capitalize(vm.Category);
+    }
+
+    private GoogleDriveAuthModel? GetDriveAuth()
+    {
+        var clientId = HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId);
+        var clientSecret = HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret);
+        var refreshToken = HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken);
+        var userEmail = HttpContext.Session.GetString(GoogleDriveSessionKeys.UserEmail);
+
+        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret) || string.IsNullOrWhiteSpace(refreshToken))
+        {
+            return null;
+        }
+
+        return new GoogleDriveAuthModel
+        {
+            ClientId = clientId,
+            ClientSecret = clientSecret,
+            RefreshToken = refreshToken,
+            UserEmail = userEmail
+        };
+    }
+
+    private bool HasDriveTokens()
+    {
+        return !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken));
     }
 }

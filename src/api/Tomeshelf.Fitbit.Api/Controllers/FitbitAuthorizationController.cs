@@ -1,7 +1,7 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Threading;
+using System.Threading.Tasks;
 using Tomeshelf.Infrastructure.Fitness;
 
 namespace Tomeshelf.Fitbit.Api.Controllers;
@@ -36,24 +36,33 @@ public sealed class FitbitAuthorizationController : ControllerBase
         {
             _logger.LogWarning("Fitbit authorization failed with error '{Error}'.", error);
 
-            return BadRequest(new { message = $"Fitbit authorization error: {error}" });
+            return BadRequest(new
+            {
+                message = $"Fitbit authorization error: {error}"
+            });
         }
 
         if (string.IsNullOrWhiteSpace(code))
         {
-            return BadRequest(new { message = "Missing authorization code." });
+            return BadRequest(new
+            {
+                message = "Missing authorization code."
+            });
         }
 
         if (!_authorizationService.TryConsumeState(state ?? string.Empty, out var codeVerifier, out var returnUrl))
         {
-            return BadRequest(new { message = "Invalid or expired OAuth state token." });
+            return BadRequest(new
+            {
+                message = "Invalid or expired OAuth state token."
+            });
         }
 
         await _authorizationService.ExchangeAuthorizationCodeAsync(code, codeVerifier, cancellationToken);
 
         return Redirect(string.IsNullOrWhiteSpace(returnUrl)
-                                ? "/fitness"
-                                : returnUrl);
+                            ? "/fitness"
+                            : returnUrl);
     }
 
     [HttpGet("status")]

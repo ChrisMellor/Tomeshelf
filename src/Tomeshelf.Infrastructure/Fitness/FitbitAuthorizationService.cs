@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -8,10 +12,6 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure.Fitness.Models;
 
@@ -35,14 +35,6 @@ public sealed class FitbitAuthorizationService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-    }
-
-    private static string Base64UrlEncode(byte[] data)
-    {
-        return Convert.ToBase64String(data)
-                      .TrimEnd('=')
-                      .Replace('+', '-')
-                      .Replace('/', '_');
     }
 
     public Uri BuildAuthorizationUri(string returnUrl, out string state)
@@ -148,22 +140,6 @@ public sealed class FitbitAuthorizationService
         return new Uri(baseUri, pathValue);
     }
 
-    private static string CreateCodeChallenge(string codeVerifier)
-    {
-        using var sha256 = SHA256.Create();
-        var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
-
-        return Base64UrlEncode(hash);
-    }
-
-    private static string CreateCodeVerifier()
-    {
-        var bytes = new byte[32];
-        RandomNumberGenerator.Fill(bytes);
-
-        return Base64UrlEncode(bytes);
-    }
-
     public async Task ExchangeAuthorizationCodeAsync(string code, string codeVerifier, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(codeVerifier))
@@ -219,11 +195,6 @@ public sealed class FitbitAuthorizationService
         _logger.LogInformation("Successfully obtained Fitbit access token via authorization code grant.");
     }
 
-    private static string GetStateCacheKey(string state)
-    {
-        return $"fitbit:oauth:state:{state}";
-    }
-
     public bool TryConsumeState(string state, out string codeVerifier, out string returnUrl)
     {
         if (string.IsNullOrWhiteSpace(state))
@@ -248,6 +219,35 @@ public sealed class FitbitAuthorizationService
         returnUrl = "/fitness";
 
         return false;
+    }
+
+    private static string Base64UrlEncode(byte[] data)
+    {
+        return Convert.ToBase64String(data)
+                      .TrimEnd('=')
+                      .Replace('+', '-')
+                      .Replace('/', '_');
+    }
+
+    private static string CreateCodeChallenge(string codeVerifier)
+    {
+        using var sha256 = SHA256.Create();
+        var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
+
+        return Base64UrlEncode(hash);
+    }
+
+    private static string CreateCodeVerifier()
+    {
+        var bytes = new byte[32];
+        RandomNumberGenerator.Fill(bytes);
+
+        return Base64UrlEncode(bytes);
+    }
+
+    private static string GetStateCacheKey(string state)
+    {
+        return $"fitbit:oauth:state:{state}";
     }
 
     private sealed record AuthorizationState(string CodeVerifier, string ReturnUrl);

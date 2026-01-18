@@ -36,31 +36,6 @@ public static class Extensions
     }
 
     /// <summary>
-    ///     Adds OpenTelemetry exporters based on configuration (e.g., OTLP endpoint).
-    /// </summary>
-    /// <param name="builder">The host application builder.</param>
-    /// <returns>The same builder for chaining.</returns>
-    private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
-    {
-        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
-
-        if (useOtlpExporter)
-        {
-            builder.Services
-                   .AddOpenTelemetry()
-                   .UseOtlpExporter();
-        }
-
-        //if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
-        //{
-        //    builder.Services.AddOpenTelemetry()
-        //       .UseAzureMonitor();
-        //}
-
-        return builder;
-    }
-
-    /// <summary>
     ///     Adds common .NET Aspire defaults: OpenTelemetry, health checks, and service discovery.
     /// </summary>
     /// <param name="builder">The host application builder.</param>
@@ -136,5 +111,30 @@ public static class Extensions
         }
 
         return app;
+    }
+
+    /// <summary>
+    ///     Adds OpenTelemetry exporters based on configuration (e.g., OTLP endpoint).
+    /// </summary>
+    /// <param name="builder">The host application builder.</param>
+    /// <returns>The same builder for chaining.</returns>
+    private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
+    {
+        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+
+        if (useOtlpExporter)
+        {
+            builder.Services
+                   .AddOpenTelemetry()
+                   .UseOtlpExporter();
+        }
+
+        //if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+        //{
+        //    builder.Services.AddOpenTelemetry()
+        //       .UseAzureMonitor();
+        //}
+
+        return builder;
     }
 }

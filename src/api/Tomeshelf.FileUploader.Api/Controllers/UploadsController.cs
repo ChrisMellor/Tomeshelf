@@ -1,12 +1,12 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Infrastructure.Bundles.Upload;
 
@@ -25,30 +25,6 @@ public sealed class UploadsController : ControllerBase
         _uploadService = uploadService;
         _defaultDriveOptions = driveOptions.Value;
         _logger = logger;
-    }
-
-    private GoogleDriveOptions? ToOptions(OAuthCredentials? creds)
-    {
-        if (creds is null || string.IsNullOrWhiteSpace(creds.ClientId) || string.IsNullOrWhiteSpace(creds.ClientSecret) || string.IsNullOrWhiteSpace(creds.RefreshToken))
-        {
-            return string.IsNullOrWhiteSpace(_defaultDriveOptions.ClientId) || string.IsNullOrWhiteSpace(_defaultDriveOptions.ClientSecret) || string.IsNullOrWhiteSpace(_defaultDriveOptions.RefreshToken)
-                ? null
-                : _defaultDriveOptions;
-        }
-
-        return new GoogleDriveOptions
-        {
-            ApplicationName = _defaultDriveOptions.ApplicationName,
-            RootFolderPath = _defaultDriveOptions.RootFolderPath,
-            RootFolderId = _defaultDriveOptions.RootFolderId,
-            ClientId = creds.ClientId,
-            ClientSecret = creds.ClientSecret,
-            RefreshToken = creds.RefreshToken,
-            UserEmail = string.IsNullOrWhiteSpace(creds.UserEmail)
-                ? _defaultDriveOptions.UserEmail
-                : creds.UserEmail,
-            SharedDriveId = _defaultDriveOptions.SharedDriveId
-        };
     }
 
     /// <summary>
@@ -80,6 +56,30 @@ public sealed class UploadsController : ControllerBase
         var result = await _uploadService.UploadAsync(stream, archive.FileName, overrideOptions, cancellationToken);
 
         return Ok(BundleUploadResponse.FromResult(result));
+    }
+
+    private GoogleDriveOptions? ToOptions(OAuthCredentials? creds)
+    {
+        if (creds is null || string.IsNullOrWhiteSpace(creds.ClientId) || string.IsNullOrWhiteSpace(creds.ClientSecret) || string.IsNullOrWhiteSpace(creds.RefreshToken))
+        {
+            return string.IsNullOrWhiteSpace(_defaultDriveOptions.ClientId) || string.IsNullOrWhiteSpace(_defaultDriveOptions.ClientSecret) || string.IsNullOrWhiteSpace(_defaultDriveOptions.RefreshToken)
+                ? null
+                : _defaultDriveOptions;
+        }
+
+        return new GoogleDriveOptions
+        {
+            ApplicationName = _defaultDriveOptions.ApplicationName,
+            RootFolderPath = _defaultDriveOptions.RootFolderPath,
+            RootFolderId = _defaultDriveOptions.RootFolderId,
+            ClientId = creds.ClientId,
+            ClientSecret = creds.ClientSecret,
+            RefreshToken = creds.RefreshToken,
+            UserEmail = string.IsNullOrWhiteSpace(creds.UserEmail)
+                ? _defaultDriveOptions.UserEmail
+                : creds.UserEmail,
+            SharedDriveId = _defaultDriveOptions.SharedDriveId
+        };
     }
 
     public sealed record BundleUploadResponse(DateTimeOffset UploadedAtUtc, int BundlesProcessed, int BooksProcessed, int FilesUploaded, int FilesSkipped, IReadOnlyList<BookUploadResponse> Books)

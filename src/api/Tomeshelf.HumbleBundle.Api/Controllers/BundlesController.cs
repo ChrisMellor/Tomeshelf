@@ -1,13 +1,12 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Tomeshelf.Application.Contracts.HumbleBundle;
 using Tomeshelf.Infrastructure.Bundles;
-
-.Bundles;
 
 namespace Tomeshelf.HumbleBundle.Api.Controllers;
 
@@ -96,8 +95,8 @@ public sealed class BundlesController : ControllerBase
                 }
             }
 
-            return new BundleResponse(dto.MachineName, dto.Category, dto.Stamp, dto.Title, dto.ShortName, dto.Url, dto.TileImageUrl, dto.TileLogoUrl, dto.HeroImageUrl, dto.ShortDescription, dto.StartsAt, dto.EndsAt, dto.FirstSeenUtc, dto.LastSeenUtc, dto.LastUpdatedUtc, secondsRemaining, dto.GeneratedUtc
-          }
+            return new BundleResponse(dto.MachineName, dto.Category, dto.Stamp, dto.Title, dto.ShortName, dto.Url, dto.TileImageUrl, dto.TileLogoUrl, dto.HeroImageUrl, dto.ShortDescription, dto.StartsAt, dto.EndsAt, dto.FirstSeenUtc, dto.LastSeenUtc, dto.LastUpdatedUtc, secondsRemaining, dto.GeneratedUtc);
+        }
     }
 
     /// <summary>
@@ -108,6 +107,5 @@ public sealed class BundlesController : ControllerBase
     /// <param name="Unchanged">Bundles left unchanged.</param>
     /// <param name="Processed">Total bundles processed.</param>
     /// <param name="ObservedAtUtc">Observation timestamp supplied by the ingest.</param>
-    public sealed record RefreshBundlesResponse(int Created, int Updated, int Unchanged, int Processed, DateTimeOffset Ob
-rvedAtUtc);
+    public sealed record RefreshBundlesResponse(int Created, int Updated, int Unchanged, int Processed, DateTimeOffset ObservedAtUtc);
 }

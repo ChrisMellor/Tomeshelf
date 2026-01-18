@@ -1,6 +1,6 @@
+using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
-using Microsoft.Extensions.Hosting;
 
 namespace Tomeshelf.Executor.Configuration;
 
@@ -8,22 +8,6 @@ internal static class ExecutorSettingsPaths
 {
     public const string SettingsDirectoryEnvironmentVariable = "EXECUTOR_SETTINGS_DIR";
     private const string DefaultSettingsFileName = "executorSettings.json";
-
-    private static void CopyIfMissing(string sourcePath, string targetPath)
-    {
-        if (!File.Exists(sourcePath) || File.Exists(targetPath))
-        {
-            return;
-        }
-
-        var targetDirectory = Path.GetDirectoryName(targetPath);
-        if (!string.IsNullOrEmpty(targetDirectory))
-        {
-            Directory.CreateDirectory(targetDirectory);
-        }
-
-        File.Copy(sourcePath, targetPath);
-    }
 
     public static void EnsureSeedFiles(IHostEnvironment environment)
     {
@@ -81,5 +65,21 @@ internal static class ExecutorSettingsPaths
         }
 
         return Path.Combine(GetDirectory(environment, ensureDirectory), $"executorSettings.{environment.EnvironmentName}.json");
+    }
+
+    private static void CopyIfMissing(string sourcePath, string targetPath)
+    {
+        if (!File.Exists(sourcePath) || File.Exists(targetPath))
+        {
+            return;
+        }
+
+        var targetDirectory = Path.GetDirectoryName(targetPath);
+        if (!string.IsNullOrEmpty(targetDirectory))
+        {
+            Directory.CreateDirectory(targetDirectory);
+        }
+
+        File.Copy(sourcePath, targetPath);
     }
 }
