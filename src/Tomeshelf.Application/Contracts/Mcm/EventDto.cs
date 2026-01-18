@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Tomeshelf.Application.Contracts;
+namespace Tomeshelf.Application.Contracts.Mcm;
 
 public sealed record EventDto
 {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Tomeshelf.Application.Contracts;
+namespace Tomeshelf.Application.Contracts.HumbleBundle;
 
 /// <summary>
 ///     Read model returned by the Humble Bundle API describing a bundle listing.
