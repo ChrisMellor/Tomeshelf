@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.Application.Contracts.SHiFT;
 
 namespace Tomeshelf.Application.SHiFT;
 

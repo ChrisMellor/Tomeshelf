@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.EntityFrameworkCore;
+using Tomeshelf.Application.Contracts.SHiFT;
+using Tomeshelf.Application.SHiFT;
 using Tomeshelf.Domain.Entities.SHiFT;
 using Tomeshelf.Infrastructure.Persistence;
 

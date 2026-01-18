@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
 
-        builder.AddSqlServerDbContext<TomeshelfMcmDbContext>("shiftdb");
+        builder.AddSqlServerDbContext<TomeshelfShiftDbContext>("shiftdb");
 
         builder.Services
                .AddDataProtection()
@@ -33,17 +34,27 @@ public class Program
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
+            app.UseSwaggerUI(options =>
+            {
+                options.RoutePrefix = string.Empty;
+                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf.Mcm.Api v1");
+            });
         }
 
         app.UseHttpsRedirection();
-
-        app.UseAuthorization();
-
         app.MapControllers();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<TomeshelfShiftDbContext>();
+            await db.Database.MigrateAsync();
+        }
+
+        app.MapExecutorDiscoveryEndpoint();
+        app.MapDefaultEndpoints();
 
         await app.RunAsync();
     }
