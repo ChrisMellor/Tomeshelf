@@ -11,6 +11,15 @@ using Tomeshelf.ServiceDefaults;
 
 namespace Tomeshelf.SHiFT.Api;
 
+/// <summary>
+///     Configures and runs the Tomeshelf Shift web application.
+/// </summary>
+/// <remarks>
+///     This entry point sets up application services, configures middleware, applies database migrations,
+///     and starts the web server. It enables controllers, OpenAPI/Swagger documentation, SQL Server database context, data
+///     protection with persisted keys, and application-specific services. In development environments, it also configures
+///     the Swagger UI for API exploration.
+/// </remarks>
 public class Program
 {
     public static async Task Main(string[] args)
@@ -40,7 +49,7 @@ public class Program
             app.UseSwaggerUI(options =>
             {
                 options.RoutePrefix = string.Empty;
-                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf.Mcm.Api v1");
+                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf.SHiFT.Api v1");
             });
         }
 

@@ -1,9 +1,9 @@
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.EntityFrameworkCore;
 using Tomeshelf.Application.Contracts.SHiFT;
 using Tomeshelf.Application.SHiFT;
 using Tomeshelf.Domain.Entities.SHiFT;
@@ -11,32 +11,72 @@ using Tomeshelf.Infrastructure.Persistence;
 
 namespace Tomeshelf.Infrastructure.SHiFT;
 
+/// <summary>
+///     Provides methods for retrieving and updating SHiFT account settings, including secure handling of credentials, in
+///     the underlying data store.
+/// </summary>
+/// <remarks>
+///     This class is intended for use in scenarios where SHiFT account configuration must be securely stored
+///     and accessed, such as for automated service authentication. All password values are encrypted at rest and decrypted
+///     only when needed for use. This class is not thread-safe; concurrent access should be managed externally if
+///     required.
+/// </remarks>
 public sealed class ShiftSettingsStore : IShiftSettingsStore
 {
-    private readonly TomeshelfShiftDbContext _db;
+    private readonly TomeshelfShiftDbContext _context;
     private readonly IDataProtector _protector;
 
-    public ShiftSettingsStore(TomeshelfShiftDbContext db, IDataProtectionProvider dp)
+    /// <summary>
+    ///     Initializes a new instance of the ShiftSettingsStore class with the specified database context and data
+    ///     protection provider.
+    /// </summary>
+    /// <param name="context">The database context used to access and manage shift settings data.</param>
+    /// <param name="dataProtectionProvider">
+    ///     The data protection provider used to create a protector for securing sensitive
+    ///     information.
+    /// </param>
+    public ShiftSettingsStore(TomeshelfShiftDbContext context, IDataProtectionProvider dataProtectionProvider)
     {
-        _db = db;
-        _protector = dp.CreateProtector("Tomeshelf.SHiFT.ShiftSettings.Password.v1");
+        _context = context;
+        _protector = dataProtectionProvider.CreateProtector("Tomeshelf.SHiFT.ShiftSettings.Password.v1");
     }
 
-    public async Task<ShiftSettingsDto> GetAsync(CancellationToken ct)
+    /// <summary>
+    ///     Asynchronously retrieves the current shift settings.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains a <see cref="ShiftSettingsDto" />
+    ///     object with the current shift settings. If no settings are found, returns a default instance with empty or
+    ///     default values.
+    /// </returns>
+    public async Task<ShiftSettingsDto> GetAsync(CancellationToken cancellationToken)
     {
-        var row = await _db.ShiftSettings
-                           .AsNoTracking()
-                           .SingleOrDefaultAsync(x => x.Id == 1, ct) ??
+        var row = await _context.ShiftSettings
+                                .AsNoTracking()
+                                .SingleOrDefaultAsync(x => x.Id == 1, cancellationToken) ??
                   new SettingsEntity();
 
         return new ShiftSettingsDto(row.Email, row.DefaultService, !string.IsNullOrWhiteSpace(row.EncryptedPassword), row.UpdatedUtc);
     }
 
-    public async Task<IReadOnlyList<(string Email, string Password, string Service)>> GetForUseAsync(CancellationToken ct)
+    /// <summary>
+    ///     Retrieves a list of SHiFT user credentials for use, including email, decrypted password, and associated service.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <returns>
+    ///     A read-only list of tuples, each containing the email, decrypted password, and service name for a configured
+    ///     SHiFT user.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    ///     Thrown if SHiFT settings are not configured, or if any user entry is
+    ///     missing an email or password.
+    /// </exception>
+    public async Task<IReadOnlyList<(string Email, string Password, string Service)>> GetForUseAsync(CancellationToken cancellationToken)
     {
-        var rows = await _db.ShiftSettings
-                            .AsNoTracking()
-                            .ToListAsync(ct);
+        var rows = await _context.ShiftSettings
+                                 .AsNoTracking()
+                                 .ToListAsync(cancellationToken);
 
         if (rows.Count == 0)
         {
@@ -65,7 +105,20 @@ public sealed class ShiftSettingsStore : IShiftSettingsStore
         return users;
     }
 
-    public async Task UpsertAsync(ShiftSettingsUpdateRequest request, CancellationToken ct)
+    /// <summary>
+    ///     Creates a new shift settings record or updates the existing one with the specified values asynchronously.
+    /// </summary>
+    /// <param name="request">
+    ///     An object containing the updated shift settings values to be applied. The Email and DefaultService properties
+    ///     must not be null, empty, or whitespace.
+    /// </param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <returns>A task that represents the asynchronous upsert operation.</returns>
+    /// <exception cref="ArgumentException">
+    ///     Thrown if the Email or DefaultService property of the request is null, empty, or consists only of white-space
+    ///     characters.
+    /// </exception>
+    public async Task UpsertAsync(ShiftSettingsUpdateRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Email))
         {
@@ -77,11 +130,11 @@ public sealed class ShiftSettingsStore : IShiftSettingsStore
             throw new ArgumentException("DefaultService required.");
         }
 
-        var row = await _db.ShiftSettings.SingleOrDefaultAsync(x => x.Id == 1, ct);
+        var row = await _context.ShiftSettings.SingleOrDefaultAsync(x => x.Id == 1, cancellationToken);
         if (row is null)
         {
             row = new SettingsEntity();
-            _db.ShiftSettings.Add(row);
+            _context.ShiftSettings.Add(row);
         }
 
         row.Email = request.Email.Trim();
@@ -93,6 +146,6 @@ public sealed class ShiftSettingsStore : IShiftSettingsStore
             row.EncryptedPassword = _protector.Protect(request.Password);
         }
 
-        await _db.SaveChangesAsync(ct);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }
