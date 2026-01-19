@@ -1,12 +1,16 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Threading.Tasks;
-using Tomeshelf.Application.SHiFT;
+using Tomeshelf.Application.Abstractions.SHiFT;
+using Tomeshelf.Application.Services.SHiFT;
 using Tomeshelf.Infrastructure.Persistence;
 using Tomeshelf.Infrastructure.SHiFT;
+using Tomeshelf.ServiceDefaults;
+
+ture.SHiFT;
 using Tomeshelf.ServiceDefaults;
 
 namespace Tomeshelf.SHiFT.Api;
@@ -63,7 +67,8 @@ public class Program
         }
 
         app.MapExecutorDiscoveryEndpoint();
-        app.MapDefaultEndpoints();
+        app.MapDefaultEnd
+ints();
 
         await app.RunAsync();
     }

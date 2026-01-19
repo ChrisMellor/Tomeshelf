@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.Application.Abstractions.SHiFT;
 
-namespace Tomeshelf.Application.SHiFT;
+namespace Tomeshelf.Application.Services.SHiFT;
 
 /// <summary>
 ///     Provides methods for redeeming SHiFT codes using configured user accounts and services.

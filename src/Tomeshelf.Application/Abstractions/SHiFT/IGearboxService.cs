@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Tomeshelf.Application.SHiFT;
+namespace Tomeshelf.Application.Abstractions.SHiFT;
 
 /// <summary>
 ///     Defines methods for redeeming SHIFT codes using the Gearbox service.

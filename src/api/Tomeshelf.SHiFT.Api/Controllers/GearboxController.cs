@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Application.SHiFT;
+using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.SHiFT.Api.Contracts;
 
 namespace Tomeshelf.SHiFT.Api.Controllers;

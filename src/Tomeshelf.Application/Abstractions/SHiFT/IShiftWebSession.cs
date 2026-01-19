@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Application.Contracts.SHiFT;
 
-namespace Tomeshelf.Application.SHiFT;
+namespace Tomeshelf.Application.Abstractions.SHiFT;
 
 /// <summary>
 ///     Defines the contract for managing a Shift web session, including authentication, CSRF token retrieval, and reward
@@ -72,5 +72,6 @@ public interface IShiftWebSession
     /// <param name="redeemBody">The request body containing the code or token to redeem. Cannot be null or empty.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous redeem operation.</returns>
-    Task RedeemAsync(string redeemBody, CancellationToken cancellationToken = default);
+    Task RedeemAsync(string redeemBody, CancellationToken cancellationToke
+= default);
 }
