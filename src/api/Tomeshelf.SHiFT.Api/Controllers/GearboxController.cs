@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Application.SHiFT;
+using Tomeshelf.SHiFT.Api.Contracts;
 
 namespace Tomeshelf.SHiFT.Api.Controllers;
 
@@ -17,17 +18,15 @@ public class GearboxController : ControllerBase
     }
 
     [HttpPost("redeem")]
-    public async Task<IActionResult> Redeem([FromBody] RedeemRequest request, CancellationToken ct)
+    public async Task<IActionResult> Redeem([FromBody] RedeemRequestDto requestDto, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(request.Code))
+        if (string.IsNullOrWhiteSpace(requestDto.Code))
         {
             return BadRequest("Code is required.");
         }
 
-        await _gearboxService.RedeemCodeAsync(request.Code, request.Service, ct);
+        await _gearboxService.RedeemCodeAsync(requestDto.Code, requestDto.Service, ct);
 
         return Ok();
     }
-
-    public sealed record RedeemRequest(string Code, string? Service);
 }
