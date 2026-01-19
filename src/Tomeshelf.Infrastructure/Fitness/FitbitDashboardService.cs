@@ -1,13 +1,13 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using Tomeshelf.Application.Contracts;
+using Tomeshelf.Application.Contracts.Fitbit;
 using Tomeshelf.Domain.Entities.Fitness;
 using Tomeshelf.Infrastructure.Fitness.Models;
 using Tomeshelf.Infrastructure.Persistence;
@@ -34,6 +34,55 @@ public sealed class FitbitDashboardService
         _cache = cache;
         _dbContext = dbContext;
         _logger = logger;
+    }
+
+    /// <summary>
+    ///     Retrieves a dashboard snapshot for the supplied date, preferring stored data.
+    /// </summary>
+    public async Task<FitbitDashboardDto> GetDashboardAsync(DateOnly date, bool forceRefresh = false, CancellationToken cancellationToken = default)
+    {
+        var cacheKey = $"fitbit:dashboard:{date:yyyy-MM-dd}";
+        if (!forceRefresh && _cache.TryGetValue(cacheKey, out FitbitDashboardDto cached) && cached is not null)
+        {
+            return cached;
+        }
+
+        var isToday = date == DateOnly.FromDateTime(DateTime.Today);
+        var existing = await _dbContext.DailySnapshots
+                                       .AsNoTracking()
+                                       .SingleOrDefaultAsync(s => s.Date == date, cancellationToken)
+                                       .ConfigureAwait(false);
+
+        var shouldFetch = forceRefresh || existing is null || (isToday && ((DateTimeOffset.UtcNow - existing.GeneratedUtc) >= TodayRefreshThreshold));
+
+        FitbitDashboardDto snapshot = null;
+
+        if (shouldFetch)
+        {
+            try
+            {
+                snapshot = await FetchSnapshotAsync(date, cancellationToken)
+                   .ConfigureAwait(false);
+                await UpsertSnapshotAsync(snapshot, cancellationToken)
+                   .ConfigureAwait(false);
+            }
+            catch (Exception ex) when (!IsCriticalFitbitFailure(ex))
+            {
+                _logger.LogWarning(ex, "Failed to refresh Fitbit snapshot for {Date}", date);
+            }
+        }
+
+        if (snapshot is null && existing is not null)
+        {
+            snapshot = MapSnapshot(existing);
+        }
+
+        if (snapshot is not null)
+        {
+            _cache.Set(cacheKey, snapshot, CacheDuration);
+        }
+
+        return snapshot;
     }
 
     private static FitbitActivitySummaryDto BuildActivitySummary(ActivitiesResponse response)
@@ -263,55 +312,6 @@ public sealed class FitbitDashboardService
             Sleep = BuildSleepSummary(sleep),
             Activity = BuildActivitySummary(activities)
         };
-    }
-
-    /// <summary>
-    ///     Retrieves a dashboard snapshot for the supplied date, preferring stored data.
-    /// </summary>
-    public async Task<FitbitDashboardDto> GetDashboardAsync(DateOnly date, bool forceRefresh = false, CancellationToken cancellationToken = default)
-    {
-        var cacheKey = $"fitbit:dashboard:{date:yyyy-MM-dd}";
-        if (!forceRefresh && _cache.TryGetValue(cacheKey, out FitbitDashboardDto cached) && cached is not null)
-        {
-            return cached;
-        }
-
-        var isToday = date == DateOnly.FromDateTime(DateTime.Today);
-        var existing = await _dbContext.DailySnapshots
-                                       .AsNoTracking()
-                                       .SingleOrDefaultAsync(s => s.Date == date, cancellationToken)
-                                       .ConfigureAwait(false);
-
-        var shouldFetch = forceRefresh || existing is null || (isToday && ((DateTimeOffset.UtcNow - existing.GeneratedUtc) >= TodayRefreshThreshold));
-
-        FitbitDashboardDto snapshot = null;
-
-        if (shouldFetch)
-        {
-            try
-            {
-                snapshot = await FetchSnapshotAsync(date, cancellationToken)
-                   .ConfigureAwait(false);
-                await UpsertSnapshotAsync(snapshot, cancellationToken)
-                   .ConfigureAwait(false);
-            }
-            catch (Exception ex) when (!IsCriticalFitbitFailure(ex))
-            {
-                _logger.LogWarning(ex, "Failed to refresh Fitbit snapshot for {Date}", date);
-            }
-        }
-
-        if (snapshot is null && existing is not null)
-        {
-            snapshot = MapSnapshot(existing);
-        }
-
-        if (snapshot is not null)
-        {
-            _cache.Set(cacheKey, snapshot, CacheDuration);
-        }
-
-        return snapshot;
     }
 
     private static bool IsCriticalFitbitFailure(Exception exception)

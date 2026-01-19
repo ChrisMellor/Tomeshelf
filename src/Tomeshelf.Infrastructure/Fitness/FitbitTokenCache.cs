@@ -1,9 +1,9 @@
-using System;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
+using System.Linq;
 using Tomeshelf.Application.Options;
 using Tomeshelf.Domain.Entities.Fitness;
 using Tomeshelf.Infrastructure.Persistence;
@@ -14,7 +14,7 @@ public sealed class FitbitTokenCache
 {
     private readonly ILogger<FitbitTokenCache> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly object _sync = new object();
+    private readonly object _sync = new();
 
     private string _accessToken;
     private DateTimeOffset? _expiresAtUtc;
@@ -87,6 +87,21 @@ public sealed class FitbitTokenCache
         }
     }
 
+    public void Update(string accessToken, string refreshToken, DateTimeOffset? expiresAtUtc)
+    {
+        lock (_sync)
+        {
+            _accessToken = accessToken;
+            if (!string.IsNullOrEmpty(refreshToken))
+            {
+                _refreshToken = refreshToken;
+            }
+
+            _expiresAtUtc = expiresAtUtc;
+            Persist();
+        }
+    }
+
     private void Persist()
     {
         try
@@ -137,21 +152,6 @@ public sealed class FitbitTokenCache
             _logger.LogWarning(ex, "Failed to read Fitbit credentials from database.");
 
             return false;
-        }
-    }
-
-    public void Update(string accessToken, string refreshToken, DateTimeOffset? expiresAtUtc)
-    {
-        lock (_sync)
-        {
-            _accessToken = accessToken;
-            if (!string.IsNullOrEmpty(refreshToken))
-            {
-                _refreshToken = refreshToken;
-            }
-
-            _expiresAtUtc = expiresAtUtc;
-            Persist();
         }
     }
 }

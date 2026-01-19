@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Tomeshelf.Application.Contracts;
+using Tomeshelf.Application.Contracts.HumbleBundle;
 using Tomeshelf.Infrastructure.Persistence;
 
 namespace Tomeshelf.Infrastructure.Bundles;
