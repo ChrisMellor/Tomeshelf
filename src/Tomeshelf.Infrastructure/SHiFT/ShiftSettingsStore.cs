@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.EntityFrameworkCore;
+using Tomeshelf.Application.Abstractions.SHiFT;
 using Tomeshelf.Application.Contracts.SHiFT;
 using Tomeshelf.Domain.Entities.SHiFT;
 using Tomeshelf.Infrastructure.Persistence;
@@ -41,19 +42,19 @@ public sealed class ShiftSettingsStore : IShiftSettingsStore
     }
 
     /// <summary>
-    ///     Asynchronously retrieves the current shift settings.
+    ///     Asynchronously retrieves the shift settings for the specified identifier.
     /// </summary>
+    /// <param name="id">The unique identifier of the shift settings to retrieve.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains a <see cref="ShiftSettingsDto" />
-    ///     object with the current shift settings. If no settings are found, returns a default instance with empty or
-    ///     default values.
+    ///     A task that represents the asynchronous operation. The task result contains a <see cref="ShiftSettingsDto" /> with
+    ///     the shift settings for the specified identifier. If no settings are found, a default instance is returned.
     /// </returns>
-    public async Task<ShiftSettingsDto> GetAsync(CancellationToken cancellationToken)
+    public async Task<ShiftSettingsDto> GetAsync(int id, CancellationToken cancellationToken)
     {
         var row = await _context.ShiftSettings
                                 .AsNoTracking()
-                                .SingleOrDefaultAsync(x => x.Id == 1, cancellationToken) ??
+                                .SingleOrDefaultAsync(x => x.Id == id, cancellationToken) ??
                   new SettingsEntity();
 
         return new ShiftSettingsDto(row.Email, row.DefaultService, !string.IsNullOrWhiteSpace(row.EncryptedPassword), row.UpdatedUtc);
@@ -105,17 +106,18 @@ public sealed class ShiftSettingsStore : IShiftSettingsStore
     }
 
     /// <summary>
-    ///     Creates a new shift settings record or updates the existing one with the specified values asynchronously.
+    ///     Creates or updates shift settings for the specified user based on the provided request.
     /// </summary>
-    /// <param name="request">
-    ///     An object containing the updated shift settings values to be applied. The Email and DefaultService properties
-    ///     must not be null, empty, or whitespace.
-    /// </param>
+    /// <remarks>
+    ///     If no existing shift settings are found for the specified email, a new entry is created. The
+    ///     password, if provided, is securely stored using encryption.
+    /// </remarks>
+    /// <param name="request">An object containing the user's email, default service, and optional password to be upserted.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous upsert operation.</returns>
     /// <exception cref="ArgumentException">
-    ///     Thrown if the Email or DefaultService property of the request is null, empty, or consists only of white-space
-    ///     characters.
+    ///     Thrown if <paramref name="request" />.Email or <paramref name="request" />.DefaultService is null, empty, or
+    ///     consists only of white-space characters.
     /// </exception>
     public async Task UpsertAsync(ShiftSettingsUpdateRequest request, CancellationToken cancellationToken)
     {
@@ -129,7 +131,7 @@ public sealed class ShiftSettingsStore : IShiftSettingsStore
             throw new ArgumentException("DefaultService required.");
         }
 
-        var row = await _context.ShiftSettings.SingleOrDefaultAsync(x => x.Id == 1, cancellationToken);
+        var row = await _context.ShiftSettings.SingleOrDefaultAsync(x => x.Email == request.Email, cancellationToken);
         if (row is null)
         {
             row = new SettingsEntity();

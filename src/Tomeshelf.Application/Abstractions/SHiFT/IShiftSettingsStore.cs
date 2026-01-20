@@ -16,14 +16,15 @@ namespace Tomeshelf.Application.Abstractions.SHiFT;
 public interface IShiftSettingsStore
 {
     /// <summary>
-    ///     Asynchronously retrieves the current shift settings.
+    ///     Asynchronously retrieves the shift settings for the specified shift identifier.
     /// </summary>
+    /// <param name="id">The unique identifier of the shift whose settings are to be retrieved.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation. The task result contains a <see cref="ShiftSettingsDto" />
-    ///     object with the current shift settings.
+    ///     with the settings for the specified shift, or <c>null</c> if no settings are found.
     /// </returns>
-    Task<ShiftSettingsDto> GetAsync(CancellationToken cancellationToken);
+    Task<ShiftSettingsDto> GetAsync(int id, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Asynchronously retrieves a read-only list of email, password, and service tuples available for use.
@@ -36,10 +37,10 @@ public interface IShiftSettingsStore
     Task<IReadOnlyList<(string Email, string Password, string Service)>> GetForUseAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Creates a new shift settings record or updates an existing one asynchronously based on the specified request.
+    ///     Creates a new shift settings entry or updates an existing one asynchronously based on the specified request.
     /// </summary>
     /// <param name="request">The shift settings update request containing the data to insert or update. Cannot be null.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the upsert operation.</param>
     /// <returns>A task that represents the asynchronous upsert operation.</returns>
     Task UpsertAsync(ShiftSettingsUpdateRequest request, CancellationToken cancellationToken);
 }
