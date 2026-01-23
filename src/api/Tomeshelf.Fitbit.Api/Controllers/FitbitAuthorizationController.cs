@@ -1,8 +1,8 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Tomeshelf.Infrastructure.Fitness;
+using System.Threading;
+using System.Threading.Tasks;
+using Tomeshelf.Infrastructure.Shared.Fitness;
 
 namespace Tomeshelf.Fitbit.Api.Controllers;
 

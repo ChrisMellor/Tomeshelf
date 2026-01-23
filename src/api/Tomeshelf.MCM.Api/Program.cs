@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Tomeshelf.Infrastructure.Shared.Persistence;
 using Tomeshelf.Mcm.Api.Clients;
 using Tomeshelf.Mcm.Api.Mappers;
 using Tomeshelf.Mcm.Api.Repositories;

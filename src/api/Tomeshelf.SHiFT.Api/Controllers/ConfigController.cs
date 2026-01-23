@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Tomeshelf.Application.Abstractions.SHiFT;
-using Tomeshelf.Application.Contracts.SHiFT;
+using Tomeshelf.Application.Shared.Abstractions.SHiFT;
+using Tomeshelf.Application.Shared.Contracts.SHiFT;
 
 namespace Tomeshelf.SHiFT.Api.Controllers;
 

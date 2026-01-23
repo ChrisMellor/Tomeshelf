@@ -1,13 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Tomeshelf.Application.Options;
-using Tomeshelf.Infrastructure.Bundles.Upload;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Tomeshelf.Application.Shared.Options;
+using Tomeshelf.Infrastructure.Shared.Bundles.Upload;
 
 namespace Tomeshelf.FileUploader.Api.Controllers;
 

@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.Domain.Shared.Entities.Mcm;
 using Tomeshelf.Mcm.Api.Clients;
 using Tomeshelf.Mcm.Api.Contracts;
 using Tomeshelf.Mcm.Api.Mappers;
 using Tomeshelf.Mcm.Api.Models;
 using Tomeshelf.Mcm.Api.Records;
-using Tomeshelf.Mcm.Api.Repositories;
-
-s;
 using Tomeshelf.Mcm.Api.Repositories;
 
 namespace Tomeshelf.Mcm.Api.Services;
@@ -234,7 +232,7 @@ internal sealed class GuestsService : IGuestsService
            .Trim();
         var lastName = trimmed[(lastSpace + 1)..]
            .Trim();
-
-       return (firstName, lastName);
+
+        return (firstName, lastName);
     }
 }

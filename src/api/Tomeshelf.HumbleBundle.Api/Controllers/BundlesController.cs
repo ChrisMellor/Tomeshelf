@@ -1,9 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Tomeshelf.Application.Shared.Contracts.HumbleBundle;
+using Tomeshelf.Infrastructure.Shared.Bundles;
 
 namespace Tomeshelf.HumbleBundle.Api.Controllers;
 
