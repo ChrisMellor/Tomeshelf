@@ -2,10 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Domain.Shared.Entities.Mcm;
-using Tomeshelf.Mcm.Api.Models;
-using Tomeshelf.Mcm.Api.Repositories;
+using Tomeshelf.MCM.Api.Models;
+using Tomeshelf.MCM.Api.Repositories;
 
-namespace Tomeshelf.Mcm.Api.Services;
+namespace Tomeshelf.MCM.Api.Services;
 
 /// <summary>
 ///     Provides methods for managing event configuration entities, including retrieval, creation, update, and deletion

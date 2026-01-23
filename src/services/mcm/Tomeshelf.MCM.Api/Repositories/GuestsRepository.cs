@@ -5,9 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Domain.Shared.Entities.Mcm;
 using Tomeshelf.Infrastructure.Shared.Persistence;
-using Tomeshelf.Mcm.Api.Records;
+using Tomeshelf.MCM.Api.Records;
 
-namespace Tomeshelf.Mcm.Api.Repositories;
+namespace Tomeshelf.MCM.Api.Repositories;
 
 /// <summary>
 ///     Provides data access methods for retrieving and managing guest and event information in the Tomeshelf system.

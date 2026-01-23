@@ -6,10 +6,10 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Mcm.Api.Records;
-using Tomeshelf.Mcm.Api.Responses;
+using Tomeshelf.MCM.Api.Records;
+using Tomeshelf.MCM.Api.Responses;
 
-namespace Tomeshelf.Mcm.Api.Clients;
+namespace Tomeshelf.MCM.Api.Clients;
 
 /// <summary>
 ///     Provides methods for retrieving guest records associated with events from the MCM API.

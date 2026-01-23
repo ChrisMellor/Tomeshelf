@@ -1,4 +1,4 @@
-﻿namespace Tomeshelf.Mcm.Api.Records;
+﻿namespace Tomeshelf.MCM.Api.Records;
 
 /// <summary>
 ///     Represents a summary of changes resulting from a synchronization operation, including counts of items added,

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Tomeshelf.Mcm.Api.Records;
+namespace Tomeshelf.MCM.Api.Records;
 
 /// <summary>
 ///     Represents an immutable snapshot of the current guest list, including the total number of guests and their details.

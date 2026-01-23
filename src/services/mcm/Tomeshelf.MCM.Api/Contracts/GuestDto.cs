@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tomeshelf.Mcm.Api.Contracts;
+namespace Tomeshelf.MCM.Api.Contracts;
 
 /// <summary>
 ///     Represents a data transfer object containing information about a guest, including identification, descriptive

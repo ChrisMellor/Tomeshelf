@@ -1,6 +1,6 @@
 ﻿using Tomeshelf.Domain.Shared.Entities.Mcm;
 
-namespace Tomeshelf.Mcm.Api.Mappers;
+namespace Tomeshelf.MCM.Api.Mappers;
 
 /// <summary>
 ///     Defines methods for retrieving, cloning, and updating guest entities within an event management context.

@@ -1,9 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Mcm.Api.Contracts;
-using Tomeshelf.Mcm.Api.Models;
+using Tomeshelf.MCM.Api.Contracts;
+using Tomeshelf.MCM.Api.Models;
 
-namespace Tomeshelf.Mcm.Api.Services;
+namespace Tomeshelf.MCM.Api.Services;
 
 /// <summary>
 ///     Defines methods for retrieving and synchronizing guest data for a specified event configuration.

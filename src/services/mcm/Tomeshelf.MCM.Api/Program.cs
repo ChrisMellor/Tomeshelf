@@ -6,14 +6,14 @@ using System;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Tomeshelf.Infrastructure.Shared.Persistence;
-using Tomeshelf.Mcm.Api.Clients;
-using Tomeshelf.Mcm.Api.Mappers;
-using Tomeshelf.Mcm.Api.Repositories;
-using Tomeshelf.Mcm.Api.Services;
-using Tomeshelf.Mcm.Api.Transformers;
+using Tomeshelf.MCM.Api.Clients;
+using Tomeshelf.MCM.Api.Mappers;
+using Tomeshelf.MCM.Api.Repositories;
+using Tomeshelf.MCM.Api.Services;
+using Tomeshelf.MCM.Api.Transformers;
 using Tomeshelf.ServiceDefaults;
 
-namespace Tomeshelf.Mcm.Api;
+namespace Tomeshelf.MCM.Api;
 
 /// <summary>
 ///     Provides the entry point for the application and configures the web host and services.
@@ -27,7 +27,7 @@ namespace Tomeshelf.Mcm.Api;
 public class Program
 {
     /// <summary>
-    ///     Configures and runs the Tomeshelf.Mcm.Api web application.
+    ///     Configures and runs the Tomeshelf.MCM.Api web application.
     /// </summary>
     /// <remarks>
     ///     This method sets up application services, configures controllers, OpenAPI/Swagger, database
@@ -77,7 +77,7 @@ public class Program
             app.UseSwaggerUI(options =>
             {
                 options.RoutePrefix = string.Empty;
-                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf.Mcm.Api v1");
+                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf.MCM.Api v1");
             });
         }
 

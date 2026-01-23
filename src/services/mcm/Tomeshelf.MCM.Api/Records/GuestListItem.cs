@@ -1,6 +1,6 @@
 using System;
 
-namespace Tomeshelf.Mcm.Api.Records;
+namespace Tomeshelf.MCM.Api.Records;
 
 /// <summary>
 ///     Represents an entry in a guest list, including identifying information, profile details, and status indicators.

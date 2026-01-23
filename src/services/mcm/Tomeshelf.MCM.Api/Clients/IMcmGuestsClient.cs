@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Mcm.Api.Records;
+using Tomeshelf.MCM.Api.Records;
 
-namespace Tomeshelf.Mcm.Api.Clients;
+namespace Tomeshelf.MCM.Api.Clients;
 
 /// <summary>
 ///     Defines methods for retrieving guest information associated with events.

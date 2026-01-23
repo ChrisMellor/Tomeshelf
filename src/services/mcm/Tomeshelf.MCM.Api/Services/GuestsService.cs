@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Domain.Shared.Entities.Mcm;
-using Tomeshelf.Mcm.Api.Clients;
-using Tomeshelf.Mcm.Api.Contracts;
-using Tomeshelf.Mcm.Api.Mappers;
-using Tomeshelf.Mcm.Api.Models;
-using Tomeshelf.Mcm.Api.Records;
-using Tomeshelf.Mcm.Api.Repositories;
+using Tomeshelf.MCM.Api.Clients;
+using Tomeshelf.MCM.Api.Contracts;
+using Tomeshelf.MCM.Api.Mappers;
+using Tomeshelf.MCM.Api.Models;
+using Tomeshelf.MCM.Api.Records;
+using Tomeshelf.MCM.Api.Repositories;
 
-namespace Tomeshelf.Mcm.Api.Services;
+namespace Tomeshelf.MCM.Api.Services;
 
 /// <summary>
 ///     Provides operations for retrieving and synchronizing guest information for events.

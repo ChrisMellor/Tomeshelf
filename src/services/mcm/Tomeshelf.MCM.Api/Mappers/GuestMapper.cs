@@ -2,7 +2,7 @@
 using System.Reflection;
 using Tomeshelf.Domain.Shared.Entities.Mcm;
 
-namespace Tomeshelf.Mcm.Api.Mappers;
+namespace Tomeshelf.MCM.Api.Mappers;
 
 /// <summary>
 ///     Provides methods for cloning, updating, and retrieving information about guest entities, including mapping guest

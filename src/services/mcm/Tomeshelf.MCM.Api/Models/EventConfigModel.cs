@@ -1,4 +1,4 @@
-﻿namespace Tomeshelf.Mcm.Api.Models;
+﻿namespace Tomeshelf.MCM.Api.Models;
 
 /// <summary>
 ///     Represents the configuration settings for an event, including its unique identifier and name.

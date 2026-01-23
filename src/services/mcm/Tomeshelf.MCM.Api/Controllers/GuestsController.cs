@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Mcm.Api.Contracts;
-using Tomeshelf.Mcm.Api.Models;
-using Tomeshelf.Mcm.Api.Services;
+using Tomeshelf.MCM.Api.Contracts;
+using Tomeshelf.MCM.Api.Models;
+using Tomeshelf.MCM.Api.Services;
 
-namespace Tomeshelf.Mcm.Api.Controllers;
+namespace Tomeshelf.MCM.Api.Controllers;
 
 /// <summary>
 ///     Provides API endpoints for managing and synchronizing guests associated with a specific event.

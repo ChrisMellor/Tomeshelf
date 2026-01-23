@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Tomeshelf.Mcm.Api.Responses;
+namespace Tomeshelf.MCM.Api.Responses;
 
 /// <summary>
 ///     Represents the response data for an event, including its identifier, name, slug, and associated people.

@@ -219,7 +219,7 @@ internal class Program
     {
         var db = database.AddDatabase("mcmdb");
 
-        var api = builder.AddProject<Tomeshelf_Mcm_Api>("mcmapi")
+        var api = builder.AddProject<Tomeshelf_MCM_Api>("mcmapi")
                          .WithHttpHealthCheck("/health")
                          .WithReference(db)
                          .WaitFor(db)

@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Mcm.Api.Models;
-using Tomeshelf.Mcm.Api.Services;
+using Tomeshelf.MCM.Api.Models;
+using Tomeshelf.MCM.Api.Services;
 
-namespace Tomeshelf.Mcm.Api.Controllers;
+namespace Tomeshelf.MCM.Api.Controllers;
 
 /// <summary>
 ///     Defines API endpoints for managing event configuration data, including retrieving, updating, and deleting event

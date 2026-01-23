@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tomeshelf.Mcm.Api.Contracts;
+namespace Tomeshelf.MCM.Api.Contracts;
 
 /// <summary>
 ///     Represents the result of a guest synchronization operation, including event details and counts of changes applied.

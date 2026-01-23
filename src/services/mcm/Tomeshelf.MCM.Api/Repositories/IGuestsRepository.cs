@@ -1,9 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Domain.Shared.Entities.Mcm;
-using Tomeshelf.Mcm.Api.Records;
+using Tomeshelf.MCM.Api.Records;
 
-namespace Tomeshelf.Mcm.Api.Repositories;
+namespace Tomeshelf.MCM.Api.Repositories;
 
 /// <summary>
 ///     Defines a contract for accessing and managing guest information associated with events.
