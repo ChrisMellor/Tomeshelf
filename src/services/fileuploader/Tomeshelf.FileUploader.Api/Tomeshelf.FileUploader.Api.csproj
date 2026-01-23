@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -10,8 +10,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Tomeshelf.Infrastructure\Tomeshelf.Infrastructure.Shared.csproj" />
-		<ProjectReference Include="..\..\Tomeshelf.ServiceDefaults\Tomeshelf.ServiceDefaults.csproj" />
+		<ProjectReference Include="..\..\..\shared\Tomeshelf.Infrastructure\Tomeshelf.Infrastructure.Shared.csproj" />
+		<ProjectReference Include="..\..\..\service-defaults\Tomeshelf.ServiceDefaults\Tomeshelf.ServiceDefaults.csproj" />
 	</ItemGroup>
 
 </Project>
+

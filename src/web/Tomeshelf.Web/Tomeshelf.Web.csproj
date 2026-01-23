@@ -5,8 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Tomeshelf.Application\Tomeshelf.Application.Shared.csproj" />
-    <ProjectReference Include="..\..\Tomeshelf.ServiceDefaults\Tomeshelf.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\shared\Tomeshelf.Application\Tomeshelf.Application.Shared.csproj" />
+    <ProjectReference Include="..\..\service-defaults\Tomeshelf.ServiceDefaults\Tomeshelf.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>
+

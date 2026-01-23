@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -29,8 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Tomeshelf.Infrastructure\Tomeshelf.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\Tomeshelf.Application\Tomeshelf.Application.csproj" />
+    <ProjectReference Include="..\..\src\shared\Tomeshelf.Infrastructure\Tomeshelf.Infrastructure.Shared.csproj" />
+    <ProjectReference Include="..\..\src\shared\Tomeshelf.Application\Tomeshelf.Application.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,3 +38,4 @@
   </ItemGroup>
 
 </Project>
+
