@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.IO;
 
-namespace Tomeshelf.Infrastructure.Bundles.Upload;
+namespace Tomeshelf.Infrastructure.Shared.Bundles.Upload;
 
 internal static class MimeTypes
 {

@@ -1,4 +1,4 @@
-namespace Tomeshelf.Application.Options;
+namespace Tomeshelf.Application.Shared.Options;
 
 /// <summary>
 ///     Options used to configure Google Drive access for bundle uploads.

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Application.Abstractions.SHiFT;
-using Tomeshelf.Application.Contracts.SHiFT;
+using Tomeshelf.Application.Shared.Abstractions.SHiFT;
+using Tomeshelf.Application.Shared.Contracts.SHiFT;
 
-namespace Tomeshelf.Application.Services.SHiFT;
+namespace Tomeshelf.Application.Shared.Services.SHiFT;
 
 /// <summary>
 ///     Provides methods for redeeming SHiFT codes using configured user accounts and services.

@@ -6,12 +6,12 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Application.Abstractions.SHiFT;
-using Tomeshelf.Application.Contracts.SHiFT;
-using Tomeshelf.Domain.Entities.SHiFT;
-using Tomeshelf.Infrastructure.Persistence;
+using Tomeshelf.Application.Shared.Abstractions.SHiFT;
+using Tomeshelf.Application.Shared.Contracts.SHiFT;
+using Tomeshelf.Domain.Shared.Entities.SHiFT;
+using Tomeshelf.Infrastructure.Shared.Persistence;
 
-namespace Tomeshelf.Infrastructure.SHiFT;
+namespace Tomeshelf.Infrastructure.Shared.SHiFT;
 
 /// <summary>
 ///     Provides methods for retrieving and updating SHiFT account settings, including secure handling of credentials, in

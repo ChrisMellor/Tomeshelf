@@ -1,6 +1,6 @@
 using System;
 
-namespace Tomeshelf.Infrastructure.Bundles;
+namespace Tomeshelf.Infrastructure.Shared.Bundles;
 
 /// <summary>
 ///     Summary of a bundle ingest operation.

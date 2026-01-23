@@ -8,10 +8,10 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Application.Abstractions.SHiFT;
-using Tomeshelf.Application.Contracts.SHiFT;
+using Tomeshelf.Application.Shared.Abstractions.SHiFT;
+using Tomeshelf.Application.Shared.Contracts.SHiFT;
 
-namespace Tomeshelf.Infrastructure.SHiFT;
+namespace Tomeshelf.Infrastructure.Shared.SHiFT;
 
 /// <summary>
 ///     Provides a session for interacting with the SHiFT web service, enabling authentication, CSRF token retrieval, and
@@ -67,81 +67,6 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
         _httpClient.Dispose();
 
         return ValueTask.CompletedTask;
-    }
-
-    /// <summary>
-    ///     Asynchronously builds a list of redemption options for the specified code and service by retrieving and parsing
-    ///     the corresponding redemption forms.
-    /// </summary>
-    /// <param name="code">The code to be redeemed. This value is included in the request to identify the entitlement offer.</param>
-    /// <param name="csrfToken">
-    ///     The CSRF token to include in the request headers for security validation. Cannot be null or
-    ///     empty.
-    /// </param>
-    /// <param name="service">
-    ///     The name of the service for which to retrieve redemption options. The method searches for forms matching this
-    ///     service.
-    /// </param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-    /// <returns>
-    ///     A list of <see cref="RedemptionOption" /> objects representing the available redemption options for the specified
-    ///     code and service. The list contains one entry for each matching form found.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">Thrown if no redemption form is found for the specified service.</exception>
-    public async Task<List<RedemptionOption>> BuildRedeemBodyAsync(string code, string csrfToken, string service, CancellationToken cancellationToken = default)
-    {
-        var url = $"entitlement_offer_codes?code={Uri.EscapeDataString(code)}";
-
-        using var req = new HttpRequestMessage(HttpMethod.Get, url);
-        req.Headers.Add("X-Requested-With", "XMLHttpRequest");
-        req.Headers.Add("X-CSRF-Token", csrfToken);
-        req.Headers.Accept.Clear();
-        req.Headers.Accept.ParseAdd("text/html");
-
-        using var res = await _httpClient.SendAsync(req, cancellationToken);
-        res.EnsureSuccessStatusCode();
-
-        var html = await res.Content.ReadAsStringAsync(cancellationToken);
-
-        var doc = await _browsingContext.OpenAsync(r => r.Content(html), cancellationToken);
-
-        var matchingForms = doc.QuerySelectorAll("form")
-                               .Where(f =>
-                                {
-                                    var svc = f.QuerySelector("input[name='archway_code_redemption[service]']")
-                                              ?.GetAttribute("value");
-
-                                    return string.Equals(svc, service, StringComparison.OrdinalIgnoreCase);
-                                })
-                               .ToArray();
-
-        if (matchingForms.Length == 0)
-        {
-            throw new InvalidOperationException($"No redemption form found for service '{service}'.");
-        }
-
-        var options = new List<RedemptionOption>(matchingForms.Length);
-
-        foreach (var form in matchingForms)
-        {
-            var fields = ExtractNamedInputs(form);
-
-            fields.TryAdd("utf8", "✓");
-
-            fields.TryGetValue("archway_code_redemption[title]", out var title);
-
-            var body = ToFormUrlEncoded(fields);
-
-            var displayName = form.QuerySelector("button")
-                                 ?.TextContent
-                                 ?.Trim();
-
-            options.Add(new RedemptionOption(service, title ?? string.Empty, string.IsNullOrWhiteSpace(displayName)
-                                                 ? null
-                                                 : displayName, body));
-        }
-
-        return options;
     }
 
     /// <summary>
@@ -233,6 +158,81 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
         using var res = await _httpClient.SendAsync(req, cancellationToken);
 
         res.EnsureSuccessStatusCode();
+    }
+
+    /// <summary>
+    ///     Asynchronously builds a list of redemption options for the specified code and service by retrieving and parsing
+    ///     the corresponding redemption forms.
+    /// </summary>
+    /// <param name="code">The code to be redeemed. This value is included in the request to identify the entitlement offer.</param>
+    /// <param name="csrfToken">
+    ///     The CSRF token to include in the request headers for security validation. Cannot be null or
+    ///     empty.
+    /// </param>
+    /// <param name="service">
+    ///     The name of the service for which to retrieve redemption options. The method searches for forms matching this
+    ///     service.
+    /// </param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>
+    ///     A list of <see cref="RedemptionOption" /> objects representing the available redemption options for the specified
+    ///     code and service. The list contains one entry for each matching form found.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">Thrown if no redemption form is found for the specified service.</exception>
+    public async Task<List<RedemptionOption>> BuildRedeemBodyAsync(string code, string csrfToken, string service, CancellationToken cancellationToken = default)
+    {
+        var url = $"entitlement_offer_codes?code={Uri.EscapeDataString(code)}";
+
+        using var req = new HttpRequestMessage(HttpMethod.Get, url);
+        req.Headers.Add("X-Requested-With", "XMLHttpRequest");
+        req.Headers.Add("X-CSRF-Token", csrfToken);
+        req.Headers.Accept.Clear();
+        req.Headers.Accept.ParseAdd("text/html");
+
+        using var res = await _httpClient.SendAsync(req, cancellationToken);
+        res.EnsureSuccessStatusCode();
+
+        var html = await res.Content.ReadAsStringAsync(cancellationToken);
+
+        var doc = await _browsingContext.OpenAsync(r => r.Content(html), cancellationToken);
+
+        var matchingForms = doc.QuerySelectorAll("form")
+                               .Where(f =>
+                                {
+                                    var svc = f.QuerySelector("input[name='archway_code_redemption[service]']")
+                                              ?.GetAttribute("value");
+
+                                    return string.Equals(svc, service, StringComparison.OrdinalIgnoreCase);
+                                })
+                               .ToArray();
+
+        if (matchingForms.Length == 0)
+        {
+            throw new InvalidOperationException($"No redemption form found for service '{service}'.");
+        }
+
+        var options = new List<RedemptionOption>(matchingForms.Length);
+
+        foreach (var form in matchingForms)
+        {
+            var fields = ExtractNamedInputs(form);
+
+            fields.TryAdd("utf8", "✓");
+
+            fields.TryGetValue("archway_code_redemption[title]", out var title);
+
+            var body = ToFormUrlEncoded(fields);
+
+            var displayName = form.QuerySelector("button")
+                                 ?.TextContent
+                                 ?.Trim();
+
+            options.Add(new RedemptionOption(service, title ?? string.Empty, string.IsNullOrWhiteSpace(displayName)
+                                                 ? null
+                                                 : displayName, body));
+        }
+
+        return options;
     }
 
     /// <summary>

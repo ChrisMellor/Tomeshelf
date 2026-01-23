@@ -4,17 +4,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
-using Tomeshelf.Application.Options;
-using Tomeshelf.Domain.Entities.Fitness;
-using Tomeshelf.Infrastructure.Persistence;
+using Tomeshelf.Application.Shared.Options;
+using Tomeshelf.Domain.Shared.Entities.Fitness;
+using Tomeshelf.Infrastructure.Shared.Persistence;
 
-namespace Tomeshelf.Infrastructure.Fitness;
+namespace Tomeshelf.Infrastructure.Shared.Fitness;
 
 public sealed class FitbitTokenCache
 {
     private readonly ILogger<FitbitTokenCache> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly object _sync = new();
+    private readonly object _sync = new object();
 
     private string _accessToken;
     private DateTimeOffset? _expiresAtUtc;

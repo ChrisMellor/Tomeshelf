@@ -1,13 +1,13 @@
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Tomeshelf.Application.Contracts.HumbleBundle;
-using Tomeshelf.Infrastructure.Persistence;
+using Tomeshelf.Application.Shared.Contracts.HumbleBundle;
+using Tomeshelf.Infrastructure.Shared.Persistence;
 
-namespace Tomeshelf.Infrastructure.Bundles;
+namespace Tomeshelf.Infrastructure.Shared.Bundles;
 
 /// <summary>
 ///     Query helpers for retrieving Humble Bundle listings.

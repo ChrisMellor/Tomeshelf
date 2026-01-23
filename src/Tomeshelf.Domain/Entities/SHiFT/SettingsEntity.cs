@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tomeshelf.Domain.Entities.SHiFT;
+namespace Tomeshelf.Domain.Shared.Entities.SHiFT;
 
 /// <summary>
 ///     Represents a user settings record containing authentication and service configuration information.

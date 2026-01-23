@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Domain.Entities.HumbleBundle;
-using Tomeshelf.Infrastructure.Persistence;
+using Tomeshelf.Domain.Shared.Entities.HumbleBundle;
+using Tomeshelf.Infrastructure.Shared.Persistence;
 
-namespace Tomeshelf.Infrastructure.Bundles;
+namespace Tomeshelf.Infrastructure.Shared.Bundles;
 
 /// <summary>
 ///     Persists scraped Humble Bundle listings by upserting bundle entities.
@@ -43,7 +43,8 @@ public sealed class BundleIngestService
                                   .Distinct(StringComparer.OrdinalIgnoreCase)
                                   .ToList();
 
-        var existing = await _dbContext.Bundles.Where(b => machineNames.Contains(b.MachineName))
+        var existing = await _dbContext.Bundles
+                                       .Where(b => machineNames.Contains(b.MachineName))
                                        .ToDictionaryAsync(b => b.MachineName, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
         var counters = new IngestCounters();
@@ -90,6 +91,18 @@ public sealed class BundleIngestService
         return new BundleIngestResult(counters.Created, counters.Updated, counters.Unchanged, bundles.Count, observedAt);
     }
 
+    private static bool SetIfDifferent(string current, string updated, Action<string> setter)
+    {
+        if (!string.Equals(current, updated, StringComparison.Ordinal))
+        {
+            setter(updated);
+
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool UpdateEntity(Bundle entity, ScrapedBundle scraped)
     {
         var changed = false;
@@ -117,18 +130,6 @@ public sealed class BundleIngestService
         }
 
         return changed;
-    }
-
-    private static bool SetIfDifferent(string current, string updated, Action<string> setter)
-    {
-        if (!string.Equals(current, updated, StringComparison.Ordinal))
-        {
-            setter(updated);
-
-            return true;
-        }
-
-        return false;
     }
 
     private sealed class IngestCounters

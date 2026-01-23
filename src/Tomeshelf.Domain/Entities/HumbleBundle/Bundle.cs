@@ -1,6 +1,6 @@
 using System;
 
-namespace Tomeshelf.Domain.Entities.HumbleBundle;
+namespace Tomeshelf.Domain.Shared.Entities.HumbleBundle;
 
 /// <summary>
 ///     Represents a Humble Bundle offering captured from the public bundles listing.

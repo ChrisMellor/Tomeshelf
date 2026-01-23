@@ -1,7 +1,3 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -12,10 +8,14 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Application.Options;
-using Tomeshelf.Infrastructure.Fitness.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Tomeshelf.Application.Shared.Options;
+using Tomeshelf.Infrastructure.Shared.Fitness.Models;
 
-namespace Tomeshelf.Infrastructure.Fitness;
+namespace Tomeshelf.Infrastructure.Shared.Fitness;
 
 public sealed class FitbitAuthorizationService
 {

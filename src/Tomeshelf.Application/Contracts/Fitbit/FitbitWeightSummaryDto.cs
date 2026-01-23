@@ -1,4 +1,4 @@
-namespace Tomeshelf.Application.Contracts.Fitbit;
+namespace Tomeshelf.Application.Shared.Contracts.Fitbit;
 
 /// <summary>
 ///     Weight change summary details.

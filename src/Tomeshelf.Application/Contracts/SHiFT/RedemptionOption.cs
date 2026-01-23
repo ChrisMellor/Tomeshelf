@@ -1,4 +1,4 @@
-﻿namespace Tomeshelf.Application.Contracts.SHiFT;
+﻿namespace Tomeshelf.Application.Shared.Contracts.SHiFT;
 
 /// <summary>
 ///     Represents a redemption option for a service, including its identifying information and associated form data.

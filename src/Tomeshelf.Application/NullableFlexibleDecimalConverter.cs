@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Tomeshelf.Application;
+namespace Tomeshelf.Application.Shared;
 
 /// <summary>
 ///     JSON converter that reads/writes nullable decimals, allowing flexible string inputs.
@@ -46,8 +46,8 @@ public sealed class NullableFlexibleDecimalConverter : JsonConverter<decimal?>
                  .Replace("€", "")
                  .Trim();
             decimal? result = decimal.TryParse(s, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var d)
-                    ? d
-                    : null;
+                ? d
+                : null;
 
             return result;
         }

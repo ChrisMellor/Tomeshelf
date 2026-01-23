@@ -1,4 +1,4 @@
-﻿using Tomeshelf.Domain.Entities.Mcm;
+﻿using Tomeshelf.Domain.Shared.Entities.Mcm;
 
 namespace Tomeshelf.Mcm.Api.Mappers;
 

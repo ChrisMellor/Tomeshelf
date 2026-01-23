@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Tomeshelf.Application;
+namespace Tomeshelf.Application.Shared;
 
 /// <summary>
 ///     Dependency injection helpers for the application layer.

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Tomeshelf.Domain.Entities.Mcm;
+using Tomeshelf.Domain.Shared.Entities.Mcm;
 
 namespace Tomeshelf.Mcm.Api.Mappers;
 
@@ -35,12 +35,12 @@ public class GuestMapper : IGuestMapper
     public GuestEntity CloneForEvent(string eventId, GuestEntity source)
     {
         var guestId = source.Id != Guid.Empty
-        ? source.Id
-        : Guid.NewGuid();
+            ? source.Id
+            : Guid.NewGuid();
 
         var infoId = source.Information?.Id != Guid.Empty
-        ? source.Information!.Id
-        : Guid.NewGuid();
+            ? source.Information!.Id
+            : Guid.NewGuid();
 
         var sourceInfo = source.Information ?? new GuestInfoEntity();
         var sourceSocial = sourceInfo.Socials;
@@ -50,8 +50,8 @@ public class GuestMapper : IGuestMapper
         if (sourceSocial is not null)
         {
             var socialId = sourceSocial.Id != Guid.Empty
-            ? sourceSocial.Id
-            : Guid.NewGuid();
+                ? sourceSocial.Id
+                : Guid.NewGuid();
 
             social = new GuestSocial
             {
@@ -111,8 +111,8 @@ public class GuestMapper : IGuestMapper
         var fullName = $"{firstName} {lastName}".Trim();
 
         return string.IsNullOrWhiteSpace(fullName)
-        ? string.Empty
-        : fullName;
+            ? string.Empty
+            : fullName;
     }
 
     /// <summary>
@@ -159,7 +159,8 @@ public class GuestMapper : IGuestMapper
 
         if (target.Information is null)
         {
-            var infoId = target.GuestInfoId != Guid.Empty ? target.GuestInfoId : sourceInfo.Id != Guid.Empty ? sourceInfo.Id : Guid.NewGuid();
+            var infoId = target.GuestInfoId != Guid.Empty ? target.GuestInfoId :
+                sourceInfo.Id != Guid.Empty ? sourceInfo.Id : Guid.NewGuid();
 
             target.Information = new GuestInfoEntity
             {
@@ -175,7 +176,8 @@ public class GuestMapper : IGuestMapper
         {
             if (target.Information.Id == Guid.Empty)
             {
-                target.Information.Id = target.GuestInfoId != Guid.Empty ? target.GuestInfoId : sourceInfo.Id != Guid.Empty ? sourceInfo.Id : Guid.NewGuid();
+                target.Information.Id = target.GuestInfoId != Guid.Empty ? target.GuestInfoId :
+                    sourceInfo.Id != Guid.Empty ? sourceInfo.Id : Guid.NewGuid();
                 changed = true;
             }
 
@@ -207,16 +209,16 @@ public class GuestMapper : IGuestMapper
             target.Information.Socials ??= new GuestSocial
             {
                 Id = sourceSocial.Id != Guid.Empty
-                ? sourceSocial.Id
-                : Guid.NewGuid(),
+                    ? sourceSocial.Id
+                    : Guid.NewGuid(),
                 GuestInfoId = target.Information.Id
             };
 
             if (target.Information.Socials.Id == Guid.Empty)
             {
                 target.Information.Socials.Id = sourceSocial.Id != Guid.Empty
-                ? sourceSocial.Id
-                : Guid.NewGuid();
+                    ? sourceSocial.Id
+                    : Guid.NewGuid();
                 changed = true;
             }
 

@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Tomeshelf.Application.Options;
+using Tomeshelf.Application.Shared.Options;
 
-namespace Tomeshelf.Infrastructure.Bundles.Upload;
+namespace Tomeshelf.Infrastructure.Shared.Bundles.Upload;
 
 public interface IGoogleDriveClientFactory
 {

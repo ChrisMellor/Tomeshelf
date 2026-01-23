@@ -1,4 +1,4 @@
-namespace Tomeshelf.Infrastructure.Bundles.Upload;
+namespace Tomeshelf.Infrastructure.Shared.Bundles.Upload;
 
 internal sealed record DocumentMetadata
 {

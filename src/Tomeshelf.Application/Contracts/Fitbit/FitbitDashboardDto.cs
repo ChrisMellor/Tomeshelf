@@ -1,6 +1,6 @@
 using System;
 
-namespace Tomeshelf.Application.Contracts.Fitbit;
+namespace Tomeshelf.Application.Shared.Contracts.Fitbit;
 
 /// <summary>
 ///     Aggregated snapshot for a Fitbit dashboard view.

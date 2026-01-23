@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Tomeshelf.Application.Contracts.Mcm;
+namespace Tomeshelf.Application.Shared.Contracts.Mcm;
 
 public sealed record PersonDto
 {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Tomeshelf.Infrastructure.Bundles;
+namespace Tomeshelf.Infrastructure.Shared.Bundles;
 
 /// <summary>
 ///     Lightweight representation of a bundle parsed from the Humble Bundle listing page.

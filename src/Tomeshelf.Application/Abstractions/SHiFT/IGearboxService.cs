@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Application.Contracts.SHiFT;
+using Tomeshelf.Application.Shared.Contracts.SHiFT;
 
-namespace Tomeshelf.Application.Abstractions.SHiFT;
+namespace Tomeshelf.Application.Shared.Abstractions.SHiFT;
 
 /// <summary>
 ///     Defines methods for redeeming SHIFT codes using the Gearbox service.

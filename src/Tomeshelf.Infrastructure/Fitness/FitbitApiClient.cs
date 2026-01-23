@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -11,14 +9,19 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Application.Options;
-using Tomeshelf.Infrastructure.Fitness.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Tomeshelf.Application.Shared.Options;
+using Tomeshelf.Infrastructure.Shared.Fitness.Models;
 
-namespace Tomeshelf.Infrastructure.Fitness;
+namespace Tomeshelf.Infrastructure.Shared.Fitness;
 
 internal sealed class FitbitApiClient : IFitbitApiClient
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true
+    };
 
     private readonly HttpClient _httpClient;
     private readonly ILogger<FitbitApiClient> _logger;
@@ -66,19 +69,34 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return GetJsonAsync<WeightResponse>(path, cancellationToken);
     }
 
-    private string GetUserId()
+    private async Task<bool> EnsureAccessTokenAsync(CancellationToken cancellationToken)
     {
-        var userId = _options.CurrentValue.UserId;
+        if (_tokenCache.ExpiresAtUtc is
+                { } expiresAt &&
+            (expiresAt <= DateTimeOffset.UtcNow.AddMinutes(-1)))
+        {
+            await TryRefreshTokenAsync(cancellationToken)
+               .ConfigureAwait(false);
+        }
 
-        return string.IsNullOrWhiteSpace(userId)
-                ? "-"
-                : Uri.EscapeDataString(userId);
+        if (TryGetAccessToken(out _))
+        {
+            return true;
+        }
+
+        if (await TryRefreshTokenAsync(cancellationToken)
+               .ConfigureAwait(false))
+        {
+            return TryGetAccessToken(out _);
+        }
+
+        return false;
     }
 
     private async Task<T> GetJsonAsync<T>(string path, CancellationToken cancellationToken)
     {
         if (!await EnsureAccessTokenAsync(cancellationToken)
-                   .ConfigureAwait(false))
+               .ConfigureAwait(false))
         {
             throw new InvalidOperationException("Fitbit OAuth credentials are not configured. Configure an initial access/refresh token pair.");
         }
@@ -107,7 +125,7 @@ internal sealed class FitbitApiClient : IFitbitApiClient
             if ((response.StatusCode == HttpStatusCode.Unauthorized) &&
                 (attempts < 3) &&
                 await TryRefreshTokenAsync(cancellationToken)
-                       .ConfigureAwait(false))
+                   .ConfigureAwait(false))
             {
                 accessToken = _tokenCache.AccessToken ?? accessToken;
                 _logger.LogWarning("Fitbit API request to {Path} received 401; refreshed token and retrying (attempt {Attempt}).", path, attempts);
@@ -122,7 +140,8 @@ internal sealed class FitbitApiClient : IFitbitApiClient
 
                 if (attempts >= MaxAttempts)
                 {
-                    var payload = await response.Content.ReadAsStringAsync(cancellationToken)
+                    var payload = await response.Content
+                                                .ReadAsStringAsync(cancellationToken)
                                                 .ConfigureAwait(false);
 
                     throw new FitbitRateLimitExceededException(payload, retryDelay);
@@ -140,7 +159,8 @@ internal sealed class FitbitApiClient : IFitbitApiClient
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
-                var payload = await response.Content.ReadAsStringAsync(cancellationToken)
+                var payload = await response.Content
+                                            .ReadAsStringAsync(cancellationToken)
                                             .ConfigureAwait(false);
 
                 throw new FitbitBadRequestException(payload);
@@ -153,7 +173,8 @@ internal sealed class FitbitApiClient : IFitbitApiClient
 
             response.EnsureSuccessStatusCode();
 
-            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
+            await using var stream = await response.Content
+                                                   .ReadAsStreamAsync(cancellationToken)
                                                    .ConfigureAwait(false);
 
             return await JsonSerializer.DeserializeAsync<T>(stream, SerializerOptions, cancellationToken)
@@ -170,8 +191,8 @@ internal sealed class FitbitApiClient : IFitbitApiClient
             })
         {
             return delta > TimeSpan.Zero
-                    ? delta
-                    : TimeSpan.Zero;
+                ? delta
+                : TimeSpan.Zero;
         }
 
         if (response.Headers.RetryAfter?.Date is
@@ -180,8 +201,8 @@ internal sealed class FitbitApiClient : IFitbitApiClient
             var delay = retryDate - DateTimeOffset.UtcNow;
 
             return delay > TimeSpan.Zero
-                    ? delay
-                    : TimeSpan.Zero;
+                ? delay
+                : TimeSpan.Zero;
         }
 
         if (response.Headers.TryGetValues("Retry-After", out var values))
@@ -194,6 +215,15 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         }
 
         return null;
+    }
+
+    private string GetUserId()
+    {
+        var userId = _options.CurrentValue.UserId;
+
+        return string.IsNullOrWhiteSpace(userId)
+            ? "-"
+            : Uri.EscapeDataString(userId);
     }
 
     private bool TryGetAccessToken(out string token)
@@ -210,30 +240,6 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         token = cached;
 
         return true;
-    }
-
-    private async Task<bool> EnsureAccessTokenAsync(CancellationToken cancellationToken)
-    {
-        if (_tokenCache.ExpiresAtUtc is
-            { } expiresAt &&
-            (expiresAt <= DateTimeOffset.UtcNow.AddMinutes(-1)))
-        {
-            await TryRefreshTokenAsync(cancellationToken)
-                   .ConfigureAwait(false);
-        }
-
-        if (TryGetAccessToken(out _))
-        {
-            return true;
-        }
-
-        if (await TryRefreshTokenAsync(cancellationToken)
-                   .ConfigureAwait(false))
-        {
-            return TryGetAccessToken(out _);
-        }
-
-        return false;
     }
 
     private async Task<bool> TryRefreshTokenAsync(CancellationToken cancellationToken)
@@ -270,7 +276,8 @@ internal sealed class FitbitApiClient : IFitbitApiClient
             return false;
         }
 
-        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken)
+        await using var stream = await response.Content
+                                               .ReadAsStreamAsync(cancellationToken)
                                                .ConfigureAwait(false);
         var payload = await JsonSerializer.DeserializeAsync<TokenRefreshResponse>(stream, SerializerOptions, cancellationToken)
                                           .ConfigureAwait(false);
@@ -283,12 +290,12 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         }
 
         var newRefreshToken = !string.IsNullOrWhiteSpace(payload.RefreshToken)
-                ? payload.RefreshToken
-                : refreshToken;
+            ? payload.RefreshToken
+            : refreshToken;
 
         DateTimeOffset? expiresAt = payload.ExpiresIn.HasValue
-                ? DateTimeOffset.UtcNow.AddSeconds(payload.ExpiresIn.Value)
-                : null;
+            ? DateTimeOffset.UtcNow.AddSeconds(payload.ExpiresIn.Value)
+            : null;
 
         _tokenCache.Update(payload.AccessToken, newRefreshToken, expiresAt);
 

@@ -2,13 +2,10 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Tomeshelf.Application.Options;
-using Tomeshelf.Infrastructure;
-using Tomeshelf.Infrastructure.Persistence;
+using Tomeshelf.Application.Shared.Options;
 using Tomeshelf.ServiceDefaults;
 
 namespace Tomeshelf.Fitbit.Api;

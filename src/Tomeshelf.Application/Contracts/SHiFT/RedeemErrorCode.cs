@@ -1,4 +1,4 @@
-namespace Tomeshelf.Application.Contracts.SHiFT;
+namespace Tomeshelf.Application.Shared.Contracts.SHiFT;
 
 /// <summary>
 ///     Specifies error codes that indicate the reason a redemption operation failed.

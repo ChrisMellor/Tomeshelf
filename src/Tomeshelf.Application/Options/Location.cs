@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Tomeshelf.Application.Options;
+namespace Tomeshelf.Application.Shared.Options;
 
 public sealed record Location
 {

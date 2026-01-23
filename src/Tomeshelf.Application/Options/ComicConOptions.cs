@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Tomeshelf.Application.Options;
+namespace Tomeshelf.Application.Shared.Options;
 
 public sealed class ComicConOptions
 {

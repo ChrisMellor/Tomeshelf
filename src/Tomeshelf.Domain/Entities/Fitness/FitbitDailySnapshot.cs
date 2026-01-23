@@ -1,6 +1,6 @@
 using System;
 
-namespace Tomeshelf.Domain.Entities.Fitness;
+namespace Tomeshelf.Domain.Shared.Entities.Fitness;
 
 /// <summary>
 ///     Persisted daily snapshot of aggregated Fitbit metrics.

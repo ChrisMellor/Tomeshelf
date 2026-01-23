@@ -13,10 +13,10 @@ using Google.Apis.Services;
 using Google.Apis.Upload;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Tomeshelf.Application.Options;
+using Tomeshelf.Application.Shared.Options;
 using DriveFile = Google.Apis.Drive.v3.Data.File;
 
-namespace Tomeshelf.Infrastructure.Bundles.Upload;
+namespace Tomeshelf.Infrastructure.Shared.Bundles.Upload;
 
 public interface IGoogleDriveClient : IDisposable
 {

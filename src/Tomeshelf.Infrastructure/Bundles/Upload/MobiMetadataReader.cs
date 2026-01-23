@@ -2,39 +2,10 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Tomeshelf.Infrastructure.Bundles.Upload;
+namespace Tomeshelf.Infrastructure.Shared.Bundles.Upload;
 
 internal static class MobiMetadataReader
 {
-    private static string? DecodeNullTerminated(ReadOnlySpan<byte> bytes)
-    {
-        var zero = bytes.IndexOf((byte)0);
-        if (zero >= 0)
-        {
-            bytes = bytes[..zero];
-        }
-
-        var s = Encoding.Latin1
-                        .GetString(bytes)
-                        .Trim();
-
-        return string.IsNullOrWhiteSpace(s)
-            ? null
-            : s;
-    }
-
-    private static string DecodeText(ReadOnlySpan<byte> bytes)
-    {
-        try
-        {
-            return Encoding.UTF8.GetString(bytes);
-        }
-        catch
-        {
-            return Encoding.Latin1.GetString(bytes);
-        }
-    }
-
     public static DocumentMetadata GetMetadata(string path)
     {
         var data = File.ReadAllBytes(path);
@@ -79,6 +50,35 @@ internal static class MobiMetadataReader
         }
 
         return meta;
+    }
+
+    private static string? DecodeNullTerminated(ReadOnlySpan<byte> bytes)
+    {
+        var zero = bytes.IndexOf((byte)0);
+        if (zero >= 0)
+        {
+            bytes = bytes[..zero];
+        }
+
+        var s = Encoding.Latin1
+                        .GetString(bytes)
+                        .Trim();
+
+        return string.IsNullOrWhiteSpace(s)
+            ? null
+            : s;
+    }
+
+    private static string DecodeText(ReadOnlySpan<byte> bytes)
+    {
+        try
+        {
+            return Encoding.UTF8.GetString(bytes);
+        }
+        catch
+        {
+            return Encoding.Latin1.GetString(bytes);
+        }
     }
 
     private static int IndexOf(byte[] haystack, byte[] needle)

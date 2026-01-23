@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tomeshelf.Domain.Entities.Mcm;
+using Tomeshelf.Domain.Shared.Entities.Mcm;
 
-namespace Tomeshelf.Infrastructure.Persistence;
+namespace Tomeshelf.Infrastructure.Shared.Persistence;
 
 public sealed class TomeshelfMcmDbContext : DbContext
 {

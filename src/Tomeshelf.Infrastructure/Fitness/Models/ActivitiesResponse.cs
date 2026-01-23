@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Tomeshelf.Infrastructure.Fitness.Models;
+namespace Tomeshelf.Infrastructure.Shared.Fitness.Models;
 
 public sealed class ActivitiesResponse
 {

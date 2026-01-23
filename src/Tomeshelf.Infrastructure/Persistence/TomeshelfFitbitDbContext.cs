@@ -1,8 +1,8 @@
 using System;
 using Microsoft.EntityFrameworkCore;
-using Tomeshelf.Domain.Entities.Fitness;
+using Tomeshelf.Domain.Shared.Entities.Fitness;
 
-namespace Tomeshelf.Infrastructure.Persistence;
+namespace Tomeshelf.Infrastructure.Shared.Persistence;
 
 /// <summary>
 ///     EF Core database context for persisted Fitbit snapshots.

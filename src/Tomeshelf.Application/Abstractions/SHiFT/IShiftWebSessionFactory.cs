@@ -1,4 +1,4 @@
-﻿namespace Tomeshelf.Application.Abstractions.SHiFT;
+﻿namespace Tomeshelf.Application.Shared.Abstractions.SHiFT;
 
 /// <summary>
 ///     Defines a factory for creating new instances of <see cref="IShiftWebSession" />.

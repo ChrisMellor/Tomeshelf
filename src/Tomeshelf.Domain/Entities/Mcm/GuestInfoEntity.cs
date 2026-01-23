@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tomeshelf.Domain.Entities.Mcm;
+namespace Tomeshelf.Domain.Shared.Entities.Mcm;
 
 public class GuestInfoEntity
 {

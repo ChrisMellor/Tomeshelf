@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Tomeshelf.Domain.Entities.HumbleBundle;
+using Tomeshelf.Domain.Shared.Entities.HumbleBundle;
 
-namespace Tomeshelf.Infrastructure.Persistence;
+namespace Tomeshelf.Infrastructure.Shared.Persistence;
 
 /// <summary>
 ///     EF Core database context for Tomeshelf's bundle domain entities.

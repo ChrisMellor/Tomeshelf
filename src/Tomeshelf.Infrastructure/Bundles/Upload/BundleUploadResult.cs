@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Tomeshelf.Infrastructure.Bundles.Upload;
+namespace Tomeshelf.Infrastructure.Shared.Bundles.Upload;
 
 public sealed record BundleUploadResult(DateTimeOffset UploadedAtUtc, int BundlesProcessed, int BooksProcessed, int FilesUploaded, int FilesSkipped, IReadOnlyList<BookUploadResult> Books)
 {

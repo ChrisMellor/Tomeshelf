@@ -1,6 +1,6 @@
 using UglyToad.PdfPig;
 
-namespace Tomeshelf.Infrastructure.Bundles.Upload;
+namespace Tomeshelf.Infrastructure.Shared.Bundles.Upload;
 
 internal static class PdfMetadataReader
 {
@@ -11,7 +11,9 @@ internal static class PdfMetadataReader
 
         return new DocumentMetadata
         {
-            Title = string.IsNullOrWhiteSpace(info.Title) ? null : info.Title
+            Title = string.IsNullOrWhiteSpace(info.Title)
+                ? null
+                : info.Title
         };
     }
 }

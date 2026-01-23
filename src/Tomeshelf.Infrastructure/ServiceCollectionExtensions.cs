@@ -1,12 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
-using Tomeshelf.Application.Options;
-using Tomeshelf.Infrastructure.Bundles;
-using Tomeshelf.Infrastructure.Bundles.Upload;
-using Tomeshelf.Infrastructure.Fitness;
+using Tomeshelf.Application.Shared.Options;
+using Tomeshelf.Infrastructure.Shared.Bundles;
+using Tomeshelf.Infrastructure.Shared.Bundles.Upload;
+using Tomeshelf.Infrastructure.Shared.Fitness;
 
-namespace Tomeshelf.Infrastructure;
+namespace Tomeshelf.Infrastructure.Shared;
 
 public static class ServiceCollectionExtensions
 {
@@ -44,8 +44,8 @@ public static class ServiceCollectionExtensions
             var options = sp.GetRequiredService<IOptionsMonitor<FitbitOptions>>()
                             .CurrentValue;
             var baseUrl = string.IsNullOrWhiteSpace(options.ApiBase)
-                    ? "https://api.fitbit.com/"
-                    : options.ApiBase;
+                ? "https://api.fitbit.com/"
+                : options.ApiBase;
 
             if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri))
             {
@@ -61,8 +61,8 @@ public static class ServiceCollectionExtensions
             var options = sp.GetRequiredService<IOptionsMonitor<FitbitOptions>>()
                             .CurrentValue;
             var baseUrl = string.IsNullOrWhiteSpace(options.ApiBase)
-                    ? "https://api.fitbit.com/"
-                    : options.ApiBase;
+                ? "https://api.fitbit.com/"
+                : options.ApiBase;
 
             if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri))
             {

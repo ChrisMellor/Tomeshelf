@@ -1,4 +1,4 @@
-namespace Tomeshelf.Application.Contracts.SHiFT;
+namespace Tomeshelf.Application.Shared.Contracts.SHiFT;
 
 /// <summary>
 ///     Represents a request to update shift settings for a user, including authentication and default service information.

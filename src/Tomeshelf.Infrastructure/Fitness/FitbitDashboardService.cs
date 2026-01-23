@@ -7,12 +7,12 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Application.Contracts.Fitbit;
-using Tomeshelf.Domain.Entities.Fitness;
-using Tomeshelf.Infrastructure.Fitness.Models;
-using Tomeshelf.Infrastructure.Persistence;
+using Tomeshelf.Application.Shared.Contracts.Fitbit;
+using Tomeshelf.Domain.Shared.Entities.Fitness;
+using Tomeshelf.Infrastructure.Shared.Fitness.Models;
+using Tomeshelf.Infrastructure.Shared.Persistence;
 
-namespace Tomeshelf.Infrastructure.Fitness;
+namespace Tomeshelf.Infrastructure.Shared.Fitness;
 
 /// <summary>
 ///     Provides cached Fitbit dashboard snapshots backed by persisted daily data.

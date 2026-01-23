@@ -13,7 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Tomeshelf.Infrastructure\Tomeshelf.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\Tomeshelf.Infrastructure\Tomeshelf.Infrastructure.Shared.csproj" />
 		<ProjectReference Include="..\..\Tomeshelf.ServiceDefaults\Tomeshelf.ServiceDefaults.csproj" />
 	</ItemGroup>
 

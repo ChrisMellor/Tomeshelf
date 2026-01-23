@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Tomeshelf.Application.Contracts.SHiFT;
+using Tomeshelf.Application.Shared.Contracts.SHiFT;
 
 namespace Tomeshelf.SHiFT.Api.Contracts;
 

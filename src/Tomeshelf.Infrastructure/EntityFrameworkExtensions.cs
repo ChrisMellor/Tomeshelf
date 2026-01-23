@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Tomeshelf.Infrastructure;
+namespace Tomeshelf.Infrastructure.Shared;
 
 internal static class EntityFrameworkExtensions
 {

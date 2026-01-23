@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Tomeshelf.Domain.Entities.Mcm;
+namespace Tomeshelf.Domain.Shared.Entities.Mcm;
 
 /// <summary>
 ///     Represents the configuration details for an event, including its unique identifier, name, and last update

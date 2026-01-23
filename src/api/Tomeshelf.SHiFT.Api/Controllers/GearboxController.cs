@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Application.Abstractions.SHiFT;
 using Tomeshelf.SHiFT.Api.Contracts;
 

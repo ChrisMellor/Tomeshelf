@@ -1,6 +1,6 @@
 using System;
 
-namespace Tomeshelf.Application.Contracts.SHiFT;
+namespace Tomeshelf.Application.Shared.Contracts.SHiFT;
 
 /// <summary>
 ///     Represents the shift settings for a user, including identification, contact information, default service, password

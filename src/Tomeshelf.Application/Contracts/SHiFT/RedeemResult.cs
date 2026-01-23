@@ -1,4 +1,4 @@
-﻿namespace Tomeshelf.Application.Contracts.SHiFT;
+﻿namespace Tomeshelf.Application.Shared.Contracts.SHiFT;
 
 /// <summary>
 ///     Represents the result of a service redemption attempt, including status, account information, and error details if

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Tomeshelf.Infrastructure.Bundles;
+namespace Tomeshelf.Infrastructure.Shared.Bundles;
 
 /// <summary>
 ///     Abstraction for retrieving Humble Bundle listing data from the public website.

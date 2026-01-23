@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Infrastructure.Fitness.Models;
+using Tomeshelf.Infrastructure.Shared.Fitness.Models;
 
-namespace Tomeshelf.Infrastructure.Fitness;
+namespace Tomeshelf.Infrastructure.Shared.Fitness;
 
 public interface IFitbitApiClient
 {

@@ -1,10 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Domain.Entities.Mcm;
-using Tomeshelf.Infrastructure.Persistence;
+using Tomeshelf.Domain.Shared.Entities.Mcm;
 using Tomeshelf.Mcm.Api.Records;
 
 namespace Tomeshelf.Mcm.Api.Repositories;

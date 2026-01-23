@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System;
+using Tomeshelf.Infrastructure.Shared.Persistence;
 
 #nullable disable
 

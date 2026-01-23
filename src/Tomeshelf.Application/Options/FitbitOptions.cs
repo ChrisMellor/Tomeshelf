@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Tomeshelf.Application.Options;
+namespace Tomeshelf.Application.Shared.Options;
 
 /// <summary>
 ///     Configuration options for accessing the Fitbit Web API.

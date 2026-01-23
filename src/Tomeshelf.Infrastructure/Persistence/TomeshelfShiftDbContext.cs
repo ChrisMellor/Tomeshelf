@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Tomeshelf.Domain.Entities.SHiFT;
+using Tomeshelf.Domain.Shared.Entities.SHiFT;
 
-namespace Tomeshelf.Infrastructure.Persistence;
+namespace Tomeshelf.Infrastructure.Shared.Persistence;
 
 public sealed class TomeshelfShiftDbContext : DbContext, IDataProtectionKeyContext
 {
