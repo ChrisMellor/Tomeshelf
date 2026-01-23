@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Application.Abstractions.SHiFT;
@@ -29,33 +30,88 @@ public sealed class ConfigController : ControllerBase
         _store = store;
     }
 
-    /// <summary>
-    ///     Retrieves the current shift settings.
-    /// </summary>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-    /// <returns>
-    ///     An <see cref="ActionResult{T}" /> containing the current shift settings as a <see cref="ShiftSettingsDto" />
-    ///     object.
-    /// </returns>
-    [HttpGet]
-    public async Task<ActionResult<ShiftSettingsDto>> Get(CancellationToken cancellationToken)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        return Ok(await _store.GetAsync(cancellationToken));
+        await _store.DeleteAsync(id, cancellationToken);
+
+        return NoContent();
     }
 
     /// <summary>
-    ///     Updates the shift settings with the values provided in the request.
+    ///     Retrieves the shift settings for the specified shift identifier.
     /// </summary>
-    /// <param name="request">The shift settings update data to apply. Cannot be null.</param>
+    /// <remarks>
+    ///     Returns an HTTP 200 response with the shift settings if the shift exists. If the shift does
+    ///     not exist, the response will indicate a not found result. This method is asynchronous and supports cancellation
+    ///     via the <paramref name="cancellationToken" /> parameter.
+    /// </remarks>
+    /// <param name="id">The unique identifier of the shift whose settings are to be retrieved.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>
-    ///     A result indicating the outcome of the update operation. Returns a 204 No Content response if the update is
-    ///     successful.
+    ///     An <see cref="ActionResult{ShiftSettingsDto}" /> containing the shift settings if found; otherwise, a result
+    ///     indicating that the shift was not found.
     /// </returns>
-    [HttpPut]
-    public async Task<IActionResult> Put([FromBody] ShiftSettingsUpdateRequest request, CancellationToken cancellationToken)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<ShiftSettingsDto>> Get(int id, CancellationToken cancellationToken)
     {
-        await _store.UpsertAsync(request, cancellationToken);
+        var user = await _store.GetAsync(id, cancellationToken);
+        if (user.Id == 0)
+        {
+            return NotFound();
+        }
+
+        return Ok(user);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Post([FromBody] ShiftSettingsUpdateRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var id = await _store.CreateAsync(request, cancellationToken);
+
+            return CreatedAtAction(nameof(Get), new
+            {
+                id
+            }, null);
+        }
+        catch (InvalidOperationException)
+        {
+            return Conflict("SHiFT email already exists.");
+        }
+    }
+
+    /// <summary>
+    ///     Updates the shift settings for the specified user.
+    /// </summary>
+    /// <param name="id">The unique identifier of the user whose shift settings are to be updated.</param>
+    /// <param name="request">An object containing the updated shift settings to apply to the user. Cannot be null.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
+    /// <returns>
+    ///     An <see cref="IActionResult" /> indicating the result of the update operation. Returns
+    ///     <see
+    ///         cref="NotFoundResult" />
+    ///     if the user does not exist, <see cref="ConflictResult" /> if the update would result in a
+    ///     duplicate SHiFT email, or <see cref="NoContentResult" /> if the update is successful.
+    /// </returns>
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Put(int id, [FromBody] ShiftSettingsUpdateRequest request, CancellationToken cancellationToken)
+    {
+        var user = await _store.GetAsync(id, cancellationToken);
+        if (user.Id == 0)
+        {
+            return NotFound();
+        }
+
+        try
+        {
+            await _store.UpdateAsync(id, request, cancellationToken);
+        }
+        catch (InvalidOperationException)
+        {
+            return Conflict("SHiFT email already exists.");
+        }
 
         return NoContent();
     }

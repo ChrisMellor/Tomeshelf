@@ -38,7 +38,7 @@ public class Program
                .AddDataProtection()
                .PersistKeysToDbContext<TomeshelfShiftDbContext>();
 
-        builder.Services.AddScoped<IShiftWebSession, ShiftWebSession>();
+        builder.Services.AddSingleton<IShiftWebSessionFactory, ShiftWebSessionFactory>();
         builder.Services.AddScoped<IGearboxService, GearboxService>();
         builder.Services.AddScoped<IShiftSettingsStore, ShiftSettingsStore>();
 

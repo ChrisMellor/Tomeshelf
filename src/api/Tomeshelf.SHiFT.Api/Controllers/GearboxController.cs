@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using Tomeshelf.Application.Abstractions.SHiFT;
 using Tomeshelf.SHiFT.Api.Contracts;
 
 namespace Tomeshelf.SHiFT.Api.Controllers;
@@ -48,8 +50,12 @@ public class GearboxController : ControllerBase
             return BadRequest("Code is required.");
         }
 
-        await _gearboxService.RedeemCodeAsync(requestDto.Code, requestDto.Service, cancellationToken);
+        var results = await _gearboxService.RedeemCodeAsync(requestDto.Code, requestDto.Service, cancellationToken);
 
-        return Ok();
+        var total = results.Count;
+        var succeeded = results.Count(r => r.Success);
+        var summary = new RedeemSummaryDto(total, succeeded, total - succeeded);
+
+        return Ok(new RedeemResponseDto(summary, results));
     }
 }
