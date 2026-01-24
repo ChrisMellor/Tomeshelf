@@ -1,5 +1,3 @@
-#nullable enable
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -8,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Paissa.Api.Models;
+using Tomeshelf.Paissa.Application;
 
 namespace Tomeshelf.Paissa.Api.Services;
 
@@ -34,11 +33,12 @@ public sealed class PaissaHousingService
 
         foreach (var district in world.Districts)
         {
-            var plotsBySize = district.OpenPlots.Select(plot => new
-            {
-                Plot = plot,
-                SizeKey = MapSizeKey(plot.Size)
-            })
+            var plotsBySize = district.OpenPlots
+                                      .Select(plot => new
+                                      {
+                                          Plot = plot,
+                                          SizeKey = MapSizeKey(plot.Size)
+                                      })
                                       .Where(x => x.SizeKey is not null && (x.Plot.LotteryPhase == (int)LotteryPhase.AcceptingEntries))
                                       .GroupBy(x => x.SizeKey!, StringComparer.OrdinalIgnoreCase)
                                       .ToDictionary(group => group.Key, group => group.Select(x => MapPlot(x.Plot))
@@ -71,6 +71,20 @@ public sealed class PaissaHousingService
         return new PaissaWorldResponse(world.Id, world.Name, retrievedAt, orderedDistricts);
     }
 
+    private static DateTimeOffset ConvertUnixTimestamp(double value)
+    {
+        var seconds = Math.Truncate(value);
+        var fractional = value - seconds;
+        var epoch = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(seconds));
+
+        if (fractional <= double.Epsilon)
+        {
+            return epoch;
+        }
+
+        return epoch.AddSeconds(fractional);
+    }
+
     private static PaissaPlotResponse MapPlot(PaissaPlotDto plot)
     {
         var lastUpdated = ConvertUnixTimestamp(plot.LastUpdatedTime);
@@ -78,17 +92,6 @@ public sealed class PaissaHousingService
         var eligibility = MapPurchaseCategory(plot.PurchaseSystem);
 
         return new PaissaPlotResponse(plot.WardNumber + 1, plot.PlotNumber + 1, plot.Price, entries, lastUpdated, eligibility.AllowsPersonal, eligibility.AllowsFreeCompany, eligibility.IsUnknown);
-    }
-
-    private static string? MapSizeKey(int rawSize)
-    {
-        return rawSize switch
-        {
-            2 => "large",
-            1 => "medium",
-            0 => "small",
-            _ => null
-        };
     }
 
     private static (bool AllowsPersonal, bool AllowsFreeCompany, bool IsUnknown) MapPurchaseCategory(int purchaseSystem)
@@ -104,18 +107,15 @@ public sealed class PaissaHousingService
         return (allowsPersonal, allowsFreeCompany, false);
     }
 
-    private static DateTimeOffset ConvertUnixTimestamp(double value)
+    private static string? MapSizeKey(int rawSize)
     {
-        var seconds = Math.Truncate(value);
-        var fractional = value - seconds;
-        var epoch = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(seconds));
-
-        if (fractional <= double.Epsilon)
+        return rawSize switch
         {
-            return epoch;
-        }
-
-        return epoch.AddSeconds(fractional);
+            2 => "large",
+            1 => "medium",
+            0 => "small",
+            _ => null
+        };
     }
 
     private enum LotteryPhase

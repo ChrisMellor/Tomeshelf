@@ -2,7 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Paissa.Api.Models;
 
-namespace Tomeshelf.Paissa.Api.Services;
+namespace Tomeshelf.Paissa.Application;
 
 public interface IPaissaClient
 {
