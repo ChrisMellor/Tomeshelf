@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Application.Shared.Abstractions.SHiFT;
+using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.SHiFT.Api.Contracts;
+using Tomeshelf.SHiFT.Application.Abstractions.External;
 
 namespace Tomeshelf.SHiFT.Api.Controllers;
 
@@ -19,15 +19,15 @@ namespace Tomeshelf.SHiFT.Api.Controllers;
 [Route("[controller]")]
 public class GearboxController : ControllerBase
 {
-    private readonly IGearboxService _gearboxService;
+    private readonly IGearboxClient _gearboxClient;
 
     /// <summary>
     ///     Initializes a new instance of the GearboxController class with the specified gearbox service.
     /// </summary>
-    /// <param name="gearboxService">The service used to manage gearbox operations. Cannot be null.</param>
-    public GearboxController(IGearboxService gearboxService)
+    /// <param name="gearboxClient">The service used to manage gearbox operations. Cannot be null.</param>
+    public GearboxController(IGearboxClient gearboxClient)
     {
-        _gearboxService = gearboxService;
+        _gearboxClient = gearboxClient;
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class GearboxController : ControllerBase
             return BadRequest("Code is required.");
         }
 
-        var results = await _gearboxService.RedeemCodeAsync(requestDto.Code, requestDto.Service, cancellationToken);
+        var results = await _gearboxClient.RedeemCodeAsync(requestDto.Code, requestDto.Service, cancellationToken);
 
         var total = results.Count;
         var succeeded = results.Count(r => r.Success);

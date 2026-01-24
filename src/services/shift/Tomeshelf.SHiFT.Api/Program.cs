@@ -1,25 +1,23 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Tomeshelf.Application.Shared.Abstractions.SHiFT;
-using Tomeshelf.Application.Shared.Services.SHiFT;
-using Tomeshelf.Infrastructure.Shared.Persistence;
-using Tomeshelf.Infrastructure.Shared.SHiFT;
+using System.Threading.Tasks;
 using Tomeshelf.ServiceDefaults;
+using Tomeshelf.SHiFT.Infrastructure;
+using Tomeshelf.SHiFT.Infrastructure.Persistence;
 
 namespace Tomeshelf.SHiFT.Api;
 
 /// <summary>
-///     Configures and runs the Tomeshelf Shift web application.
+///     Provides the entry point for the Tomeshelf.SHiFT.Api application, configuring and starting the web host with
+///     required services, middleware, and endpoints.
 /// </summary>
 /// <remarks>
-///     This entry point sets up application services, configures middleware, applies database migrations,
-///     and starts the web server. It enables controllers, OpenAPI/Swagger documentation, SQL Server database context, data
-///     protection with persisted keys, and application-specific services. In development environments, it also configures
-///     the Swagger UI for API exploration.
+///     This class sets up essential application services, including controllers, database context, data
+///     protection, and API documentation. It also applies database migrations at startup and configures middleware such as
+///     HTTPS redirection and Swagger UI in development environments. The application is started asynchronously and is
+///     intended to be run as the main process for the Tomeshelf.SHiFT.Api service.
 /// </remarks>
 public class Program
 {
@@ -32,15 +30,7 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
 
-        builder.AddSqlServerDbContext<TomeshelfShiftDbContext>("shiftdb");
-
-        builder.Services
-               .AddDataProtection()
-               .PersistKeysToDbContext<TomeshelfShiftDbContext>();
-
-        builder.Services.AddSingleton<IShiftWebSessionFactory, ShiftWebSessionFactory>();
-        builder.Services.AddScoped<IGearboxService, GearboxService>();
-        builder.Services.AddScoped<IShiftSettingsStore, ShiftSettingsStore>();
+        builder.AddInfrastructureServices();
 
         var app = builder.Build();
 

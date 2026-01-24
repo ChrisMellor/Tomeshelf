@@ -2,8 +2,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Application.Shared.Abstractions.SHiFT;
-using Tomeshelf.Application.Shared.Contracts.SHiFT;
+using Tomeshelf.SHiFT.Api.Contracts;
+using Tomeshelf.SHiFT.Application.Features.Settings;
+using Tomeshelf.SHiFT.Application.Features.Settings.Dtos;
+using Tomeshelf.SHiFT.Application.Features.Settings.UpdateSettings;
 
 namespace Tomeshelf.SHiFT.Api.Controllers;
 
@@ -19,21 +21,21 @@ namespace Tomeshelf.SHiFT.Api.Controllers;
 [Route("config/shift")]
 public sealed class ConfigController : ControllerBase
 {
-    private readonly IShiftSettingsStore _store;
+    private readonly IShiftSettingsService _service;
 
     /// <summary>
-    ///     Initializes a new instance of the ConfigController class using the specified shift settings store.
+    ///     Initializes a new instance of the ConfigController class using the specified shift settings service.
     /// </summary>
-    /// <param name="store">The store that provides access to shift configuration settings. Cannot be null.</param>
-    public ConfigController(IShiftSettingsStore store)
+    /// <param name="service">The service that provides operations for managing shift settings configuration. Cannot be null.</param>
+    public ConfigController(IShiftSettingsService service)
     {
-        _store = store;
+        _service = service;
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        await _store.DeleteAsync(id, cancellationToken);
+        await _service.DeleteAsync(id, cancellationToken);
 
         return NoContent();
     }
@@ -55,13 +57,11 @@ public sealed class ConfigController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ShiftSettingsDto>> Get(int id, CancellationToken cancellationToken)
     {
-        var user = await _store.GetAsync(id, cancellationToken);
-        if (user.Id == 0)
-        {
-            return NotFound();
-        }
+        var dto = await _service.GetAsync(id, cancellationToken);
 
-        return Ok(user);
+        return dto is null
+            ? NotFound()
+            : Ok(dto);
     }
 
     [HttpPost]
@@ -69,12 +69,10 @@ public sealed class ConfigController : ControllerBase
     {
         try
         {
-            var id = await _store.CreateAsync(request, cancellationToken);
+            var command = new CreateShiftSettingsCommand(request.Email, request.Password, request.DefaultService);
+            var id = await _service.CreateAsync(command, cancellationToken);
 
-            return CreatedAtAction(nameof(Get), new
-            {
-                id
-            }, null);
+            return CreatedAtAction(nameof(Get), new { id }, null);
         }
         catch (InvalidOperationException)
         {
@@ -98,21 +96,18 @@ public sealed class ConfigController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] ShiftSettingsUpdateRequest request, CancellationToken cancellationToken)
     {
-        var user = await _store.GetAsync(id, cancellationToken);
-        if (user.Id == 0)
-        {
-            return NotFound();
-        }
-
         try
         {
-            await _store.UpdateAsync(id, request, cancellationToken);
+            var command = new UpdateShiftSettingsCommand(id, request.Email, request.Password, request.DefaultService);
+            var updated = await _service.UpdateAsync(command, cancellationToken);
+
+            return updated
+                ? NoContent()
+                : NotFound();
         }
         catch (InvalidOperationException)
         {
             return Conflict("SHiFT email already exists.");
         }
-
-        return NoContent();
     }
 }

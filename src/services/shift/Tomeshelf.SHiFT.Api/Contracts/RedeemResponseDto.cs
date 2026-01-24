@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Tomeshelf.Application.Shared.Contracts.SHiFT;
+using Tomeshelf.SHiFT.Application.Features.Redemption.Redeem;
 
 namespace Tomeshelf.SHiFT.Api.Contracts;
 
