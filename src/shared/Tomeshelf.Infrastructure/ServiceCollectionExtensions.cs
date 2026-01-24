@@ -1,10 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using System;
-using Tomeshelf.Application.Shared.Options;
-using Tomeshelf.Infrastructure.Shared.Bundles;
-using Tomeshelf.Infrastructure.Shared.Bundles.Upload;
-using Tomeshelf.Infrastructure.Shared.Fitness;
 
 namespace Tomeshelf.Infrastructure.Shared;
 
@@ -34,48 +28,48 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddFitnessInfrastructure(this IServiceCollection services)
-    {
-        services.AddMemoryCache();
-        services.AddHttpContextAccessor();
-        services.AddSingleton<FitbitTokenCache>();
-        services.AddHttpClient<IFitbitApiClient, FitbitApiClient>((sp, client) =>
-        {
-            var options = sp.GetRequiredService<IOptionsMonitor<FitbitOptions>>()
-                            .CurrentValue;
-            var baseUrl = string.IsNullOrWhiteSpace(options.ApiBase)
-                ? "https://api.fitbit.com/"
-                : options.ApiBase;
+    //public static IServiceCollection AddFitnessInfrastructure(this IServiceCollection services)
+    //{
+    //    services.AddMemoryCache();
+    //    services.AddHttpContextAccessor();
+    //    services.AddSingleton<FitbitTokenCache>();
+    //    services.AddHttpClient<IFitbitApiClient, FitbitApiClient>((sp, client) =>
+    //    {
+    //        var options = sp.GetRequiredService<IOptionsMonitor<FitbitOptions>>()
+    //                        .CurrentValue;
+    //        var baseUrl = string.IsNullOrWhiteSpace(options.ApiBase)
+    //            ? "https://api.fitbit.com/"
+    //            : options.ApiBase;
 
-            if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri))
-            {
-                throw new InvalidOperationException($"Invalid Fitbit API base URL '{baseUrl}'.");
-            }
+    //        if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri))
+    //        {
+    //            throw new InvalidOperationException($"Invalid Fitbit API base URL '{baseUrl}'.");
+    //        }
 
-            client.BaseAddress = uri;
-            client.Timeout = TimeSpan.FromMinutes(2);
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf/1.0 (+https://github.com/ChrisMellor/Tomeshelf)");
-        });
-        services.AddHttpClient("FitbitOAuth", (sp, client) =>
-        {
-            var options = sp.GetRequiredService<IOptionsMonitor<FitbitOptions>>()
-                            .CurrentValue;
-            var baseUrl = string.IsNullOrWhiteSpace(options.ApiBase)
-                ? "https://api.fitbit.com/"
-                : options.ApiBase;
+    //        client.BaseAddress = uri;
+    //        client.Timeout = TimeSpan.FromMinutes(2);
+    //        client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf/1.0 (+https://github.com/ChrisMellor/Tomeshelf)");
+    //    });
+    //    services.AddHttpClient("FitbitOAuth", (sp, client) =>
+    //    {
+    //        var options = sp.GetRequiredService<IOptionsMonitor<FitbitOptions>>()
+    //                        .CurrentValue;
+    //        var baseUrl = string.IsNullOrWhiteSpace(options.ApiBase)
+    //            ? "https://api.fitbit.com/"
+    //            : options.ApiBase;
 
-            if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri))
-            {
-                throw new InvalidOperationException($"Invalid Fitbit API base URL '{baseUrl}'.");
-            }
+    //        if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri))
+    //        {
+    //            throw new InvalidOperationException($"Invalid Fitbit API base URL '{baseUrl}'.");
+    //        }
 
-            client.BaseAddress = uri;
-            client.Timeout = TimeSpan.FromSeconds(30);
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf/1.0 (+https://github.com/ChrisMellor/Tomeshelf)");
-        });
-        services.AddTransient<FitbitDashboardService>();
-        services.AddSingleton<FitbitAuthorizationService>();
+    //        client.BaseAddress = uri;
+    //        client.Timeout = TimeSpan.FromSeconds(30);
+    //        client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf/1.0 (+https://github.com/ChrisMellor/Tomeshelf)");
+    //    });
+    //    services.AddTransient<FitbitDashboardService>();
+    //    services.AddSingleton<FitbitAuthorizationService>();
 
-        return services;
-    }
+    //    return services;
+    //}
 }

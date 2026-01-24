@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Domain.Shared.Entities.Mcm;
 using Tomeshelf.MCM.Api.Models;
+using Tomeshelf.MCM.Domain.Mcm;
 
 namespace Tomeshelf.MCM.Api.Services;
 

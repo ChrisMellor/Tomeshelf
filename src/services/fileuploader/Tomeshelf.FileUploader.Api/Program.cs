@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Tomeshelf.Application.Shared.Options;
+using Tomeshelf.FileUploader.Application;
 using Tomeshelf.Infrastructure.Shared;
 using Tomeshelf.ServiceDefaults;
 

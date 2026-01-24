@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Domain.Shared.Entities.Mcm;
 using Tomeshelf.MCM.Api.Clients;
 using Tomeshelf.MCM.Api.Contracts;
 using Tomeshelf.MCM.Api.Mappers;
 using Tomeshelf.MCM.Api.Models;
 using Tomeshelf.MCM.Api.Records;
 using Tomeshelf.MCM.Api.Repositories;
+using Tomeshelf.MCM.Domain.Mcm;
 
 namespace Tomeshelf.MCM.Api.Services;
 
@@ -190,16 +190,10 @@ internal sealed class GuestsService : IGuestsService
             ImageUrl = record.ImageUrl,
             Socials = string.IsNullOrWhiteSpace(profileUrl)
                 ? null
-                : new GuestSocial
-                {
-                    Imdb = profileUrl
-                }
+                : new GuestSocial { Imdb = profileUrl }
         };
 
-        return new GuestEntity
-        {
-            Information = information
-        };
+        return new GuestEntity { Information = information };
     }
 
     /// <summary>

@@ -4,11 +4,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Application.Shared.Options;
-using Tomeshelf.Infrastructure.Shared.Bundles.Upload;
+using Tomeshelf.FileUploader.Application;
 
 namespace Tomeshelf.FileUploader.Api.Controllers;
 

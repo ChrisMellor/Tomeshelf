@@ -1,13 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Application.Shared.Contracts.Fitbit;
-using Tomeshelf.Infrastructure.Shared.Fitness;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Tomeshelf.Fitbit.Api.Controllers;
 
@@ -77,37 +75,25 @@ public sealed class FitbitController : ControllerBase
                     message = ex.Message,
                     retryAfterSeconds
                 })
-                : StatusCode(429, new
-                {
-                    message = ex.Message
-                });
+                : StatusCode(429, new { message = ex.Message });
         }
         catch (FitbitBadRequestException ex)
         {
             _logger.LogWarning(ex, "Fitbit API returned a bad request for {Date}.", targetDate);
 
-            return StatusCode(502, new
-            {
-                message = ex.Message
-            });
+            return StatusCode(502, new { message = ex.Message });
         }
         catch (HttpRequestException ex) when ((ex.StatusCode == HttpStatusCode.ServiceUnavailable) || (ex.StatusCode == HttpStatusCode.GatewayTimeout) || (ex.StatusCode == HttpStatusCode.BadGateway))
         {
             _logger.LogWarning(ex, "Fitbit API is unavailable while fetching data for {Date}.", targetDate);
 
-            return StatusCode(503, new
-            {
-                message = "Fitbit service is unavailable right now. Please try again shortly."
-            });
+            return StatusCode(503, new { message = "Fitbit service is unavailable right now. Please try again shortly." });
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Unexpected Fitbit API failure for {Date}", targetDate);
 
-            return StatusCode(502, new
-            {
-                message = "Unable to retrieve Fitbit data due to an unexpected error."
-            });
+            return StatusCode(502, new { message = "Unable to retrieve Fitbit data due to an unexpected error." });
         }
         catch (InvalidOperationException ex)
         {
@@ -121,19 +107,13 @@ public sealed class FitbitController : ControllerBase
         {
             _logger.LogWarning(ex, "Fitbit dashboard request timed out for {Date}.", targetDate);
 
-            return StatusCode(503, new
-            {
-                message = "Fitbit request timed out. Please try again in a moment."
-            });
+            return StatusCode(503, new { message = "Fitbit request timed out. Please try again in a moment." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to retrieve Fitbit dashboard data for {Date}", targetDate);
 
-            return StatusCode(500, new
-            {
-                message = "Failed to retrieve Fitbit data."
-            });
+            return StatusCode(500, new { message = "Failed to retrieve Fitbit data." });
         }
     }
 
@@ -144,10 +124,7 @@ public sealed class FitbitController : ControllerBase
             ? "/fitness"
             : queryReturnUrl!;
 
-        var authorizeEndpoint = Url.ActionLink("Authorize", "FitbitAuthorization", new
-        {
-            returnUrl = target
-        });
+        var authorizeEndpoint = Url.ActionLink("Authorize", "FitbitAuthorization", new { returnUrl = target });
         if (!string.IsNullOrWhiteSpace(authorizeEndpoint))
         {
             return authorizeEndpoint!;
