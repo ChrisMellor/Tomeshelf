@@ -1,11 +1,14 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.FileUploader.Application;
 
-namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles.Upload;
+namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 
 public interface IHumbleBundleUploadService
 {

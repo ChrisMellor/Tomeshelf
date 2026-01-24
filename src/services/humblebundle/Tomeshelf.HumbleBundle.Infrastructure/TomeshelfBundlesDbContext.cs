@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Tomeshelf.HumbleBundle.Domain.HumbleBundle;
 
 namespace Tomeshelf.HumbleBundle.Infrastructure;

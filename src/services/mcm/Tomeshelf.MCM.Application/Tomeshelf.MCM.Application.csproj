@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\shared\Tomeshelf.Application\Tomeshelf.Application.Shared.csproj" />
     <ProjectReference Include="..\Tomeshelf.MCM.Domain\Tomeshelf.MCM.Domain.csproj" />
   </ItemGroup>
 

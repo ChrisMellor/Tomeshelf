@@ -1,11 +1,13 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Tomeshelf.Fitbit.Application;
+using Tomeshelf.Fitbit.Infrastructure;
 
 namespace Tomeshelf.Fitbit.Api.Controllers;
 

@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles.Upload;
+namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 
 public sealed class BundleFileOrganiser
 {

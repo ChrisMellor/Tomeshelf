@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\service-defaults\Tomeshelf.ServiceDefaults\Tomeshelf.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Tomeshelf.Paissa.Application\Tomeshelf.Paissa.Application.csproj" />
+    <ProjectReference Include="..\Tomeshelf.Paissa.Infrastructure\Tomeshelf.Paissa.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

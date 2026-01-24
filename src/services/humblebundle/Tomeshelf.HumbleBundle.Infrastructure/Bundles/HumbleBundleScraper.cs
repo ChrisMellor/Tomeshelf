@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,8 +16,8 @@ namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles;
 /// </summary>
 public sealed class HumbleBundleScraper : IHumbleBundleScraper
 {
-    private static readonly Uri BundlesUri = new Uri("https://www.humblebundle.com/bundles");
-    private static readonly Uri SiteBaseUri = new Uri("https://www.humblebundle.com/");
+    private static readonly Uri BundlesUri = new("https://www.humblebundle.com/bundles");
+    private static readonly Uri SiteBaseUri = new("https://www.humblebundle.com/");
     private readonly HttpClient _httpClient;
     private readonly ILogger<HumbleBundleScraper> _logger;
 

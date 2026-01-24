@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using Tomeshelf.Application.Shared;
 
 namespace Tomeshelf.MCM.Application.Mcm;
 

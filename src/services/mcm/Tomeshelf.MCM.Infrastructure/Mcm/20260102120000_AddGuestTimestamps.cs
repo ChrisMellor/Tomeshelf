@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 
 namespace Tomeshelf.MCM.Infrastructure.Mcm;

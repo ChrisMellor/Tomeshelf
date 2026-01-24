@@ -1,4 +1,5 @@
-﻿using Tomeshelf.MCM.Domain.Mcm;
+﻿using Microsoft.EntityFrameworkCore;
+using Tomeshelf.MCM.Domain.Mcm;
 
 namespace Tomeshelf.MCM.Infrastructure;
 

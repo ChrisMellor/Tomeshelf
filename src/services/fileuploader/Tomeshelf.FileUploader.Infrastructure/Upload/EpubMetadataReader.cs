@@ -2,7 +2,7 @@ using System;
 using System.IO.Compression;
 using System.Xml.Linq;
 
-namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles.Upload;
+namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 
 internal static class EpubMetadataReader
 {

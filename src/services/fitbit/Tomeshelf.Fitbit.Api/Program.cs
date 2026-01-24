@@ -1,14 +1,16 @@
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Tomeshelf.Application.Shared.Options;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using Tomeshelf.Fitbit.Application;
+using Tomeshelf.Fitbit.Infrastructure;
 using Tomeshelf.ServiceDefaults;
 
-e Tomeshelf.Fitbit.Api;
+namespace Tomeshelf.Fitbit.Api;
 
 public class Program
 {
@@ -55,7 +57,7 @@ public class Program
                .Bind(config)
                .ValidateDataAnnotations();
 
-        builder.Services.AddFitnessInfrastructure();
+        //builder.Services.AddFitnessInfrastructure();
         builder.AddSqlServerDbContext<TomeshelfFitbitDbContext>("fitbitDb");
 
         var app = builder.Build();

@@ -6,8 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Tomeshelf.Infrastructure.Shared;
-using Tomeshelf.Infrastructure.Shared.Persistence;
+using Tomeshelf.HumbleBundle.Infrastructure;
 using Tomeshelf.ServiceDefaults;
 
 namespace Tomeshelf.HumbleBundle.Api;
@@ -48,7 +47,7 @@ public class Program
         });
 
         builder.AddSqlServerDbContext<TomeshelfBundlesDbContext>("humblebundledb");
-        builder.Services.AddBundleInfrastructure();
+        //builder.Services.AddBundleInfrastructure();
 
         var app = builder.Build();
 

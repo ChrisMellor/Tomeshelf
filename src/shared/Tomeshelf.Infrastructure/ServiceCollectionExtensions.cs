@@ -1,32 +1,30 @@
-using Microsoft.Extensions.DependencyInjection;
-
 namespace Tomeshelf.Infrastructure.Shared;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddBundleInfrastructure(this IServiceCollection services)
-    {
-        services.AddScoped<BundleQueries>();
-        services.AddScoped<BundleIngestService>();
-        services.AddHttpClient<IHumbleBundleScraper, HumbleBundleScraper>(client =>
-        {
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf/1.0 (+https://github.com/ChrisMellor/Tomeshelf)");
-        });
+    //public static IServiceCollection AddBundleInfrastructure(this IServiceCollection services)
+    //{
+    //    services.AddScoped<BundleQueries>();
+    //    services.AddScoped<BundleIngestService>();
+    //    services.AddHttpClient<IHumbleBundleScraper, HumbleBundleScraper>(client =>
+    //    {
+    //        client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf/1.0 (+https://github.com/ChrisMellor/Tomeshelf)");
+    //    });
 
-        return services;
-    }
+    //    return services;
+    //}
 
     /// <summary>
     ///     Registers only the upload pipeline (no DB dependencies) for the file uploader API.
     /// </summary>
-    public static IServiceCollection AddBundleUploadInfrastructure(this IServiceCollection services)
-    {
-        services.AddSingleton<BundleFileOrganiser>();
-        services.AddSingleton<IGoogleDriveClientFactory, GoogleDriveClientFactory>();
-        services.AddScoped<IHumbleBundleUploadService, BundleUploadService>();
+    //public static IServiceCollection AddBundleUploadInfrastructure(this IServiceCollection services)
+    //{
+    //    services.AddSingleton<BundleFileOrganiser>();
+    //    services.AddSingleton<IGoogleDriveClientFactory, GoogleDriveClientFactory>();
+    //    services.AddScoped<IHumbleBundleUploadService, BundleUploadService>();
 
-        return services;
-    }
+    //    return services;
+    //}
 
     //public static IServiceCollection AddFitnessInfrastructure(this IServiceCollection services)
     //{

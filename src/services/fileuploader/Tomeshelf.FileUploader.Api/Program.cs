@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Tomeshelf.FileUploader.Application;
-using Tomeshelf.Infrastructure.Shared;
 using Tomeshelf.ServiceDefaults;
 
 namespace Tomeshelf.FileUploader.Api;
@@ -39,7 +38,7 @@ public class Program
             options.SerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
         });
 
-        builder.Services.AddBundleUploadInfrastructure();
+        //builder.Services.AddBundleUploadInfrastructure();
 
         var app = builder.Build();
 

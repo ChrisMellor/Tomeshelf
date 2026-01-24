@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles.Upload;
+namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 
 internal static class MobiMetadataReader
 {

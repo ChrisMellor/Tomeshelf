@@ -1,4 +1,6 @@
-namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles.Upload;
+using UglyToad.PdfPig;
+
+namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 
 internal static class PdfMetadataReader
 {

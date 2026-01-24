@@ -5,12 +5,12 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Tomeshelf.Infrastructure.Shared.Persistence;
 using Tomeshelf.MCM.Api.Clients;
 using Tomeshelf.MCM.Api.Mappers;
 using Tomeshelf.MCM.Api.Repositories;
 using Tomeshelf.MCM.Api.Services;
 using Tomeshelf.MCM.Api.Transformers;
+using Tomeshelf.MCM.Infrastructure;
 using Tomeshelf.ServiceDefaults;
 
 namespace Tomeshelf.MCM.Api;
