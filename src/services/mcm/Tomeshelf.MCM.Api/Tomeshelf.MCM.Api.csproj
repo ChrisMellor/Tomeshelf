@@ -15,6 +15,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\shared\Tomeshelf.Infrastructure\Tomeshelf.Infrastructure.Shared.csproj" />
 		<ProjectReference Include="..\..\..\service-defaults\Tomeshelf.ServiceDefaults\Tomeshelf.ServiceDefaults.csproj" />
+		<ProjectReference Include="..\Tomeshelf.MCM.Application\Tomeshelf.MCM.Application.csproj" />
 	</ItemGroup>
 
 </Project>
