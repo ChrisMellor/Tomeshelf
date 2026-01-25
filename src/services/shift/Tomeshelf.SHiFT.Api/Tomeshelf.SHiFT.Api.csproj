@@ -5,22 +5,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.1.0" />
-		<PackageReference Include="AngleSharp" Version="1.4.0" />
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\shared\Tomeshelf.Infrastructure\Tomeshelf.Infrastructure.Shared.csproj" />
 		<ProjectReference Include="..\..\..\service-defaults\Tomeshelf.ServiceDefaults\Tomeshelf.ServiceDefaults.csproj" />
+		<ProjectReference Include="..\Tomeshelf.SHiFT.Application\Tomeshelf.SHiFT.Application.csproj" />
 		<ProjectReference Include="..\Tomeshelf.SHiFT.Infrastructure\Tomeshelf.SHiFT.Infrastructure.csproj" />
 	</ItemGroup>
 

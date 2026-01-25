@@ -65,7 +65,7 @@ public interface IShiftSettingsRepository
     ///     A task that represents the asynchronous operation. The task result contains a <see cref="SettingsEntity" />
     ///     with the settings for the specified shift, or <c>null</c> if no settings are found.
     /// </returns>
-    Task<SettingsEntity> GetByIdAsync(int id, CancellationToken cancellationToken);
+    Task<SettingsEntity?> GetByIdAsync(int id, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Asynchronously retrieves a read-only list of credential records available for use.

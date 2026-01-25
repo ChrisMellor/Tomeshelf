@@ -46,13 +46,10 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
         };
 
-        _httpClient = new HttpClient(handler)
-        {
-            BaseAddress = new Uri("https://shift.gearboxsoftware.com/")
-        };
+        _httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://shift.gearboxsoftware.com/") };
 
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf.SHiFT.Api/1.0");
-        _httpClient.DefaultRequestHeaders.Accept.ParseAdd("text/html,application/xhtml+xml,application/json");
+        //_httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf.SHiFT.Api/1.0");
+        //_httpClient.DefaultRequestHeaders.Accept.ParseAdd("text/html,application/xhtml+xml,application/json");
 
         var config = Configuration.Default;
         _browsingContext = BrowsingContext.New(config);
@@ -94,9 +91,9 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
 
         using var req = new HttpRequestMessage(HttpMethod.Get, url);
         req.Headers.Add("X-Requested-With", "XMLHttpRequest");
-        req.Headers.Add("X-CSRF-Token", csrfToken);
+        req.Headers.Add("x-csrf-token", csrfToken);
         req.Headers.Accept.Clear();
-        req.Headers.Accept.ParseAdd("text/html");
+        req.Headers.Accept.ParseAdd("*/*");
 
         using var res = await _httpClient.SendAsync(req, cancellationToken);
         res.EnsureSuccessStatusCode();
@@ -165,10 +162,17 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the request.</param>
     /// <returns>A string containing the CSRF token extracted from the rewards page.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the CSRF token cannot be found on the rewards page.</exception>
-    public async Task<string> GetCsrfFromRewardsAsync(CancellationToken cancellationToken = default)
+    public async Task<string> GetCsrfFromRewardsAsync(string csrfToken, string email, string password, CancellationToken cancellationToken = default)
     {
         using var req = new HttpRequestMessage(HttpMethod.Get, "rewards");
         req.Headers.Referrer = new Uri("https://shift.gearboxsoftware.com/home");
+
+        //req.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        //{
+        //    ["authenticity_token"] = csrfToken,
+        //    ["user[email]"] = email,
+        //    ["user[password]"] = password
+        //});
 
         using var res = await _httpClient.SendAsync(req, cancellationToken);
         res.EnsureSuccessStatusCode();
@@ -207,6 +211,8 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
         using var res = await _httpClient.SendAsync(req, cancellationToken);
 
         res.EnsureSuccessStatusCode();
+
+        var html = await res.Content.ReadAsStringAsync(cancellationToken);
     }
 
     /// <summary>

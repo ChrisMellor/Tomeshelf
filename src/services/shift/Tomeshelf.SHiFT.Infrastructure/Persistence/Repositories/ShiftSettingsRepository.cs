@@ -147,14 +147,11 @@ public sealed class ShiftSettingsRepository : IShiftSettingsRepository
     ///     A task that represents the asynchronous operation. The task result contains a <see cref="ShiftSettingsDto" /> with
     ///     the shift settings for the specified identifier. If no settings are found, a default instance is returned.
     /// </returns>
-    public async Task<SettingsEntity> GetByIdAsync(int id, CancellationToken cancellationToken)
+    public async Task<SettingsEntity?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
-        var entity = await _context.ShiftSettings
-                                   .AsNoTracking()
-                                   .SingleOrDefaultAsync(x => x.Id == id, cancellationToken) ??
-                     new SettingsEntity();
-
-        return entity;
+        return await _context.ShiftSettings
+                             .AsNoTracking()
+                             .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
     /// <summary>
@@ -245,11 +242,8 @@ public sealed class ShiftSettingsRepository : IShiftSettingsRepository
 
         row.Email = email;
         row.DefaultService = service;
+        row.EncryptedPassword = request.EncryptedPassword;
         row.UpdatedUtc = DateTimeOffset.UtcNow;
-        if (!string.IsNullOrWhiteSpace(request.EncryptedPassword))
-        {
-            row.EncryptedPassword = _protector.Protect(request.EncryptedPassword);
-        }
 
         await _context.SaveChangesAsync(cancellationToken);
     }

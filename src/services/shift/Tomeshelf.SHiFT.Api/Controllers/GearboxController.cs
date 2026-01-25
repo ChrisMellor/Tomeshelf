@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.SHiFT.Api.Contracts;
 using Tomeshelf.SHiFT.Application.Abstractions.External;
 
@@ -50,7 +50,7 @@ public class GearboxController : ControllerBase
             return BadRequest("Code is required.");
         }
 
-        var results = await _gearboxClient.RedeemCodeAsync(requestDto.Code, requestDto.Service, cancellationToken);
+        var results = await _gearboxClient.RedeemCodeAsync(requestDto.Code, cancellationToken);
 
         var total = results.Count;
         var succeeded = results.Count(r => r.Success);

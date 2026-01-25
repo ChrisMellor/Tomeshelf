@@ -1,4 +1,6 @@
-﻿namespace Tomeshelf.SHiFT.Application.Features.Settings.UpdateSettings;
+using Tomeshelf.SHiFT.Application.Abstractions.Messaging;
+
+namespace Tomeshelf.SHiFT.Application.Features.Settings.Commands;
 
 /// <summary>
 ///     Represents a command to create shift settings for a user, including their email address, optional password, and
@@ -17,4 +19,5 @@
 ///     The default service to be assigned for the user's shift settings. This parameter is
 ///     required and cannot be null.
 /// </param>
-public sealed record CreateShiftSettingsCommand(string Email, string? Password, string DefaultService);
+public sealed record CreateShiftSettingsCommand(string Email, string? Password, string DefaultService)
+    : ICommand<int>;

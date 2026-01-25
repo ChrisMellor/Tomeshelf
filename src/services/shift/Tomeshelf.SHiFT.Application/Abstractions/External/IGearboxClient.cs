@@ -18,15 +18,11 @@ public interface IGearboxClient
     ///     Attempts to redeem the specified SHiFT code and returns the results for each applicable platform.
     /// </summary>
     /// <param name="shiftCode">The SHiFT code to redeem. Cannot be null or empty.</param>
-    /// <param name="serviceOverride">
-    ///     An optional service identifier to override the default redemption service. Specify null to use the default
-    ///     service.
-    /// </param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the redemption operation.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation. The task result contains a read-only list of redemption
     ///     results, one for each platform the code was applied to. The list will be empty if the code could not be redeemed
     ///     on any platform.
     /// </returns>
-    Task<IReadOnlyList<RedeemResult>> RedeemCodeAsync(string shiftCode, string? serviceOverride, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<RedeemResult>> RedeemCodeAsync(string shiftCode, CancellationToken cancellationToken = default);
 }

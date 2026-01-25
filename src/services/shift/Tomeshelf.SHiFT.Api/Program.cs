@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Tomeshelf.ServiceDefaults;
 using Tomeshelf.SHiFT.Infrastructure;
@@ -27,12 +29,36 @@ public class Program
 
         builder.AddServiceDefaults();
 
-        builder.Services.AddControllers();
-        builder.Services.AddOpenApi();
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddHttpLogging(o =>
+            {
+                o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod | HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration;
+                o.MediaTypeOptions.AddText("application/json");
+            });
+        }
+
+        builder.Services
+               .AddProblemDetails()
+               .AddOpenApi()
+               .AddControllers()
+               .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
+
+        builder.Services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
+
+        builder.Services.AddAuthorization();
 
         builder.AddInfrastructureServices();
 
         var app = builder.Build();
+
+        app.UseExceptionHandler();
 
         if (app.Environment.IsDevelopment())
         {
@@ -40,11 +66,14 @@ public class Program
             app.UseSwaggerUI(options =>
             {
                 options.RoutePrefix = string.Empty;
-                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf.SHiFT.Api v1");
+                options.SwaggerEndpoint("/openapi/v1.json", "Tomeshelf SHiFT API v1");
             });
+
+            app.UseHttpLogging();
         }
 
         app.UseHttpsRedirection();
+        app.UseAuthorization();
         app.MapControllers();
 
         using (var scope = app.Services.CreateScope())

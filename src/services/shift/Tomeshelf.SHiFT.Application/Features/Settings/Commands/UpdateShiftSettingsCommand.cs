@@ -1,4 +1,6 @@
-﻿namespace Tomeshelf.SHiFT.Application.Features.Settings.UpdateSettings;
+using Tomeshelf.SHiFT.Application.Abstractions.Messaging;
+
+namespace Tomeshelf.SHiFT.Application.Features.Settings.Commands;
 
 /// <summary>
 ///     Represents a command to update the shift settings for a specific user.
@@ -7,6 +9,7 @@
 ///     Ensure that the provided email is associated with a valid user account. Authentication requirements
 ///     may vary depending on application security policies.
 /// </remarks>
+/// <param name="Id">The unique identifier of the user whose shift settings are to be updated.</param>
 /// <param name="Email">
 ///     The email address of the user whose shift settings are to be updated. This value is required and must correspond to
 ///     an existing user account.
@@ -16,4 +19,5 @@
 ///     required for the update.
 /// </param>
 /// <param name="DefaultService">The default service to assign to the user's shift settings. This value is required.</param>
-public sealed record UpdateShiftSettingsCommand(int Id, string Email, string? Password, string DefaultService);
+public sealed record UpdateShiftSettingsCommand(int Id, string Email, string? Password, string DefaultService)
+    : ICommand<bool>;

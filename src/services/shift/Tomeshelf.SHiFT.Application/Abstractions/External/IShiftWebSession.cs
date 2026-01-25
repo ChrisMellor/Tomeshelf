@@ -51,7 +51,7 @@ public interface IShiftWebSession
     /// </summary>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the CSRF token as a string.</returns>
-    Task<string> GetCsrfFromRewardsAsync(CancellationToken cancellationToken = default);
+    public Task<string> GetCsrfFromRewardsAsync(string csrfToken, string email, string password, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Asynchronously attempts to authenticate a user with the specified email address, password, and CSRF token.

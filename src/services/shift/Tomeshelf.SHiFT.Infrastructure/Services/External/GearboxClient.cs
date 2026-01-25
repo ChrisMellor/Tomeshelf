@@ -49,10 +49,6 @@ public sealed class GearboxClient : IGearboxClient
     ///     token.
     /// </remarks>
     /// <param name="shiftCode">The SHiFT code to redeem. Cannot be null, empty, or consist only of white-space characters.</param>
-    /// <param name="serviceOverride">
-    ///     An optional service identifier to override the default service for each user. If null or white space, the user's
-    ///     default service is used.
-    /// </param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>
     ///     A read-only list of results indicating the outcome of the redemption attempt for each user. Each result contains
@@ -61,7 +57,7 @@ public sealed class GearboxClient : IGearboxClient
     /// <exception cref="ArgumentException">
     ///     Thrown if <paramref name="shiftCode" /> is null, empty, or consists onl///
     ///     <exception cref="ArgumentException">exception>
-    public async Task<IReadOnlyList<RedeemResult>> RedeemCodeAsync(string shiftCode, string? serviceOverride, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<RedeemResult>> RedeemCodeAsync(string shiftCode, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(shiftCode))
         {
@@ -72,12 +68,8 @@ public sealed class GearboxClient : IGearboxClient
 
         var results = new List<RedeemResult>();
 
-        foreach (var (id, email, password, defaultService) in users)
+        foreach (var (id, email, password, service) in users)
         {
-            var service = string.IsNullOrWhiteSpace(serviceOverride)
-                ? defaultService
-                : serviceOverride.Trim();
-
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(service))
             {
                 results.Add(new RedeemResult(id, email, service, false, RedeemErrorCode.AccountMisconfigured, "Missing email, password, or service."));
@@ -92,7 +84,7 @@ public sealed class GearboxClient : IGearboxClient
                 var csrfHome = await session.GetCsrfFromHomeAsync(cancellationToken);
                 await session.LoginAsync(email, password, csrfHome, cancellationToken);
 
-                var csrfRewards = await session.GetCsrfFromRewardsAsync(cancellationToken);
+                var csrfRewards = await session.GetCsrfFromRewardsAsync(csrfHome, email, password, cancellationToken);
 
                 var options = await session.BuildRedeemBodyAsync(shiftCode.Trim(), csrfRewards, service, cancellationToken);
 
