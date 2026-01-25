@@ -90,13 +90,3 @@ public sealed class ShiftSettingsService : IShiftSettingsService
     }
 }
 
-public interface IShiftSettingsService
-{
-    Task<int> CreateAsync(CreateShiftSettingsCommand cmd, CancellationToken ct);
-
-    Task DeleteAsync(int id, CancellationToken ct);
-
-    Task<ShiftSettingsDto?> GetAsync(int id, CancellationToken ct);
-
-    Task<bool> UpdateAsync(UpdateShiftSettingsCommand cmd, CancellationToken cancellationToken);
-}

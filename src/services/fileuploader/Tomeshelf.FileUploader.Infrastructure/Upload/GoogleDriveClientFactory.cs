@@ -5,11 +5,6 @@ using Tomeshelf.FileUploader.Application;
 
 namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 
-public interface IGoogleDriveClientFactory
-{
-    IGoogleDriveClient Create(GoogleDriveOptions options);
-}
-
 internal sealed class GoogleDriveClientFactory : IGoogleDriveClientFactory
 {
     private readonly IOptions<GoogleDriveOptions> _defaults;

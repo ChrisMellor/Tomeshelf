@@ -2,11 +2,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Tomeshelf.Paissa.Api.Services;
-using Tomeshelf.Paissa.Application;
+using Tomeshelf.Paissa.Infrastructure;
 using Tomeshelf.ServiceDefaults;
 
 namespace Tomeshelf.Paissa.Api;
@@ -51,14 +49,7 @@ public static class Program
 
         builder.Services.AddAuthorization();
 
-        builder.Services.AddHttpClient<IPaissaClient, PaissaClient>(client =>
-        {
-            client.BaseAddress = new Uri("https://paissadb.zhu.codes/");
-            client.Timeout = TimeSpan.FromSeconds(30);
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-PaissaApi/1.0");
-        });
-
-        builder.Services.AddSingleton<PaissaHousingService>();
+        builder.AddInfrastructureServices();
 
         var app = builder.Build();
 

@@ -1,7 +1,17 @@
 using System.Text.Json.Serialization;
 
-namespace Tomeshelf.Paissa.Api.Models;
+namespace Tomeshelf.Paissa.Infrastructure.Services.External;
 
+/// <summary>
+///     Represents a data transfer object that encapsulates information about a specific plot in the Paissa system,
+///     including identification, size, price, and timing details.
+/// </summary>
+/// <remarks>
+///     This record is intended for serialization and deserialization of plot data, typically in JSON format,
+///     as indicated by the JsonPropertyName attributes. It provides a structured way to transfer plot-related information
+///     between system components or external services. All properties are immutable and set during object
+///     initialization.
+/// </remarks>
 public sealed record PaissaPlotDto
 {
     [JsonPropertyName("world_id")]

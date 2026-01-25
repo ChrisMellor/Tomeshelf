@@ -10,11 +10,6 @@ using Tomeshelf.FileUploader.Application;
 
 namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 
-public interface IHumbleBundleUploadService
-{
-    Task<BundleUploadResult> UploadAsync(Stream archiveStream, string archiveFileName, GoogleDriveOptions? overrideOptions, CancellationToken cancellationToken);
-}
-
 public sealed class BundleUploadService : IHumbleBundleUploadService
 {
     private readonly IGoogleDriveClientFactory _driveFactory;

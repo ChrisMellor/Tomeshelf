@@ -18,15 +18,6 @@ using DriveFile = Google.Apis.Drive.v3.Data.File;
 
 namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 
-public interface IGoogleDriveClient : IDisposable
-{
-    Task<string> EnsureFolderPathAsync(string folderPath, CancellationToken cancellationToken);
-
-    Task<UploadOutcome> UploadFileAsync(string parentFolderId, string fileName, Stream content, long contentLength, string? contentType, CancellationToken cancellationToken);
-}
-
-public sealed record UploadOutcome(bool Uploaded, string FileId);
-
 internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
 {
     private readonly DriveService _drive;

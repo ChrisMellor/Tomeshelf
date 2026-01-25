@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Tomeshelf.Paissa.Api.Models;
+namespace Tomeshelf.Paissa.Api.Contracts;
 
 /// <summary>
 ///     District containing grouped plot information.

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Tomeshelf.Paissa.Api.Models;
+namespace Tomeshelf.Paissa.Api.Contracts;
 
 /// <summary>
 ///     Response payload representing housing plots grouped by district and size.
