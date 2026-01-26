@@ -46,8 +46,7 @@ public class Program
             options.SerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
         });
 
-        builder.AddSqlServerDbContext<TomeshelfBundlesDbContext>("humblebundledb");
-        //builder.Services.AddBundleInfrastructure();
+        builder.AddInfrastructureServices();
 
         var app = builder.Build();
 
