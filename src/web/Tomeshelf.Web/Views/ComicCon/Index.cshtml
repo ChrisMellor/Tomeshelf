@@ -37,16 +37,16 @@
 
 
 <div class="py-3">
-    <div class="bg-light rounded-3 p-3 p-md-4 mb-3 d-flex align-items-center justify-content-between">
+    <div class="page-header mb-3">
         <div>
-            <h1 class="h4 mb-1">Guests &ndash; @eventName</h1>
+            <h1 class="page-title mb-1">Guests &ndash; @eventName</h1>
             <div class="text-muted small">
                 @total guest@(total == 1
                                     ? ""
                                     : "s")
             </div>
         </div>
-        <div class="d-flex gap-2 ms-3">
+        <div class="page-actions ms-3">
             <button id="expand-all" class="btn btn-outline-secondary btn-sm" type="button">Expand all</button>
             <button id="collapse-all" class="btn btn-outline-secondary btn-sm" type="button">Collapse all</button>
         </div>

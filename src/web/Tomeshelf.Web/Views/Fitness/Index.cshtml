@@ -5,7 +5,7 @@
 }
 
 <div class="fitness-dashboard">
-    <div class="dashboard-header">
+    <div class="dashboard-header page-header">
         <div class="header-left">
             <h1 class="page-title">Fitbit Dashboard</h1>
             <p class="page-subtitle">Daily summary pulled from your Fitbit history</p>
@@ -17,7 +17,7 @@
         </div>
         @if (Model.CanRefresh)
         {
-            <form method="get" class="refresh-form">
+            <form method="get" class="refresh-form page-actions">
                 <input type="hidden" name="date" value="@Model.SelectedDate"/>
                 <input type="hidden" name="refresh" value="true"/>
                 <button type="submit" class="btn btn-outline-primary">

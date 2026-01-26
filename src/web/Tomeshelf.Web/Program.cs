@@ -179,6 +179,36 @@ public class Program
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
 
+        builder.Services.AddHttpClient<IShiftApi, ShiftApi>(client =>
+                {
+                    var configured = builder.Configuration["Services:ShiftApiBase"];
+
+                    if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+                    {
+                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                        {
+                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:ShiftApiBase'.");
+                        }
+
+                        client.BaseAddress = configuredUri;
+                    }
+                    else
+                    {
+                        var protocol = "https";
+                        if (IsRunningInDocker())
+                        {
+                            protocol = "http";
+                        }
+
+                        client.BaseAddress = new Uri($"{protocol}://shiftapi");
+                    }
+
+                    client.DefaultRequestVersion = HttpVersion.Version11;
+                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                    client.Timeout = TimeSpan.FromSeconds(30);
+                })
+               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
+
         builder.Services.AddHttpClient<IFileUploadsApi, FileUploadsApi>(client =>
                 {
                     var configured = builder.Configuration["Services:FileUploaderApiBase"];

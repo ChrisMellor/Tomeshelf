@@ -1,53 +1,154 @@
+@model Tomeshelf.Web.Models.Home.HomeIndexViewModel
+
 @{
     ViewData["Title"] = "Tomeshelf";
 }
 
-<div class="home-hero rounded-3 p-4 p-md-5 mb-4">
-    <h1 class="display-6 mb-2">Tomeshelf</h1>
-    <p class="lead mb-3">
-        A personal space to track events and bring together a handful of small tools I find useful.
-        It's simple, fast, and focused on my own workflow.
-    </p>
-    <div class="text-muted small mt-2">No accounts. No noise. Just the tools.</div>
-</div>
-<div class="row g-3 mb-4">
-    <div class="col-12 col-sm-8 col-md-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h2 class="h5 card-title mb-2"><i class="bi bi-ticket-perforated-fill me-1" aria-hidden="true"></i> Comic Con</h2>
-                <p class="text-muted mb-3">Jump into guest listings by event, broken down by the date they were added</p>
-                <div class="d-flex flex-wrap gap-2">
-                    <a class="btn btn-primary" asp-controller="ComicCon" asp-action="Index" asp-route-eventId="London" asp-route-eventName="London"><i class="bi bi-geo-alt-fill me-1" aria-hidden="true"></i> London</a>
-                    <a class="btn btn-outline-secondary" asp-controller="ComicCon" asp-action="Index" asp-route-eventId="Birmingham" asp-route-eventName="Birmingham"><i class="bi bi-geo-alt-fill me-1" aria-hidden="true"></i> Birmingham</a>
+<div class="home-dashboard">
+    <section class="home-hero">
+        <div class="home-hero__content">
+            <div class="hero-eyebrow">Personal tool shelf</div>
+            <h1 class="hero-title">Tomeshelf</h1>
+            <p class="hero-lede">
+                A focused collection of dashboards for events, learning bundles, fitness insights, and gaming utilities.
+                Built for calm scanning and quick decisions.
+            </p>
+        </div>
+    </section>
+    
+    <section class="home-glance">
+        <header class="glance-header">
+            <div class="glance-kicker">At a glance</div>
+            <h2 class="glance-title">Quick launch</h2>
+        </header>
+        <div class="glance-grid">
+            <a class="glance-card glance-card--events" asp-controller="ComicCon" asp-action="Index" asp-route-eventId="London" asp-route-eventName="London">
+                <div class="glance-label">Events</div>
+                <div class="glance-value">MCM</div>
+                <div class="glance-meta">@Model.EventsSummary</div>
+            </a>
+            <a class="glance-card glance-card--education" asp-controller="Bundles" asp-action="Index">
+                <div class="glance-label">Education</div>
+                <div class="glance-value">Bundles</div>
+                <div class="glance-meta">@Model.EducationSummary</div>
+            </a>
+            <a class="glance-card glance-card--health" asp-controller="Fitness" asp-action="Index">
+                <div class="glance-label">Health</div>
+                <div class="glance-value">Fitness</div>
+                <div class="glance-meta">@Model.HealthSummary</div>
+            </a>
+            <a class="glance-card glance-card--gaming" asp-controller="Paissa" asp-action="Index">
+                <div class="glance-label">Gaming</div>
+                <div class="glance-value">Playground</div>
+                <div class="glance-meta">@Model.GamingSummary</div>
+            </a>
+        </div>
+    </section>
+
+    <section class="home-grid">
+        <article class="category-card category-card--events" style="--delay: 0ms;">
+            <header class="category-head">
+                <div class="category-icon">
+                    <i class="bi bi-ticket-perforated" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="category-kicker">Events</div>
+                    <h2 class="category-title">MCM</h2>
+                    <p class="category-summary">Track Comic Con announcements by city and date.</p>
+                </div>
+            </header>
+            <div class="category-links">
+                <div class="category-link-group">
+                    <div class="category-link-label">Comic Con</div>
+                    <div class="service-links">
+                        <a class="service-link" asp-controller="ComicCon" asp-action="Index" asp-route-eventId="London" asp-route-eventName="London">
+                            <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>London
+                        </a>
+                        <a class="service-link ghost" asp-controller="ComicCon" asp-action="Index" asp-route-eventId="Birmingham" asp-route-eventName="Birmingham">
+                            <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>Birmingham
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-8 col-md-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h2 class="h5 card-title mb-2"><i class="bi bi-bag-heart-fill me-1" aria-hidden="true"></i> Humble Bundles</h2>
-                <p class="text-muted mb-3">Track current Humble Bundle offers with live countdowns and quick links.</p>
-                <a class="btn btn-primary" asp-controller="Bundles" asp-action="Index"><i class="bi bi-lightning-fill me-1" aria-hidden="true"></i> Browse bundles</a>
+        </article>
+
+        <article class="category-card category-card--education" style="--delay: 120ms;">
+            <header class="category-head">
+                <div class="category-icon">
+                    <i class="bi bi-journal-bookmark" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="category-kicker">Education</div>
+                    <h2 class="category-title">Bundles</h2>
+                    <p class="category-summary">Curated learning bundles and limited-time drops.</p>
+                </div>
+            </header>
+            <div class="category-links">
+                <div class="category-link-group">
+                    <div class="category-link-label">Humble Bundles</div>
+                    <div class="service-links">
+                        <a class="service-link" asp-controller="Bundles" asp-action="Index">
+                            <i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>Browse bundles
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-8 col-md-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h2 class="h5 card-title mb-2"><i class="bi bi-activity me-1" aria-hidden="true"></i> Fitbit Dashboard</h2>
-                <p class="text-muted mb-3">Review daily, weekly, monthly, and yearly Fitbit trends all from one place.</p>
-                <a class="btn btn-primary" asp-controller="Fitness" asp-action="Index"><i class="bi bi-heart-pulse-fill me-1" aria-hidden="true"></i> View dashboard</a>
+        </article>
+
+        <article class="category-card category-card--health" style="--delay: 240ms;">
+            <header class="category-head">
+                <div class="category-icon">
+                    <i class="bi bi-heart-pulse" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="category-kicker">Health</div>
+                    <h2 class="category-title">Fitness</h2>
+                    <p class="category-summary">Daily activity snapshots and long-term trends.</p>
+                </div>
+            </header>
+            <div class="category-links">
+                <div class="category-link-group">
+                    <div class="category-link-label">Fitbit Dashboard</div>
+                    <div class="service-links">
+                        <a class="service-link" asp-controller="Fitness" asp-action="Index">
+                            <i class="bi bi-activity" aria-hidden="true"></i>View dashboard
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-8 col-md-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h2 class="h5 card-title mb-2"><i class="bi bi-house-heart-fill me-1" aria-hidden="true"></i> Paissa Housing</h2>
-                <p class="text-muted mb-3">Browse lottery plots on Twintania, grouped by district and house size with live stats.</p>
-                <a class="btn btn-primary" asp-controller="Paissa" asp-action="Index"><i class="bi bi-building-fill-add me-1" aria-hidden="true"></i> View plots</a>
+        </article>
+
+        <article class="category-card category-card--gaming" style="--delay: 360ms;">
+            <header class="category-head">
+                <div class="category-icon">
+                    <i class="bi bi-controller" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="category-kicker">Gaming</div>
+                    <h2 class="category-title">Playground</h2>
+                    <p class="category-summary">Housing plots and SHiFT rewards, in one place.</p>
+                </div>
+            </header>
+            <div class="category-links">
+                <div class="category-link-group">
+                    <div class="category-link-label">Paissa Housing</div>
+                    <div class="service-links">
+                        <a class="service-link" asp-controller="Paissa" asp-action="Index">
+                            <i class="bi bi-building-fill-add" aria-hidden="true"></i>View plots
+                        </a>
+                    </div>
+                </div>
+                <div class="category-link-group">
+                    <div class="category-link-label">SHiFT Codes</div>
+                    <div class="service-links">
+                        <a class="service-link" asp-controller="Shift" asp-action="Index">
+                            <i class="bi bi-key-fill" aria-hidden="true"></i>Redeem codes
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
+        </article>
+    </section>
+
+    
 </div>

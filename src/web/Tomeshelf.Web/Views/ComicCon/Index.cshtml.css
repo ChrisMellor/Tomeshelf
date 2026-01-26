@@ -1,18 +1,26 @@
 /* Scoped styles for ComicCon/Index */
 
-.guest-card { transition: transform .15s ease, box-shadow .15s ease; }
+.guest-card {
+    border: 1px solid var(--ui-border) !important;
+    border-radius: 0.9rem;
+    transition: none;
+}
+
+.guest-card.border-danger {
+    border-color: #fca5a5 !important;
+}
 
 .guest-card:hover {
-    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .08) !important;
-    transform: translateY(-2px);
+    box-shadow: none !important;
+    transform: none;
 }
 
 .guest-img img { object-fit: cover; }
 
 .guest-img-fallback {
     align-items: center;
-    background: linear-gradient(135deg, #f3f4f6, #e9ecef);
-    color: #6c757d;
+    background: #f3f4f6;
+    color: var(--ui-muted);
     display: flex;
     font-size: 1.5rem;
     font-weight: 700;

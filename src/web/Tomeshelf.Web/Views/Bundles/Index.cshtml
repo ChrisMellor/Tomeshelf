@@ -13,10 +13,10 @@
     var activeCount = Model.ActiveBundles.Sum(group => group.Bundles.Count);
 }
 
-<section class="bundles-header">
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+<section class="bundles-header page-header">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 w-100">
         <div>
-            <h1 class="mb-1">Humble Bundle Tracker</h1>
+            <h1 class="page-title mb-1">Humble Bundle Tracker</h1>
             <p class="text-muted mb-0">
                 Data captured @generatedLocal.ToString("f") (local time)
                 <span class="d-block d-md-inline">
@@ -65,7 +65,7 @@
                 </p>
             }
         </div>
-        <div class="d-flex gap-2">
+        <div class="page-actions">
             <a class="btn btn-primary" asp-action="Upload">
                 <i class="bi bi-cloud-upload me-1"></i>Upload bundle
             </a>
