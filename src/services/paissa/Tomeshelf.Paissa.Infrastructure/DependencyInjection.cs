@@ -4,9 +4,6 @@ using Microsoft.Extensions.Hosting;
 using System;
 using Tomeshelf.Paissa.Application.Abstractions.Common;
 using Tomeshelf.Paissa.Application.Abstractions.External;
-using Tomeshelf.Paissa.Application.Abstractions.Messaging;
-using Tomeshelf.Paissa.Application.Features.Housing.Dtos;
-using Tomeshelf.Paissa.Application.Features.Housing.Queries;
 using Tomeshelf.Paissa.Infrastructure.Services;
 using Tomeshelf.Paissa.Infrastructure.Services.External;
 using Tomeshelf.Paissa.Infrastructure.Settings;
@@ -35,6 +32,5 @@ public static class DependencyInjection
         var worldId = builder.Configuration.GetValue("Paissa:WorldId", 33);
         builder.Services.AddSingleton<IPaissaWorldSettings>(new PaissaWorldSettings(worldId));
         builder.Services.AddSingleton<IClock, SystemClock>();
-        builder.Services.AddScoped<IQueryHandler<GetAcceptingEntriesQuery, PaissaWorldSummaryDto>, GetAcceptingEntriesQueryHandler>();
     }
 }

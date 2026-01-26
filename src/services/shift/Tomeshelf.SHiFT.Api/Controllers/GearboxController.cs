@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.SHiFT.Api.Contracts;
-using Tomeshelf.SHiFT.Application.Abstractions.External;
+using Tomeshelf.SHiFT.Application.Abstractions.Messaging;
+using Tomeshelf.SHiFT.Application.Features.Redemption.Commands;
+using Tomeshelf.SHiFT.Application.Features.Redemption.Redeem;
 
 namespace Tomeshelf.SHiFT.Api.Controllers;
 
@@ -19,15 +22,15 @@ namespace Tomeshelf.SHiFT.Api.Controllers;
 [Route("[controller]")]
 public class GearboxController : ControllerBase
 {
-    private readonly IGearboxClient _gearboxClient;
+    private readonly ICommandHandler<RedeemShiftCodeCommand, IReadOnlyList<RedeemResult>> _handler;
 
     /// <summary>
     ///     Initializes a new instance of the GearboxController class with the specified gearbox service.
     /// </summary>
     /// <param name="gearboxClient">The service used to manage gearbox operations. Cannot be null.</param>
-    public GearboxController(IGearboxClient gearboxClient)
+    public GearboxController(ICommandHandler<RedeemShiftCodeCommand, IReadOnlyList<RedeemResult>> handler)
     {
-        _gearboxClient = gearboxClient;
+        _handler = handler;
     }
 
     /// <summary>
@@ -50,7 +53,7 @@ public class GearboxController : ControllerBase
             return BadRequest("Code is required.");
         }
 
-        var results = await _gearboxClient.RedeemCodeAsync(requestDto.Code, cancellationToken);
+        var results = await _handler.Handle(new RedeemShiftCodeCommand(requestDto.Code), cancellationToken);
 
         var total = results.Count;
         var succeeded = results.Count(r => r.Success);

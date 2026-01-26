@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Tomeshelf.Paissa.Application;
 using Tomeshelf.Paissa.Infrastructure;
 using Tomeshelf.ServiceDefaults;
 
@@ -49,6 +50,7 @@ public static class Program
 
         builder.Services.AddAuthorization();
 
+        builder.Services.AddApplicationServices();
         builder.AddInfrastructureServices();
 
         var app = builder.Build();

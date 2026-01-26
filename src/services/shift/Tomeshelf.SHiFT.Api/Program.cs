@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Tomeshelf.ServiceDefaults;
+using Tomeshelf.SHiFT.Application;
 using Tomeshelf.SHiFT.Infrastructure;
 using Tomeshelf.SHiFT.Infrastructure.Persistence;
 
@@ -54,6 +55,7 @@ public class Program
 
         builder.Services.AddAuthorization();
 
+        builder.Services.AddApplicationServices();
         builder.AddInfrastructureServices();
 
         var app = builder.Build();

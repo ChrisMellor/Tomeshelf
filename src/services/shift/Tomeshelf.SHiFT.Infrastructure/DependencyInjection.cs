@@ -4,12 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Tomeshelf.SHiFT.Application.Abstractions.Common;
 using Tomeshelf.SHiFT.Application.Abstractions.External;
-using Tomeshelf.SHiFT.Application.Abstractions.Messaging;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
 using Tomeshelf.SHiFT.Application.Abstractions.Security;
-using Tomeshelf.SHiFT.Application.Features.Settings.Commands;
-using Tomeshelf.SHiFT.Application.Features.Settings.Dtos;
-using Tomeshelf.SHiFT.Application.Features.Settings.Queries;
 using Tomeshelf.SHiFT.Infrastructure.Exceptions;
 using Tomeshelf.SHiFT.Infrastructure.Persistence;
 using Tomeshelf.SHiFT.Infrastructure.Persistence.Repositories;
@@ -66,9 +62,5 @@ public static class DependencyInjection
         builder.Services.AddScoped<IGearboxClient, GearboxClient>();
         builder.Services.AddSingleton<ISecretProtector, DataProtectionSecretProtector>();
         builder.Services.AddSingleton<IClock, SystemClock>();
-        builder.Services.AddScoped<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>, GetShiftSettingsQueryHandler>();
-        builder.Services.AddScoped<ICommandHandler<CreateShiftSettingsCommand, int>, CreateShiftSettingsCommandHandler>();
-        builder.Services.AddScoped<ICommandHandler<UpdateShiftSettingsCommand, bool>, UpdateShiftSettingsCommandHandler>();
-        builder.Services.AddScoped<ICommandHandler<DeleteShiftSettingsCommand, bool>, DeleteShiftSettingsCommandHandler>();
     }
 }
