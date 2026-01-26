@@ -365,3 +365,5 @@ FodyWeavers.xsd
 /src/Tomeshelf.AppHost/tomeshelf/.env.Production
 /src/Tomeshelf.AppHost/tomeshelf/.env
 /src/Tomeshelf.AppHost/tomeshelf/.env
+.npmrc.codex
+/AGENTS.md
