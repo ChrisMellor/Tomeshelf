@@ -8,6 +8,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.HumbleBundle.Application.Abstractions.External;
+using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
 
 namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles;
 

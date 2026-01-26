@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.HumbleBundle.Application.Abstractions.Persistence;
 using Tomeshelf.HumbleBundle.Application.HumbleBundle;
 
 namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles;
@@ -11,7 +12,7 @@ namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles;
 /// <summary>
 ///     Query helpers for retrieving Humble Bundle listings.
 /// </summary>
-public sealed class BundleQueries
+public sealed class BundleQueries : IBundleQueries
 {
     private readonly TomeshelfBundlesDbContext _dbContext;
 

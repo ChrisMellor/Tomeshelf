@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.MCM.Api.Models;
-using Tomeshelf.MCM.Api.Services;
+using Tomeshelf.MCM.Application.Abstractions.Messaging;
+using Tomeshelf.MCM.Application.Features.Events.Commands;
+using Tomeshelf.MCM.Application.Features.Events.Queries;
+using Tomeshelf.MCM.Application.Models;
 
 namespace Tomeshelf.MCM.Api.Controllers;
 
@@ -23,18 +24,24 @@ namespace Tomeshelf.MCM.Api.Controllers;
 [Route("[controller]")]
 public class ConfigController : ControllerBase
 {
-    private readonly IEventService _eventService;
+    private readonly ICommandHandler<DeleteEventCommand, bool> _deleteHandler;
+    private readonly IQueryHandler<GetEventsQuery, IReadOnlyList<EventConfigModel>> _getHandler;
+    private readonly ICommandHandler<UpsertEventCommand, bool> _upsertHandler;
 
     /// <summary>
-    ///     Initializes a new instance of the ConfigController class with the specified event service.
+    ///     Initializes a new instance of the ConfigController class with the specified handlers.
     /// </summary>
-    /// <param name="eventService">
-    ///     The event service used to handle event-related operations for the controller. Cannot be
-    ///     null.
-    /// </param>
-    public ConfigController(IEventService eventService)
+    /// <param name="getHandler">Query handler for retrieving event configurations.</param>
+    /// <param name="upsertHandler">Command handler for inserting or updating event configurations.</param>
+    /// <param name="deleteHandler">Command handler for deleting event configurations.</param>
+    public ConfigController(
+        IQueryHandler<GetEventsQuery, IReadOnlyList<EventConfigModel>> getHandler,
+        ICommandHandler<UpsertEventCommand, bool> upsertHandler,
+        ICommandHandler<DeleteEventCommand, bool> deleteHandler)
     {
-        _eventService = eventService;
+        _getHandler = getHandler;
+        _upsertHandler = upsertHandler;
+        _deleteHandler = deleteHandler;
     }
 
     /// <summary>
@@ -51,7 +58,7 @@ public class ConfigController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Delete([FromRoute] string id, CancellationToken cancellationToken)
     {
-        var isDeleted = await _eventService.DeleteAsync(id, cancellationToken);
+        var isDeleted = await _deleteHandler.Handle(new DeleteEventCommand(id), cancellationToken);
 
         if (!isDeleted)
         {
@@ -73,15 +80,7 @@ public class ConfigController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<EventConfigModel>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var eventEntities = await _eventService.GetAllAsync(cancellationToken);
-
-        var eventConfigs = eventEntities
-                          .Select(entity => new EventConfigModel
-                          {
-                              Id = entity.Id,
-                              Name = entity.Name
-                          })
-                          .ToList();
+        var eventConfigs = await _getHandler.Handle(new GetEventsQuery(), cancellationToken);
 
         return Ok(eventConfigs);
     }
@@ -100,7 +99,7 @@ public class ConfigController : ControllerBase
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> Update(EventConfigModel model, CancellationToken cancellationToken)
     {
-        await _eventService.UpsertAsync(model, cancellationToken);
+        await _upsertHandler.Handle(new UpsertEventCommand(model), cancellationToken);
 
         return Ok();
     }

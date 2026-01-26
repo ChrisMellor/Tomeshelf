@@ -5,11 +5,12 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using Tomeshelf.Fitbit.Application;
+using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Domain;
 
 namespace Tomeshelf.Fitbit.Infrastructure;
 
-public sealed class FitbitTokenCache
+public sealed class FitbitTokenCache : IFitbitTokenCache
 {
     private readonly ILogger<FitbitTokenCache> _logger;
     private readonly IServiceScopeFactory _scopeFactory;

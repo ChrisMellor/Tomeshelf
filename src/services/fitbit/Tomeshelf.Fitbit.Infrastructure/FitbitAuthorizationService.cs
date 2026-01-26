@@ -13,11 +13,12 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Fitbit.Application;
+using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Infrastructure.Models;
 
 namespace Tomeshelf.Fitbit.Infrastructure;
 
-public sealed class FitbitAuthorizationService
+public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
 {
     private static readonly TimeSpan StateLifetime = TimeSpan.FromMinutes(10);
     private readonly IHttpClientFactory _httpClientFactory;

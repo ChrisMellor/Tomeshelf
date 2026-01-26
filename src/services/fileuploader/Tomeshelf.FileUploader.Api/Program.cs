@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Tomeshelf.FileUploader.Application;
+using Tomeshelf.FileUploader.Infrastructure;
 using Tomeshelf.ServiceDefaults;
 
 namespace Tomeshelf.FileUploader.Api;
@@ -16,10 +17,16 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Logging.ClearProviders();
-        builder.Logging.AddConsole();
-
         builder.AddServiceDefaults();
+
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddHttpLogging(o =>
+            {
+                o.LoggingFields = HttpLoggingFields.RequestPath | HttpLoggingFields.RequestMethod | HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration;
+                o.MediaTypeOptions.AddText("application/json");
+            });
+        }
 
         builder.Services
                .AddProblemDetails()
@@ -38,7 +45,8 @@ public class Program
             options.SerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
         });
 
-        //builder.Services.AddBundleUploadInfrastructure();
+        builder.Services.AddApplicationServices();
+        builder.AddInfrastructureServices();
 
         var app = builder.Build();
 
@@ -53,6 +61,8 @@ public class Program
                 options.RoutePrefix = string.Empty;
                 options.SwaggerEndpoint("/openapi/v1.json", "File Uploader API v1");
             });
+
+            app.UseHttpLogging();
         }
 
         app.UseHttpsRedirection();

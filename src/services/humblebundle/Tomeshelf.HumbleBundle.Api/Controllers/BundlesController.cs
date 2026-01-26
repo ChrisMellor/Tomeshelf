@@ -6,7 +6,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.HumbleBundle.Application.HumbleBundle;
-using Tomeshelf.HumbleBundle.Infrastructure.Bundles;
+using Tomeshelf.HumbleBundle.Application.Abstractions.Messaging;
+using Tomeshelf.HumbleBundle.Application.Features.Bundles.Commands;
+using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
+using Tomeshelf.HumbleBundle.Application.Features.Bundles.Queries;
 
 namespace Tomeshelf.HumbleBundle.Api.Controllers;
 
@@ -14,16 +17,14 @@ namespace Tomeshelf.HumbleBundle.Api.Controllers;
 [Route("bundles")]
 public sealed class BundlesController : ControllerBase
 {
-    private readonly BundleIngestService _ingest;
+    private readonly ICommandHandler<RefreshBundlesCommand, BundleIngestResult> _refreshHandler;
     private readonly ILogger<BundlesController> _logger;
-    private readonly BundleQueries _queries;
-    private readonly IHumbleBundleScraper _scraper;
+    private readonly IQueryHandler<GetBundlesQuery, IReadOnlyList<BundleDto>> _queryHandler;
 
-    public BundlesController(BundleQueries queries, IHumbleBundleScraper scraper, BundleIngestService ingest, ILogger<BundlesController> logger)
+    public BundlesController(IQueryHandler<GetBundlesQuery, IReadOnlyList<BundleDto>> queryHandler, ICommandHandler<RefreshBundlesCommand, BundleIngestResult> refreshHandler, ILogger<BundlesController> logger)
     {
-        _queries = queries;
-        _scraper = scraper;
-        _ingest = ingest;
+        _queryHandler = queryHandler;
+        _refreshHandler = refreshHandler;
         _logger = logger;
     }
 
@@ -36,7 +37,7 @@ public sealed class BundlesController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<BundleResponse>), 200)]
     public async Task<ActionResult<IReadOnlyList<BundleResponse>>> GetBundles([FromQuery] bool includeExpired = false, CancellationToken cancellationToken = default)
     {
-        var dtos = await _queries.GetBundlesAsync(includeExpired, cancellationToken);
+        var dtos = await _queryHandler.Handle(new GetBundlesQuery(includeExpired), cancellationToken);
         var now = DateTimeOffset.UtcNow;
 
         var result = dtos.Select(dto => BundleResponse.FromDto(dto, now))
@@ -53,8 +54,7 @@ public sealed class BundlesController : ControllerBase
     [ProducesResponseType(typeof(RefreshBundlesResponse), 200)]
     public async Task<ActionResult<RefreshBundlesResponse>> RefreshBundles(CancellationToken cancellationToken = default)
     {
-        var scraped = await _scraper.ScrapeAsync(cancellationToken);
-        var ingestResult = await _ingest.UpsertAsync(scraped, cancellationToken);
+        var ingestResult = await _refreshHandler.Handle(new RefreshBundlesCommand(), cancellationToken);
 
         _logger.LogInformation("Bundles refresh completed via API call - processed {Processed} bundles (created: {Created}, updated: {Updated}, unchanged: {Unchanged})", ingestResult.Processed, ingestResult.Created, ingestResult.Updated, ingestResult.Unchanged);
 

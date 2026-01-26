@@ -57,8 +57,8 @@ public class Program
                .Bind(config)
                .ValidateDataAnnotations();
 
-        //builder.Services.AddFitnessInfrastructure();
-        builder.AddSqlServerDbContext<TomeshelfFitbitDbContext>("fitbitDb");
+        builder.Services.AddApplicationServices();
+        builder.AddInfrastructureServices();
 
         var app = builder.Build();
 

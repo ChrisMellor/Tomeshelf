@@ -8,7 +8,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.FileUploader.Application;
-using Tomeshelf.FileUploader.Infrastructure.Upload;
+using Tomeshelf.FileUploader.Application.Abstractions.Messaging;
+using Tomeshelf.FileUploader.Application.Features.Uploads.Commands;
+using Tomeshelf.FileUploader.Application.Features.Uploads.Models;
 
 namespace Tomeshelf.FileUploader.Api.Controllers;
 
@@ -18,11 +20,11 @@ public sealed class UploadsController : ControllerBase
 {
     private readonly GoogleDriveOptions _defaultDriveOptions;
     private readonly ILogger<UploadsController> _logger;
-    private readonly IHumbleBundleUploadService _uploadService;
+    private readonly ICommandHandler<UploadBundleArchiveCommand, BundleUploadResult> _uploadHandler;
 
-    public UploadsController(IHumbleBundleUploadService uploadService, IOptions<GoogleDriveOptions> driveOptions, ILogger<UploadsController> logger)
+    public UploadsController(ICommandHandler<UploadBundleArchiveCommand, BundleUploadResult> uploadHandler, IOptions<GoogleDriveOptions> driveOptions, ILogger<UploadsController> logger)
     {
-        _uploadService = uploadService;
+        _uploadHandler = uploadHandler;
         _defaultDriveOptions = driveOptions.Value;
         _logger = logger;
     }
@@ -53,7 +55,8 @@ public sealed class UploadsController : ControllerBase
             return BadRequest("Google Drive OAuth credentials are missing. Authorise via the web app and try again.");
         }
 
-        var result = await _uploadService.UploadAsync(stream, archive.FileName, overrideOptions, cancellationToken);
+        var command = new UploadBundleArchiveCommand(stream, archive.FileName, overrideOptions);
+        var result = await _uploadHandler.Handle(command, cancellationToken);
 
         return Ok(BundleUploadResponse.FromResult(result));
     }

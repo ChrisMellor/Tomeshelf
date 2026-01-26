@@ -2,9 +2,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.MCM.Api.Contracts;
-using Tomeshelf.MCM.Api.Models;
-using Tomeshelf.MCM.Api.Services;
+using Tomeshelf.MCM.Application.Abstractions.Messaging;
+using Tomeshelf.MCM.Application.Contracts;
+using Tomeshelf.MCM.Application.Features.Guests.Commands;
+using Tomeshelf.MCM.Application.Features.Guests.Queries;
 
 namespace Tomeshelf.MCM.Api.Controllers;
 
@@ -22,15 +23,20 @@ namespace Tomeshelf.MCM.Api.Controllers;
 [Route("events/{eventId}/guests")]
 public class GuestsController : ControllerBase
 {
-    private readonly IGuestsService _guestsService;
+    private readonly IQueryHandler<GetGuestsQuery, PagedResult<GuestDto>> _queryHandler;
+    private readonly ICommandHandler<SyncGuestsCommand, GuestSyncResultDto?> _syncHandler;
 
     /// <summary>
-    ///     Initializes a new instance of the GuestsController class with the specified guests service.
+    ///     Initializes a new instance of the GuestsController class with the specified handlers.
     /// </summary>
-    /// <param name="guestsService">The service used to manage guest-related operations. Cannot be null.</param>
-    public GuestsController(IGuestsService guestsService)
+    /// <param name="queryHandler">Query handler for retrieving guest data.</param>
+    /// <param name="syncHandler">Command handler for syncing guest data.</param>
+    public GuestsController(
+        IQueryHandler<GetGuestsQuery, PagedResult<GuestDto>> queryHandler,
+        ICommandHandler<SyncGuestsCommand, GuestSyncResultDto?> syncHandler)
     {
-        _guestsService = guestsService;
+        _queryHandler = queryHandler;
+        _syncHandler = syncHandler;
     }
 
     /// <summary>
@@ -68,13 +74,7 @@ public class GuestsController : ControllerBase
             return ValidationProblem("pageSize must be between 1 and 400");
         }
 
-        var model = new EventConfigModel
-        {
-            Id = eventId,
-            Name = eventName ?? string.Empty
-        };
-
-        var result = await _guestsService.GetAsync(model, page, pageSize, includeDeleted, cancellationToken);
+        var result = await _queryHandler.Handle(new GetGuestsQuery(eventId, page, pageSize, eventName, includeDeleted), cancellationToken);
 
         return Ok(result);
     }
@@ -94,13 +94,7 @@ public class GuestsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<GuestSyncResultDto>> Sync([FromRoute] string eventId, CancellationToken cancellationToken)
     {
-        var model = new EventConfigModel
-        {
-            Id = eventId,
-            Name = string.Empty
-        };
-
-        var result = await _guestsService.SyncAsync(model, cancellationToken);
+        var result = await _syncHandler.Handle(new SyncGuestsCommand(eventId), cancellationToken);
         if (result is null)
         {
             return NotFound(eventId);

@@ -1,0 +1,6 @@
+using System;
+using Tomeshelf.Fitbit.Application.Abstractions.Messaging;
+
+namespace Tomeshelf.Fitbit.Application.Features.Dashboard.Queries;
+
+public sealed record GetFitbitDashboardQuery(DateOnly Date, bool ForceRefresh) : IQuery<FitbitDashboardDto>;

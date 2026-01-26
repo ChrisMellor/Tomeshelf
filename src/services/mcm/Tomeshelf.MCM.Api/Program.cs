@@ -2,14 +2,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Tomeshelf.MCM.Api.Clients;
-using Tomeshelf.MCM.Api.Mappers;
-using Tomeshelf.MCM.Api.Repositories;
-using Tomeshelf.MCM.Api.Services;
 using Tomeshelf.MCM.Api.Transformers;
+using Tomeshelf.MCM.Application;
 using Tomeshelf.MCM.Infrastructure;
 using Tomeshelf.ServiceDefaults;
 
@@ -54,20 +50,8 @@ public class Program
             options.AddSchemaTransformer<EnumAsStringSchemaTransformer>();
         });
 
-        builder.AddSqlServerDbContext<TomeshelfMcmDbContext>("mcmdb");
-
-        builder.Services.AddSingleton<IGuestMapper, GuestMapper>();
-        builder.Services.AddScoped<IGuestsRepository, GuestsRepository>();
-        builder.Services.AddScoped<IGuestsService, GuestsService>();
-        builder.Services.AddHttpClient<IMcmGuestsClient, McmGuestsClient>(client =>
-        {
-            client.BaseAddress = new Uri("https://conventions.leapevent.tech/");
-            client.Timeout = TimeSpan.FromSeconds(30);
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-McmApi/1.0");
-        });
-
-        builder.Services.AddScoped<IEventRepository, EventRepository>();
-        builder.Services.AddScoped<IEventService, EventService>();
+        builder.Services.AddApplicationServices();
+        builder.AddInfrastructureServices();
 
         var app = builder.Build();
 

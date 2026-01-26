@@ -7,7 +7,9 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Fitbit.Application;
-using Tomeshelf.Fitbit.Infrastructure;
+using Tomeshelf.Fitbit.Application.Abstractions.Messaging;
+using Tomeshelf.Fitbit.Application.Exceptions;
+using Tomeshelf.Fitbit.Application.Features.Dashboard.Queries;
 
 namespace Tomeshelf.Fitbit.Api.Controllers;
 
@@ -15,12 +17,12 @@ namespace Tomeshelf.Fitbit.Api.Controllers;
 [Route("api/[controller]")]
 public sealed class FitbitController : ControllerBase
 {
-    private readonly FitbitDashboardService _dashboardService;
+    private readonly IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto> _dashboardHandler;
     private readonly ILogger<FitbitController> _logger;
 
-    public FitbitController(FitbitDashboardService dashboardService, ILogger<FitbitController> logger)
+    public FitbitController(IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto> dashboardHandler, ILogger<FitbitController> logger)
     {
-        _dashboardService = dashboardService;
+        _dashboardHandler = dashboardHandler;
         _logger = logger;
     }
 
@@ -48,7 +50,7 @@ public sealed class FitbitController : ControllerBase
 
         try
         {
-            var snapshot = await _dashboardService.GetDashboardAsync(targetDate, shouldRefresh, cancellationToken);
+            var snapshot = await _dashboardHandler.Handle(new GetFitbitDashboardQuery(targetDate, shouldRefresh), cancellationToken);
             if (snapshot is null)
             {
                 return NotFound();

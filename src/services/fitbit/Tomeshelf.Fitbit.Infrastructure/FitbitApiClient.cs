@@ -12,6 +12,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Fitbit.Application;
+using Tomeshelf.Fitbit.Application.Exceptions;
 using Tomeshelf.Fitbit.Infrastructure.Models;
 
 namespace Tomeshelf.Fitbit.Infrastructure;
@@ -297,126 +298,5 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         _tokenCache.Update(payload.AccessToken, newRefreshToken, expiresAt);
 
         return true;
-    }
-}
-
-public sealed class FitbitRateLimitExceededException : Exception
-{
-    public FitbitRateLimitExceededException(string rawMessage, TimeSpan? retryAfter) : base(BuildMessage(rawMessage))
-    {
-        RetryAfter = retryAfter;
-    }
-
-    public TimeSpan? RetryAfter { get; }
-
-    private static string BuildMessage(string raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            return "Fitbit rate limit reached. Please try again shortly.";
-        }
-
-        var trimmed = raw.Trim();
-
-        if (trimmed.StartsWith("{", StringComparison.Ordinal))
-        {
-            try
-            {
-                using var document = JsonDocument.Parse(trimmed);
-                if ((document.RootElement.ValueKind == JsonValueKind.Object) && document.RootElement.TryGetProperty("message", out var messageElement) && (messageElement.ValueKind == JsonValueKind.String))
-                {
-                    var message = messageElement.GetString();
-                    if (!string.IsNullOrWhiteSpace(message))
-                    {
-                        return message.Trim();
-                    }
-                }
-            }
-            catch (JsonException)
-            {
-                // ignore malformed json
-            }
-        }
-
-        if (trimmed.StartsWith("\"", StringComparison.Ordinal) && trimmed.EndsWith("\"", StringComparison.Ordinal))
-        {
-            try
-            {
-                var deserialised = JsonSerializer.Deserialize<string>(trimmed);
-                if (!string.IsNullOrWhiteSpace(deserialised))
-                {
-                    return deserialised.Trim();
-                }
-            }
-            catch (JsonException)
-            {
-                // ignore malformed json
-            }
-        }
-
-        if (trimmed.StartsWith("<", StringComparison.Ordinal))
-        {
-            return "Fitbit rate limit reached. Please try again shortly.";
-        }
-
-        return trimmed;
-    }
-}
-
-public sealed class FitbitBadRequestException : Exception
-{
-    public FitbitBadRequestException(string rawMessage) : base(BuildMessage(rawMessage)) { }
-
-    private static string BuildMessage(string raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            return "Fitbit rejected the request. Please re-authorize and try again.";
-        }
-
-        var trimmed = raw.Trim();
-
-        if (trimmed.StartsWith("{", StringComparison.Ordinal))
-        {
-            try
-            {
-                using var document = JsonDocument.Parse(trimmed);
-                if ((document.RootElement.ValueKind == JsonValueKind.Object) && document.RootElement.TryGetProperty("message", out var messageElement) && (messageElement.ValueKind == JsonValueKind.String))
-                {
-                    var message = messageElement.GetString();
-                    if (!string.IsNullOrWhiteSpace(message))
-                    {
-                        return message.Trim();
-                    }
-                }
-            }
-            catch (JsonException)
-            {
-                // ignore malformed json
-            }
-        }
-
-        if (trimmed.StartsWith("\"", StringComparison.Ordinal) && trimmed.EndsWith("\"", StringComparison.Ordinal))
-        {
-            try
-            {
-                var deserialised = JsonSerializer.Deserialize<string>(trimmed);
-                if (!string.IsNullOrWhiteSpace(deserialised))
-                {
-                    return deserialised.Trim();
-                }
-            }
-            catch (JsonException)
-            {
-                // ignore malformed json
-            }
-        }
-
-        if (trimmed.StartsWith("<", StringComparison.Ordinal))
-        {
-            return "Fitbit could not process the request. Please re-authorize and try again.";
-        }
-
-        return trimmed;
     }
 }

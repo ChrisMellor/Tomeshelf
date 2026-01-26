@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Tomeshelf.HumbleBundle.Application;
 using Tomeshelf.HumbleBundle.Infrastructure;
 using Tomeshelf.ServiceDefaults;
 
@@ -46,6 +47,7 @@ public class Program
             options.SerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
         });
 
+        builder.Services.AddApplicationServices();
         builder.AddInfrastructureServices();
 
         var app = builder.Build();

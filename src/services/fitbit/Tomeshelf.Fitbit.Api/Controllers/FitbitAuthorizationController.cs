@@ -2,7 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Fitbit.Infrastructure;
+using Tomeshelf.Fitbit.Application.Abstractions.Messaging;
+using Tomeshelf.Fitbit.Application.Features.Authorization.Commands;
+using Tomeshelf.Fitbit.Application.Features.Authorization.Models;
+using Tomeshelf.Fitbit.Application.Features.Authorization.Queries;
 
 namespace Tomeshelf.Fitbit.Api.Controllers;
 
@@ -10,23 +13,25 @@ namespace Tomeshelf.Fitbit.Api.Controllers;
 [Route("api/fitbit/auth")]
 public sealed class FitbitAuthorizationController : ControllerBase
 {
-    private readonly FitbitAuthorizationService _authorizationService;
+    private readonly ICommandHandler<BuildFitbitAuthorizationRedirectCommand, FitbitAuthorizationRedirect> _authorizeHandler;
+    private readonly ICommandHandler<ExchangeFitbitAuthorizationCodeCommand, FitbitAuthorizationExchangeResult> _exchangeHandler;
     private readonly ILogger<FitbitAuthorizationController> _logger;
-    private readonly FitbitTokenCache _tokenCache;
+    private readonly IQueryHandler<GetFitbitAuthorizationStatusQuery, FitbitAuthorizationStatus> _statusHandler;
 
-    public FitbitAuthorizationController(FitbitAuthorizationService authorizationService, FitbitTokenCache tokenCache, ILogger<FitbitAuthorizationController> logger)
+    public FitbitAuthorizationController(ICommandHandler<BuildFitbitAuthorizationRedirectCommand, FitbitAuthorizationRedirect> authorizeHandler, ICommandHandler<ExchangeFitbitAuthorizationCodeCommand, FitbitAuthorizationExchangeResult> exchangeHandler, IQueryHandler<GetFitbitAuthorizationStatusQuery, FitbitAuthorizationStatus> statusHandler, ILogger<FitbitAuthorizationController> logger)
     {
-        _authorizationService = authorizationService;
-        _tokenCache = tokenCache;
+        _authorizeHandler = authorizeHandler;
+        _exchangeHandler = exchangeHandler;
+        _statusHandler = statusHandler;
         _logger = logger;
     }
 
     [HttpGet("authorize")]
-    public IActionResult Authorize([FromQuery] string returnUrl)
+    public async Task<IActionResult> Authorize([FromQuery] string returnUrl)
     {
-        var uri = _authorizationService.BuildAuthorizationUri(returnUrl, out _);
+        var result = await _authorizeHandler.Handle(new BuildFitbitAuthorizationRedirectCommand(returnUrl), CancellationToken.None);
 
-        return Redirect(uri.ToString());
+        return Redirect(result.AuthorizationUri.ToString());
     }
 
     [HttpGet("callback")]
@@ -44,28 +49,26 @@ public sealed class FitbitAuthorizationController : ControllerBase
             return BadRequest(new { message = "Missing authorization code." });
         }
 
-        if (!_authorizationService.TryConsumeState(state ?? string.Empty, out var codeVerifier, out var returnUrl))
+        var exchangeResult = await _exchangeHandler.Handle(new ExchangeFitbitAuthorizationCodeCommand(code, state ?? string.Empty), cancellationToken);
+        if (exchangeResult.IsInvalidState)
         {
             return BadRequest(new { message = "Invalid or expired OAuth state token." });
         }
 
-        await _authorizationService.ExchangeAuthorizationCodeAsync(code, codeVerifier, cancellationToken);
-
-        return Redirect(string.IsNullOrWhiteSpace(returnUrl)
+        return Redirect(string.IsNullOrWhiteSpace(exchangeResult.ReturnUrl)
                             ? "/fitness"
-                            : returnUrl);
+                            : exchangeResult.ReturnUrl);
     }
 
     [HttpGet("status")]
-    public IActionResult Status()
+    public async Task<IActionResult> Status()
     {
-        var hasAccess = !string.IsNullOrWhiteSpace(_tokenCache.AccessToken);
-        var hasRefresh = !string.IsNullOrWhiteSpace(_tokenCache.RefreshToken);
+        var status = await _statusHandler.Handle(new GetFitbitAuthorizationStatusQuery(), CancellationToken.None);
 
         return Ok(new
         {
-            hasAccessToken = hasAccess,
-            hasRefreshToken = hasRefresh
+            hasAccessToken = status.HasAccessToken,
+            hasRefreshToken = status.HasRefreshToken
         });
     }
 }

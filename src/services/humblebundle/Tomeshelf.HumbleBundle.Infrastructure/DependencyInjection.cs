@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using Tomeshelf.HumbleBundle.Application.Abstractions.External;
+using Tomeshelf.HumbleBundle.Application.Abstractions.Persistence;
 using Tomeshelf.HumbleBundle.Infrastructure.Bundles;
 
 namespace Tomeshelf.HumbleBundle.Infrastructure;
@@ -29,7 +31,7 @@ public static class DependencyInjection
             client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-HumbleBundle/1.0");
         });
 
-        builder.Services.AddScoped<BundleQueries>();
-        builder.Services.AddScoped<BundleIngestService>();
+        builder.Services.AddScoped<IBundleQueries, BundleQueries>();
+        builder.Services.AddScoped<IBundleIngestService, BundleIngestService>();
     }
 }

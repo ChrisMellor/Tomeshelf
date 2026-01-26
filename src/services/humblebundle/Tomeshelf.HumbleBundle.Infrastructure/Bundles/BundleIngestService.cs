@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.HumbleBundle.Application.Abstractions.Persistence;
+using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
 using Tomeshelf.HumbleBundle.Domain.HumbleBundle;
 
 namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles;
@@ -12,7 +14,7 @@ namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles;
 /// <summary>
 ///     Persists scraped Humble Bundle listings by upserting bundle entities.
 /// </summary>
-public sealed class BundleIngestService
+public sealed class BundleIngestService : IBundleIngestService
 {
     private readonly TomeshelfBundlesDbContext _dbContext;
     private readonly ILogger<BundleIngestService> _logger;

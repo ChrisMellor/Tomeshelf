@@ -8,6 +8,8 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Fitbit.Application;
+using Tomeshelf.Fitbit.Application.Abstractions.Services;
+using Tomeshelf.Fitbit.Application.Exceptions;
 using Tomeshelf.Fitbit.Domain;
 using Tomeshelf.Fitbit.Infrastructure.Models;
 
@@ -16,7 +18,7 @@ namespace Tomeshelf.Fitbit.Infrastructure;
 /// <summary>
 ///     Provides cached Fitbit dashboard snapshots backed by persisted daily data.
 /// </summary>
-public sealed class FitbitDashboardService
+public sealed class FitbitDashboardService : IFitbitDashboardService
 {
     private const int WeightLookbackDays = 1;
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);

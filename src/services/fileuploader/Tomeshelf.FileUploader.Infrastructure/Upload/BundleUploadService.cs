@@ -7,6 +7,8 @@ using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.FileUploader.Application;
+using Tomeshelf.FileUploader.Application.Abstractions.Upload;
+using Tomeshelf.FileUploader.Application.Features.Uploads.Models;
 
 namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 
