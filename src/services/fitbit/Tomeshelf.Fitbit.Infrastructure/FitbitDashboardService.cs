@@ -57,14 +57,16 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         var shouldFetch = forceRefresh || existing is null || (isToday && ((DateTimeOffset.UtcNow - existing.GeneratedUtc) >= TodayRefreshThreshold));
 
         FitbitDashboardDto snapshot = null;
+        DashboardFetchResult fetchResult = null;
 
         if (shouldFetch)
         {
             try
             {
-                snapshot = await FetchSnapshotAsync(date, cancellationToken)
+                fetchResult = await FetchSnapshotAsync(date, existing, cancellationToken)
                    .ConfigureAwait(false);
-                await UpsertSnapshotAsync(snapshot, cancellationToken)
+                snapshot = fetchResult.Snapshot;
+                await UpsertSnapshotAsync(snapshot, cancellationToken, fetchResult.Status)
                    .ConfigureAwait(false);
             }
             catch (Exception ex) when (!IsCriticalFitbitFailure(ex))
@@ -80,6 +82,8 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
 
         if (snapshot is not null)
         {
+            snapshot = await ApplyWeightFallbackAsync(date, snapshot, cancellationToken)
+                .ConfigureAwait(false);
             _cache.Set(cacheKey, snapshot, CacheDuration);
         }
 
@@ -287,32 +291,68 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         };
     }
 
-    private async Task<FitbitDashboardDto> FetchSnapshotAsync(DateOnly date, CancellationToken cancellationToken)
+    private async Task<DashboardFetchResult> FetchSnapshotAsync(DateOnly date, FitbitDailySnapshot existingSnapshot, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Fetching Fitbit data from API for {Date}", date);
 
-        var activitiesTask = _client.GetActivitiesAsync(date, cancellationToken);
-        var caloriesTask = _client.GetCaloriesInAsync(date, cancellationToken);
-        var sleepTask = _client.GetSleepAsync(date, cancellationToken);
-        var weightTask = _client.GetWeightAsync(date, WeightLookbackDays, cancellationToken);
+        var activitiesTask = TryFetchAsync("activities", () => _client.GetActivitiesAsync(date, cancellationToken), date, cancellationToken);
+        var caloriesTask = TryFetchAsync("calories", () => _client.GetCaloriesInAsync(date, cancellationToken), date, cancellationToken);
+        var sleepTask = TryFetchAsync("sleep", () => _client.GetSleepAsync(date, cancellationToken), date, cancellationToken);
+        var weightTask = TryFetchAsync("weight", () => _client.GetWeightAsync(date, WeightLookbackDays, cancellationToken), date, cancellationToken);
 
         await Task.WhenAll(activitiesTask, caloriesTask, sleepTask, weightTask)
                   .ConfigureAwait(false);
 
-        var activities = await activitiesTask.ConfigureAwait(false);
-        var calories = await caloriesTask.ConfigureAwait(false);
-        var sleep = await sleepTask.ConfigureAwait(false);
-        var weight = await weightTask.ConfigureAwait(false);
+        var activitiesResult = await activitiesTask.ConfigureAwait(false);
+        var caloriesResult = await caloriesTask.ConfigureAwait(false);
+        var sleepResult = await sleepTask.ConfigureAwait(false);
+        var weightResult = await weightTask.ConfigureAwait(false);
 
-        return new FitbitDashboardDto
+        if (!activitiesResult.IsSuccess && !caloriesResult.IsSuccess && !sleepResult.IsSuccess && !weightResult.IsSuccess)
+        {
+            throw GetFirstFailure(activitiesResult, caloriesResult, sleepResult, weightResult);
+        }
+
+        var fallback = existingSnapshot is null
+            ? null
+            : MapSnapshot(existingSnapshot);
+
+        var activitySummary = activitiesResult.IsSuccess
+            ? BuildActivitySummary(activitiesResult.Value)
+            : fallback?.Activity ?? new FitbitActivitySummaryDto(null, null, null);
+
+        var caloriesSummary = caloriesResult.IsSuccess
+            ? BuildCaloriesSummary(caloriesResult.Value, activitiesResult.Value)
+            : fallback?.Calories ?? new FitbitCaloriesSummaryDto();
+
+        var sleepSummary = sleepResult.IsSuccess
+            ? BuildSleepSummary(sleepResult.Value)
+            : fallback?.Sleep ?? new FitbitSleepSummaryDto();
+
+        var weightSummary = weightResult.IsSuccess
+            ? BuildWeightSummary(weightResult.Value)
+            : fallback?.Weight ?? new FitbitWeightSummaryDto();
+        var weightHasData = weightResult.IsSuccess && HasWeightData(weightSummary);
+
+        if (!weightHasData)
+        {
+            weightSummary = await ApplyWeightFallbackAsync(date, weightSummary, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        var snapshot = new FitbitDashboardDto
         {
             Date = date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             GeneratedUtc = DateTimeOffset.UtcNow,
-            Weight = BuildWeightSummary(weight),
-            Calories = BuildCaloriesSummary(calories, activities),
-            Sleep = BuildSleepSummary(sleep),
-            Activity = BuildActivitySummary(activities)
+            Weight = weightSummary,
+            Calories = caloriesSummary,
+            Sleep = sleepSummary,
+            Activity = activitySummary
         };
+
+        var status = new FetchStatus(activitiesResult.IsSuccess, caloriesResult.IsSuccess, sleepResult.IsSuccess, weightHasData);
+
+        return new DashboardFetchResult(snapshot, status);
     }
 
     private static bool IsCriticalFitbitFailure(Exception exception)
@@ -409,7 +449,7 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         return null;
     }
 
-    private async Task UpsertSnapshotAsync(FitbitDashboardDto snapshot, CancellationToken cancellationToken)
+    private async Task UpsertSnapshotAsync(FitbitDashboardDto snapshot, CancellationToken cancellationToken, FetchStatus status)
     {
         var date = DateOnly.ParseExact(snapshot.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
         var entity = await _dbContext.DailySnapshots
@@ -423,33 +463,148 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         }
 
         entity.GeneratedUtc = snapshot.GeneratedUtc;
-        entity.StartingWeightKg = snapshot.Weight.StartingWeightKg;
-        entity.CurrentWeightKg = snapshot.Weight.CurrentWeightKg;
-        entity.ChangeWeightKg = snapshot.Weight.ChangeKg;
-        entity.BodyFatPercentage = snapshot.Weight.BodyFatPercentage;
-        entity.LeanMassKg = snapshot.Weight.LeanMassKg;
-        entity.IntakeCalories = snapshot.Calories.IntakeCalories;
-        entity.BurnedCalories = snapshot.Calories.BurnedCalories;
-        entity.NetCalories = snapshot.Calories.NetCalories;
-        entity.CarbsGrams = snapshot.Calories.CarbsGrams;
-        entity.FatGrams = snapshot.Calories.FatGrams;
-        entity.FiberGrams = snapshot.Calories.FiberGrams;
-        entity.ProteinGrams = snapshot.Calories.ProteinGrams;
-        entity.SodiumMilligrams = snapshot.Calories.SodiumMilligrams;
-        entity.TotalSleepHours = snapshot.Sleep.TotalSleepHours;
-        entity.TotalAwakeHours = snapshot.Sleep.TotalAwakeHours;
-        entity.SleepEfficiencyPercentage = snapshot.Sleep.EfficiencyPercentage;
-        entity.Bedtime = snapshot.Sleep.Bedtime;
-        entity.WakeTime = snapshot.Sleep.WakeTime;
-        entity.SleepDeepMinutes = snapshot.Sleep.Levels.DeepMinutes;
-        entity.SleepLightMinutes = snapshot.Sleep.Levels.LightMinutes;
-        entity.SleepRemMinutes = snapshot.Sleep.Levels.RemMinutes;
-        entity.SleepWakeMinutes = snapshot.Sleep.Levels.WakeMinutes;
-        entity.Steps = snapshot.Activity.Steps;
-        entity.DistanceKm = snapshot.Activity.DistanceKm;
-        entity.Floors = snapshot.Activity.Floors;
+
+        if (status.Weight)
+        {
+            entity.StartingWeightKg = snapshot.Weight.StartingWeightKg;
+            entity.CurrentWeightKg = snapshot.Weight.CurrentWeightKg;
+            entity.ChangeWeightKg = snapshot.Weight.ChangeKg;
+            entity.BodyFatPercentage = snapshot.Weight.BodyFatPercentage;
+            entity.LeanMassKg = snapshot.Weight.LeanMassKg;
+        }
+
+        if (status.Calories)
+        {
+            entity.IntakeCalories = snapshot.Calories.IntakeCalories;
+            entity.BurnedCalories = snapshot.Calories.BurnedCalories;
+            entity.NetCalories = snapshot.Calories.NetCalories;
+            entity.CarbsGrams = snapshot.Calories.CarbsGrams;
+            entity.FatGrams = snapshot.Calories.FatGrams;
+            entity.FiberGrams = snapshot.Calories.FiberGrams;
+            entity.ProteinGrams = snapshot.Calories.ProteinGrams;
+            entity.SodiumMilligrams = snapshot.Calories.SodiumMilligrams;
+        }
+
+        if (status.Sleep)
+        {
+            var levels = snapshot.Sleep.Levels ?? new FitbitSleepLevelsDto();
+            entity.TotalSleepHours = snapshot.Sleep.TotalSleepHours;
+            entity.TotalAwakeHours = snapshot.Sleep.TotalAwakeHours;
+            entity.SleepEfficiencyPercentage = snapshot.Sleep.EfficiencyPercentage;
+            entity.Bedtime = snapshot.Sleep.Bedtime;
+            entity.WakeTime = snapshot.Sleep.WakeTime;
+            entity.SleepDeepMinutes = levels.DeepMinutes;
+            entity.SleepLightMinutes = levels.LightMinutes;
+            entity.SleepRemMinutes = levels.RemMinutes;
+            entity.SleepWakeMinutes = levels.WakeMinutes;
+        }
+
+        if (status.Activities)
+        {
+            entity.Steps = snapshot.Activity.Steps;
+            entity.DistanceKm = snapshot.Activity.DistanceKm;
+            entity.Floors = snapshot.Activity.Floors;
+        }
 
         await _dbContext.SaveChangesAsync(cancellationToken)
                         .ConfigureAwait(false);
     }
+
+    private async Task<FetchResult<T>> TryFetchAsync<T>(string metric, Func<Task<T>> fetch, DateOnly date, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await fetch().ConfigureAwait(false);
+
+            return FetchResult<T>.Success(result);
+        }
+        catch (Exception ex) when (!IsCancellation(ex, cancellationToken))
+        {
+            _logger.LogWarning(ex, "Failed to fetch Fitbit {Metric} data for {Date}.", metric, date);
+
+            return FetchResult<T>.Failure(ex);
+        }
+    }
+
+    private static bool IsCancellation(Exception exception, CancellationToken cancellationToken)
+    {
+        return exception is OperationCanceledException && cancellationToken.IsCancellationRequested;
+    }
+
+    private static Exception GetFirstFailure<T1, T2, T3, T4>(FetchResult<T1> activities, FetchResult<T2> calories, FetchResult<T3> sleep, FetchResult<T4> weight)
+    {
+        return activities.Exception ?? calories.Exception ?? sleep.Exception ?? weight.Exception ?? new InvalidOperationException("Failed to fetch Fitbit data.");
+    }
+
+    private static bool HasWeightData(FitbitWeightSummaryDto summary)
+    {
+        if (summary is null)
+        {
+            return false;
+        }
+
+        return summary.CurrentWeightKg.HasValue ||
+               summary.StartingWeightKg.HasValue ||
+               summary.ChangeKg.HasValue ||
+               summary.BodyFatPercentage.HasValue ||
+               summary.LeanMassKg.HasValue;
+    }
+
+    private async Task<FitbitWeightSummaryDto> ApplyWeightFallbackAsync(DateOnly date, FitbitWeightSummaryDto summary, CancellationToken cancellationToken)
+    {
+        if (HasWeightData(summary))
+        {
+            return summary;
+        }
+
+        var fallback = await _dbContext.DailySnapshots
+                                       .AsNoTracking()
+                                       .Where(snapshot => snapshot.Date < date && (snapshot.CurrentWeightKg.HasValue || snapshot.StartingWeightKg.HasValue))
+                                       .OrderByDescending(snapshot => snapshot.Date)
+                                       .Select(snapshot => new
+                                       {
+                                           snapshot.CurrentWeightKg,
+                                           snapshot.StartingWeightKg,
+                                           snapshot.BodyFatPercentage,
+                                           snapshot.LeanMassKg
+                                       })
+                                       .FirstOrDefaultAsync(cancellationToken)
+                                       .ConfigureAwait(false);
+
+        var weight = fallback?.CurrentWeightKg ?? fallback?.StartingWeightKg;
+        if (!weight.HasValue)
+        {
+            return summary;
+        }
+
+        return new FitbitWeightSummaryDto
+        {
+            StartingWeightKg = weight,
+            CurrentWeightKg = weight,
+            BodyFatPercentage = fallback?.BodyFatPercentage,
+            LeanMassKg = fallback?.LeanMassKg
+        };
+    }
+
+    private async Task<FitbitDashboardDto> ApplyWeightFallbackAsync(DateOnly date, FitbitDashboardDto snapshot, CancellationToken cancellationToken)
+    {
+        if (snapshot is null)
+        {
+            return null;
+        }
+
+        var updatedWeight = await ApplyWeightFallbackAsync(date, snapshot.Weight, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (ReferenceEquals(updatedWeight, snapshot.Weight))
+        {
+            return snapshot;
+        }
+
+        return snapshot with
+        {
+            Weight = updatedWeight
+        };
+    }
+
 }

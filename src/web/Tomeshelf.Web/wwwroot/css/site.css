@@ -495,6 +495,106 @@ a:hover {
     font-variant-numeric: tabular-nums;
 }
 
+.overview-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.range-card {
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+}
+
+.range-header {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+.range-date {
+    color: var(--ui-muted);
+    margin: 0;
+}
+
+.chart-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: 1rem;
+}
+
+@media (min-width: 992px) {
+    .chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.chart-card {
+    background: var(--ui-bg);
+    border: 1px solid var(--ui-border);
+    border-radius: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+}
+
+.chart-card-header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.chart-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.chart-unit {
+    color: var(--ui-muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.1rem;
+    text-transform: uppercase;
+}
+
+.chart-body {
+    background: var(--ui-surface);
+    border: 1px dashed var(--ui-border);
+    border-radius: 0.75rem;
+    height: 140px;
+    padding: 0.5rem;
+    position: relative;
+}
+
+.chart-body svg {
+    height: 100%;
+    width: 100%;
+}
+
+.chart-line {
+    fill: none;
+    stroke: var(--ui-accent);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.2;
+}
+
+.chart-empty {
+    align-items: center;
+    color: var(--ui-muted);
+    display: flex;
+    font-size: 0.85rem;
+    inset: 0;
+    justify-content: center;
+    position: absolute;
+}
+
+.unit-form .form-select {
+    min-width: 5rem;
+}
+
 @media (max-width: 576px) {
     .fitness-dashboard .date-nav-buttons { gap: 0.5rem; }
 

@@ -20,13 +20,19 @@ public sealed class FitnessDashboardViewModel
 
     public bool CanRefresh => !IsToday;
 
+    public WeightUnit Unit { get; init; } = WeightUnit.Stones;
+
     public DaySummaryViewModel Summary { get; init; }
+
+    public FitnessRangeViewModel Last7Days { get; init; }
+
+    public FitnessRangeViewModel Last30Days { get; init; }
 
     public string ErrorMessage { get; init; }
 
     public bool HasData => ErrorMessage is null && Summary is not null;
 
-    public static FitnessDashboardViewModel Empty(string selectedDate, string message = null)
+    public static FitnessDashboardViewModel Empty(string selectedDate, WeightUnit unit, string message = null)
     {
         var selected = DateOnly.Parse(selectedDate);
         var today = DateOnly.FromDateTime(DateTime.Today);
@@ -41,6 +47,7 @@ public sealed class FitnessDashboardViewModel
                 ? selected.AddDays(1)
                           .ToString("yyyy-MM-dd")
                 : null,
+            Unit = unit,
             ErrorMessage = message
         };
     }

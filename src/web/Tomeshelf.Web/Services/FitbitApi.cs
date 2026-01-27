@@ -20,6 +20,60 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
     /// <inheritdoc />
     public async Task<FitbitDashboardModel> GetDashboardAsync(string date, bool refresh, string returnUrl, CancellationToken cancellationToken)
     {
+        var url = BuildQuery("api/Fitbit/Dashboard", date, refresh, returnUrl);
+
+        return await GetPayloadAsync<FitbitDashboardModel>(url, "Fitbit dashboard", cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<FitbitOverviewModel> GetOverviewAsync(string date, bool refresh, string returnUrl, CancellationToken cancellationToken)
+    {
+        var url = BuildQuery("api/Fitbit/Overview", date, refresh, returnUrl);
+
+        return await GetPayloadAsync<FitbitOverviewModel>(url, "Fitbit overview", cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<Uri> ResolveAuthorizationAsync(Uri authorizeEndpoint, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(authorizeEndpoint);
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, authorizeEndpoint);
+        var started = DateTimeOffset.UtcNow;
+        using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        var duration = DateTimeOffset.UtcNow - started;
+        logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms (authorization resolve)", authorizeEndpoint, (int)response.StatusCode, (int)duration.TotalMilliseconds);
+
+        if (!IsRedirectStatus(response.StatusCode))
+        {
+            var payload = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            throw new InvalidOperationException($"Fitbit authorization endpoint returned unexpected status {(int)response.StatusCode}. Response: {payload}");
+        }
+
+        var location = response.Headers.Location;
+        if (location is null)
+        {
+            throw new InvalidOperationException("Fitbit authorization endpoint returned a redirect without a location header.");
+        }
+
+        if (!location.IsAbsoluteUri && httpClient.BaseAddress is not null)
+        {
+            location = new Uri(httpClient.BaseAddress, location);
+        }
+
+        return location;
+    }
+
+    private static JsonSerializerOptions CreateSerializerOptions()
+    {
+        return new JsonSerializerOptions(JsonSerializerDefaults.Web);
+    }
+
+    private static string BuildQuery(string basePath, string date, bool refresh, string returnUrl)
+    {
         var parameters = new List<string>();
 
         if (!string.IsNullOrWhiteSpace(date))
@@ -36,7 +90,11 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
 
         var query = $"?{string.Join("&", parameters)}";
 
-        var url = $"api/Fitbit/Dashboard{query}";
+        return $"{basePath}{query}";
+    }
+
+    private async Task<T> GetPayloadAsync<T>(string url, string payloadName, CancellationToken cancellationToken)
+    {
         var started = DateTimeOffset.UtcNow;
         using var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         var duration = DateTimeOffset.UtcNow - started;
@@ -94,57 +152,20 @@ public sealed class FitbitApi(HttpClient httpClient, ILogger<FitbitApi> logger) 
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            return null;
+            return default;
         }
 
         response.EnsureSuccessStatusCode();
 
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        var model = await JsonSerializer.DeserializeAsync<FitbitDashboardModel>(stream, SerializerOptions, cancellationToken);
+        var model = await JsonSerializer.DeserializeAsync<T>(stream, SerializerOptions, cancellationToken);
 
         if (model is null)
         {
-            throw new InvalidOperationException("Received an empty Fitbit dashboard payload.");
+            throw new InvalidOperationException($"Received an empty {payloadName} payload.");
         }
 
         return model;
-    }
-
-    /// <inheritdoc />
-    public async Task<Uri> ResolveAuthorizationAsync(Uri authorizeEndpoint, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(authorizeEndpoint);
-
-        using var request = new HttpRequestMessage(HttpMethod.Get, authorizeEndpoint);
-        var started = DateTimeOffset.UtcNow;
-        using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-        var duration = DateTimeOffset.UtcNow - started;
-        logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms (authorization resolve)", authorizeEndpoint, (int)response.StatusCode, (int)duration.TotalMilliseconds);
-
-        if (!IsRedirectStatus(response.StatusCode))
-        {
-            var payload = await response.Content.ReadAsStringAsync(cancellationToken);
-
-            throw new InvalidOperationException($"Fitbit authorization endpoint returned unexpected status {(int)response.StatusCode}. Response: {payload}");
-        }
-
-        var location = response.Headers.Location;
-        if (location is null)
-        {
-            throw new InvalidOperationException("Fitbit authorization endpoint returned a redirect without a location header.");
-        }
-
-        if (!location.IsAbsoluteUri && httpClient.BaseAddress is not null)
-        {
-            location = new Uri(httpClient.BaseAddress, location);
-        }
-
-        return location;
-    }
-
-    private static JsonSerializerOptions CreateSerializerOptions()
-    {
-        return new JsonSerializerOptions(JsonSerializerDefaults.Web);
     }
 
     private static bool IsRedirectStatus(HttpStatusCode statusCode)

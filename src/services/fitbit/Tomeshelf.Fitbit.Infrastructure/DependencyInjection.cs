@@ -21,6 +21,7 @@ public static class DependencyInjection
         builder.Services.AddSingleton<IFitbitTokenCache>(sp => sp.GetRequiredService<FitbitTokenCache>());
         builder.Services.AddScoped<IFitbitAuthorizationService, FitbitAuthorizationService>();
         builder.Services.AddScoped<IFitbitDashboardService, FitbitDashboardService>();
+        builder.Services.AddScoped<IFitbitOverviewService, FitbitOverviewService>();
 
         builder.Services.AddHttpClient<IFitbitApiClient, FitbitApiClient>(client =>
         {

@@ -19,7 +19,10 @@ namespace Tomeshelf.Fitbit.Infrastructure;
 
 internal sealed class FitbitApiClient : IFitbitApiClient
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+
+    private static readonly TimeSpan RefreshSkew = TimeSpan.FromMinutes(1);
+    private static readonly SemaphoreSlim RefreshLock = new SemaphoreSlim(1, 1);
 
     private readonly HttpClient _httpClient;
     private readonly ILogger<FitbitApiClient> _logger;
@@ -69,15 +72,7 @@ internal sealed class FitbitApiClient : IFitbitApiClient
 
     private async Task<bool> EnsureAccessTokenAsync(CancellationToken cancellationToken)
     {
-        if (_tokenCache.ExpiresAtUtc is
-            { } expiresAt &&
-            (expiresAt <= DateTimeOffset.UtcNow.AddMinutes(-1)))
-        {
-            await TryRefreshTokenAsync(cancellationToken)
-               .ConfigureAwait(false);
-        }
-
-        if (TryGetAccessToken(out _))
+        if (!IsAccessTokenStale())
         {
             return true;
         }
@@ -85,10 +80,10 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         if (await TryRefreshTokenAsync(cancellationToken)
                .ConfigureAwait(false))
         {
-            return TryGetAccessToken(out _);
+            return !IsAccessTokenExpired();
         }
 
-        return false;
+        return !IsAccessTokenExpired();
     }
 
     private async Task<T> GetJsonAsync<T>(string path, CancellationToken cancellationToken)
@@ -122,7 +117,7 @@ internal sealed class FitbitApiClient : IFitbitApiClient
 
             if ((response.StatusCode == HttpStatusCode.Unauthorized) &&
                 (attempts < 3) &&
-                await TryRefreshTokenAsync(cancellationToken)
+                await TryRefreshTokenAsync(cancellationToken, accessToken, true)
                    .ConfigureAwait(false))
             {
                 accessToken = _tokenCache.AccessToken ?? accessToken;
@@ -224,6 +219,38 @@ internal sealed class FitbitApiClient : IFitbitApiClient
             : Uri.EscapeDataString(userId);
     }
 
+    private bool IsAccessTokenExpired()
+    {
+        if (!TryGetAccessToken(out _))
+        {
+            return true;
+        }
+
+        var expiresAt = _tokenCache.ExpiresAtUtc;
+        if (!expiresAt.HasValue)
+        {
+            return false;
+        }
+
+        return expiresAt.Value <= DateTimeOffset.UtcNow;
+    }
+
+    private bool IsAccessTokenStale()
+    {
+        if (!TryGetAccessToken(out _))
+        {
+            return true;
+        }
+
+        var expiresAt = _tokenCache.ExpiresAtUtc;
+        if (!expiresAt.HasValue)
+        {
+            return false;
+        }
+
+        return expiresAt.Value <= DateTimeOffset.UtcNow.Add(RefreshSkew);
+    }
+
     private bool TryGetAccessToken(out string token)
     {
         var cached = _tokenCache.AccessToken;
@@ -240,63 +267,87 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return true;
     }
 
-    private async Task<bool> TryRefreshTokenAsync(CancellationToken cancellationToken)
+    private async Task<bool> TryRefreshTokenAsync(CancellationToken cancellationToken, string failedAccessToken = null, bool force = false)
     {
-        var refreshToken = _tokenCache.RefreshToken;
-        if (string.IsNullOrWhiteSpace(refreshToken))
+        await RefreshLock.WaitAsync(cancellationToken)
+                         .ConfigureAwait(false);
+
+        try
         {
-            _logger.LogWarning("Fitbit refresh token is not configured; cannot refresh access token.");
-
-            return false;
-        }
-
-        var options = _options.CurrentValue;
-
-        using var request = new HttpRequestMessage(HttpMethod.Post, "oauth2/token")
-        {
-            Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            if (!string.IsNullOrWhiteSpace(failedAccessToken))
             {
-                ["grant_type"] = "refresh_token",
-                ["refresh_token"] = refreshToken
-            })
-        };
+                var current = _tokenCache.AccessToken;
+                if (!string.IsNullOrWhiteSpace(current) && !string.Equals(current, failedAccessToken, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
 
-        var credentials = $"{options.ClientId}:{options.ClientSecret}";
-        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials)));
-        request.Headers.Accept.ParseAdd("application/json");
+            if (!force && !IsAccessTokenStale())
+            {
+                return true;
+            }
 
-        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+            var refreshToken = _tokenCache.RefreshToken;
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                _logger.LogWarning("Fitbit refresh token is not configured; cannot refresh access token.");
+
+                return false;
+            }
+
+            var options = _options.CurrentValue;
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, "oauth2/token")
+            {
+                Content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["grant_type"] = "refresh_token",
+                    ["refresh_token"] = refreshToken
+                })
+            };
+
+            var credentials = $"{options.ClientId}:{options.ClientSecret}";
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials)));
+            request.Headers.Accept.ParseAdd("application/json");
+
+            using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                                                  .ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Failed to refresh Fitbit access token. Status: {StatusCode}", response.StatusCode);
+
+                return false;
+            }
+
+            await using var stream = await response.Content
+                                                   .ReadAsStreamAsync(cancellationToken)
+                                                   .ConfigureAwait(false);
+            var payload = await JsonSerializer.DeserializeAsync<TokenRefreshResponse>(stream, SerializerOptions, cancellationToken)
                                               .ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode)
-        {
-            _logger.LogWarning("Failed to refresh Fitbit access token. Status: {StatusCode}", response.StatusCode);
 
-            return false;
+            if (payload?.AccessToken is null)
+            {
+                _logger.LogWarning("Fitbit token refresh response was missing an access token.");
+
+                return false;
+            }
+
+            var newRefreshToken = !string.IsNullOrWhiteSpace(payload.RefreshToken)
+                ? payload.RefreshToken
+                : refreshToken;
+
+            DateTimeOffset? expiresAt = payload.ExpiresIn.HasValue
+                ? DateTimeOffset.UtcNow.AddSeconds(payload.ExpiresIn.Value)
+                : null;
+
+            _tokenCache.Update(payload.AccessToken, newRefreshToken, expiresAt);
+
+            return true;
         }
-
-        await using var stream = await response.Content
-                                               .ReadAsStreamAsync(cancellationToken)
-                                               .ConfigureAwait(false);
-        var payload = await JsonSerializer.DeserializeAsync<TokenRefreshResponse>(stream, SerializerOptions, cancellationToken)
-                                          .ConfigureAwait(false);
-
-        if (payload?.AccessToken is null)
+        finally
         {
-            _logger.LogWarning("Fitbit token refresh response was missing an access token.");
-
-            return false;
+            RefreshLock.Release();
         }
-
-        var newRefreshToken = !string.IsNullOrWhiteSpace(payload.RefreshToken)
-            ? payload.RefreshToken
-            : refreshToken;
-
-        DateTimeOffset? expiresAt = payload.ExpiresIn.HasValue
-            ? DateTimeOffset.UtcNow.AddSeconds(payload.ExpiresIn.Value)
-            : null;
-
-        _tokenCache.Update(payload.AccessToken, newRefreshToken, expiresAt);
-
-        return true;
     }
 }

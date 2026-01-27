@@ -251,5 +251,4 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
         return $"fitbit:oauth:state:{state}";
     }
 
-    private sealed record AuthorizationState(string CodeVerifier, string ReturnUrl);
 }

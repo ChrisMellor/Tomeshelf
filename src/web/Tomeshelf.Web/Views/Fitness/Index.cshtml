@@ -1,4 +1,6 @@
 @using System.Globalization
+@using System.Text.Json
+@using Tomeshelf.Web.Models.Fitness
 @model Tomeshelf.Web.Models.Fitness.FitnessDashboardViewModel
 @{
     ViewData["Title"] = "Fitness Dashboard";
@@ -15,29 +17,42 @@
                 <div class="text-muted small">Last synced: @summary.GeneratedUtc.ToLocalTime().ToString("ddd dd MMM yyyy HH:mm")</div>
             }
         </div>
-        @if (Model.CanRefresh)
-        {
-            <form method="get" class="refresh-form page-actions">
+        <div class="page-actions">
+            <form method="get" class="unit-form">
                 <input type="hidden" name="date" value="@Model.SelectedDate"/>
-                <input type="hidden" name="refresh" value="true"/>
-                <button type="submit" class="btn btn-outline-primary">
-                    <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Refresh from Fitbit
-                </button>
+                <label class="visually-hidden" for="unitSelect">Weight unit</label>
+                <select id="unitSelect" name="unit" class="form-select form-select-sm">
+                    <option value="kg" selected="@(Model.Unit == WeightUnit.Kilograms ? "selected" : null)">kg</option>
+                    <option value="lb" selected="@(Model.Unit == WeightUnit.Pounds ? "selected" : null)">lb</option>
+                    <option value="st" selected="@(Model.Unit == WeightUnit.Stones ? "selected" : null)">st</option>
+                </select>
             </form>
-        }
+            @if (Model.CanRefresh)
+            {
+                <form method="get" class="refresh-form">
+                    <input type="hidden" name="date" value="@Model.SelectedDate"/>
+                    <input type="hidden" name="unit" value="@WeightUnitConverter.ToQueryValue(Model.Unit)"/>
+                    <input type="hidden" name="refresh" value="true"/>
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Refresh from Fitbit
+                    </button>
+                </form>
+            }
+        </div>
     </div>
 
     <div class="date-selector" role="navigation" aria-label="Select date">
         <div class="date-nav-buttons">
-            <a class="date-nav" href="@Url.Action("Index", new { date = Model.PreviousDate })" aria-label="Previous day">
+            <a class="date-nav" href="@Url.Action("Index", new { date = Model.PreviousDate, unit = WeightUnitConverter.ToQueryValue(Model.Unit) })" aria-label="Previous day">
                 <span aria-hidden="true">&#x276E;</span>
             </a>
             <form id="dateForm" method="get" class="date-form">
                 <input type="date" id="dateInput" name="date" value="@Model.SelectedDate" max="@Model.TodayIso"/>
+                <input type="hidden" name="unit" value="@WeightUnitConverter.ToQueryValue(Model.Unit)"/>
             </form>
             @if (!string.IsNullOrWhiteSpace(Model.NextDate))
             {
-                <a class="date-nav" href="@Url.Action("Index", new { date = Model.NextDate })" aria-label="Next day">
+                <a class="date-nav" href="@Url.Action("Index", new { date = Model.NextDate, unit = WeightUnitConverter.ToQueryValue(Model.Unit) })" aria-label="Next day">
                     <span aria-hidden="true">&#x276F;</span>
                 </a>
             }
@@ -212,6 +227,82 @@
             </section>
         </div>
     }
+
+    @if (Model.Last7Days is { } || Model.Last30Days is { })
+    {
+        <div class="overview-grid">
+            @if (Model.Last7Days is { } last7)
+            {
+                <section class="range-card">
+                    <header class="range-header">
+                        <div>
+                            <h2>@last7.Title</h2>
+                            <p class="range-date">@last7.DateRangeLabel</p>
+                        </div>
+                    </header>
+                    @if (last7.HasData)
+                    {
+                        <div class="range-content chart-grid">
+                            @foreach (var metric in last7.Metrics)
+                            {
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <h3 class="chart-title">@metric.Title</h3>
+                                        <span class="chart-unit">@metric.Unit</span>
+                                    </div>
+                                    <div class="chart-body" data-chart data-values='@Html.Raw(JsonSerializer.Serialize(metric.Values))' data-labels='@Html.Raw(JsonSerializer.Serialize(metric.Labels))'>
+                                        <svg viewBox="0 0 320 120" preserveAspectRatio="none" aria-hidden="true">
+                                            <path class="chart-line"></path>
+                                        </svg>
+                                        <div class="chart-empty">No data</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="no-data">No trend data available.</p>
+                    }
+                </section>
+            }
+            @if (Model.Last30Days is { } last30)
+            {
+                <section class="range-card">
+                    <header class="range-header">
+                        <div>
+                            <h2>@last30.Title</h2>
+                            <p class="range-date">@last30.DateRangeLabel</p>
+                        </div>
+                    </header>
+                    @if (last30.HasData)
+                    {
+                        <div class="range-content chart-grid">
+                            @foreach (var metric in last30.Metrics)
+                            {
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <h3 class="chart-title">@metric.Title</h3>
+                                        <span class="chart-unit">@metric.Unit</span>
+                                    </div>
+                                    <div class="chart-body" data-chart data-values='@Html.Raw(JsonSerializer.Serialize(metric.Values))' data-labels='@Html.Raw(JsonSerializer.Serialize(metric.Labels))'>
+                                        <svg viewBox="0 0 320 120" preserveAspectRatio="none" aria-hidden="true">
+                                            <path class="chart-line"></path>
+                                        </svg>
+                                        <div class="chart-empty">No data</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="no-data">No trend data available.</p>
+                    }
+                </section>
+            }
+        </div>
+    }
     else if (string.IsNullOrEmpty(Model.ErrorMessage))
     {
         <p class="no-data">No Fitbit data available.</p>
@@ -226,17 +317,87 @@
             if (form && dateInput) {
                 dateInput.addEventListener('change', () => form.submit());
             }
+
+            const unitSelect = document.getElementById('unitSelect');
+            if (unitSelect) {
+                unitSelect.addEventListener('change', () => unitSelect.form.submit());
+            }
+
+            const charts = document.querySelectorAll('[data-chart]');
+            charts.forEach((chart) => {
+                const svg = chart.querySelector('svg');
+                const empty = chart.querySelector('.chart-empty');
+                if (!svg) {
+                    return;
+                }
+
+                const values = JSON.parse(chart.dataset.values || '[]');
+                const numeric = values.filter(value => typeof value === 'number' && !Number.isNaN(value));
+                if (numeric.length === 0) {
+                    if (empty) {
+                        empty.style.display = 'flex';
+                    }
+                    return;
+                }
+
+                if (empty) {
+                    empty.style.display = 'none';
+                }
+
+                const width = 320;
+                const height = 120;
+                let min = Math.min(...numeric);
+                let max = Math.max(...numeric);
+
+                if (min === max) {
+                    min -= 1;
+                    max += 1;
+                }
+
+                const padding = (max - min) * 0.1;
+                min -= padding;
+                max += padding;
+
+                const stepX = values.length > 1 ? width / (values.length - 1) : 0;
+                let path = '';
+                let started = false;
+
+                values.forEach((value, index) => {
+                    if (value === null || Number.isNaN(value)) {
+                        started = false;
+                        return;
+                    }
+
+                    const x = values.length > 1 ? index * stepX : width / 2;
+                    const y = height - ((value - min) / (max - min)) * height;
+
+                    if (!started) {
+                        path += `M ${x} ${y}`;
+                        started = true;
+                    } else {
+                        path += ` L ${x} ${y}`;
+                    }
+                });
+
+                const line = svg.querySelector('.chart-line');
+                if (line) {
+                    line.setAttribute('d', path);
+                }
+            });
         })();
     </script>
 }
 
 @functions {
 
-    private string FormatWeight(double? kg)
+    private string FormatWeight(double? kilograms)
     {
-        return kg.HasValue
-                ? $"{kg.Value:F1} kg"
-                : "-";
+        if (!kilograms.HasValue)
+        {
+            return "-";
+        }
+
+        return FormatWeightValue(kilograms.Value);
     }
 
     private string FormatWeightChange(double? deltaKg)
@@ -255,7 +416,39 @@
                 ? "lost"
                 : "gained";
 
-        return $"{Math.Abs(deltaKg.Value):F1} kg {verb}";
+        var formatted = FormatWeightValue(Math.Abs(deltaKg.Value));
+
+        return $"{formatted} {verb}";
+    }
+
+    private string FormatWeightValue(double kilograms)
+    {
+        return Model.Unit switch
+        {
+            WeightUnit.Stones => FormatStoneWeight(kilograms),
+            WeightUnit.Pounds => FormatPoundWeight(kilograms),
+            _ => $"{kilograms:F1} kg"
+        };
+    }
+
+    private string FormatStoneWeight(double kilograms)
+    {
+        var (stones, pounds) = WeightUnitConverter.ToStonesAndPounds(kilograms);
+        var roundedPounds = Math.Round(pounds, 1);
+        if (roundedPounds >= 14)
+        {
+            stones += 1;
+            roundedPounds -= 14;
+        }
+
+        return $"{stones} st {roundedPounds:0.#} lb";
+    }
+
+    private string FormatPoundWeight(double kilograms)
+    {
+        var pounds = WeightUnitConverter.Convert(kilograms, WeightUnit.Pounds) ?? 0d;
+
+        return $"{pounds:0.#} lb";
     }
 
     private string FormatNumber(int? value, string? suffix = null)
