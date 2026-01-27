@@ -367,3 +367,4 @@ FodyWeavers.xsd
 /src/Tomeshelf.AppHost/tomeshelf/.env
 .npmrc.codex
 /AGENTS.md
+/.dotnet/.dotnet
