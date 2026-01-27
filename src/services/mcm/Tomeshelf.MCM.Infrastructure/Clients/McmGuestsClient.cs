@@ -23,20 +23,21 @@ namespace Tomeshelf.MCM.Infrastructure.Clients;
 /// </remarks>
 public class McmGuestsClient : IMcmGuestsClient
 {
+    public const string HttpClientName = "Mcm.Guests";
     private readonly HttpClient _httpClient;
     private readonly ILogger<McmGuestsClient> _logger;
 
     /// <summary>
     ///     Initializes a new instance of the McmGuestsClient class with the specified HTTP client and logger.
     /// </summary>
-    /// <param name="httpClient">The HttpClient instance used to send HTTP requests to the MCM Guests API. Must not be null.</param>
+    /// <param name="httpClientFactory">Factory used to resolve the named HTTP client for the MCM Guests API. Must not be null.</param>
     /// <param name="logger">
     ///     The logger used to record diagnostic and operational information for the McmGuestsClient. Must not
     ///     be null.
     /// </param>
-    public McmGuestsClient(HttpClient httpClient, ILogger<McmGuestsClient> logger)
+    public McmGuestsClient(IHttpClientFactory httpClientFactory, ILogger<McmGuestsClient> logger)
     {
-        _httpClient = httpClient;
+        _httpClient = httpClientFactory.CreateClient(HttpClientName);
         _logger = logger;
     }
 

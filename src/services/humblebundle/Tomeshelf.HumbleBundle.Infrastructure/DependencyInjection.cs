@@ -25,7 +25,8 @@ public static class DependencyInjection
             options.UseSqlServer(connectionString);
         });
 
-        builder.Services.AddHttpClient<IHumbleBundleScraper, HumbleBundleScraper>(client =>
+        builder.Services.AddScoped<IHumbleBundleScraper, HumbleBundleScraper>();
+        builder.Services.AddHttpClient(HumbleBundleScraper.HttpClientName, client =>
         {
             client.Timeout = TimeSpan.FromSeconds(30);
             client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-HumbleBundle/1.0");

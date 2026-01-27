@@ -25,6 +25,7 @@ namespace Tomeshelf.Web.Services;
 /// </remarks>
 public sealed class GuestsApi : IGuestsApi
 {
+    public const string HttpClientName = "Web.Guests";
     private const string EventsCacheKey = "comiccon.events";
     private static readonly TimeSpan EventsCacheDuration = TimeSpan.FromHours(3);
 
@@ -41,12 +42,12 @@ public sealed class GuestsApi : IGuestsApi
     /// <summary>
     ///     Initializes a new instance of the GuestsApi class with the specified HTTP client, logger, and memory cache.
     /// </summary>
-    /// <param name="http">The HttpClient instance used to send HTTP requests to the guests API.</param>
+    /// <param name="httpClientFactory">Factory used to resolve the named HTTP client for the guests API.</param>
     /// <param name="logger">The logger used to record diagnostic and operational information for the GuestsApi.</param>
     /// <param name="cache">The memory cache used to store and retrieve guest-related data for improved performance.</param>
-    public GuestsApi(HttpClient http, ILogger<GuestsApi> logger, IMemoryCache cache)
+    public GuestsApi(IHttpClientFactory httpClientFactory, ILogger<GuestsApi> logger, IMemoryCache cache)
     {
-        _http = http;
+        _http = httpClientFactory.CreateClient(HttpClientName);
         _logger = logger;
         _cache = cache;
     }

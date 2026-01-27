@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Globalization;
 using System.Net;
@@ -22,11 +23,13 @@ public sealed class FitbitController : ControllerBase
     private readonly IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto> _dashboardHandler;
     private readonly IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto> _overviewHandler;
     private readonly ILogger<FitbitController> _logger;
+    private readonly IOptionsMonitor<FitbitOptions> _options;
 
-    public FitbitController(IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto> dashboardHandler, IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto> overviewHandler, ILogger<FitbitController> logger)
+    public FitbitController(IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto> dashboardHandler, IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto> overviewHandler, IOptionsMonitor<FitbitOptions> options, ILogger<FitbitController> logger)
     {
         _dashboardHandler = dashboardHandler;
         _overviewHandler = overviewHandler;
+        _options = options;
         _logger = logger;
     }
 
@@ -226,6 +229,21 @@ public sealed class FitbitController : ControllerBase
         var target = string.IsNullOrWhiteSpace(queryReturnUrl)
             ? "/fitness"
             : queryReturnUrl!;
+
+        var callbackBase = _options.CurrentValue.CallbackBaseUri;
+        if (!string.IsNullOrWhiteSpace(callbackBase) && Uri.TryCreate(callbackBase, UriKind.Absolute, out var baseUri))
+        {
+            var relative = Url.Action("Authorize", "FitbitAuthorization", new { returnUrl = target });
+            if (!string.IsNullOrWhiteSpace(relative))
+            {
+                if (Uri.TryCreate(relative, UriKind.Absolute, out var absolute))
+                {
+                    return absolute.ToString();
+                }
+
+                return new Uri(baseUri, relative).ToString();
+            }
+        }
 
         var authorizeEndpoint = Url.ActionLink("Authorize", "FitbitAuthorization", new { returnUrl = target });
         if (!string.IsNullOrWhiteSpace(authorizeEndpoint))

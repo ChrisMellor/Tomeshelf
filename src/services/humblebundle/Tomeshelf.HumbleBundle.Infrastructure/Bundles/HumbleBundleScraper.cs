@@ -18,14 +18,15 @@ namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles;
 /// </summary>
 public sealed class HumbleBundleScraper : IHumbleBundleScraper
 {
+    public const string HttpClientName = "HumbleBundle.Scraper";
     private static readonly Uri BundlesUri = new("https://www.humblebundle.com/bundles");
     private static readonly Uri SiteBaseUri = new("https://www.humblebundle.com/");
     private readonly HttpClient _httpClient;
     private readonly ILogger<HumbleBundleScraper> _logger;
 
-    public HumbleBundleScraper(HttpClient httpClient, ILogger<HumbleBundleScraper> logger)
+    public HumbleBundleScraper(IHttpClientFactory httpClientFactory, ILogger<HumbleBundleScraper> logger)
     {
-        _httpClient = httpClient;
+        _httpClient = httpClientFactory.CreateClient(HttpClientName);
         _logger = logger;
     }
 

@@ -12,8 +12,6 @@ public sealed class TomeshelfFitbitDbContext(DbContextOptions<TomeshelfFitbitDbC
 {
     public DbSet<FitbitDailySnapshot> DailySnapshots => Set<FitbitDailySnapshot>();
 
-    public DbSet<FitbitCredential> FitbitCredentials => Set<FitbitCredential>();
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var snapshot = modelBuilder.Entity<FitbitDailySnapshot>();
@@ -47,15 +45,5 @@ public sealed class TomeshelfFitbitDbContext(DbContextOptions<TomeshelfFitbitDbC
         snapshot.Property(x => x.SleepWakeMinutes);
 
         snapshot.HasIndex(x => x.GeneratedUtc);
-        var credential = modelBuilder.Entity<FitbitCredential>();
-        credential.ToTable("FitbitCredentials");
-        credential.HasKey(x => x.Id);
-        credential.Property(x => x.Id)
-                  .ValueGeneratedNever();
-        credential.Property(x => x.AccessToken)
-                  .HasMaxLength(2048);
-        credential.Property(x => x.RefreshToken)
-                  .HasMaxLength(2048);
-        credential.Property(x => x.ExpiresAtUtc);
     }
 }

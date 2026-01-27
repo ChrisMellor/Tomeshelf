@@ -28,8 +28,9 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<IEventRepository, EventRepository>();
         builder.Services.AddScoped<IGuestsRepository, GuestsRepository>();
+        builder.Services.AddScoped<IMcmGuestsClient, McmGuestsClient>();
 
-        builder.Services.AddHttpClient<IMcmGuestsClient, McmGuestsClient>(client =>
+        builder.Services.AddHttpClient(McmGuestsClient.HttpClientName, client =>
         {
             client.BaseAddress = new Uri("https://conventions.leapevent.tech/");
             client.Timeout = TimeSpan.FromSeconds(30);

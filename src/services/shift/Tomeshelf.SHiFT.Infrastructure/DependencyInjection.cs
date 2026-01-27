@@ -2,6 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
 using Tomeshelf.SHiFT.Application.Abstractions.Common;
 using Tomeshelf.SHiFT.Application.Abstractions.External;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
@@ -62,5 +66,19 @@ public static class DependencyInjection
         builder.Services.AddScoped<IGearboxClient, GearboxClient>();
         builder.Services.AddSingleton<ISecretProtector, DataProtectionSecretProtector>();
         builder.Services.AddSingleton<IClock, SystemClock>();
+
+        builder.Services.AddHttpClient(ShiftWebSession.HttpClientName, client =>
+        {
+            client.BaseAddress = new Uri("https://shift.gearboxsoftware.com/");
+            client.Timeout = TimeSpan.FromSeconds(30);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-SHiFT/1.0");
+        })
+        .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+        {
+            CookieContainer = new CookieContainer(),
+            AllowAutoRedirect = true,
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
+        })
+        .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
     }
 }

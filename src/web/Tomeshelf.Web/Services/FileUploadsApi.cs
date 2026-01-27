@@ -13,9 +13,18 @@ namespace Tomeshelf.Web.Services;
 /// <summary>
 ///     HTTP client for the bundle file uploader API.
 /// </summary>
-public sealed class FileUploadsApi(HttpClient http, ILogger<FileUploadsApi> logger) : IFileUploadsApi
+public sealed class FileUploadsApi : IFileUploadsApi
 {
+    public const string HttpClientName = "Web.FileUploads";
     private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+    private readonly HttpClient _http;
+    private readonly ILogger<FileUploadsApi> _logger;
+
+    public FileUploadsApi(IHttpClientFactory httpClientFactory, ILogger<FileUploadsApi> logger)
+    {
+        _http = httpClientFactory.CreateClient(HttpClientName);
+        _logger = logger;
+    }
 
     public async Task<BundleUploadResultModel> UploadBundleAsync(Stream archiveStream, string fileName, GoogleDriveAuthModel? auth, CancellationToken cancellationToken)
     {
@@ -54,9 +63,9 @@ public sealed class FileUploadsApi(HttpClient http, ILogger<FileUploadsApi> logg
             const string url = "uploads";
             var started = DateTimeOffset.UtcNow;
 
-            using var response = await http.PostAsync(url, content, cancellationToken);
+            using var response = await _http.PostAsync(url, content, cancellationToken);
             var duration = DateTimeOffset.UtcNow - started;
-            logger.LogInformation("HTTP POST {Url} -> {Status} in {Duration}ms", url, (int)response.StatusCode, (int)duration.TotalMilliseconds);
+            _logger.LogInformation("HTTP POST {Url} -> {Status} in {Duration}ms", url, (int)response.StatusCode, (int)duration.TotalMilliseconds);
 
             response.EnsureSuccessStatusCode();
 

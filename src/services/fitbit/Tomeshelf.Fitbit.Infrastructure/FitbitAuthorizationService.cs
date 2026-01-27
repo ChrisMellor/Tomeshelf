@@ -20,6 +20,7 @@ namespace Tomeshelf.Fitbit.Infrastructure;
 
 public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
 {
+    public const string HttpClientName = "Fitbit.OAuth";
     private static readonly TimeSpan StateLifetime = TimeSpan.FromMinutes(10);
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -157,7 +158,7 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
 
         var callback = BuildCallbackUri(options, _httpContextAccessor.HttpContext?.Request);
 
-        var client = _httpClientFactory.CreateClient("FitbitOAuth");
+        var client = _httpClientFactory.CreateClient(HttpClientName);
         using var request = new HttpRequestMessage(HttpMethod.Post, "oauth2/token")
         {
             Content = new FormUrlEncodedContent(new Dictionary<string, string>

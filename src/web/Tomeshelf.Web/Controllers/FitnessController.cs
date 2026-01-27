@@ -81,20 +81,8 @@ public sealed class FitnessController : Controller
         }
         catch (FitbitAuthorizationRequiredException authEx)
         {
-            _logger.LogInformation("Resolving Fitbit authorization flow for {Date}", targetDate);
-
-            try
-            {
-                var authorizeUri = await _fitbitApi.ResolveAuthorizationAsync(authEx.Location, cancellationToken);
-
-                return Redirect(authorizeUri.ToString());
-            }
-            catch (Exception resolveEx)
-            {
-                _logger.LogWarning(resolveEx, "Failed to resolve Fitbit authorization redirect for {Date}; falling back to API location.", targetDate);
-
-                return Redirect(authEx.Location.ToString());
-            }
+            _logger.LogInformation("Redirecting to Fitbit authorization flow for {Date}", targetDate);
+            return Redirect(authEx.Location.ToString());
         }
         catch (FitbitBackendUnavailableException unavailableEx)
         {

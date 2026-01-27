@@ -8,18 +8,27 @@ using Tomeshelf.Web.Models.Paissa;
 
 namespace Tomeshelf.Web.Services;
 
-public sealed class PaissaApi(HttpClient http, ILogger<PaissaApi> logger) : IPaissaApi
+public sealed class PaissaApi : IPaissaApi
 {
+    public const string HttpClientName = "Web.Paissa";
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
+    private readonly HttpClient _http;
+    private readonly ILogger<PaissaApi> _logger;
+
+    public PaissaApi(IHttpClientFactory httpClientFactory, ILogger<PaissaApi> logger)
+    {
+        _http = httpClientFactory.CreateClient(HttpClientName);
+        _logger = logger;
+    }
 
     public async Task<PaissaWorldModel> GetWorldAsync(CancellationToken cancellationToken)
     {
         const string url = "paissa/world";
         var started = DateTimeOffset.UtcNow;
 
-        using var response = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         var duration = DateTimeOffset.UtcNow - started;
-        logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)response.StatusCode, (int)duration.TotalMilliseconds);
+        _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", url, (int)response.StatusCode, (int)duration.TotalMilliseconds);
 
         response.EnsureSuccessStatusCode();
 

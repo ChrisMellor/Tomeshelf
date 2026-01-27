@@ -1,56 +1,31 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http;
 using System;
-using System.Linq;
-using Tomeshelf.Fitbit.Application;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
-using Tomeshelf.Fitbit.Domain;
 
 namespace Tomeshelf.Fitbit.Infrastructure;
 
 public sealed class FitbitTokenCache : IFitbitTokenCache
 {
-    private readonly ILogger<FitbitTokenCache> _logger;
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly object _sync = new();
+    private const string SessionAccessTokenKey = "fitbit_access_token";
+    private const string SessionRefreshTokenKey = "fitbit_refresh_token";
+    private const string SessionExpiresAtKey = "fitbit_expires_at";
 
-    private string _accessToken;
-    private DateTimeOffset? _expiresAtUtc;
-    private string _refreshToken;
-
-    public FitbitTokenCache(IServiceScopeFactory scopeFactory, IOptions<FitbitOptions> options, ILogger<FitbitTokenCache> logger)
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    public FitbitTokenCache(IHttpContextAccessor httpContextAccessor)
     {
-        _scopeFactory = scopeFactory;
-        _logger = logger;
-
-        if (!TryLoadFromDatabase())
-        {
-            var value = options.Value;
-            _accessToken = string.IsNullOrWhiteSpace(value.AccessToken)
-                ? null
-                : value.AccessToken;
-            _refreshToken = string.IsNullOrWhiteSpace(value.RefreshToken)
-                ? null
-                : value.RefreshToken;
-            _expiresAtUtc = null;
-
-            if (_accessToken is not null || _refreshToken is not null)
-            {
-                Persist();
-            }
-        }
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public string AccessToken
     {
         get
         {
-            lock (_sync)
+            if (TryGetSessionValue(SessionAccessTokenKey, out var sessionToken))
             {
-                return _accessToken;
+                return sessionToken;
             }
+
+            return null;
         }
     }
 
@@ -58,10 +33,12 @@ public sealed class FitbitTokenCache : IFitbitTokenCache
     {
         get
         {
-            lock (_sync)
+            if (TryGetSessionValue(SessionRefreshTokenKey, out var sessionToken))
             {
-                return _refreshToken;
+                return sessionToken;
             }
+
+            return null;
         }
     }
 
@@ -69,89 +46,83 @@ public sealed class FitbitTokenCache : IFitbitTokenCache
     {
         get
         {
-            lock (_sync)
+            if (TryGetSessionValue(SessionExpiresAtKey, out var sessionValue) && DateTimeOffset.TryParse(sessionValue, out var parsed))
             {
-                return _expiresAtUtc;
+                return parsed;
             }
+
+            return null;
         }
     }
 
     public void Clear()
     {
-        lock (_sync)
-        {
-            _accessToken = null;
-            _refreshToken = null;
-            _expiresAtUtc = null;
-            Persist();
-        }
+        ClearSession();
     }
 
     public void Update(string accessToken, string refreshToken, DateTimeOffset? expiresAtUtc)
     {
-        lock (_sync)
-        {
-            _accessToken = accessToken;
-            if (!string.IsNullOrEmpty(refreshToken))
-            {
-                _refreshToken = refreshToken;
-            }
+        UpdateSession(accessToken, refreshToken, expiresAtUtc);
+    }
 
-            _expiresAtUtc = expiresAtUtc;
-            Persist();
+    private void UpdateSession(string accessToken, string refreshToken, DateTimeOffset? expiresAtUtc)
+    {
+        var session = _httpContextAccessor.HttpContext?.Session;
+        if (session is null || !session.IsAvailable)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(accessToken))
+        {
+            session.SetString(SessionAccessTokenKey, accessToken);
+        }
+
+        if (!string.IsNullOrWhiteSpace(refreshToken))
+        {
+            session.SetString(SessionRefreshTokenKey, refreshToken);
+        }
+
+        if (expiresAtUtc.HasValue)
+        {
+            session.SetString(SessionExpiresAtKey, expiresAtUtc.Value.ToString("O"));
+        }
+        else
+        {
+            session.Remove(SessionExpiresAtKey);
         }
     }
 
-    private void Persist()
+    private void ClearSession()
     {
-        try
+        var session = _httpContextAccessor.HttpContext?.Session;
+        if (session is null || !session.IsAvailable)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
-            var credential = dbContext.FitbitCredentials.SingleOrDefault();
-            if (credential is null)
-            {
-                credential = new FitbitCredential();
-                dbContext.FitbitCredentials.Add(credential);
-            }
-
-            credential.AccessToken = _accessToken;
-            credential.RefreshToken = _refreshToken;
-            credential.ExpiresAtUtc = _expiresAtUtc;
-
-            dbContext.SaveChanges();
+            return;
         }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to persist Fitbit credentials to database.");
-        }
+
+        session.Remove(SessionAccessTokenKey);
+        session.Remove(SessionRefreshTokenKey);
+        session.Remove(SessionExpiresAtKey);
     }
 
-    private bool TryLoadFromDatabase()
+    private bool TryGetSessionValue(string key, out string value)
     {
-        try
+        var session = _httpContextAccessor.HttpContext?.Session;
+        if (session is null || !session.IsAvailable)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<TomeshelfFitbitDbContext>();
-            var credential = dbContext.FitbitCredentials
-                                      .AsNoTracking()
-                                      .SingleOrDefault();
-            if (credential is null)
-            {
-                return false;
-            }
-
-            _accessToken = credential.AccessToken;
-            _refreshToken = credential.RefreshToken;
-            _expiresAtUtc = credential.ExpiresAtUtc;
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to read Fitbit credentials from database.");
-
+            value = null;
             return false;
         }
+
+        var stored = session.GetString(key);
+        if (string.IsNullOrWhiteSpace(stored))
+        {
+            value = null;
+            return false;
+        }
+
+        value = stored;
+        return true;
     }
 }

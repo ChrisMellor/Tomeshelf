@@ -22,8 +22,9 @@ public static class DependencyInjection
         builder.Services.AddScoped<IFitbitAuthorizationService, FitbitAuthorizationService>();
         builder.Services.AddScoped<IFitbitDashboardService, FitbitDashboardService>();
         builder.Services.AddScoped<IFitbitOverviewService, FitbitOverviewService>();
+        builder.Services.AddScoped<IFitbitApiClient, FitbitApiClient>();
 
-        builder.Services.AddHttpClient<IFitbitApiClient, FitbitApiClient>(client =>
+        builder.Services.AddHttpClient(FitbitApiClient.HttpClientName, client =>
         {
             var apiBase = builder.Configuration.GetValue<string>("Fitbit:ApiBase");
             client.BaseAddress = new Uri(string.IsNullOrWhiteSpace(apiBase) ? "https://api.fitbit.com/" : apiBase);
@@ -31,7 +32,7 @@ public static class DependencyInjection
             client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-FitbitApi/1.0");
         });
 
-        builder.Services.AddHttpClient("FitbitOAuth", client =>
+        builder.Services.AddHttpClient(FitbitAuthorizationService.HttpClientName, client =>
         {
             var apiBase = builder.Configuration.GetValue<string>("Fitbit:ApiBase");
             client.BaseAddress = new Uri(string.IsNullOrWhiteSpace(apiBase) ? "https://api.fitbit.com/" : apiBase);

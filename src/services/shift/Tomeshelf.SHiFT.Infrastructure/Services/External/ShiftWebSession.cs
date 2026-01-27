@@ -24,8 +24,8 @@ namespace Tomeshelf.SHiFT.Infrastructure.Services.External;
 /// </remarks>
 public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
 {
+    public const string HttpClientName = "Shift.WebSession";
     private readonly IBrowsingContext _browsingContext;
-    private readonly CookieContainer _cookieContainer = new CookieContainer();
     private readonly HttpClient _httpClient;
 
     /// <summary>
@@ -37,16 +37,9 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
     ///     automatic decompression to facilitate communication with the SHiFT service. It also initializes a browsing
     ///     context for HTML parsing and navigation. The session is ready for use immediately after construction.
     /// </remarks>
-    public ShiftWebSession()
+    public ShiftWebSession(IHttpClientFactory httpClientFactory)
     {
-        var handler = new SocketsHttpHandler
-        {
-            CookieContainer = _cookieContainer,
-            AllowAutoRedirect = true,
-            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
-        };
-
-        _httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://shift.gearboxsoftware.com/") };
+        _httpClient = httpClientFactory.CreateClient(HttpClientName);
 
         //_httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf.SHiFT.Api/1.0");
         //_httpClient.DefaultRequestHeaders.Accept.ParseAdd("text/html,application/xhtml+xml,application/json");

@@ -1,4 +1,5 @@
-﻿using Tomeshelf.SHiFT.Application.Abstractions.External;
+﻿using System.Net.Http;
+using Tomeshelf.SHiFT.Application.Abstractions.External;
 
 namespace Tomeshelf.SHiFT.Infrastructure.Services.External;
 
@@ -11,12 +12,18 @@ namespace Tomeshelf.SHiFT.Infrastructure.Services.External;
 /// </remarks>
 public sealed class ShiftWebSessionFactory : IShiftWebSessionFactory
 {
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public ShiftWebSessionFactory(IHttpClientFactory httpClientFactory)
+    {
+        _httpClientFactory = httpClientFactory;
+    }
     /// <summary>
     ///     Creates a new instance of the default <see cref="IShiftWebSession" /> implementation.
     /// </summary>
     /// <returns>A fresh <see cref="IShiftWebSession" /> ready for use in the current request context.</returns>
     public IShiftWebSession Create()
     {
-        return new ShiftWebSession();
+        return new ShiftWebSession(_httpClientFactory);
     }
 }

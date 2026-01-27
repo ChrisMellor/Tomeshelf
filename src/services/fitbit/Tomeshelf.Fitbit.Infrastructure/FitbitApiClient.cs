@@ -19,6 +19,7 @@ namespace Tomeshelf.Fitbit.Infrastructure;
 
 internal sealed class FitbitApiClient : IFitbitApiClient
 {
+    public const string HttpClientName = "Fitbit.ApiClient";
     private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
 
     private static readonly TimeSpan RefreshSkew = TimeSpan.FromMinutes(1);
@@ -29,9 +30,9 @@ internal sealed class FitbitApiClient : IFitbitApiClient
     private readonly IOptionsMonitor<FitbitOptions> _options;
     private readonly FitbitTokenCache _tokenCache;
 
-    public FitbitApiClient(HttpClient httpClient, IOptionsMonitor<FitbitOptions> options, FitbitTokenCache tokenCache, ILogger<FitbitApiClient> logger)
+    public FitbitApiClient(IHttpClientFactory httpClientFactory, IOptionsMonitor<FitbitOptions> options, FitbitTokenCache tokenCache, ILogger<FitbitApiClient> logger)
     {
-        _httpClient = httpClient;
+        _httpClient = httpClientFactory.CreateClient(HttpClientName);
         _options = options;
         _tokenCache = tokenCache;
         _logger = logger;

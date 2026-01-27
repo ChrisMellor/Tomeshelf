@@ -22,7 +22,8 @@ public static class DependencyInjection
 {
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddHttpClient<IPaissaClient, PaissaClient>(client =>
+        builder.Services.AddScoped<IPaissaClient, PaissaClient>();
+        builder.Services.AddHttpClient(PaissaClient.HttpClientName, client =>
         {
             client.BaseAddress = new Uri("https://paissadb.zhu.codes/");
             client.Timeout = TimeSpan.FromSeconds(30);

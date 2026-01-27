@@ -20,20 +20,21 @@ namespace Tomeshelf.Paissa.Infrastructure.Services.External;
 /// </remarks>
 public sealed class PaissaClient : IPaissaClient
 {
+    public const string HttpClientName = "Paissa.Api";
     private readonly HttpClient _httpClient;
     private readonly ILogger<PaissaClient> _logger;
 
     /// <summary>
     ///     Initializes a new instance of the PaissaClient class using the specified HTTP client and logger.
     /// </summary>
-    /// <param name="httpClient">The HTTP client used to send requests and receive responses from external services.</param>
+    /// <param name="httpClientFactory">Factory used to resolve the named HTTP client for PaissaDB requests.</param>
     /// <param name="logger">
     ///     The logger used to record informational messages, warnings, and errors related to PaissaClient
     ///     operations.
     /// </param>
-    public PaissaClient(HttpClient httpClient, ILogger<PaissaClient> logger)
+    public PaissaClient(IHttpClientFactory httpClientFactory, ILogger<PaissaClient> logger)
     {
-        _httpClient = httpClient;
+        _httpClient = httpClientFactory.CreateClient(HttpClientName);
         _logger = logger;
     }
 
