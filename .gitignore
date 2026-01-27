@@ -368,3 +368,4 @@ FodyWeavers.xsd
 .npmrc.codex
 /AGENTS.md
 /.dotnet/.dotnet
+/.dotnet/sdk-10.0.102/Sdks
