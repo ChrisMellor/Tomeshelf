@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Tomeshelf.HumbleBundle.Application.Abstractions.Messaging;
+namespace Tomeshelf.Application.Shared.Abstractions.Messaging;
 
 public interface ICommandHandler<in TCommand, TResult> where TCommand : ICommand<TResult>
 {

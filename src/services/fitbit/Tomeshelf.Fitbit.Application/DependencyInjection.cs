@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Tomeshelf.Fitbit.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Commands;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Models;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Queries;

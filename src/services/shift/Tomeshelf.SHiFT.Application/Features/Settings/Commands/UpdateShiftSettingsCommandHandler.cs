@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.SHiFT.Application.Abstractions.Common;
-using Tomeshelf.SHiFT.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
 using Tomeshelf.SHiFT.Application.Abstractions.Security;
 

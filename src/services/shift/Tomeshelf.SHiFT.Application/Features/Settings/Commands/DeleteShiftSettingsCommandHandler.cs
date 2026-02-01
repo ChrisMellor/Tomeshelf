@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.SHiFT.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
 
 namespace Tomeshelf.SHiFT.Application.Features.Settings.Commands;

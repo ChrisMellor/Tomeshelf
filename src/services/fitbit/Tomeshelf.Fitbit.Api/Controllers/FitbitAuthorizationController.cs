@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Fitbit.Api;
-using Tomeshelf.Fitbit.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Models;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Queries;
 

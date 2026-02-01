@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.MCM.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.MCM.Application.Services;
 
 namespace Tomeshelf.MCM.Application.Features.Events.Commands;

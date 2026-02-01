@@ -1,4 +1,4 @@
-using Tomeshelf.Paissa.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.Paissa.Application.Features.Housing.Dtos;
 
 namespace Tomeshelf.Paissa.Application.Features.Housing.Queries;

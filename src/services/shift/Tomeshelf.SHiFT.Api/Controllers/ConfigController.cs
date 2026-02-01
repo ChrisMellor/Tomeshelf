@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.SHiFT.Api.Contracts;
-using Tomeshelf.SHiFT.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.SHiFT.Application.Features.Settings.Commands;
 using Tomeshelf.SHiFT.Application.Features.Settings.Dtos;
 using Tomeshelf.SHiFT.Application.Features.Settings.Queries;

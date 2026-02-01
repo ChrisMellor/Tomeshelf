@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
-using Tomeshelf.HumbleBundle.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Commands;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Queries;

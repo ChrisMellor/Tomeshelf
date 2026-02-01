@@ -1,4 +1,4 @@
-using Tomeshelf.MCM.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 
 namespace Tomeshelf.MCM.Application.Features.Events.Commands;
 

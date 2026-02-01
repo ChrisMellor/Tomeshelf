@@ -1,4 +1,4 @@
-using Tomeshelf.HumbleBundle.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
 
 namespace Tomeshelf.HumbleBundle.Application.Features.Bundles.Commands;

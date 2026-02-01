@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Tomeshelf.Paissa.Domain\Tomeshelf.Paissa.Domain.csproj" />
+    <ProjectReference Include="..\..\..\shared\Tomeshelf.Application\Tomeshelf.Application.Shared.csproj" />
   </ItemGroup>
 
 </Project>

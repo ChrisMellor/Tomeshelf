@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Paissa.Api.Contracts;
-using Tomeshelf.Paissa.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.Paissa.Application.Features.Housing.Dtos;
 using Tomeshelf.Paissa.Application.Features.Housing.Queries;
 

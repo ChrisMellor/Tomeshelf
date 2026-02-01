@@ -1,4 +1,4 @@
-using Tomeshelf.SHiFT.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 
 namespace Tomeshelf.SHiFT.Application.Features.Settings.Commands;
 

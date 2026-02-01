@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.HumbleBundle.Application.Abstractions.External;
-using Tomeshelf.HumbleBundle.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.HumbleBundle.Application.Abstractions.Persistence;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
 

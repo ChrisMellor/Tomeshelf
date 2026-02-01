@@ -256,6 +256,9 @@ internal class Program
                               service.Restart = "unless-stopped";
                           });
 
+        var scanner = builder.Configuration.GetSection("ShiftKeyScanner");
+        ApplyShiftScannerSettings(api, scanner);
+
         return api;
     }
 
@@ -301,5 +304,49 @@ internal class Program
         }
 
         return web;
+    }
+
+    private static void ApplyShiftScannerSettings(IResourceBuilder<ProjectResource> api, IConfigurationSection scanner)
+    {
+        ArgumentNullException.ThrowIfNull(api);
+        ArgumentNullException.ThrowIfNull(scanner);
+
+        ApplyValue(api, "ShiftKeyScanner__LookbackHours", scanner["LookbackHours"]);
+
+        var xSection = scanner.GetSection("X");
+        ApplyValue(api, "ShiftKeyScanner__X__Enabled", xSection["Enabled"]);
+        ApplyValue(api, "ShiftKeyScanner__X__ApiBaseV2", xSection["ApiBaseV2"]);
+        ApplyValue(api, "ShiftKeyScanner__X__OAuthTokenEndpoint", xSection["OAuthTokenEndpoint"]);
+        ApplyValue(api, "ShiftKeyScanner__X__BearerToken", xSection["BearerToken"]);
+        ApplyValue(api, "ShiftKeyScanner__X__ApiKey", xSection["ApiKey"]);
+        ApplyValue(api, "ShiftKeyScanner__X__ApiSecret", xSection["ApiSecret"]);
+        ApplyValue(api, "ShiftKeyScanner__X__TokenCacheMinutes", xSection["TokenCacheMinutes"]);
+        ApplyValue(api, "ShiftKeyScanner__X__MaxPages", xSection["MaxPages"]);
+        ApplyValue(api, "ShiftKeyScanner__X__MaxResultsPerPage", xSection["MaxResultsPerPage"]);
+        ApplyValue(api, "ShiftKeyScanner__X__ExcludeReplies", xSection["ExcludeReplies"]);
+        ApplyValue(api, "ShiftKeyScanner__X__ExcludeRetweets", xSection["ExcludeRetweets"]);
+
+        var usernames = xSection.GetSection("Usernames").GetChildren();
+        var index = 0;
+        foreach (var username in usernames)
+        {
+            if (string.IsNullOrWhiteSpace(username.Value))
+            {
+                continue;
+            }
+
+            api.WithEnvironment($"ShiftKeyScanner__X__Usernames__{index}", username.Value);
+            index++;
+        }
+    }
+
+    private static void ApplyValue(IResourceBuilder<ProjectResource> api, string key, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        api.WithEnvironment(key, value);
     }
 }

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Tomeshelf.FileUploader.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.FileUploader.Application.Features.Uploads.Commands;
 using Tomeshelf.FileUploader.Application.Features.Uploads.Models;
 

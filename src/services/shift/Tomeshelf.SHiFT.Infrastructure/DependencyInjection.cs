@@ -64,6 +64,8 @@ public static class DependencyInjection
         builder.Services.AddScoped<IShiftWebSession, ShiftWebSession>();
         builder.Services.AddSingleton<IShiftWebSessionFactory, ShiftWebSessionFactory>();
         builder.Services.AddScoped<IGearboxClient, GearboxClient>();
+        builder.Services.AddScoped<IShiftKeySource, XShiftKeySource>();
+        builder.Services.AddSingleton<XAppOnlyTokenProvider>();
         builder.Services.AddSingleton<ISecretProtector, DataProtectionSecretProtector>();
         builder.Services.AddSingleton<IClock, SystemClock>();
 
@@ -80,5 +82,27 @@ public static class DependencyInjection
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
         })
         .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
+
+        builder.Services.AddHttpClient(XShiftKeySource.HttpClientName, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(20);
+            client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-SHiFT/1.0");
+        })
+        .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+        {
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
+        });
+
+        builder.Services.AddHttpClient(XAppOnlyTokenProvider.HttpClientName, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+            client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-SHiFT/1.0");
+        })
+        .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+        {
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
+        });
     }
 }

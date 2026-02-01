@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.FileUploader.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.FileUploader.Application.Abstractions.Upload;
 using Tomeshelf.FileUploader.Application.Features.Uploads.Models;
 

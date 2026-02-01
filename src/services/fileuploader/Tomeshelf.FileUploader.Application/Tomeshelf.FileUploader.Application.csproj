@@ -8,4 +8,8 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\shared\Tomeshelf.Application\Tomeshelf.Application.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

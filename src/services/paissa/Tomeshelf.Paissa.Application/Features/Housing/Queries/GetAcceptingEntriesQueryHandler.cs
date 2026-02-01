@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Paissa.Application.Abstractions.Common;
 using Tomeshelf.Paissa.Application.Abstractions.External;
-using Tomeshelf.Paissa.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.Paissa.Application.Features.Housing.Dtos;
 using Tomeshelf.Paissa.Domain.Entities;
 using Tomeshelf.Paissa.Domain.ValueObjects;

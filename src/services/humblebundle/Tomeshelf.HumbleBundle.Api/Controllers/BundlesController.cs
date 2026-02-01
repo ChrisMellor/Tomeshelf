@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.HumbleBundle.Application.HumbleBundle;
-using Tomeshelf.HumbleBundle.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Commands;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Queries;

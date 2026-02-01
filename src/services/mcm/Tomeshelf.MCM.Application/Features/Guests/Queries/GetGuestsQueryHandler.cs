@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.MCM.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.MCM.Application.Contracts;
 using Tomeshelf.MCM.Application.Models;
 using Tomeshelf.MCM.Application.Services;

@@ -1,5 +1,5 @@
 using System;
-using Tomeshelf.Fitbit.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.Fitbit.Application.Features.Overview.Models;
 
 namespace Tomeshelf.Fitbit.Application.Features.Overview.Queries;

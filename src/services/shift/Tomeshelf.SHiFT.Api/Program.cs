@@ -53,6 +53,12 @@ public class Program
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
+        builder.Services
+            .AddOptions<ShiftKeyScannerOptions>()
+            .Bind(builder.Configuration.GetSection(ShiftKeyScannerOptions.SectionName))
+            .ValidateDataAnnotations();
+
+        builder.Services.AddMemoryCache();
         builder.Services.AddAuthorization();
 
         builder.Services.AddApplicationServices();
@@ -74,7 +80,10 @@ public class Program
             app.UseHttpLogging();
         }
 
-        app.UseHttpsRedirection();
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseHttpsRedirection();
+        }
         app.UseAuthorization();
         app.MapControllers();
 

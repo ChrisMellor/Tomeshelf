@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Fitbit.Application;
-using Tomeshelf.Fitbit.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.Fitbit.Application.Exceptions;
 using Tomeshelf.Fitbit.Application.Features.Dashboard.Queries;
 using Tomeshelf.Fitbit.Application.Features.Overview.Models;

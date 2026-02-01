@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.MCM.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.MCM.Application.Contracts;
 using Tomeshelf.MCM.Application.Features.Guests.Commands;
 using Tomeshelf.MCM.Application.Features.Guests.Queries;

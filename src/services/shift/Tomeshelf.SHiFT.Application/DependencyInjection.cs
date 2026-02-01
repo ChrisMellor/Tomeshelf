@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
-using Tomeshelf.SHiFT.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
+using Tomeshelf.SHiFT.Application.Features.KeyDiscovery.Commands;
+using Tomeshelf.SHiFT.Application.Features.KeyDiscovery.Models;
 using Tomeshelf.SHiFT.Application.Features.Redemption.Commands;
 using Tomeshelf.SHiFT.Application.Features.Redemption.Redeem;
 using Tomeshelf.SHiFT.Application.Features.Settings.Commands;
@@ -18,6 +20,7 @@ public static class DependencyInjection
         services.AddScoped<ICommandHandler<UpdateShiftSettingsCommand, bool>, UpdateShiftSettingsCommandHandler>();
         services.AddScoped<ICommandHandler<DeleteShiftSettingsCommand, bool>, DeleteShiftSettingsCommandHandler>();
         services.AddScoped<ICommandHandler<RedeemShiftCodeCommand, IReadOnlyList<RedeemResult>>, RedeemShiftCodeCommandHandler>();
+        services.AddScoped<ICommandHandler<SweepShiftKeysCommand, ShiftKeySweepResult>, SweepShiftKeysCommandHandler>();
 
         return services;
     }

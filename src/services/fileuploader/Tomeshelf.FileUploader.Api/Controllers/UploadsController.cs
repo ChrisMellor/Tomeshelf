@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.FileUploader.Application;
-using Tomeshelf.FileUploader.Application.Abstractions.Messaging;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.FileUploader.Application.Features.Uploads.Commands;
 using Tomeshelf.FileUploader.Application.Features.Uploads.Models;
 
