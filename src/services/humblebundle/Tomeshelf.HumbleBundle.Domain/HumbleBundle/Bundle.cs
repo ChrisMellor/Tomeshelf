@@ -83,4 +83,14 @@ public class Bundle
     ///     Last time the metadata was updated based on scraped data.
     /// </summary>
     public DateTimeOffset LastUpdatedUtc { get; set; } = DateTimeOffset.UtcNow;
+
+    public TimeSpan? GetRemainingTime()
+    {
+        if (EndsAt.HasValue)
+        {
+            return EndsAt.Value - DateTimeOffset.UtcNow;
+        }
+
+        return null;
+    }
 }

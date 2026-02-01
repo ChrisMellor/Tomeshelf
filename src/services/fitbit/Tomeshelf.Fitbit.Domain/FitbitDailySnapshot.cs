@@ -66,4 +66,18 @@ public sealed class FitbitDailySnapshot
     public double? DistanceKm { get; set; }
 
     public int? Floors { get; set; }
+
+    /// <summary>
+    ///     Calculates the net weight change in kilograms.
+    /// </summary>
+    /// <returns>The net weight change in kilograms, or null if starting or current weight is not available.</returns>
+    public double? GetNetWeightChangeKg()
+    {
+        if (StartingWeightKg.HasValue && CurrentWeightKg.HasValue)
+        {
+            return CurrentWeightKg.Value - StartingWeightKg.Value;
+        }
+
+        return null;
+    }
 }

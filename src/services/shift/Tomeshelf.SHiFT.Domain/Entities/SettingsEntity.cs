@@ -31,4 +31,18 @@ public sealed class SettingsEntity
     ///     Gets or sets the date and time, in Coordinated Universal Time (UTC), when the entity was last updated.
     /// </summary>
     public DateTimeOffset UpdatedUtc { get; set; } = DateTimeOffset.UtcNow;
+
+    /// <summary>
+    ///     Updates the user settings with new values and updates the last updated timestamp.
+    /// </summary>
+    /// <param name="email">The new email address.</param>
+    /// <param name="encryptedPassword">The new encrypted password.</param>
+    /// <param name="defaultService">The new default service identifier.</param>
+    public void UpdateSettings(string email, string encryptedPassword, string defaultService)
+    {
+        Email = email;
+        EncryptedPassword = encryptedPassword;
+        DefaultService = defaultService;
+        UpdatedUtc = DateTimeOffset.UtcNow;
+    }
 }

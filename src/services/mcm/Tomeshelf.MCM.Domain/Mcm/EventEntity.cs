@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Tomeshelf.MCM.Domain.Mcm;
 
@@ -32,4 +33,13 @@ public sealed class EventEntity
     ///     collection must not be null.
     /// </remarks>
     public ICollection<GuestEntity> Guests { get; set; } = new List<GuestEntity>();
+
+    /// <summary>
+    ///     Calculates the number of unique guests associated with the event.
+    /// </summary>
+    /// <returns>The count of unique guests.</returns>
+    public int GetUniqueGuestCount()
+    {
+        return Guests.DistinctBy(g => g.Id).Count();
+    }
 }
