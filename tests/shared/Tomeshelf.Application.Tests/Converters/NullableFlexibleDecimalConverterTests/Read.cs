@@ -5,21 +5,18 @@ using Tomeshelf.Application.Shared;
 
 namespace Tomeshelf.Application.Tests.Converters.NullableFlexibleDecimalConverterTests;
 
-public class NullableFlexibleDecimalConverterReadTests
+public class Read
 {
-    private readonly JsonSerializerOptions _opts = new JsonSerializerOptions(JsonSerializerDefaults.Web) { Converters = { new NullableFlexibleDecimalConverter() } };
-
-    private static string Wrap(object value)
+    private readonly JsonSerializerOptions _options = new(JsonSerializerDefaults.Web)
     {
-        return JsonSerializer.Serialize(new { v = value });
-    }
+        Converters = { new NullableFlexibleDecimalConverter() }
+    };
 
     [Fact]
-    public void Read_Null_ReturnsNull()
+    public void Null_ReturnsNull()
     {
         // Arrange
         var json = "{\"v\":null}";
-        var doc = JsonDocument.Parse(json);
         var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
         reader.Read();
         reader.Read();
@@ -27,14 +24,14 @@ public class NullableFlexibleDecimalConverterReadTests
         var converter = new NullableFlexibleDecimalConverter();
 
         // Act
-        var value = converter.Read(ref reader, typeof(decimal?), _opts);
+        var value = converter.Read(ref reader, typeof(decimal?), _options);
+
         // Assert
-        value.Should()
-             .BeNull();
+        value.Should().BeNull();
     }
 
     [Fact]
-    public void Read_Number_ReturnsDecimal()
+    public void Number_ReturnsDecimal()
     {
         // Arrange
         var json = "{\"v\": 123.45}";
@@ -45,18 +42,17 @@ public class NullableFlexibleDecimalConverterReadTests
         var converter = new NullableFlexibleDecimalConverter();
 
         // Act
-        var value = converter.Read(ref reader, typeof(decimal?), _opts);
+        var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should()
-             .Be(123.45m);
+        value.Should().Be(123.45m);
     }
 
     [Fact]
-    public void Read_StringCurrencyAndCommas_Parses()
+    public void StringCurrencyAndCommas_Parses()
     {
         // Arrange
-        var json = "{\"v\": \"£1,234.50\"}";
+        var json = "{\"v\": \"$1,234.50\"}";
         var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
         reader.Read();
         reader.Read();
@@ -64,15 +60,14 @@ public class NullableFlexibleDecimalConverterReadTests
         var converter = new NullableFlexibleDecimalConverter();
 
         // Act
-        var value = converter.Read(ref reader, typeof(decimal?), _opts);
+        var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should()
-             .Be(1234.50m);
+        value.Should().Be(1234.50m);
     }
 
     [Fact]
-    public void Read_StringEmpty_ReturnsNull()
+    public void StringEmpty_ReturnsNull()
     {
         // Arrange
         var json = "{\"v\": \"  \"}";
@@ -83,15 +78,14 @@ public class NullableFlexibleDecimalConverterReadTests
         var converter = new NullableFlexibleDecimalConverter();
 
         // Act
-        var value = converter.Read(ref reader, typeof(decimal?), _opts);
+        var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should()
-             .BeNull();
+        value.Should().BeNull();
     }
 
     [Fact]
-    public void Read_StringInvalid_ReturnsNull()
+    public void StringInvalid_ReturnsNull()
     {
         // Arrange
         var json = "{\"v\": \"abc\"}";
@@ -102,10 +96,9 @@ public class NullableFlexibleDecimalConverterReadTests
         var converter = new NullableFlexibleDecimalConverter();
 
         // Act
-        var value = converter.Read(ref reader, typeof(decimal?), _opts);
+        var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should()
-             .BeNull();
+        value.Should().BeNull();
     }
 }

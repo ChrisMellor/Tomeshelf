@@ -6,10 +6,10 @@ using Tomeshelf.Application.Shared;
 
 namespace Tomeshelf.Application.Tests.Converters.NullableFlexibleDecimalConverterTests;
 
-public class NullableFlexibleDecimalConverterWriteTests
+public class Write
 {
     [Fact]
-    public void Write_Null_WritesNull()
+    public void Null_WritesNull()
     {
         // Arrange
         using var stream = new MemoryStream();
@@ -22,12 +22,11 @@ public class NullableFlexibleDecimalConverterWriteTests
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
-        json.Should()
-            .Be("null");
+        json.Should().Be("null");
     }
 
     [Fact]
-    public void Write_Number_WritesNumber()
+    public void Number_WritesNumber()
     {
         // Arrange
         using var stream = new MemoryStream();
@@ -40,7 +39,6 @@ public class NullableFlexibleDecimalConverterWriteTests
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
-        json.Should()
-            .Be("12.34");
+        json.Should().Be("12.34");
     }
 }
