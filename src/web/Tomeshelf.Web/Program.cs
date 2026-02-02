@@ -33,7 +33,15 @@ public class Program
     /// <param name="args">Command-line arguments.</param>
     public static void Main(string[] args)
     {
+        var app = BuildApp(args);
+        app.Run();
+    }
+
+    public static WebApplication BuildApp(string[] args, Action<WebApplicationBuilder>? configureBuilder = null)
+    {
         var builder = WebApplication.CreateBuilder(args);
+
+        configureBuilder?.Invoke(builder);
 
         builder.AddServiceDefaults();
 
@@ -373,13 +381,22 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapStaticAssets();
+        var staticAssetsManifestPath = app.Configuration["StaticAssets:ManifestPath"];
+        if (!string.IsNullOrWhiteSpace(staticAssetsManifestPath))
+        {
+            app.MapStaticAssets(staticAssetsManifestPath);
+        }
+        else
+        {
+            app.MapStaticAssets();
+        }
+
         app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}")
            .WithStaticAssets();
 
         app.MapDefaultEndpoints();
 
-        app.Run();
+        return app;
     }
 
     private static bool IsRunningInDocker()

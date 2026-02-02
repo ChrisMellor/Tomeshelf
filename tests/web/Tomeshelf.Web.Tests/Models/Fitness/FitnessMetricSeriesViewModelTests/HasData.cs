@@ -46,4 +46,24 @@ public class HasData
         // Assert
         hasData.Should().BeFalse();
     }
+
+    [Fact]
+    public void WhenValuesNull_ReturnsFalse()
+    {
+        // Arrange
+        var faker = new Faker();
+        var model = new FitnessMetricSeriesViewModel
+        {
+            Key = faker.Random.Word(),
+            Title = faker.Lorem.Word(),
+            Unit = faker.Random.Word(),
+            Values = null
+        };
+
+        // Act
+        var hasData = model.HasData;
+
+        // Assert
+        hasData.Should().BeFalse();
+    }
 }

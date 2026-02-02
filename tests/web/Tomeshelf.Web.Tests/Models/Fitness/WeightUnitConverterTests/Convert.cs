@@ -25,4 +25,15 @@ public class Convert
         result.Should().HaveValue();
         result!.Value.Should().BeApproximately(22.0462, 0.01);
     }
+
+    [Fact]
+    public void WhenStones_ReturnsConvertedValue()
+    {
+        // Act
+        var result = WeightUnitConverter.Convert(10, WeightUnit.Stones);
+
+        // Assert
+        result.Should().HaveValue();
+        result!.Value.Should().BeApproximately(1.5747, 0.01);
+    }
 }

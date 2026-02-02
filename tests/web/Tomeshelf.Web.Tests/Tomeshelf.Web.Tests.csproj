@@ -30,7 +30,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\web\Tomeshelf.Web\Tomeshelf.Web.csproj" />
-    <ProjectReference Include="..\..\..\src\apphost\Tomeshelf.AppHost\Tomeshelf.AppHost.csproj" />
   </ItemGroup>
 
   <ItemGroup>

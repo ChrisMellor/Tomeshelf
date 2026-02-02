@@ -12,7 +12,7 @@ namespace Tomeshelf.AppHost;
 /// <summary>
 ///     Aspire AppHost that defines and wires up application resources.
 /// </summary>
-internal class Program
+public class Program
 {
     private const string ContainerExecutorSettingsDirectory = "/home/app/.tomeshelf/executor";
     private const string ExecutorSettingsDirectoryVariable = "EXECUTOR_SETTINGS_DIR";
@@ -26,8 +26,26 @@ internal class Program
     /// <param name="args">Command-line arguments.</param>
     public static void Main(string[] args)
     {
-        var builder = DistributedApplication.CreateBuilder(args);
+        var app = BuildApp(args);
+        app.Run();
+    }
+
+    public static DistributedApplication BuildApp(string[] args, Action<IDistributedApplicationBuilder>? configureBuilder = null)
+    {
+        var builder = CreateBuilder(args, configureBuilder);
+        return builder.Build();
+    }
+
+    public static IDistributedApplicationBuilder CreateBuilder(string[] args, Action<IDistributedApplicationBuilder>? configureBuilder = null)
+    {
+        var options = new DistributedApplicationOptions
+        {
+            Args = args,
+            AssemblyName = typeof(Program).Assembly.GetName().Name
+        };
+        var builder = DistributedApplication.CreateBuilder(options);
         builder.Configuration.AddUserSecrets<Program>(true);
+        configureBuilder?.Invoke(builder);
 
         var database = SetupDatabase(builder);
 
@@ -52,8 +70,7 @@ internal class Program
                 })
                .WithDashboard(rb => rb.WithHostPort(18888));
 
-        builder.Build()
-               .Run();
+        return builder;
     }
 
     private static string ResolveHostExecutorSettingsDirectory()

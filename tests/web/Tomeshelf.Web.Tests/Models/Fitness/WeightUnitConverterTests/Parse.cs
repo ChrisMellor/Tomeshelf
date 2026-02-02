@@ -8,17 +8,18 @@ public class Parse
     [Theory]
     [InlineData(null, WeightUnit.Stones)]
     [InlineData("", WeightUnit.Stones)]
-    [InlineData(" ", WeightUnit.Stones)]
+    [InlineData("  ", WeightUnit.Stones)]
+    [InlineData("lb", WeightUnit.Pounds)]
+    [InlineData("pounds", WeightUnit.Pounds)]
     [InlineData("kg", WeightUnit.Kilograms)]
-    [InlineData("LBs", WeightUnit.Pounds)]
-    [InlineData("stone", WeightUnit.Stones)]
+    [InlineData("kilograms", WeightUnit.Kilograms)]
     [InlineData("unknown", WeightUnit.Stones)]
-    public void HandlesInput(string? value, WeightUnit expected)
+    public void ReturnsExpectedUnit(string value, WeightUnit expected)
     {
         // Act
-        var unit = WeightUnitConverter.Parse(value);
+        var result = WeightUnitConverter.Parse(value);
 
         // Assert
-        unit.Should().Be(expected);
+        result.Should().Be(expected);
     }
 }

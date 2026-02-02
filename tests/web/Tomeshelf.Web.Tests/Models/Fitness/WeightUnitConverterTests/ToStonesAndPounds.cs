@@ -6,13 +6,13 @@ namespace Tomeshelf.Web.Tests.Models.Fitness.WeightUnitConverterTests;
 public class ToStonesAndPounds
 {
     [Fact]
-    public void ConvertsCorrectly()
+    public void ConvertsToStonesAndPounds()
     {
         // Act
-        var (stones, pounds) = WeightUnitConverter.ToStonesAndPounds(70);
+        var result = WeightUnitConverter.ToStonesAndPounds(10);
 
         // Assert
-        stones.Should().BeGreaterThan(0);
-        pounds.Should().BeInRange(0, 14);
+        result.Stones.Should().Be(1);
+        result.Pounds.Should().BeApproximately(8.05, 0.05);
     }
 }

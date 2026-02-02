@@ -1,0 +1,40 @@
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using FakeItEasy;
+using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Tomeshelf.Web.Services;
+using Tomeshelf.Web.Tests.TestUtilities;
+
+namespace Tomeshelf.Web.Tests.Services.BundlesApiTests;
+
+public class IncludeExpired
+{
+    [Fact]
+    public async Task UsesLowercaseBoolean()
+    {
+        // Arrange
+        var handler = new StubHttpMessageHandler((request, _) =>
+        {
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("[]", Encoding.UTF8, "application/json")
+            };
+            return Task.FromResult(response);
+        });
+
+        using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
+        var api = new BundlesApi(new TestHttpClientFactory(client), A.Fake<ILogger<BundlesApi>>());
+
+        // Act
+        await api.GetBundlesAsync(false, CancellationToken.None);
+
+        // Assert
+        handler.Requests.Should().ContainSingle();
+        handler.Requests[0].RequestUri!.PathAndQuery.Should().Be("/bundles?includeExpired=false");
+    }
+}

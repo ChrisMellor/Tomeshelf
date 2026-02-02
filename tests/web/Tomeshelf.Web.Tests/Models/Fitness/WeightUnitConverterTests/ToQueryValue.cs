@@ -9,7 +9,7 @@ public class ToQueryValue
     [InlineData(WeightUnit.Stones, "st")]
     [InlineData(WeightUnit.Pounds, "lb")]
     [InlineData(WeightUnit.Kilograms, "kg")]
-    public void ReturnsExpectedString(WeightUnit unit, string expected)
+    public void ReturnsExpectedToken(WeightUnit unit, string expected)
     {
         // Act
         var result = WeightUnitConverter.ToQueryValue(unit);
