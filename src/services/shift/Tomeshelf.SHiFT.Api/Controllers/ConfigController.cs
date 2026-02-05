@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.SHiFT.Api.Contracts;
+using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
+using Tomeshelf.SHiFT.Api.Contracts;
 using Tomeshelf.SHiFT.Application.Features.Settings.Commands;
 using Tomeshelf.SHiFT.Application.Features.Settings.Dtos;
 using Tomeshelf.SHiFT.Application.Features.Settings.Queries;
@@ -34,11 +34,7 @@ public sealed class ConfigController : ControllerBase
     /// <param name="createHandler">Command handler for creating shift settings.</param>
     /// <param name="updateHandler">Command handler for updating shift settings.</param>
     /// <param name="deleteHandler">Command handler for deleting shift settings.</param>
-    public ConfigController(
-        IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?> queryHandler,
-        ICommandHandler<CreateShiftSettingsCommand, int> createHandler,
-        ICommandHandler<UpdateShiftSettingsCommand, bool> updateHandler,
-        ICommandHandler<DeleteShiftSettingsCommand, bool> deleteHandler)
+    public ConfigController(IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?> queryHandler, ICommandHandler<CreateShiftSettingsCommand, int> createHandler, ICommandHandler<UpdateShiftSettingsCommand, bool> updateHandler, ICommandHandler<DeleteShiftSettingsCommand, bool> deleteHandler)
     {
         _queryHandler = queryHandler;
         _createHandler = createHandler;

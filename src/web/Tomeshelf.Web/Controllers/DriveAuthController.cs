@@ -18,37 +18,6 @@ public sealed class DriveAuthController : Controller
         _configuration = configuration;
     }
 
-    [HttpGet("start")]
-    public IActionResult Start([FromQuery] string? returnUrl = null)
-    {
-        var (clientId, clientSecret, userEmail) = LoadOAuthConfig();
-        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
-        {
-            return View("OAuthResult", new OAuthResultViewModel
-            {
-                Success = false,
-                Message = "Google Drive OAuth is not configured. Set GoogleDrive:ClientId and GoogleDrive:ClientSecret in AppHost."
-            });
-        }
-
-        if (!string.IsNullOrWhiteSpace(returnUrl))
-        {
-            HttpContext.Session.SetString(GoogleDriveSessionKeys.ReturnUrl, returnUrl);
-        }
-
-        var properties = new AuthenticationProperties
-        {
-            RedirectUri = Url.Action("Result", "DriveAuth", new { returnUrl }) ?? "/drive-auth/result"
-        };
-
-        if (!string.IsNullOrWhiteSpace(userEmail))
-        {
-            properties.Items["login_hint"] = userEmail;
-        }
-
-        return Challenge(properties, AuthenticationScheme);
-    }
-
     [HttpGet("result")]
     public IActionResult Result([FromQuery] string? returnUrl = null)
     {
@@ -87,17 +56,43 @@ public sealed class DriveAuthController : Controller
         });
     }
 
+    [HttpGet("start")]
+    public IActionResult Start([FromQuery] string? returnUrl = null)
+    {
+        var (clientId, clientSecret, userEmail) = LoadOAuthConfig();
+        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
+        {
+            return View("OAuthResult", new OAuthResultViewModel
+            {
+                Success = false,
+                Message = "Google Drive OAuth is not configured. Set GoogleDrive:ClientId and GoogleDrive:ClientSecret in AppHost."
+            });
+        }
+
+        if (!string.IsNullOrWhiteSpace(returnUrl))
+        {
+            HttpContext.Session.SetString(GoogleDriveSessionKeys.ReturnUrl, returnUrl);
+        }
+
+        var properties = new AuthenticationProperties { RedirectUri = Url.Action("Result", "DriveAuth", new { returnUrl }) ?? "/drive-auth/result" };
+
+        if (!string.IsNullOrWhiteSpace(userEmail))
+        {
+            properties.Items["login_hint"] = userEmail;
+        }
+
+        return Challenge(properties, AuthenticationScheme);
+    }
+
+    private bool HasDriveTokens()
+    {
+        return !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken));
+    }
+
     private (string? ClientId, string? ClientSecret, string? UserEmail) LoadOAuthConfig()
     {
         var drive = _configuration.GetSection("GoogleDrive");
 
         return (drive["ClientId"], drive["ClientSecret"], drive["UserEmail"]);
-    }
-
-    private bool HasDriveTokens()
-    {
-        return !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId))
-            && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret))
-            && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken));
     }
 }

@@ -16,6 +16,7 @@ public class AddApplication
         var result = services.AddApplication();
 
         // Assert
-        result.Should().BeSameAs(services);
+        result.Should()
+              .BeSameAs(services);
     }
 }

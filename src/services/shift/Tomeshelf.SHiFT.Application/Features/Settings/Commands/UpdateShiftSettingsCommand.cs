@@ -19,5 +19,4 @@ namespace Tomeshelf.SHiFT.Application.Features.Settings.Commands;
 ///     required for the update.
 /// </param>
 /// <param name="DefaultService">The default service to assign to the user's shift settings. This value is required.</param>
-public sealed record UpdateShiftSettingsCommand(int Id, string Email, string? Password, string DefaultService)
-    : ICommand<bool>;
+public sealed record UpdateShiftSettingsCommand(int Id, string Email, string? Password, string DefaultService) : ICommand<bool>;

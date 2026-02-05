@@ -18,6 +18,7 @@ public sealed class BuildFitbitAuthorizationRedirectCommandHandler : ICommandHan
     public Task<FitbitAuthorizationRedirect> Handle(BuildFitbitAuthorizationRedirectCommand command, CancellationToken cancellationToken)
     {
         var uri = _authorizationService.BuildAuthorizationUri(command.ReturnUrl, out var state);
+
         return Task.FromResult(new FitbitAuthorizationRedirect(uri, state));
     }
 }

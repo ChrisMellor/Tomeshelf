@@ -33,72 +33,31 @@ public class Index
         var logger = A.Fake<ILogger<HomeController>>();
 
         A.CallTo(() => guestsApi.GetComicConEventsAsync(A<CancellationToken>._))
-            .Returns(new List<McmEventConfigModel> { new() });
+         .Returns(new List<McmEventConfigModel> { new McmEventConfigModel() });
         A.CallTo(() => bundlesApi.GetBundlesAsync(false, A<CancellationToken>._))
-            .Returns(new List<BundleModel> { new(), new() });
+         .Returns(new List<BundleModel>
+          {
+              new BundleModel(),
+              new BundleModel()
+          });
         A.CallTo(() => fitbitApi.GetDashboardAsync(A<string>._, A<bool>._, A<string>._, A<CancellationToken>._))
-            .Returns(Task.FromResult(new FitbitDashboardModel
-            {
-                Activity = new FitbitActivityModel { Steps = 123 }
-            }));
+         .Returns(Task.FromResult(new FitbitDashboardModel { Activity = new FitbitActivityModel { Steps = 123 } }));
 
-        var world = new PaissaWorldModel(
-            12,
-            "Zalera",
-            DateTimeOffset.UtcNow,
-            new List<PaissaDistrictModel>
+        var world = new PaissaWorldModel(12, "Zalera", DateTimeOffset.UtcNow, new List<PaissaDistrictModel>
+        {
+            new PaissaDistrictModel(1, "Mist", new List<PaissaSizeGroupModel>
             {
-                new(1, "Mist", new List<PaissaSizeGroupModel>
+                new PaissaSizeGroupModel("S", "s", new List<PaissaPlotModel>
                 {
-                    new("S", "s", new List<PaissaPlotModel>
-                    {
-                        new(1, 1, 0, 0, DateTimeOffset.UtcNow, true, true, false),
-                        new(1, 2, 0, 0, DateTimeOffset.UtcNow, true, true, false)
-                    })
-                }),
-                new(2, "Goblet", new List<PaissaSizeGroupModel>
-                {
-                    new("M", "m", new List<PaissaPlotModel>
-                    {
-                        new(2, 1, 0, 0, DateTimeOffset.UtcNow, true, true, false)
-                    })
+                    new PaissaPlotModel(1, 1, 0, 0, DateTimeOffset.UtcNow, true, true, false),
+                    new PaissaPlotModel(1, 2, 0, 0, DateTimeOffset.UtcNow, true, true, false)
                 })
-            });
+            }),
+            new PaissaDistrictModel(2, "Goblet", new List<PaissaSizeGroupModel> { new PaissaSizeGroupModel("M", "m", new List<PaissaPlotModel> { new PaissaPlotModel(2, 1, 0, 0, DateTimeOffset.UtcNow, true, true, false) }) })
+        });
 
-        A.CallTo(() => paissaApi.GetWorldAsync(A<CancellationToken>._)).Returns(world);
-
-        var controller = CreateController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger);
-
-        // Act
-        var result = await controller.Index(CancellationToken.None);
-
-        // Assert
-        var view = result.Should().BeOfType<ViewResult>().Subject;
-        var model = view.Model.Should().BeOfType<HomeIndexViewModel>().Subject;
-        model.EventsSummary.Should().Be("1 event configured");
-        model.EducationSummary.Should().Be("2 bundles live");
-        model.HealthSummary.Should().Be("123 steps today");
-        model.GamingSummary.Should().Be("3 plots listed");
-    }
-
-    [Fact]
-    public async Task WhenFitbitAuthorizationRequired_ShowsConnectMessage()
-    {
-        // Arrange
-        var bundlesApi = A.Fake<IBundlesApi>();
-        var fitbitApi = A.Fake<IFitbitApi>();
-        var guestsApi = A.Fake<IGuestsApi>();
-        var paissaApi = A.Fake<IPaissaApi>();
-        var logger = A.Fake<ILogger<HomeController>>();
-
-        A.CallTo(() => guestsApi.GetComicConEventsAsync(A<CancellationToken>._))
-            .Returns(new List<McmEventConfigModel>());
-        A.CallTo(() => bundlesApi.GetBundlesAsync(false, A<CancellationToken>._))
-            .Returns(new List<BundleModel>());
         A.CallTo(() => paissaApi.GetWorldAsync(A<CancellationToken>._))
-            .Returns(new PaissaWorldModel(1, "World", DateTimeOffset.UtcNow, new List<PaissaDistrictModel>()));
-        A.CallTo(() => fitbitApi.GetDashboardAsync(A<string>._, A<bool>._, A<string>._, A<CancellationToken>._))
-            .Throws(new FitbitAuthorizationRequiredException(new Uri("https://example.test/fitbit/auth")));
+         .Returns(world);
 
         var controller = CreateController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger);
 
@@ -106,9 +65,25 @@ public class Index
         var result = await controller.Index(CancellationToken.None);
 
         // Assert
-        var view = result.Should().BeOfType<ViewResult>().Subject;
-        var model = view.Model.Should().BeOfType<HomeIndexViewModel>().Subject;
-        model.HealthSummary.Should().Be("Connect Fitbit to sync");
+        var view = result.Should()
+                         .BeOfType<ViewResult>()
+                         .Subject;
+        var model = view.Model
+                        .Should()
+                        .BeOfType<HomeIndexViewModel>()
+                        .Subject;
+        model.EventsSummary
+             .Should()
+             .Be("1 event configured");
+        model.EducationSummary
+             .Should()
+             .Be("2 bundles live");
+        model.HealthSummary
+             .Should()
+             .Be("123 steps today");
+        model.GamingSummary
+             .Should()
+             .Be("3 plots listed");
     }
 
     [Fact]
@@ -122,13 +97,13 @@ public class Index
         var logger = A.Fake<ILogger<HomeController>>();
 
         A.CallTo(() => guestsApi.GetComicConEventsAsync(A<CancellationToken>._))
-            .Returns(new List<McmEventConfigModel>());
+         .Returns(new List<McmEventConfigModel>());
         A.CallTo(() => bundlesApi.GetBundlesAsync(false, A<CancellationToken>._))
-            .Throws(new Exception("boom"));
+         .Throws(new Exception("boom"));
         A.CallTo(() => fitbitApi.GetDashboardAsync(A<string>._, A<bool>._, A<string>._, A<CancellationToken>._))
-            .Returns(Task.FromResult(new FitbitDashboardModel()));
+         .Returns(Task.FromResult(new FitbitDashboardModel()));
         A.CallTo(() => paissaApi.GetWorldAsync(A<CancellationToken>._))
-            .Returns(new PaissaWorldModel(1, "World", DateTimeOffset.UtcNow, new List<PaissaDistrictModel>()));
+         .Returns(new PaissaWorldModel(1, "World", DateTimeOffset.UtcNow, new List<PaissaDistrictModel>()));
 
         var controller = CreateController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger);
 
@@ -136,9 +111,53 @@ public class Index
         var result = await controller.Index(CancellationToken.None);
 
         // Assert
-        var view = result.Should().BeOfType<ViewResult>().Subject;
-        var model = view.Model.Should().BeOfType<HomeIndexViewModel>().Subject;
-        model.EducationSummary.Should().Be("Bundles unavailable");
+        var view = result.Should()
+                         .BeOfType<ViewResult>()
+                         .Subject;
+        var model = view.Model
+                        .Should()
+                        .BeOfType<HomeIndexViewModel>()
+                        .Subject;
+        model.EducationSummary
+             .Should()
+             .Be("Bundles unavailable");
+    }
+
+    [Fact]
+    public async Task WhenFitbitAuthorizationRequired_ShowsConnectMessage()
+    {
+        // Arrange
+        var bundlesApi = A.Fake<IBundlesApi>();
+        var fitbitApi = A.Fake<IFitbitApi>();
+        var guestsApi = A.Fake<IGuestsApi>();
+        var paissaApi = A.Fake<IPaissaApi>();
+        var logger = A.Fake<ILogger<HomeController>>();
+
+        A.CallTo(() => guestsApi.GetComicConEventsAsync(A<CancellationToken>._))
+         .Returns(new List<McmEventConfigModel>());
+        A.CallTo(() => bundlesApi.GetBundlesAsync(false, A<CancellationToken>._))
+         .Returns(new List<BundleModel>());
+        A.CallTo(() => paissaApi.GetWorldAsync(A<CancellationToken>._))
+         .Returns(new PaissaWorldModel(1, "World", DateTimeOffset.UtcNow, new List<PaissaDistrictModel>()));
+        A.CallTo(() => fitbitApi.GetDashboardAsync(A<string>._, A<bool>._, A<string>._, A<CancellationToken>._))
+         .Throws(new FitbitAuthorizationRequiredException(new Uri("https://example.test/fitbit/auth")));
+
+        var controller = CreateController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger);
+
+        // Act
+        var result = await controller.Index(CancellationToken.None);
+
+        // Assert
+        var view = result.Should()
+                         .BeOfType<ViewResult>()
+                         .Subject;
+        var model = view.Model
+                        .Should()
+                        .BeOfType<HomeIndexViewModel>()
+                        .Subject;
+        model.HealthSummary
+             .Should()
+             .Be("Connect Fitbit to sync");
     }
 
     private static HomeController CreateController(IBundlesApi bundlesApi, IFitbitApi fitbitApi, IGuestsApi guestsApi, IPaissaApi paissaApi, ILogger<HomeController> logger)
@@ -149,9 +168,9 @@ public class Index
 
         var urlHelper = A.Fake<IUrlHelper>();
         A.CallTo(() => urlHelper.Action(A<UrlActionContext>._))
-            .Returns("https://example.test/");
+         .Returns("https://example.test/");
         A.CallTo(() => urlHelper.ActionContext)
-            .Returns(new ActionContext(httpContext, new RouteData(), new ActionDescriptor()));
+         .Returns(new ActionContext(httpContext, new RouteData(), new ActionDescriptor()));
 
         var controller = new HomeController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger)
         {

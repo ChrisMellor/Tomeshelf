@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.SHiFT.Application.Abstractions.Common;
 using Tomeshelf.SHiFT.Application.Abstractions.External;
-using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.SHiFT.Application.Features.KeyDiscovery.Models;
 
 namespace Tomeshelf.SHiFT.Application.Features.KeyDiscovery.Commands;
@@ -19,10 +18,7 @@ public sealed class SweepShiftKeysCommandHandler : ICommandHandler<SweepShiftKey
     private readonly IGearboxClient _gearboxClient;
     private readonly IEnumerable<IShiftKeySource> _sources;
 
-    public SweepShiftKeysCommandHandler(
-        IEnumerable<IShiftKeySource> sources,
-        IGearboxClient gearboxClient,
-        IClock clock)
+    public SweepShiftKeysCommandHandler(IEnumerable<IShiftKeySource> sources, IGearboxClient gearboxClient, IClock clock)
     {
         _sources = sources;
         _gearboxClient = gearboxClient;
@@ -46,18 +42,17 @@ public sealed class SweepShiftKeysCommandHandler : ICommandHandler<SweepShiftKey
         }
 
         var items = new List<ShiftKeySweepItem>();
-        var grouped = candidates
-            .Where(c => !string.IsNullOrWhiteSpace(c.Code))
-            .GroupBy(c => c.Code.Trim(), StringComparer.OrdinalIgnoreCase);
+        var grouped = candidates.Where(c => !string.IsNullOrWhiteSpace(c.Code))
+                                .GroupBy(c => c.Code.Trim(), StringComparer.OrdinalIgnoreCase);
 
         foreach (var group in grouped)
         {
             var code = group.Key.ToUpperInvariant();
             var sources = group.Select(c => c.Source)
-                .Where(source => !string.IsNullOrWhiteSpace(source))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(source => source, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+                               .Where(source => !string.IsNullOrWhiteSpace(source))
+                               .Distinct(StringComparer.OrdinalIgnoreCase)
+                               .OrderBy(source => source, StringComparer.OrdinalIgnoreCase)
+                               .ToList();
 
             var results = await _gearboxClient.RedeemCodeAsync(code, cancellationToken);
 

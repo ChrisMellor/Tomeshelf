@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -67,10 +65,8 @@ public class GetComicConGuestsByEventResultAsync
                 ? JsonSerializer.Serialize(page2, new JsonSerializerOptions(JsonSerializerDefaults.Web))
                 : JsonSerializer.Serialize(page1, new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
+
             return Task.FromResult(response);
         });
 
@@ -82,13 +78,36 @@ public class GetComicConGuestsByEventResultAsync
         var result = await api.GetComicConGuestsByEventResultAsync("mcm-2026", CancellationToken.None);
 
         // Assert
-        result.Total.Should().Be(3);
-        result.Groups.Should().HaveCount(2);
-        result.Groups[0].CreatedDate.Should().Be(new DateTime(2020, 1, 2));
-        result.Groups[0].Items.Should().HaveCount(2);
-        result.Groups[0].Items[0].FirstName.Should().Be("Bob");
-        result.Groups[0].Items[0].LastName.Should().Be("Alpha");
-        result.Groups[1].CreatedDate.Should().Be(new DateTime(2020, 1, 1));
-        handler.Requests.Should().HaveCount(2);
+        result.Total
+              .Should()
+              .Be(3);
+        result.Groups
+              .Should()
+              .HaveCount(2);
+        result.Groups[0]
+              .CreatedDate
+              .Should()
+              .Be(new DateTime(2020, 1, 2));
+        result.Groups[0]
+              .Items
+              .Should()
+              .HaveCount(2);
+        result.Groups[0]
+              .Items[0]
+              .FirstName
+              .Should()
+              .Be("Bob");
+        result.Groups[0]
+              .Items[0]
+              .LastName
+              .Should()
+              .Be("Alpha");
+        result.Groups[1]
+              .CreatedDate
+              .Should()
+              .Be(new DateTime(2020, 1, 1));
+        handler.Requests
+               .Should()
+               .HaveCount(2);
     }
 }

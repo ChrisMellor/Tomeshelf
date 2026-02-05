@@ -8,13 +8,7 @@ namespace Tomeshelf.Web.Tests.TestUtilities;
 
 public sealed class TestSession : ISession
 {
-    private readonly Dictionary<string, byte[]> _store = new(StringComparer.Ordinal);
-
-    public IEnumerable<string> Keys => _store.Keys;
-
-    public string Id { get; } = Guid.NewGuid().ToString("N");
-
-    public bool IsAvailable { get; set; } = true;
+    private readonly Dictionary<string, byte[]> _store = new Dictionary<string, byte[]>(StringComparer.Ordinal);
 
     public void Clear()
     {
@@ -25,6 +19,13 @@ public sealed class TestSession : ISession
     {
         return Task.CompletedTask;
     }
+
+    public string Id { get; } = Guid.NewGuid()
+                                    .ToString("N");
+
+    public bool IsAvailable { get; set; } = true;
+
+    public IEnumerable<string> Keys => _store.Keys;
 
     public Task LoadAsync(CancellationToken cancellationToken = default)
     {

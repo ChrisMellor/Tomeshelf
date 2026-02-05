@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using System;
+using Microsoft.EntityFrameworkCore;
 using Tomeshelf.Fitbit.Domain;
 
 namespace Tomeshelf.Fitbit.Infrastructure;

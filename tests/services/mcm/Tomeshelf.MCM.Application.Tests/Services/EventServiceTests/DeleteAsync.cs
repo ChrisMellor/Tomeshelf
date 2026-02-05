@@ -18,14 +18,15 @@ public class DeleteAsync
         var id = faker.Random.AlphaNumeric(8);
 
         A.CallTo(() => repository.DeleteAsync(id, A<CancellationToken>._))
-            .Returns(Task.FromResult(true));
+         .Returns(Task.FromResult(true));
 
         // Act
         var result = await service.DeleteAsync(id, CancellationToken.None);
 
         // Assert
-        result.Should().BeTrue();
+        result.Should()
+              .BeTrue();
         A.CallTo(() => repository.DeleteAsync(id, A<CancellationToken>._))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
     }
 }

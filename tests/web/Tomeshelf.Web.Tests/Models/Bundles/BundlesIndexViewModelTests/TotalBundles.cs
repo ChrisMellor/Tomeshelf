@@ -15,10 +15,18 @@ public class TotalBundles
         {
             ActiveBundles = new List<BundlesCategoryGroup>
             {
-                new("Games", new List<BundleViewModel> { new(), new() }),
-                new("Books", new List<BundleViewModel> { new() })
+                new BundlesCategoryGroup("Games", new List<BundleViewModel>
+                {
+                    new BundleViewModel(),
+                    new BundleViewModel()
+                }),
+                new BundlesCategoryGroup("Books", new List<BundleViewModel> { new BundleViewModel() })
             },
-            ExpiredBundles = new List<BundleViewModel> { new(), new() },
+            ExpiredBundles = new List<BundleViewModel>
+            {
+                new BundleViewModel(),
+                new BundleViewModel()
+            },
             IncludeExpired = false,
             DataTimestampUtc = DateTimeOffset.UtcNow
         };
@@ -27,7 +35,8 @@ public class TotalBundles
         var total = model.TotalBundles;
 
         // Assert
-        total.Should().Be(3);
+        total.Should()
+             .Be(3);
     }
 
     [Fact]
@@ -38,9 +47,18 @@ public class TotalBundles
         {
             ActiveBundles = new List<BundlesCategoryGroup>
             {
-                new("Games", new List<BundleViewModel> { new(), new() })
+                new BundlesCategoryGroup("Games", new List<BundleViewModel>
+                {
+                    new BundleViewModel(),
+                    new BundleViewModel()
+                })
             },
-            ExpiredBundles = new List<BundleViewModel> { new(), new(), new() },
+            ExpiredBundles = new List<BundleViewModel>
+            {
+                new BundleViewModel(),
+                new BundleViewModel(),
+                new BundleViewModel()
+            },
             IncludeExpired = true,
             DataTimestampUtc = DateTimeOffset.UtcNow
         };
@@ -49,6 +67,7 @@ public class TotalBundles
         var total = model.TotalBundles;
 
         // Assert
-        total.Should().Be(5);
+        total.Should()
+             .Be(5);
     }
 }

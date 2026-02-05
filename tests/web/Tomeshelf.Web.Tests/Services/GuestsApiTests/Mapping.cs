@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -45,10 +44,8 @@ public class Mapping
         var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         var handler = new StubHttpMessageHandler((_, _) =>
         {
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
+
             return Task.FromResult(response);
         });
 
@@ -60,13 +57,29 @@ public class Mapping
         var result = await api.GetComicConGuestsByEventResultAsync("mcm-2026", CancellationToken.None);
 
         // Assert
-        var person = result.Groups[0].Items[0];
-        person.FirstName.Should().Be("Jane");
-        person.LastName.Should().Be("Doe");
-        person.PubliclyVisible.Should().BeFalse();
-        person.ProfileUrl.Should().Be("https://example.test/profile");
-        person.Images.Should().ContainSingle();
-        person.Images[0].Big.Should().Be("https://example.test/image.jpg");
-        person.RemovedAt.Should().Be("2020-01-03T09:00:00.0000000+00:00");
+        var person = result.Groups[0]
+                           .Items[0];
+        person.FirstName
+              .Should()
+              .Be("Jane");
+        person.LastName
+              .Should()
+              .Be("Doe");
+        person.PubliclyVisible
+              .Should()
+              .BeFalse();
+        person.ProfileUrl
+              .Should()
+              .Be("https://example.test/profile");
+        person.Images
+              .Should()
+              .ContainSingle();
+        person.Images[0]
+              .Big
+              .Should()
+              .Be("https://example.test/image.jpg");
+        person.RemovedAt
+              .Should()
+              .Be("2020-01-03T09:00:00.0000000+00:00");
     }
 }

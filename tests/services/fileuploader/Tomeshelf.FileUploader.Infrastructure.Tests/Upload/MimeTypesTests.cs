@@ -18,6 +18,7 @@ public class MimeTypesTests
     {
         var mimeType = MimeTypes.GetMimeType(fileName);
 
-        mimeType.Should().Be(expected);
+        mimeType.Should()
+                .Be(expected);
     }
 }

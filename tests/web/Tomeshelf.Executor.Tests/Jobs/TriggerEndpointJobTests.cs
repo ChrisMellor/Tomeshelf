@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Quartz;
 using Tomeshelf.Executor.Configuration;
 using Tomeshelf.Executor.Jobs;
@@ -17,31 +11,6 @@ namespace Tomeshelf.Executor.Tests.Jobs;
 public class TriggerEndpointJobTests
 {
     [Fact]
-    public async Task Execute_WhenEndpointNameMissing_DoesNotPing()
-    {
-        var pingService = A.Fake<IEndpointPingService>();
-        var options = new ExecutorOptions
-        {
-            Endpoints = new List<EndpointScheduleOptions>
-            {
-                new()
-                {
-                    Name = "Ping",
-                    Url = "https://example.test",
-                    Cron = "0 0 * * * ?"
-                }
-            }
-        };
-        var job = new TriggerEndpointJob(pingService, new TestOptionsMonitor<ExecutorOptions>(options), A.Fake<ILogger<TriggerEndpointJob>>());
-        var context = CreateContext(string.Empty);
-
-        await job.Execute(context);
-
-        A.CallTo(() => pingService.SendAsync(A<Uri>._, A<string>._, A<Dictionary<string, string>?>._, A<CancellationToken>._))
-            .MustNotHaveHappened();
-    }
-
-    [Fact]
     public async Task Execute_WhenEndpointDisabled_DoesNotPing()
     {
         var pingService = A.Fake<IEndpointPingService>();
@@ -49,7 +18,7 @@ public class TriggerEndpointJobTests
         {
             Endpoints = new List<EndpointScheduleOptions>
             {
-                new()
+                new EndpointScheduleOptions
                 {
                     Name = "Ping",
                     Url = "https://example.test",
@@ -64,32 +33,32 @@ public class TriggerEndpointJobTests
         await job.Execute(context);
 
         A.CallTo(() => pingService.SendAsync(A<Uri>._, A<string>._, A<Dictionary<string, string>?>._, A<CancellationToken>._))
-            .MustNotHaveHappened();
+         .MustNotHaveHappened();
     }
 
     [Fact]
-    public async Task Execute_WhenUrlInvalid_DoesNotPing()
+    public async Task Execute_WhenEndpointNameMissing_DoesNotPing()
     {
         var pingService = A.Fake<IEndpointPingService>();
         var options = new ExecutorOptions
         {
             Endpoints = new List<EndpointScheduleOptions>
             {
-                new()
+                new EndpointScheduleOptions
                 {
                     Name = "Ping",
-                    Url = "not-a-url",
+                    Url = "https://example.test",
                     Cron = "0 0 * * * ?"
                 }
             }
         };
         var job = new TriggerEndpointJob(pingService, new TestOptionsMonitor<ExecutorOptions>(options), A.Fake<ILogger<TriggerEndpointJob>>());
-        var context = CreateContext("Ping");
+        var context = CreateContext(string.Empty);
 
         await job.Execute(context);
 
         A.CallTo(() => pingService.SendAsync(A<Uri>._, A<string>._, A<Dictionary<string, string>?>._, A<CancellationToken>._))
-            .MustNotHaveHappened();
+         .MustNotHaveHappened();
     }
 
     [Fact]
@@ -97,17 +66,14 @@ public class TriggerEndpointJobTests
     {
         var pingService = A.Fake<IEndpointPingService>();
         A.CallTo(() => pingService.SendAsync(A<Uri>._, A<string>._, A<Dictionary<string, string>?>._, A<CancellationToken>._))
-            .Returns(new EndpointPingResult(true, 200, "OK", "body", TimeSpan.FromMilliseconds(10)));
+         .Returns(new EndpointPingResult(true, 200, "OK", "body", TimeSpan.FromMilliseconds(10)));
 
-        var headers = new Dictionary<string, string>
-        {
-            ["X-Test"] = "value"
-        };
+        var headers = new Dictionary<string, string> { ["X-Test"] = "value" };
         var options = new ExecutorOptions
         {
             Endpoints = new List<EndpointScheduleOptions>
             {
-                new()
+                new EndpointScheduleOptions
                 {
                     Name = "Ping",
                     Url = "https://example.test",
@@ -122,12 +88,33 @@ public class TriggerEndpointJobTests
 
         await job.Execute(context);
 
-        A.CallTo(() => pingService.SendAsync(
-            A<Uri>.That.Matches(uri => uri.ToString() == "https://example.test/"),
-            "PUT",
-            headers,
-            A<CancellationToken>._))
-            .MustHaveHappenedOnceExactly();
+        A.CallTo(() => pingService.SendAsync(A<Uri>.That.Matches(uri => uri.ToString() == "https://example.test/"), "PUT", headers, A<CancellationToken>._))
+         .MustHaveHappenedOnceExactly();
+    }
+
+    [Fact]
+    public async Task Execute_WhenUrlInvalid_DoesNotPing()
+    {
+        var pingService = A.Fake<IEndpointPingService>();
+        var options = new ExecutorOptions
+        {
+            Endpoints = new List<EndpointScheduleOptions>
+            {
+                new EndpointScheduleOptions
+                {
+                    Name = "Ping",
+                    Url = "not-a-url",
+                    Cron = "0 0 * * * ?"
+                }
+            }
+        };
+        var job = new TriggerEndpointJob(pingService, new TestOptionsMonitor<ExecutorOptions>(options), A.Fake<ILogger<TriggerEndpointJob>>());
+        var context = CreateContext("Ping");
+
+        await job.Execute(context);
+
+        A.CallTo(() => pingService.SendAsync(A<Uri>._, A<string>._, A<Dictionary<string, string>?>._, A<CancellationToken>._))
+         .MustNotHaveHappened();
     }
 
     private static IJobExecutionContext CreateContext(string? endpointName)
@@ -139,8 +126,10 @@ public class TriggerEndpointJobTests
             map[TriggerEndpointJob.EndpointNameKey] = endpointName;
         }
 
-        A.CallTo(() => context.MergedJobDataMap).Returns(map);
-        A.CallTo(() => context.CancellationToken).Returns(CancellationToken.None);
+        A.CallTo(() => context.MergedJobDataMap)
+         .Returns(map);
+        A.CallTo(() => context.CancellationToken)
+         .Returns(CancellationToken.None);
 
         return context;
     }

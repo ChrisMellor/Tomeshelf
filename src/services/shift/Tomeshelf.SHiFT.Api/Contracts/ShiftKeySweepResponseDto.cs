@@ -10,8 +10,4 @@ namespace Tomeshelf.SHiFT.Api.Contracts;
 /// <param name="ScannedAtUtc">The time the sweep completed.</param>
 /// <param name="Summary">Aggregate summary of the sweep.</param>
 /// <param name="Items">Per-key redemption results.</param>
-public sealed record ShiftKeySweepResponseDto(
-    DateTimeOffset SinceUtc,
-    DateTimeOffset ScannedAtUtc,
-    ShiftKeySweepSummaryDto Summary,
-    IReadOnlyList<ShiftKeySweepItemDto> Items);
+public sealed record ShiftKeySweepResponseDto(DateTimeOffset SinceUtc, DateTimeOffset ScannedAtUtc, ShiftKeySweepSummaryDto Summary, IReadOnlyList<ShiftKeySweepItemDto> Items);

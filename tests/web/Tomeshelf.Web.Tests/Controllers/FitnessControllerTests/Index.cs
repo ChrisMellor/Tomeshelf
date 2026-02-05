@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -6,9 +9,6 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models.Fitness;
 using Tomeshelf.Web.Services;
@@ -142,7 +142,7 @@ public class Index
             {
                 Items = new List<FitbitOverviewDayModel>
                 {
-                    new()
+                    new FitbitOverviewDayModel
                     {
                         Date = "2020-01-03",
                         WeightKg = 10,
@@ -150,7 +150,7 @@ public class Index
                         SleepHours = 7.5,
                         NetCalories = 200
                     },
-                    new()
+                    new FitbitOverviewDayModel
                     {
                         Date = "2020-01-04",
                         WeightKg = 11,
@@ -214,7 +214,7 @@ public class Index
             {
                 Items = new List<FitbitOverviewDayModel>
                 {
-                    new()
+                    new FitbitOverviewDayModel
                     {
                         Date = "2020-01-02",
                         Steps = 1200
@@ -265,7 +265,7 @@ public class Index
         A.CallTo(() => urlHelper.Action(A<UrlActionContext>._))
          .Returns("https://example.test/fitness");
         A.CallTo(() => urlHelper.ActionContext)
-            .Returns(new ActionContext(httpContext, new RouteData(), new ActionDescriptor()));
+         .Returns(new ActionContext(httpContext, new RouteData(), new ActionDescriptor()));
 
         return new FitnessController(api, logger)
         {

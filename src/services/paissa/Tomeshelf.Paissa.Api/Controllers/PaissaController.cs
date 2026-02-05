@@ -3,8 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Tomeshelf.Paissa.Api.Contracts;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
+using Tomeshelf.Paissa.Api.Contracts;
 using Tomeshelf.Paissa.Application.Features.Housing.Dtos;
 using Tomeshelf.Paissa.Application.Features.Housing.Queries;
 
@@ -28,18 +28,13 @@ public sealed class PaissaController(IQueryHandler<GetAcceptingEntriesQuery, Pai
         return Ok(response);
     }
 
-    private static PaissaWorldResponse MapWorld(PaissaWorldSummaryDto world)
-    {
-        var districts = world.Districts.Select(MapDistrict).ToList();
-
-        return new PaissaWorldResponse(world.WorldId, world.WorldName, world.RetrievedAtUtc, districts);
-    }
-
     private static PaissaDistrictResponse MapDistrict(PaissaDistrictSummaryDto district)
     {
         var tabs = district.SizeGroups
-            .Select(group => new PaissaSizeGroupResponse(group.Size, group.SizeKey, group.Plots.Select(MapPlot).ToList()))
-            .ToList();
+                           .Select(group => new PaissaSizeGroupResponse(group.Size, group.SizeKey, group.Plots
+                                                                                                        .Select(MapPlot)
+                                                                                                        .ToList()))
+                           .ToList();
 
         return new PaissaDistrictResponse(district.Id, district.Name, tabs);
     }
@@ -47,5 +42,14 @@ public sealed class PaissaController(IQueryHandler<GetAcceptingEntriesQuery, Pai
     private static PaissaPlotResponse MapPlot(PaissaPlotSummaryDto plot)
     {
         return new PaissaPlotResponse(plot.Ward, plot.Plot, plot.Price, plot.Entries, plot.LastUpdatedUtc, plot.AllowsPersonal, plot.AllowsFreeCompany, plot.IsEligibilityUnknown);
+    }
+
+    private static PaissaWorldResponse MapWorld(PaissaWorldSummaryDto world)
+    {
+        var districts = world.Districts
+                             .Select(MapDistrict)
+                             .ToList();
+
+        return new PaissaWorldResponse(world.WorldId, world.WorldName, world.RetrievedAtUtc, districts);
     }
 }

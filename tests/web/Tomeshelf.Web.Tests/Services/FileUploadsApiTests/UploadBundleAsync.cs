@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -18,21 +17,6 @@ namespace Tomeshelf.Web.Tests.Services.FileUploadsApiTests;
 
 public class UploadBundleAsync
 {
-    [Fact]
-    public async Task WhenStreamNull_Throws()
-    {
-        // Arrange
-        var handler = new StubHttpMessageHandler((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)));
-        using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
-        var api = new FileUploadsApi(new TestHttpClientFactory(client), A.Fake<ILogger<FileUploadsApi>>());
-
-        // Act
-        var action = () => api.UploadBundleAsync(null!, "bundle.zip", null, CancellationToken.None);
-
-        // Assert
-        await action.Should().ThrowAsync<ArgumentNullException>();
-    }
-
     [Fact]
     public async Task IncludesCredentialsInMultipartContent()
     {
@@ -62,10 +46,8 @@ public class UploadBundleAsync
                 }
             }
 
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
+
             return response;
         });
 
@@ -85,12 +67,23 @@ public class UploadBundleAsync
         var result = await api.UploadBundleAsync(stream, "bundle.zip", auth, CancellationToken.None);
 
         // Assert
-        result.BundlesProcessed.Should().Be(1);
-        fileName.Should().Be("bundle.zip");
-        parts["credentials.clientId"].Should().Be("client");
-        parts["credentials.clientSecret"].Should().Be("secret");
-        parts["credentials.refreshToken"].Should().Be("refresh");
-        parts["credentials.userEmail"].Should().Be("user@example.com");
+        result.BundlesProcessed
+              .Should()
+              .Be(1);
+        fileName.Should()
+                .Be("bundle.zip");
+        parts["credentials.clientId"]
+           .Should()
+           .Be("client");
+        parts["credentials.clientSecret"]
+           .Should()
+           .Be("secret");
+        parts["credentials.refreshToken"]
+           .Should()
+           .Be("refresh");
+        parts["credentials.userEmail"]
+           .Should()
+           .Be("user@example.com");
     }
 
     [Fact]
@@ -115,10 +108,8 @@ public class UploadBundleAsync
                 }
             }
 
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
+
             return response;
         });
 
@@ -131,9 +122,29 @@ public class UploadBundleAsync
         await api.UploadBundleAsync(stream, "bundle.zip", null, CancellationToken.None);
 
         // Assert
-        parts.Should().NotContainKey("credentials.clientId");
-        parts.Should().NotContainKey("credentials.clientSecret");
-        parts.Should().NotContainKey("credentials.refreshToken");
-        parts.Should().NotContainKey("credentials.userEmail");
+        parts.Should()
+             .NotContainKey("credentials.clientId");
+        parts.Should()
+             .NotContainKey("credentials.clientSecret");
+        parts.Should()
+             .NotContainKey("credentials.refreshToken");
+        parts.Should()
+             .NotContainKey("credentials.userEmail");
+    }
+
+    [Fact]
+    public async Task WhenStreamNull_Throws()
+    {
+        // Arrange
+        var handler = new StubHttpMessageHandler((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)));
+        using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
+        var api = new FileUploadsApi(new TestHttpClientFactory(client), A.Fake<ILogger<FileUploadsApi>>());
+
+        // Act
+        var action = () => api.UploadBundleAsync(null!, "bundle.zip", null, CancellationToken.None);
+
+        // Assert
+        await action.Should()
+                    .ThrowAsync<ArgumentNullException>();
     }
 }

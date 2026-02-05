@@ -12,8 +12,8 @@
         </div>
         <p class="text-muted mt-2 mb-0">
             Showing @Model.TotalPlotCount plot@(Model.TotalPlotCount == 1
-                                                      ? string.Empty
-                                                      : "s") accepting entries.
+                                                  ? string.Empty
+                                                  : "s") accepting entries.
             Data captured at @Model.RetrievedAtUtc.ToLocalTime().ToString("f").
         </p>
     </div>
@@ -44,8 +44,8 @@ else
             var plotCount = district.Tabs.Sum(t => t.Plots.Count);
             <li class="nav-item" role="presentation">
                 <button class="nav-link@(isActive
-                                               ? " active"
-                                               : string.Empty)" id="@($"{tabId}-tab")" data-bs-toggle="tab" data-bs-target="@($"#{tabId}")" type="button" role="tab" aria-controls="@tabId" aria-selected="@isActive">
+                                           ? " active"
+                                           : string.Empty)" id="@($"{tabId}-tab")" data-bs-toggle="tab" data-bs-target="@($"#{tabId}")" type="button" role="tab" aria-controls="@tabId" aria-selected="@isActive">
                     @district.Name
                     <span class="badge text-bg-secondary ms-2">@plotCount</span>
                 </button>
@@ -61,8 +61,8 @@ else
             var isActive = i == 0;
 
             <div class="tab-pane fade@(isActive
-                                             ? " show active"
-                                             : string.Empty)" id="@tabId" role="tabpanel" aria-labelledby="@($"{tabId}-tab")" tabindex="0">
+                                         ? " show active"
+                                         : string.Empty)" id="@tabId" role="tabpanel" aria-labelledby="@($"{tabId}-tab")" tabindex="0">
                 <div class="accordion" id="@accordionId">
                     @for (var j = 0; j < district.Tabs.Count; j++)
                     {
@@ -74,15 +74,15 @@ else
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="@headerId">
                                 <button class="accordion-button@(isOpen
-                                                                       ? string.Empty
-                                                                       : " collapsed")" type="button" data-bs-toggle="collapse" data-bs-target="@($"#{collapseId}")" aria-expanded="@isOpen" aria-controls="@collapseId">
+                                                                   ? string.Empty
+                                                                   : " collapsed")" type="button" data-bs-toggle="collapse" data-bs-target="@($"#{collapseId}")" aria-expanded="@isOpen" aria-controls="@collapseId">
                                     @size.Size
                                     <span class="badge text-bg-secondary ms-2">@size.Plots.Count</span>
                                 </button>
                             </h2>
                             <div id="@collapseId" class="accordion-collapse collapse@(isOpen
-                                                                                            ? " show"
-                                                                                            : string.Empty)" aria-labelledby="@headerId" data-bs-parent="@($"#{accordionId}")">
+                                                                                        ? " show"
+                                                                                        : string.Empty)" aria-labelledby="@headerId" data-bs-parent="@($"#{accordionId}")">
                                 <div class="accordion-body">
                                     @if (!size.Plots.Any())
                                     {

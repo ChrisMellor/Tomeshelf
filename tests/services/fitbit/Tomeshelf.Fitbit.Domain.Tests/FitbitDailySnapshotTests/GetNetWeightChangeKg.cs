@@ -18,42 +18,11 @@ public class GetNetWeightChangeKg
         var netChange = snapshot.GetNetWeightChangeKg();
 
         // Assert
-        netChange.Should().HaveValue();
-        netChange!.Value.Should().BeApproximately(-1.5, 0.01);
-    }
-
-    [Fact]
-    public void OnlyStartingWeightProvided_ReturnsNull()
-    {
-        // Arrange
-        var snapshot = new FitbitDailySnapshot
-        {
-            StartingWeightKg = 70.0,
-            CurrentWeightKg = null
-        };
-
-        // Act
-        var netChange = snapshot.GetNetWeightChangeKg();
-
-        // Assert
-        netChange.Should().NotHaveValue();
-    }
-
-    [Fact]
-    public void OnlyCurrentWeightProvided_ReturnsNull()
-    {
-        // Arrange
-        var snapshot = new FitbitDailySnapshot
-        {
-            StartingWeightKg = null,
-            CurrentWeightKg = 68.5
-        };
-
-        // Act
-        var netChange = snapshot.GetNetWeightChangeKg();
-
-        // Assert
-        netChange.Should().NotHaveValue();
+        netChange.Should()
+                 .HaveValue();
+        netChange!.Value
+                  .Should()
+                  .BeApproximately(-1.5, 0.01);
     }
 
     [Fact]
@@ -70,7 +39,44 @@ public class GetNetWeightChangeKg
         var netChange = snapshot.GetNetWeightChangeKg();
 
         // Assert
-        netChange.Should().NotHaveValue();
+        netChange.Should()
+                 .NotHaveValue();
+    }
+
+    [Fact]
+    public void OnlyCurrentWeightProvided_ReturnsNull()
+    {
+        // Arrange
+        var snapshot = new FitbitDailySnapshot
+        {
+            StartingWeightKg = null,
+            CurrentWeightKg = 68.5
+        };
+
+        // Act
+        var netChange = snapshot.GetNetWeightChangeKg();
+
+        // Assert
+        netChange.Should()
+                 .NotHaveValue();
+    }
+
+    [Fact]
+    public void OnlyStartingWeightProvided_ReturnsNull()
+    {
+        // Arrange
+        var snapshot = new FitbitDailySnapshot
+        {
+            StartingWeightKg = 70.0,
+            CurrentWeightKg = null
+        };
+
+        // Act
+        var netChange = snapshot.GetNetWeightChangeKg();
+
+        // Assert
+        netChange.Should()
+                 .NotHaveValue();
     }
 
     [Fact]
@@ -87,7 +93,10 @@ public class GetNetWeightChangeKg
         var netChange = snapshot.GetNetWeightChangeKg();
 
         // Assert
-        netChange.Should().HaveValue();
-        netChange!.Value.Should().BeApproximately(0.0, 0.01);
+        netChange.Should()
+                 .HaveValue();
+        netChange!.Value
+                  .Should()
+                  .BeApproximately(0.0, 0.01);
     }
 }

@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.MCM.Application.Models;
-using Tomeshelf.MCM.Domain.Mcm;
 
 namespace Tomeshelf.MCM.Application.Services;
 

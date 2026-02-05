@@ -3,4 +3,4 @@ using Tomeshelf.Fitbit.Application.Features.Authorization.Models;
 
 namespace Tomeshelf.Fitbit.Application.Features.Authorization.Queries;
 
-public sealed record GetFitbitAuthorizationStatusQuery() : IQuery<FitbitAuthorizationStatus>;
+public sealed record GetFitbitAuthorizationStatusQuery : IQuery<FitbitAuthorizationStatus>;

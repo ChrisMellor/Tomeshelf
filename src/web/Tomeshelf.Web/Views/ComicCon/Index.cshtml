@@ -22,10 +22,10 @@
 
         return (d % 10) switch
         {
-                1 => d + "st",
-                2 => d + "nd",
-                3 => d + "rd",
-                _ => d + "th"
+            1 => d + "st",
+            2 => d + "nd",
+            3 => d + "rd",
+            _ => d + "th"
         };
     };
     var removed = Model?.SelectMany(g => g.Items)
@@ -42,8 +42,8 @@
             <h1 class="page-title mb-1">Guests &ndash; @eventName</h1>
             <div class="text-muted small">
                 @total guest@(total == 1
-                                    ? ""
-                                    : "s")
+                                ? ""
+                                : "s")
             </div>
         </div>
         <div class="page-actions ms-3">
@@ -81,13 +81,15 @@
                                     var img = g.Images?.FirstOrDefault();
                                     var imgUrl = img?.Med ?? img?.Big ?? img?.Small ?? img?.Thumb;
                                     var firstInitial = string.IsNullOrWhiteSpace(g.FirstName)
-                                            ? ""
-                                            : g.FirstName.Substring(0, 1)
-                                               .ToUpperInvariant();
+                                        ? ""
+                                        : g.FirstName
+                                           .Substring(0, 1)
+                                           .ToUpperInvariant();
                                     var lastInitial = string.IsNullOrWhiteSpace(g.LastName)
-                                            ? ""
-                                            : g.LastName.Substring(0, 1)
-                                               .ToUpperInvariant();
+                                        ? ""
+                                        : g.LastName
+                                           .Substring(0, 1)
+                                           .ToUpperInvariant();
                                     var initials = firstInitial + lastInitial;
                                     DateTime removedDate;
                                     var removedDateText = "";
@@ -129,7 +131,8 @@
             @for (var i = 0; i < Model.Count; i++)
             {
                 var group = Model[i];
-                var itemsVisible = group.Items?.Where(p => (p != null) && p.PubliclyVisible)
+                var itemsVisible = group.Items
+                                       ?.Where(p => (p != null) && p.PubliclyVisible)
                                         .ToList() ??
                                    new List<PersonModel>();
                 if (itemsVisible.Count == 0)
@@ -142,17 +145,17 @@
                 var title = $"Added on {dayName} - {ord(group.CreatedDate.Day)} {monthName}";
                 var id = $"acc-{group.CreatedDate:yyyyMMdd}-{i}";
                 var isOpen = (removed == null) || (removed.Count == 0)
-                        ? i == 0
-                        : false;
+                    ? i == 0
+                    : false;
                 var btnClass = isOpen
-                        ? "accordion-button"
-                        : "accordion-button collapsed";
+                    ? "accordion-button"
+                    : "accordion-button collapsed";
                 var expanded = isOpen
-                        ? "true"
-                        : "false";
+                    ? "true"
+                    : "false";
                 var collapseClass = isOpen
-                        ? "accordion-collapse collapse show"
-                        : "accordion-collapse collapse";
+                    ? "accordion-collapse collapse show"
+                    : "accordion-collapse collapse";
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="heading-@id">
                         <button class="@btnClass" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@id" aria-expanded="@expanded" aria-controls="collapse-@id">
@@ -170,13 +173,15 @@
                                     var img = g.Images?.FirstOrDefault();
                                     var imgUrl = img?.Med ?? img?.Big ?? img?.Small ?? img?.Thumb;
                                     var firstInitial = string.IsNullOrWhiteSpace(g.FirstName)
-                                            ? ""
-                                            : g.FirstName.Substring(0, 1)
-                                               .ToUpperInvariant();
+                                        ? ""
+                                        : g.FirstName
+                                           .Substring(0, 1)
+                                           .ToUpperInvariant();
                                     var lastInitial = string.IsNullOrWhiteSpace(g.LastName)
-                                            ? ""
-                                            : g.LastName.Substring(0, 1)
-                                               .ToUpperInvariant();
+                                        ? ""
+                                        : g.LastName
+                                           .Substring(0, 1)
+                                           .ToUpperInvariant();
                                     var initials = firstInitial + lastInitial;
 
                                     <div class="col">
@@ -205,8 +210,8 @@
                                                 </div>
                                                 @{
                                                     var knownForText = string.IsNullOrWhiteSpace(g.KnownFor)
-                                                            ? null
-                                                            : WebUtility.HtmlDecode(g.KnownFor);
+                                                        ? null
+                                                        : WebUtility.HtmlDecode(g.KnownFor);
                                                 }
                                                 @if (!string.IsNullOrWhiteSpace(knownForText))
                                                 {

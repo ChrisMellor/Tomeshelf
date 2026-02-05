@@ -1,7 +1,7 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using Tomeshelf.MCM.Application.Abstractions.Clients;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
 using Tomeshelf.MCM.Infrastructure.Clients;

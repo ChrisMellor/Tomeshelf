@@ -9,34 +9,36 @@ public class GetRemainingTime
     public void WhenEndsAtIsInTheFuture_ReturnsPositiveTimeSpan()
     {
         // Arrange
-        var bundle = new Bundle
-        {
-            EndsAt = DateTimeOffset.UtcNow.AddHours(1)
-        };
+        var bundle = new Bundle { EndsAt = DateTimeOffset.UtcNow.AddHours(1) };
 
         // Act
         var remainingTime = bundle.GetRemainingTime();
 
         // Assert
-        remainingTime.Should().HaveValue();
-        remainingTime!.Value.TotalHours.Should().BeGreaterThan(0);
+        remainingTime.Should()
+                     .HaveValue();
+        remainingTime!.Value
+                      .TotalHours
+                      .Should()
+                      .BeGreaterThan(0);
     }
 
     [Fact]
     public void WhenEndsAtIsInThePast_ReturnsNegativeTimeSpan()
     {
         // Arrange
-        var bundle = new Bundle
-        {
-            EndsAt = DateTimeOffset.UtcNow.AddHours(-1)
-        };
+        var bundle = new Bundle { EndsAt = DateTimeOffset.UtcNow.AddHours(-1) };
 
         // Act
         var remainingTime = bundle.GetRemainingTime();
 
         // Assert
-        remainingTime.Should().HaveValue();
-        remainingTime!.Value.TotalHours.Should().BeLessThan(0);
+        remainingTime.Should()
+                     .HaveValue();
+        remainingTime!.Value
+                      .TotalHours
+                      .Should()
+                      .BeLessThan(0);
     }
 
     [Fact]
@@ -49,6 +51,7 @@ public class GetRemainingTime
         var remainingTime = bundle.GetRemainingTime();
 
         // Assert
-        remainingTime.Should().NotHaveValue();
+        remainingTime.Should()
+                     .NotHaveValue();
     }
 }

@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using System.Text;
 using FluentAssertions;
 using Tomeshelf.FileUploader.Infrastructure.Upload;
@@ -8,6 +6,33 @@ namespace Tomeshelf.FileUploader.Infrastructure.Tests.Upload;
 
 public class MobiMetadataReaderTests
 {
+    [Fact]
+    public void GetMetadata_FallsBackToPdbTitleWhenNoExth()
+    {
+        var tempDir = CreateTempDirectory();
+        var path = Path.Combine(tempDir, "book.mobi");
+
+        try
+        {
+            var data = new byte[64];
+            var pdbTitle = Encoding.Latin1.GetBytes("Fallback Title");
+            Array.Copy(pdbTitle, data, pdbTitle.Length);
+            data[pdbTitle.Length] = 0;
+
+            File.WriteAllBytes(path, data);
+
+            var metadata = MobiMetadataReader.GetMetadata(path);
+
+            metadata.Title
+                    .Should()
+                    .Be("Fallback Title");
+        }
+        finally
+        {
+            TryDeleteDirectory(tempDir);
+        }
+    }
+
     [Fact]
     public void GetMetadata_UsesExthTitleWhenPresent()
     {
@@ -36,50 +61,20 @@ public class MobiMetadataReaderTests
 
             var metadata = MobiMetadataReader.GetMetadata(path);
 
-            metadata.Title.Should().Be("Mobi Title");
+            metadata.Title
+                    .Should()
+                    .Be("Mobi Title");
         }
         finally
         {
             TryDeleteDirectory(tempDir);
         }
-    }
-
-    [Fact]
-    public void GetMetadata_FallsBackToPdbTitleWhenNoExth()
-    {
-        var tempDir = CreateTempDirectory();
-        var path = Path.Combine(tempDir, "book.mobi");
-
-        try
-        {
-            var data = new byte[64];
-            var pdbTitle = Encoding.Latin1.GetBytes("Fallback Title");
-            Array.Copy(pdbTitle, data, pdbTitle.Length);
-            data[pdbTitle.Length] = 0;
-
-            File.WriteAllBytes(path, data);
-
-            var metadata = MobiMetadataReader.GetMetadata(path);
-
-            metadata.Title.Should().Be("Fallback Title");
-        }
-        finally
-        {
-            TryDeleteDirectory(tempDir);
-        }
-    }
-
-    private static void WriteBE32(byte[] data, int offset, uint value)
-    {
-        data[offset] = (byte)((value >> 24) & 0xFF);
-        data[offset + 1] = (byte)((value >> 16) & 0xFF);
-        data[offset + 2] = (byte)((value >> 8) & 0xFF);
-        data[offset + 3] = (byte)(value & 0xFF);
     }
 
     private static string CreateTempDirectory()
     {
-        var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid()
+                                                                           .ToString("N"));
         Directory.CreateDirectory(path);
 
         return path;
@@ -99,8 +94,14 @@ public class MobiMetadataReaderTests
                 Directory.Delete(path, true);
             }
         }
-        catch
-        {
-        }
+        catch { }
+    }
+
+    private static void WriteBE32(byte[] data, int offset, uint value)
+    {
+        data[offset] = (byte)((value >> 24) & 0xFF);
+        data[offset + 1] = (byte)((value >> 16) & 0xFF);
+        data[offset + 2] = (byte)((value >> 8) & 0xFF);
+        data[offset + 3] = (byte)(value & 0xFF);
     }
 }

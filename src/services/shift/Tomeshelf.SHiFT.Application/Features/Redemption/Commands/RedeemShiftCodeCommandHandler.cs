@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.SHiFT.Application.Abstractions.External;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
+using Tomeshelf.SHiFT.Application.Abstractions.External;
 using Tomeshelf.SHiFT.Application.Features.Redemption.Redeem;
 
 namespace Tomeshelf.SHiFT.Application.Features.Redemption.Commands;

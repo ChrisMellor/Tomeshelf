@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -27,10 +26,8 @@ public class GetDashboardAsync
         var handler = new StubHttpMessageHandler((request, _) =>
         {
             path = request.RequestUri!.PathAndQuery;
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
+
             return Task.FromResult(response);
         });
 
@@ -41,7 +38,8 @@ public class GetDashboardAsync
         await api.GetDashboardAsync("2020-01-01", true, "https://return.example/?a=1", CancellationToken.None);
 
         // Assert
-        path.Should().Be("/api/Fitbit/Dashboard?date=2020-01-01&refresh=true&returnUrl=https%3A%2F%2Freturn.example%2F%3Fa%3D1");
+        path.Should()
+            .Be("/api/Fitbit/Dashboard?date=2020-01-01&refresh=true&returnUrl=https%3A%2F%2Freturn.example%2F%3Fa%3D1");
     }
 
     [Fact]
@@ -51,6 +49,7 @@ public class GetDashboardAsync
         var handler = new StubHttpMessageHandler((_, _) =>
         {
             var response = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+
             return Task.FromResult(response);
         });
 
@@ -61,7 +60,11 @@ public class GetDashboardAsync
         var action = () => api.GetDashboardAsync("2020-01-01", false, "https://return.example", CancellationToken.None);
 
         // Assert
-        var exception = await action.Should().ThrowAsync<FitbitAuthorizationRequiredException>();
-        exception.Which.Location.Should().Be(new Uri("https://example.test/fitness"));
+        var exception = await action.Should()
+                                    .ThrowAsync<FitbitAuthorizationRequiredException>();
+        exception.Which
+                 .Location
+                 .Should()
+                 .Be(new Uri("https://example.test/fitness"));
     }
 }

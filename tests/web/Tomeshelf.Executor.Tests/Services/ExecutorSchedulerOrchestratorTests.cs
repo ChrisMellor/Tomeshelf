@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -23,15 +18,15 @@ public class ExecutorSchedulerOrchestratorTests
         var scheduler = A.Fake<IScheduler>();
         var staleJob = new JobKey("old-endpoint", "ExecutorEndpoints");
         A.CallTo(() => scheduler.GetJobKeys(A<GroupMatcher<JobKey>>._, A<CancellationToken>._))
-            .Returns(Task.FromResult<IReadOnlyCollection<JobKey>>(new HashSet<JobKey> { staleJob }));
+         .Returns(Task.FromResult<IReadOnlyCollection<JobKey>>(new HashSet<JobKey> { staleJob }));
         A.CallTo(() => scheduler.DeleteJob(A<JobKey>._, A<CancellationToken>._))
-            .Returns(Task.FromResult(true));
+         .Returns(Task.FromResult(true));
         A.CallTo(() => scheduler.Standby(A<CancellationToken>._))
-            .Returns(Task.CompletedTask);
+         .Returns(Task.CompletedTask);
 
         var factory = A.Fake<ISchedulerFactory>();
         A.CallTo(() => factory.GetScheduler(A<CancellationToken>._))
-            .Returns(Task.FromResult(scheduler));
+         .Returns(Task.FromResult(scheduler));
 
         var orchestrator = new ExecutorSchedulerOrchestrator(factory, new TestOptionsMonitor<ExecutorOptions>(new ExecutorOptions()), A.Fake<ILogger<ExecutorSchedulerOrchestrator>>());
         var options = new ExecutorOptions
@@ -39,7 +34,7 @@ public class ExecutorSchedulerOrchestratorTests
             Enabled = false,
             Endpoints = new List<EndpointScheduleOptions>
             {
-                new()
+                new EndpointScheduleOptions
                 {
                     Name = "Ping",
                     Url = "https://example.test",
@@ -50,9 +45,12 @@ public class ExecutorSchedulerOrchestratorTests
 
         await orchestrator.RefreshAsync(options, CancellationToken.None);
 
-        A.CallTo(() => scheduler.DeleteJob(staleJob, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
-        A.CallTo(() => scheduler.ScheduleJob(A<IJobDetail>._, A<IReadOnlyCollection<ITrigger>>._, true, A<CancellationToken>._)).MustNotHaveHappened();
-        A.CallTo(() => scheduler.Standby(A<CancellationToken>._)).MustHaveHappenedOnceExactly();
+        A.CallTo(() => scheduler.DeleteJob(staleJob, A<CancellationToken>._))
+         .MustHaveHappenedOnceExactly();
+        A.CallTo(() => scheduler.ScheduleJob(A<IJobDetail>._, A<IReadOnlyCollection<ITrigger>>._, true, A<CancellationToken>._))
+         .MustNotHaveHappened();
+        A.CallTo(() => scheduler.Standby(A<CancellationToken>._))
+         .MustHaveHappenedOnceExactly();
     }
 
     [Fact]
@@ -61,46 +59,46 @@ public class ExecutorSchedulerOrchestratorTests
         var scheduled = new List<(IJobDetail Job, ITrigger Trigger)>();
         var scheduler = A.Fake<IScheduler>();
         A.CallTo(() => scheduler.GetJobKeys(A<GroupMatcher<JobKey>>._, A<CancellationToken>._))
-            .Returns(Task.FromResult<IReadOnlyCollection<JobKey>>(new HashSet<JobKey>
-            {
-                new("stale", "ExecutorEndpoints")
-            }));
+         .Returns(Task.FromResult<IReadOnlyCollection<JobKey>>(new HashSet<JobKey> { new JobKey("stale", "ExecutorEndpoints") }));
         A.CallTo(() => scheduler.DeleteJob(A<JobKey>._, A<CancellationToken>._))
-            .Returns(Task.FromResult(true));
+         .Returns(Task.FromResult(true));
         A.CallTo(() => scheduler.ScheduleJob(A<IJobDetail>._, A<IReadOnlyCollection<ITrigger>>._, true, A<CancellationToken>._))
-            .Invokes((IJobDetail job, IReadOnlyCollection<ITrigger> triggers, bool _, CancellationToken _) =>
-            {
-                scheduled.Add((job, triggers.Single()));
-            })
-            .Returns(Task.FromResult(DateTimeOffset.UtcNow));
-        A.CallTo(() => scheduler.InStandbyMode).Returns(true);
-        A.CallTo(() => scheduler.IsStarted).Returns(false);
-        A.CallTo(() => scheduler.Start(A<CancellationToken>._)).Returns(Task.CompletedTask);
+         .Invokes((IJobDetail job, IReadOnlyCollection<ITrigger> triggers, bool _, CancellationToken _) =>
+          {
+              scheduled.Add((job, triggers.Single()));
+          })
+         .Returns(Task.FromResult(DateTimeOffset.UtcNow));
+        A.CallTo(() => scheduler.InStandbyMode)
+         .Returns(true);
+        A.CallTo(() => scheduler.IsStarted)
+         .Returns(false);
+        A.CallTo(() => scheduler.Start(A<CancellationToken>._))
+         .Returns(Task.CompletedTask);
 
         var factory = A.Fake<ISchedulerFactory>();
         A.CallTo(() => factory.GetScheduler(A<CancellationToken>._))
-            .Returns(Task.FromResult(scheduler));
+         .Returns(Task.FromResult(scheduler));
 
         var options = new ExecutorOptions
         {
             Enabled = true,
             Endpoints = new List<EndpointScheduleOptions>
             {
-                new()
+                new EndpointScheduleOptions
                 {
                     Name = "Alpha",
                     Url = "https://alpha.test",
                     Cron = "0 0 * * * ?",
                     Enabled = true
                 },
-                new()
+                new EndpointScheduleOptions
                 {
                     Name = "Beta",
                     Url = "https://beta.test",
                     Cron = "0 5 * * * ?",
                     Enabled = true
                 },
-                new()
+                new EndpointScheduleOptions
                 {
                     Name = "Invalid",
                     Url = "",
@@ -113,16 +111,26 @@ public class ExecutorSchedulerOrchestratorTests
 
         await orchestrator.RefreshAsync(options, CancellationToken.None);
 
-        scheduled.Should().HaveCount(2);
-        scheduled.Should().Contain(item => item.Job.Key.Name == "Alpha" && item.Job.Key.Group == "ExecutorEndpoints");
-        scheduled.Should().Contain(item => item.Job.Key.Name == "Beta" && item.Job.Key.Group == "ExecutorEndpoints");
+        scheduled.Should()
+                 .HaveCount(2);
+        scheduled.Should()
+                 .Contain(item => (item.Job.Key.Name == "Alpha") && (item.Job.Key.Group == "ExecutorEndpoints"));
+        scheduled.Should()
+                 .Contain(item => (item.Job.Key.Name == "Beta") && (item.Job.Key.Group == "ExecutorEndpoints"));
         scheduled.All(item => item.Job.JobDataMap.GetString(TriggerEndpointJob.EndpointNameKey) == item.Job.Key.Name)
-            .Should()
-            .BeTrue();
+                 .Should()
+                 .BeTrue();
 
-        var cronTrigger = scheduled.First().Trigger.Should().BeAssignableTo<ICronTrigger>().Subject;
-        cronTrigger.CronExpressionString.Should().NotBeNullOrWhiteSpace();
+        var cronTrigger = scheduled.First()
+                                   .Trigger
+                                   .Should()
+                                   .BeAssignableTo<ICronTrigger>()
+                                   .Subject;
+        cronTrigger.CronExpressionString
+                   .Should()
+                   .NotBeNullOrWhiteSpace();
 
-        A.CallTo(() => scheduler.Start(A<CancellationToken>._)).MustHaveHappenedOnceExactly();
+        A.CallTo(() => scheduler.Start(A<CancellationToken>._))
+         .MustHaveHappenedOnceExactly();
     }
 }

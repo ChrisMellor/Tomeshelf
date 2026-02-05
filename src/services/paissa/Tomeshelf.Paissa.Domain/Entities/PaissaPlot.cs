@@ -8,15 +8,6 @@ namespace Tomeshelf.Paissa.Domain.Entities;
 /// </summary>
 public sealed record PaissaPlot
 {
-    public int WardNumber { get; }
-    public int PlotNumber { get; }
-    public HousingPlotSize Size { get; }
-    public long Price { get; }
-    public DateTimeOffset LastUpdatedUtc { get; }
-    public PurchaseSystem PurchaseSystem { get; }
-    public int? LotteryEntries { get; }
-    public LotteryPhase LotteryPhase { get; }
-
     private PaissaPlot(int wardNumber, int plotNumber, HousingPlotSize size, long price, DateTimeOffset lastUpdatedUtc, PurchaseSystem purchaseSystem, int? lotteryEntries, LotteryPhase lotteryPhase)
     {
         WardNumber = wardNumber;
@@ -28,6 +19,28 @@ public sealed record PaissaPlot
         LotteryEntries = lotteryEntries;
         LotteryPhase = lotteryPhase;
     }
+
+    public int WardNumber { get; }
+
+    public int PlotNumber { get; }
+
+    public HousingPlotSize Size { get; }
+
+    public long Price { get; }
+
+    public DateTimeOffset LastUpdatedUtc { get; }
+
+    public PurchaseSystem PurchaseSystem { get; }
+
+    public int? LotteryEntries { get; }
+
+    public LotteryPhase LotteryPhase { get; }
+
+    public bool IsAcceptingEntries => LotteryPhase == LotteryPhase.AcceptingEntries;
+
+    public bool HasKnownSize => Size != HousingPlotSize.Unknown;
+
+    public PurchaseEligibility Eligibility => PurchaseSystem.ToEligibility();
 
     public static PaissaPlot Create(int wardNumber, int plotNumber, HousingPlotSize size, long price, DateTimeOffset lastUpdatedUtc, PurchaseSystem purchaseSystem, int? lotteryEntries, LotteryPhase lotteryPhase)
     {
@@ -58,10 +71,4 @@ public sealed record PaissaPlot
 
         return new PaissaPlot(wardNumber, plotNumber, size, price, lastUpdatedUtc, purchaseSystem, lotteryEntries, lotteryPhase);
     }
-
-    public bool IsAcceptingEntries => LotteryPhase == LotteryPhase.AcceptingEntries;
-
-    public bool HasKnownSize => Size != HousingPlotSize.Unknown;
-
-    public PurchaseEligibility Eligibility => PurchaseSystem.ToEligibility();
 }

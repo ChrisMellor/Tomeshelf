@@ -18,19 +18,28 @@ public class Handle
         var handler = new GetEventsQueryHandler(service);
         IReadOnlyList<EventConfigModel> expectedEvents = new List<EventConfigModel>
         {
-            new() { Id = faker.Random.AlphaNumeric(8), Name = faker.Company.CompanyName() },
-            new() { Id = faker.Random.AlphaNumeric(8), Name = faker.Company.CompanyName() }
+            new EventConfigModel
+            {
+                Id = faker.Random.AlphaNumeric(8),
+                Name = faker.Company.CompanyName()
+            },
+            new EventConfigModel
+            {
+                Id = faker.Random.AlphaNumeric(8),
+                Name = faker.Company.CompanyName()
+            }
         };
 
         A.CallTo(() => service.GetAllAsync(A<CancellationToken>._))
-            .Returns(Task.FromResult(expectedEvents));
+         .Returns(Task.FromResult(expectedEvents));
 
         // Act
         var result = await handler.Handle(new GetEventsQuery(), CancellationToken.None);
 
         // Assert
-        result.Should().BeEquivalentTo(expectedEvents, options => options.WithStrictOrdering());
+        result.Should()
+              .BeEquivalentTo(expectedEvents, options => options.WithStrictOrdering());
         A.CallTo(() => service.GetAllAsync(A<CancellationToken>._))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
     }
 }

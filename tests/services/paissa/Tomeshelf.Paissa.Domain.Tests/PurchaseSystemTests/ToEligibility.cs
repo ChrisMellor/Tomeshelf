@@ -12,9 +12,15 @@ public class ToEligibility
         var eligibility = PurchaseSystem.None.ToEligibility();
 
         // Assert
-        eligibility.AllowsPersonal.Should().BeFalse();
-        eligibility.AllowsFreeCompany.Should().BeFalse();
-        eligibility.IsUnknown.Should().BeTrue();
+        eligibility.AllowsPersonal
+                   .Should()
+                   .BeFalse();
+        eligibility.AllowsFreeCompany
+                   .Should()
+                   .BeFalse();
+        eligibility.IsUnknown
+                   .Should()
+                   .BeTrue();
     }
 
     [Theory]
@@ -27,7 +33,11 @@ public class ToEligibility
         var eligibility = system.ToEligibility();
 
         // Assert
-        eligibility.AllowsPersonal.Should().Be(allowsPersonal);
-        eligibility.AllowsFreeCompany.Should().Be(allowsFreeCompany);
+        eligibility.AllowsPersonal
+                   .Should()
+                   .Be(allowsPersonal);
+        eligibility.AllowsFreeCompany
+                   .Should()
+                   .Be(allowsFreeCompany);
     }
 }

@@ -14,10 +14,12 @@ public class Validation
         var results = new List<ValidationResult>();
 
         // Act
-        var isValid = Validator.TryValidateObject(model, new ValidationContext(model), results, validateAllProperties: true);
+        var isValid = Validator.TryValidateObject(model, new ValidationContext(model), results, true);
 
         // Assert
-        isValid.Should().BeFalse();
-        results.Should().NotBeEmpty();
+        isValid.Should()
+               .BeFalse();
+        results.Should()
+               .NotBeEmpty();
     }
 }

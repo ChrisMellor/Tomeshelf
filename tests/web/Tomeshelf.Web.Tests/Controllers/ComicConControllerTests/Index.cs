@@ -1,9 +1,9 @@
-using FakeItEasy;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using FakeItEasy;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models;
 using Tomeshelf.Web.Models.ComicCon;
@@ -18,7 +18,7 @@ public class Index
     {
         // Arrange
         var api = A.Fake<IGuestsApi>();
-        var groups = new List<GuestsGroupModel> { new() { Items = new List<PersonModel>() } };
+        var groups = new List<GuestsGroupModel> { new GuestsGroupModel { Items = new List<PersonModel>() } };
         var resultModel = new GuestsByEventResult(groups, 42);
         A.CallTo(() => api.GetComicConGuestsByEventResultAsync("mcm-2026", A<CancellationToken>._))
          .Returns(resultModel);
@@ -38,14 +38,11 @@ public class Index
         view.Model
             .Should()
             .BeEquivalentTo(groups);
-        ((string)controller.ViewBag.EventName)
-            .Should()
-            .Be("mcm-2026");
-        ((int)controller.ViewBag.Total)
-            .Should()
-            .Be(42);
-        ((long)controller.ViewBag.ElapsedMs)
-            .Should()
-            .BeGreaterThanOrEqualTo(0);
+        ((string)controller.ViewBag.EventName).Should()
+                                              .Be("mcm-2026");
+        ((int)controller.ViewBag.Total).Should()
+                                       .Be(42);
+        ((long)controller.ViewBag.ElapsedMs).Should()
+                                            .BeGreaterThanOrEqualTo(0);
     }
 }

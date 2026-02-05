@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Globalization;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Fitness;
 using Tomeshelf.Web.Services;
 
@@ -42,7 +42,12 @@ public sealed class FitnessController : Controller
         try
         {
             var dateParameter = targetDate.ToString("yyyy-MM-dd");
-            var returnUrl = Url.ActionLink("Index", "Fitness", new { date = dateParameter, unit = unitQuery }) ?? $"{Request.Scheme}://{Request.Host}/fitness?date={dateParameter}&unit={unitQuery}";
+            var returnUrl = Url.ActionLink("Index", "Fitness", new
+                            {
+                                date = dateParameter,
+                                unit = unitQuery
+                            }) ??
+                            $"{Request.Scheme}://{Request.Host}/fitness?date={dateParameter}&unit={unitQuery}";
 
             var overview = await _fitbitApi.GetOverviewAsync(dateParameter, shouldRefresh, returnUrl, cancellationToken);
 
@@ -61,20 +66,20 @@ public sealed class FitnessController : Controller
                 SelectedDate = dateParameter,
                 TodayIso = today.ToString("yyyy-MM-dd"),
                 PreviousDate = targetDate.AddDays(-1)
-                                             .ToString("yyyy-MM-dd"),
+                                         .ToString("yyyy-MM-dd"),
                 NextDate = targetDate < today
-                            ? targetDate.AddDays(1)
-                                        .ToString("yyyy-MM-dd")
-                            : null,
+                    ? targetDate.AddDays(1)
+                                .ToString("yyyy-MM-dd")
+                    : null,
                 Unit = selectedUnit,
                 Summary = summary,
                 Last7Days = last7,
                 Last30Days = last30,
                 ErrorMessage = summary is null
-                            ? hasTrendData
-                                ? "No daily Fitbit data is available for the selected date."
-                                : "No Fitbit data is available for the selected date."
-                            : null
+                    ? hasTrendData
+                        ? "No daily Fitbit data is available for the selected date."
+                        : "No Fitbit data is available for the selected date."
+                    : null
             };
 
             return View(model);
@@ -82,6 +87,7 @@ public sealed class FitnessController : Controller
         catch (FitbitAuthorizationRequiredException authEx)
         {
             _logger.LogInformation("Redirecting to Fitbit authorization flow for {Date}", targetDate);
+
             return Redirect(authEx.Location.ToString());
         }
         catch (FitbitBackendUnavailableException unavailableEx)
@@ -100,14 +106,99 @@ public sealed class FitnessController : Controller
         }
     }
 
-    private static DateOnly ResolveDate(string date)
+    private static string BuildDateRangeLabel(IReadOnlyList<FitbitOverviewDayModel> items)
     {
-        if (!string.IsNullOrWhiteSpace(date) && DateOnly.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+        if (items is null || (items.Count == 0))
         {
-            return parsed;
+            return string.Empty;
         }
 
-        return DateOnly.FromDateTime(DateTime.Today);
+        var start = ParseDate(items[0].Date);
+        var end = ParseDate(items[^1].Date);
+
+        return $"{start:ddd dd MMM} - {end:ddd dd MMM}";
+    }
+
+    private static FitnessRangeViewModel BuildRangeViewModel(string title, FitbitOverviewRangeModel range, WeightUnit unit)
+    {
+        if (range?.Items is null || (range.Items.Count == 0))
+        {
+            return new FitnessRangeViewModel
+            {
+                Title = title,
+                DateRangeLabel = string.Empty,
+                Metrics = Array.Empty<FitnessMetricSeriesViewModel>(),
+                HasData = false
+            };
+        }
+
+        var labels = range.Items
+                          .Select(item => item.Date)
+                          .ToList();
+
+        var weightSeries = range.Items
+                                .Select(item => WeightUnitConverter.Convert(item.WeightKg, unit))
+                                .ToList();
+        var stepsSeries = range.Items
+                               .Select(item => item.Steps.HasValue
+                                           ? (double?)item.Steps.Value
+                                           : null)
+                               .ToList();
+        var sleepSeries = range.Items
+                               .Select(item => item.SleepHours)
+                               .ToList();
+        var netCaloriesSeries = range.Items
+                                     .Select(item => item.NetCalories.HasValue
+                                                 ? (double?)item.NetCalories.Value
+                                                 : null)
+                                     .ToList();
+
+        var metrics = new List<FitnessMetricSeriesViewModel>
+        {
+            new FitnessMetricSeriesViewModel
+            {
+                Key = "weight",
+                Title = "Weight",
+                Unit = WeightUnitConverter.GetUnitLabel(unit),
+                Labels = labels,
+                Values = weightSeries
+            },
+            new FitnessMetricSeriesViewModel
+            {
+                Key = "steps",
+                Title = "Steps",
+                Unit = "steps",
+                Labels = labels,
+                Values = stepsSeries
+            },
+            new FitnessMetricSeriesViewModel
+            {
+                Key = "sleep",
+                Title = "Sleep",
+                Unit = "hrs",
+                Labels = labels,
+                Values = sleepSeries
+            },
+            new FitnessMetricSeriesViewModel
+            {
+                Key = "calories",
+                Title = "Net calories",
+                Unit = "kcal",
+                Labels = labels,
+                Values = netCaloriesSeries
+            }
+        };
+
+        var hasData = metrics.Any(metric => metric.HasData);
+        var dateRangeLabel = BuildDateRangeLabel(range.Items);
+
+        return new FitnessRangeViewModel
+        {
+            Title = title,
+            DateRangeLabel = dateRangeLabel,
+            Metrics = metrics,
+            HasData = hasData
+        };
     }
 
     private static DaySummaryViewModel CreateSummary(FitbitDashboardModel model)
@@ -123,18 +214,8 @@ public sealed class FitnessController : Controller
         };
 
         return HasAnyMetrics(summary)
-                ? summary
-                : null;
-    }
-
-    private static DateOnly ParseDate(string value)
-    {
-        if (DateOnly.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
-        {
-            return parsed;
-        }
-
-        return DateOnly.FromDateTime(DateTime.Today);
+            ? summary
+            : null;
     }
 
     private static bool HasAnyMetrics(DaySummaryViewModel summary)
@@ -162,94 +243,23 @@ public sealed class FitnessController : Controller
         return false;
     }
 
-    private static FitnessRangeViewModel BuildRangeViewModel(string title, FitbitOverviewRangeModel range, WeightUnit unit)
+    private static DateOnly ParseDate(string value)
     {
-        if (range?.Items is null || range.Items.Count == 0)
+        if (DateOnly.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
         {
-            return new FitnessRangeViewModel
-            {
-                Title = title,
-                DateRangeLabel = string.Empty,
-                Metrics = Array.Empty<FitnessMetricSeriesViewModel>(),
-                HasData = false
-            };
+            return parsed;
         }
 
-        var labels = range.Items
-                          .Select(item => item.Date)
-                          .ToList();
-
-        var weightSeries = range.Items
-                                .Select(item => WeightUnitConverter.Convert(item.WeightKg, unit))
-                                .ToList();
-        var stepsSeries = range.Items
-                               .Select(item => item.Steps.HasValue ? (double?)item.Steps.Value : null)
-                               .ToList();
-        var sleepSeries = range.Items
-                               .Select(item => item.SleepHours)
-                               .ToList();
-        var netCaloriesSeries = range.Items
-                                     .Select(item => item.NetCalories.HasValue ? (double?)item.NetCalories.Value : null)
-                                     .ToList();
-
-        var metrics = new List<FitnessMetricSeriesViewModel>
-        {
-            new()
-            {
-                Key = "weight",
-                Title = "Weight",
-                Unit = WeightUnitConverter.GetUnitLabel(unit),
-                Labels = labels,
-                Values = weightSeries
-            },
-            new()
-            {
-                Key = "steps",
-                Title = "Steps",
-                Unit = "steps",
-                Labels = labels,
-                Values = stepsSeries
-            },
-            new()
-            {
-                Key = "sleep",
-                Title = "Sleep",
-                Unit = "hrs",
-                Labels = labels,
-                Values = sleepSeries
-            },
-            new()
-            {
-                Key = "calories",
-                Title = "Net calories",
-                Unit = "kcal",
-                Labels = labels,
-                Values = netCaloriesSeries
-            }
-        };
-
-        var hasData = metrics.Any(metric => metric.HasData);
-        var dateRangeLabel = BuildDateRangeLabel(range.Items);
-
-        return new FitnessRangeViewModel
-        {
-            Title = title,
-            DateRangeLabel = dateRangeLabel,
-            Metrics = metrics,
-            HasData = hasData
-        };
+        return DateOnly.FromDateTime(DateTime.Today);
     }
 
-    private static string BuildDateRangeLabel(IReadOnlyList<FitbitOverviewDayModel> items)
+    private static DateOnly ResolveDate(string date)
     {
-        if (items is null || items.Count == 0)
+        if (!string.IsNullOrWhiteSpace(date) && DateOnly.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
         {
-            return string.Empty;
+            return parsed;
         }
 
-        var start = ParseDate(items[0].Date);
-        var end = ParseDate(items[^1].Date);
-
-        return $"{start:ddd dd MMM} - {end:ddd dd MMM}";
+        return DateOnly.FromDateTime(DateTime.Today);
     }
 }

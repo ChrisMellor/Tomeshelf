@@ -18,6 +18,7 @@ public sealed class ShiftWebSessionFactory : IShiftWebSessionFactory
     {
         _httpClientFactory = httpClientFactory;
     }
+
     /// <summary>
     ///     Creates a new instance of the default <see cref="IShiftWebSession" /> implementation.
     /// </summary>

@@ -1,5 +1,3 @@
 namespace Tomeshelf.Application.Shared.Abstractions.Messaging;
 
-public interface ICommand<TResult>
-{
-}
+public interface ICommand<TResult> { }

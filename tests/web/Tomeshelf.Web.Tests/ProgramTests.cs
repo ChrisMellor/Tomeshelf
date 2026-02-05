@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Json;
@@ -14,7 +13,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -48,30 +46,58 @@ public class ProgramTests
         var factory = app.Services.GetRequiredService<IHttpClientFactory>();
 
         var guests = factory.CreateClient(GuestsApi.HttpClientName);
-        guests.BaseAddress.Should().Be(new Uri("https://mcmapi"));
-        guests.Timeout.Should().Be(TimeSpan.FromSeconds(100));
-        guests.DefaultRequestVersion.Should().Be(HttpVersion.Version11);
-        guests.DefaultVersionPolicy.Should().Be(HttpVersionPolicy.RequestVersionExact);
+        guests.BaseAddress
+              .Should()
+              .Be(new Uri("https://mcmapi"));
+        guests.Timeout
+              .Should()
+              .Be(TimeSpan.FromSeconds(100));
+        guests.DefaultRequestVersion
+              .Should()
+              .Be(HttpVersion.Version11);
+        guests.DefaultVersionPolicy
+              .Should()
+              .Be(HttpVersionPolicy.RequestVersionExact);
 
         var bundles = factory.CreateClient(BundlesApi.HttpClientName);
-        bundles.BaseAddress.Should().Be(new Uri("https://humblebundleapi"));
-        bundles.Timeout.Should().Be(TimeSpan.FromSeconds(100));
+        bundles.BaseAddress
+               .Should()
+               .Be(new Uri("https://humblebundleapi"));
+        bundles.Timeout
+               .Should()
+               .Be(TimeSpan.FromSeconds(100));
 
         var fitbit = factory.CreateClient(FitbitApi.HttpClientName);
-        fitbit.BaseAddress.Should().Be(new Uri("https://fitbitapi"));
-        fitbit.Timeout.Should().Be(TimeSpan.FromSeconds(100));
+        fitbit.BaseAddress
+              .Should()
+              .Be(new Uri("https://fitbitapi"));
+        fitbit.Timeout
+              .Should()
+              .Be(TimeSpan.FromSeconds(100));
 
         var paissa = factory.CreateClient(PaissaApi.HttpClientName);
-        paissa.BaseAddress.Should().Be(new Uri("https://paissaapi"));
-        paissa.Timeout.Should().Be(TimeSpan.FromSeconds(30));
+        paissa.BaseAddress
+              .Should()
+              .Be(new Uri("https://paissaapi"));
+        paissa.Timeout
+              .Should()
+              .Be(TimeSpan.FromSeconds(30));
 
         var shift = factory.CreateClient(ShiftApi.HttpClientName);
-        shift.BaseAddress.Should().Be(new Uri("https://shiftapi"));
-        shift.Timeout.Should().Be(TimeSpan.FromSeconds(30));
+        shift.BaseAddress
+             .Should()
+             .Be(new Uri("https://shiftapi"));
+        shift.Timeout
+             .Should()
+             .Be(TimeSpan.FromSeconds(30));
 
         var uploads = factory.CreateClient(FileUploadsApi.HttpClientName);
-        uploads.BaseAddress.Should().Be(new Uri("https://localhost:49960"));
-        uploads.Timeout.Should().Be(TimeSpan.FromMinutes(30));
+        uploads.BaseAddress
+               .Should()
+               .Be(new Uri("https://localhost:49960"));
+        uploads.Timeout
+               .Should()
+               .Be(TimeSpan.FromMinutes(30));
     }
 
     [Fact]
@@ -84,9 +110,13 @@ public class ProgramTests
         };
 
         using var app = BuildApp(Environments.Production, config);
-        var client = app.Services.GetRequiredService<IHttpClientFactory>().CreateClient(GuestsApi.HttpClientName);
+        var client = app.Services
+                        .GetRequiredService<IHttpClientFactory>()
+                        .CreateClient(GuestsApi.HttpClientName);
 
-        client.BaseAddress.Should().Be(new Uri("https://fallback.example.test/"));
+        client.BaseAddress
+              .Should()
+              .Be(new Uri("https://fallback.example.test/"));
     }
 
     [Fact]
@@ -105,12 +135,45 @@ public class ProgramTests
         using var app = BuildApp(Environments.Production, config);
         var factory = app.Services.GetRequiredService<IHttpClientFactory>();
 
-        factory.CreateClient(GuestsApi.HttpClientName).BaseAddress.Should().Be(new Uri("https://mcm.example.test/"));
-        factory.CreateClient(BundlesApi.HttpClientName).BaseAddress.Should().Be(new Uri("https://humble.example.test/"));
-        factory.CreateClient(FitbitApi.HttpClientName).BaseAddress.Should().Be(new Uri("https://fitbit.example.test/"));
-        factory.CreateClient(PaissaApi.HttpClientName).BaseAddress.Should().Be(new Uri("https://paissa.example.test/"));
-        factory.CreateClient(ShiftApi.HttpClientName).BaseAddress.Should().Be(new Uri("https://shift.example.test/"));
-        factory.CreateClient(FileUploadsApi.HttpClientName).BaseAddress.Should().Be(new Uri("https://uploads.example.test/"));
+        factory.CreateClient(GuestsApi.HttpClientName)
+               .BaseAddress
+               .Should()
+               .Be(new Uri("https://mcm.example.test/"));
+        factory.CreateClient(BundlesApi.HttpClientName)
+               .BaseAddress
+               .Should()
+               .Be(new Uri("https://humble.example.test/"));
+        factory.CreateClient(FitbitApi.HttpClientName)
+               .BaseAddress
+               .Should()
+               .Be(new Uri("https://fitbit.example.test/"));
+        factory.CreateClient(PaissaApi.HttpClientName)
+               .BaseAddress
+               .Should()
+               .Be(new Uri("https://paissa.example.test/"));
+        factory.CreateClient(ShiftApi.HttpClientName)
+               .BaseAddress
+               .Should()
+               .Be(new Uri("https://shift.example.test/"));
+        factory.CreateClient(FileUploadsApi.HttpClientName)
+               .BaseAddress
+               .Should()
+               .Be(new Uri("https://uploads.example.test/"));
+    }
+
+    [Theory]
+    [MemberData(nameof(InvalidServiceUris))]
+    public void BuildApp_WhenInvalidUriConfigured_Throws(string key, string clientName, string message)
+    {
+        var config = new Dictionary<string, string?> { [key] = "not-a-uri" };
+
+        using var app = BuildApp(Environments.Production, config);
+        var factory = app.Services.GetRequiredService<IHttpClientFactory>();
+
+        Action act = () => factory.CreateClient(clientName);
+        act.Should()
+           .Throw<InvalidOperationException>()
+           .WithMessage(message);
     }
 
     public static IEnumerable<object[]> InvalidServiceUris()
@@ -121,77 +184,6 @@ public class ProgramTests
         yield return new object[] { "Services:PaissaApiBase", PaissaApi.HttpClientName, "Invalid URI in configuration setting 'Services:PaissaApiBase'." };
         yield return new object[] { "Services:ShiftApiBase", ShiftApi.HttpClientName, "Invalid URI in configuration setting 'Services:ShiftApiBase'." };
         yield return new object[] { "Services:FileUploaderApiBase", FileUploadsApi.HttpClientName, "Invalid URI in configuration setting 'Services:FileUploaderApiBase'." };
-    }
-
-    [Theory]
-    [MemberData(nameof(InvalidServiceUris))]
-    public void BuildApp_WhenInvalidUriConfigured_Throws(string key, string clientName, string message)
-    {
-        var config = new Dictionary<string, string?>
-        {
-            [key] = "not-a-uri"
-        };
-
-        using var app = BuildApp(Environments.Production, config);
-        var factory = app.Services.GetRequiredService<IHttpClientFactory>();
-
-        Action act = () => factory.CreateClient(clientName);
-        act.Should().Throw<InvalidOperationException>().WithMessage(message);
-    }
-
-    [Fact]
-    public async Task OAuthRedirect_AddsGoogleParameters()
-    {
-        using var app = BuildApp(Environments.Development, GoogleDriveConfig("config@example.test"));
-        var options = GetOAuthOptions(app);
-        var properties = new AuthenticationProperties();
-        properties.Items["login_hint"] = "hint@example.test";
-
-        var context = new RedirectContext<OAuthOptions>(
-            new DefaultHttpContext(),
-            CreateScheme(),
-            options,
-            properties,
-            "https://example.test/auth?existing=1");
-
-        await options.Events.RedirectToAuthorizationEndpoint(context);
-
-        var uri = new Uri(context.RedirectUri);
-        var query = QueryHelpers.ParseQuery(uri.Query);
-        query["existing"].ToString().Should().Be("1");
-        query["access_type"].ToString().Should().Be("offline");
-        query["prompt"].ToString().Should().Be("consent");
-        query["include_granted_scopes"].ToString().Should().Be("true");
-        query["login_hint"].ToString().Should().Be("hint@example.test");
-    }
-
-    [Fact]
-    public async Task OAuthCreatingTicket_WhenRefreshTokenMissing_SetsError()
-    {
-        using var app = BuildApp(Environments.Development, GoogleDriveConfig("config@example.test"));
-        var options = GetOAuthOptions(app);
-        var (httpContext, _) = CreateSessionContext();
-
-        using var tokenDoc = JsonDocument.Parse("{\"access_token\":\"token\"}");
-        using var userDoc = JsonDocument.Parse("{}");
-        var tokenResponse = OAuthTokenResponse.Success(tokenDoc);
-
-        var context = new OAuthCreatingTicketContext(
-            new ClaimsPrincipal(new ClaimsIdentity()),
-            new AuthenticationProperties(),
-            httpContext,
-            CreateScheme(),
-            options,
-            new HttpClient(),
-            tokenResponse,
-            userDoc.RootElement);
-
-        await options.Events.CreatingTicket(context);
-
-        httpContext.Session.GetString(ErrorKey)
-            .Should()
-            .Be("Google did not return a refresh token. Re-run the flow and accept offline access.");
-        context.Result?.Failure?.Message.Should().Be("Missing refresh token.");
     }
 
     [Fact]
@@ -207,22 +199,26 @@ public class ProgramTests
         using var userDoc = JsonDocument.Parse("{}");
         var tokenResponse = OAuthTokenResponse.Success(tokenDoc);
 
-        var context = new OAuthCreatingTicketContext(
-            new ClaimsPrincipal(new ClaimsIdentity()),
-            properties,
-            httpContext,
-            CreateScheme(),
-            options,
-            new HttpClient(),
-            tokenResponse,
-            userDoc.RootElement);
+        var context = new OAuthCreatingTicketContext(new ClaimsPrincipal(new ClaimsIdentity()), properties, httpContext, CreateScheme(), options, new HttpClient(), tokenResponse, userDoc.RootElement);
 
         await options.Events.CreatingTicket(context);
 
-        httpContext.Session.GetString(ClientIdKey).Should().Be("client-id");
-        httpContext.Session.GetString(ClientSecretKey).Should().Be("client-secret");
-        httpContext.Session.GetString(RefreshTokenKey).Should().Be("refresh");
-        httpContext.Session.GetString(UserEmailKey).Should().Be("hint@example.test");
+        httpContext.Session
+                   .GetString(ClientIdKey)
+                   .Should()
+                   .Be("client-id");
+        httpContext.Session
+                   .GetString(ClientSecretKey)
+                   .Should()
+                   .Be("client-secret");
+        httpContext.Session
+                   .GetString(RefreshTokenKey)
+                   .Should()
+                   .Be("refresh");
+        httpContext.Session
+                   .GetString(UserEmailKey)
+                   .Should()
+                   .Be("hint@example.test");
     }
 
     [Fact]
@@ -236,19 +232,76 @@ public class ProgramTests
         using var userDoc = JsonDocument.Parse("{}");
         var tokenResponse = OAuthTokenResponse.Success(tokenDoc);
 
-        var context = new OAuthCreatingTicketContext(
-            new ClaimsPrincipal(new ClaimsIdentity()),
-            new AuthenticationProperties(),
-            httpContext,
-            CreateScheme(),
-            options,
-            new HttpClient(),
-            tokenResponse,
-            userDoc.RootElement);
+        var context = new OAuthCreatingTicketContext(new ClaimsPrincipal(new ClaimsIdentity()), new AuthenticationProperties(), httpContext, CreateScheme(), options, new HttpClient(), tokenResponse, userDoc.RootElement);
 
         await options.Events.CreatingTicket(context);
 
-        httpContext.Session.GetString(UserEmailKey).Should().Be("config@example.test");
+        httpContext.Session
+                   .GetString(UserEmailKey)
+                   .Should()
+                   .Be("config@example.test");
+    }
+
+    [Fact]
+    public async Task OAuthCreatingTicket_WhenRefreshTokenMissing_SetsError()
+    {
+        using var app = BuildApp(Environments.Development, GoogleDriveConfig("config@example.test"));
+        var options = GetOAuthOptions(app);
+        var (httpContext, _) = CreateSessionContext();
+
+        using var tokenDoc = JsonDocument.Parse("{\"access_token\":\"token\"}");
+        using var userDoc = JsonDocument.Parse("{}");
+        var tokenResponse = OAuthTokenResponse.Success(tokenDoc);
+
+        var context = new OAuthCreatingTicketContext(new ClaimsPrincipal(new ClaimsIdentity()), new AuthenticationProperties(), httpContext, CreateScheme(), options, new HttpClient(), tokenResponse, userDoc.RootElement);
+
+        await options.Events.CreatingTicket(context);
+
+        httpContext.Session
+                   .GetString(ErrorKey)
+                   .Should()
+                   .Be("Google did not return a refresh token. Re-run the flow and accept offline access.");
+        context.Result
+              ?.Failure
+              ?.Message
+               .Should()
+               .Be("Missing refresh token.");
+    }
+
+    [Fact]
+    public async Task OAuthRedirect_AddsGoogleParameters()
+    {
+        using var app = BuildApp(Environments.Development, GoogleDriveConfig("config@example.test"));
+        var options = GetOAuthOptions(app);
+        var properties = new AuthenticationProperties();
+        properties.Items["login_hint"] = "hint@example.test";
+
+        var context = new RedirectContext<OAuthOptions>(new DefaultHttpContext(), CreateScheme(), options, properties, "https://example.test/auth?existing=1");
+
+        await options.Events.RedirectToAuthorizationEndpoint(context);
+
+        var uri = new Uri(context.RedirectUri);
+        var query = QueryHelpers.ParseQuery(uri.Query);
+        query["existing"]
+           .ToString()
+           .Should()
+           .Be("1");
+        query["access_type"]
+           .ToString()
+           .Should()
+           .Be("offline");
+        query["prompt"]
+           .ToString()
+           .Should()
+           .Be("consent");
+        query["include_granted_scopes"]
+           .ToString()
+           .Should()
+           .Be("true");
+        query["login_hint"]
+           .ToString()
+           .Should()
+           .Be("hint@example.test");
     }
 
     [Fact]
@@ -258,17 +311,24 @@ public class ProgramTests
         var options = GetOAuthOptions(app);
         var (httpContext, _) = CreateSessionContext();
 
-        var context = new RemoteFailureContext(
-            httpContext,
-            CreateScheme(),
-            options,
-            new InvalidOperationException("boom"));
+        var context = new RemoteFailureContext(httpContext, CreateScheme(), options, new InvalidOperationException("boom"));
 
         await options.Events.RemoteFailure(context);
 
-        httpContext.Session.GetString(ErrorKey).Should().Be("boom");
-        httpContext.Response.StatusCode.Should().Be(StatusCodes.Status302Found);
-        httpContext.Response.Headers.Location.ToString().Should().Be("/drive-auth/result");
+        httpContext.Session
+                   .GetString(ErrorKey)
+                   .Should()
+                   .Be("boom");
+        httpContext.Response
+                   .StatusCode
+                   .Should()
+                   .Be(StatusCodes.Status302Found);
+        httpContext.Response
+                   .Headers
+                   .Location
+                   .ToString()
+                   .Should()
+                   .Be("/drive-auth/result");
     }
 
     private static WebApplication BuildApp(string environment, Dictionary<string, string?>? config = null)
@@ -292,22 +352,18 @@ public class ProgramTests
         });
     }
 
-    private static string ResolveStaticAssetsManifestPath()
+    private static AuthenticationScheme CreateScheme()
     {
-        var root = FindRepoRoot();
-        var debugPath = Path.Combine(root, "src", "web", "Tomeshelf.Web", "bin", "Debug", "net10.0", "Tomeshelf.Web.staticwebassets.endpoints.json");
-        if (File.Exists(debugPath))
-        {
-            return debugPath;
-        }
+        return new AuthenticationScheme(DriveAuthController.AuthenticationScheme, DriveAuthController.AuthenticationScheme, typeof(OAuthHandler<OAuthOptions>));
+    }
 
-        var releasePath = Path.Combine(root, "src", "web", "Tomeshelf.Web", "bin", "Release", "net10.0", "Tomeshelf.Web.staticwebassets.endpoints.json");
-        if (File.Exists(releasePath))
-        {
-            return releasePath;
-        }
+    private static (DefaultHttpContext Context, TestSession Session) CreateSessionContext()
+    {
+        var session = new TestSession();
+        var context = new DefaultHttpContext();
+        context.Features.Set<ISessionFeature>(new TestSessionFeature { Session = session });
 
-        throw new InvalidOperationException($"Static web assets manifest not found at '{debugPath}' or '{releasePath}'.");
+        return (context, session);
     }
 
     private static string FindRepoRoot()
@@ -326,6 +382,13 @@ public class ProgramTests
         throw new InvalidOperationException("Repository root not found from test base directory.");
     }
 
+    private static OAuthOptions GetOAuthOptions(WebApplication app)
+    {
+        var monitor = app.Services.GetRequiredService<IOptionsMonitor<OAuthOptions>>();
+
+        return monitor.Get(DriveAuthController.AuthenticationScheme);
+    }
+
     private static Dictionary<string, string?> GoogleDriveConfig(string userEmail)
     {
         return new Dictionary<string, string?>
@@ -336,26 +399,22 @@ public class ProgramTests
         };
     }
 
-    private static OAuthOptions GetOAuthOptions(WebApplication app)
+    private static string ResolveStaticAssetsManifestPath()
     {
-        var monitor = app.Services.GetRequiredService<IOptionsMonitor<OAuthOptions>>();
-        return monitor.Get(DriveAuthController.AuthenticationScheme);
-    }
+        var root = FindRepoRoot();
+        var debugPath = Path.Combine(root, "src", "web", "Tomeshelf.Web", "bin", "Debug", "net10.0", "Tomeshelf.Web.staticwebassets.endpoints.json");
+        if (File.Exists(debugPath))
+        {
+            return debugPath;
+        }
 
-    private static AuthenticationScheme CreateScheme()
-    {
-        return new AuthenticationScheme(
-            DriveAuthController.AuthenticationScheme,
-            DriveAuthController.AuthenticationScheme,
-            typeof(OAuthHandler<OAuthOptions>));
-    }
+        var releasePath = Path.Combine(root, "src", "web", "Tomeshelf.Web", "bin", "Release", "net10.0", "Tomeshelf.Web.staticwebassets.endpoints.json");
+        if (File.Exists(releasePath))
+        {
+            return releasePath;
+        }
 
-    private static (DefaultHttpContext Context, TestSession Session) CreateSessionContext()
-    {
-        var session = new TestSession();
-        var context = new DefaultHttpContext();
-        context.Features.Set<ISessionFeature>(new TestSessionFeature { Session = session });
-        return (context, session);
+        throw new InvalidOperationException($"Static web assets manifest not found at '{debugPath}' or '{releasePath}'.");
     }
 
     private sealed class TestSessionFeature : ISessionFeature

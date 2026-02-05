@@ -40,6 +40,7 @@ public sealed class EventEntity
     /// <returns>The count of unique guests.</returns>
     public int GetUniqueGuestCount()
     {
-        return Guests.DistinctBy(g => g.Id).Count();
+        return Guests.DistinctBy(g => g.Id)
+                     .Count();
     }
 }

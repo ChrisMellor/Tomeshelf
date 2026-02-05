@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -23,16 +22,18 @@ public class GetBundlesAsync
         // Arrange
         var payload = new List<BundleModel>
         {
-            new() { MachineName = "bundle-one", Title = "Bundle One" }
+            new BundleModel
+            {
+                MachineName = "bundle-one",
+                Title = "Bundle One"
+            }
         };
         var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
         var handler = new StubHttpMessageHandler((request, _) =>
         {
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
+
             return Task.FromResult(response);
         });
 
@@ -43,10 +44,18 @@ public class GetBundlesAsync
         var result = await api.GetBundlesAsync(true, CancellationToken.None);
 
         // Assert
-        result.Should().HaveCount(1);
-        result[0].MachineName.Should().Be("bundle-one");
-        handler.Requests.Should().ContainSingle();
-        handler.Requests[0].RequestUri!.PathAndQuery.Should().Be("/bundles?includeExpired=true");
+        result.Should()
+              .HaveCount(1);
+        result[0]
+           .MachineName
+           .Should()
+           .Be("bundle-one");
+        handler.Requests
+               .Should()
+               .ContainSingle();
+        handler.Requests[0].RequestUri!.PathAndQuery
+               .Should()
+               .Be("/bundles?includeExpired=true");
     }
 
     [Fact]
@@ -55,10 +64,8 @@ public class GetBundlesAsync
         // Arrange
         var handler = new StubHttpMessageHandler((_, _) =>
         {
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("null", Encoding.UTF8, "application/json")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("null", Encoding.UTF8, "application/json") };
+
             return Task.FromResult(response);
         });
 
@@ -69,7 +76,8 @@ public class GetBundlesAsync
         var action = () => api.GetBundlesAsync(false, CancellationToken.None);
 
         // Assert
-        await action.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("Empty bundle payload");
+        await action.Should()
+                    .ThrowAsync<InvalidOperationException>()
+                    .WithMessage("Empty bundle payload");
     }
 }

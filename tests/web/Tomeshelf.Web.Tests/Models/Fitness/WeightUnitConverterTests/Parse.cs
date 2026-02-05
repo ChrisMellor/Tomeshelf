@@ -20,6 +20,7 @@ public class Parse
         var result = WeightUnitConverter.Parse(value);
 
         // Assert
-        result.Should().Be(expected);
+        result.Should()
+              .Be(expected);
     }
 }

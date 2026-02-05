@@ -6,7 +6,7 @@ namespace Tomeshelf.SHiFT.Application.Features.KeyDiscovery;
 
 public static class ShiftKeyMatcher
 {
-    private static readonly Regex ShiftKeyRegex = new(@"\b[A-Z0-9]{5}(?:-[A-Z0-9]{5}){4}\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex ShiftKeyRegex = new Regex(@"\b[A-Z0-9]{5}(?:-[A-Z0-9]{5}){4}\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public static IReadOnlyList<string> Extract(string? text)
     {

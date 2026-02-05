@@ -39,7 +39,8 @@
             </form>
         </div>
         <div class="shift-results">
-            @if (Model.Response is { } response)
+            @if (Model.Response is
+                 { } response)
             {
                 <div class="shift-summary">
                     <div class="shift-summary-card">
@@ -83,8 +84,12 @@
                                     </td>
                                     <td>@result.Service</td>
                                     <td>
-                                        <span class="badge @(result.Success ? "text-bg-success" : "text-bg-danger")">
-                                            @(result.Success ? "Succeeded" : "Failed")
+                                        <span class="badge @(result.Success
+                                                               ? "text-bg-success"
+                                                               : "text-bg-danger")">
+                                            @(result.Success
+                                                ? "Succeeded"
+                                                : "Failed")
                                         </span>
                                     </td>
                                     <td class="text-muted small">@message</td>
@@ -98,7 +103,9 @@
             else
             {
                 <div class="shift-empty">
-                    <div class="fs-3 mb-2"><i class="bi bi-ticket-perforated" aria-hidden="true"></i></div>
+                    <div class="fs-3 mb-2">
+                        <i class="bi bi-ticket-perforated" aria-hidden="true"></i>
+                    </div>
                     <div class="fw-semibold">No redemptions yet</div>
                     <div class="small">Enter a code to see results by account.</div>
                 </div>

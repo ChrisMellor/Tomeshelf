@@ -15,11 +15,13 @@ public sealed class StubHttpMessageHandler : HttpMessageHandler
         _handler = handler;
     }
 
-    public List<HttpRequestMessage> Requests { get; } = new();
+    public List<HttpRequestMessage> Requests { get; } = new List<HttpRequestMessage>();
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         Requests.Add(request);
-        return await _handler(request, cancellationToken).ConfigureAwait(false);
+
+        return await _handler(request, cancellationToken)
+           .ConfigureAwait(false);
     }
 }

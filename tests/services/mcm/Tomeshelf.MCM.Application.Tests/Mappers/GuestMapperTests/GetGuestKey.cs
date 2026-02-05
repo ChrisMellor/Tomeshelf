@@ -28,7 +28,8 @@ public class GetGuestKey
         var key = mapper.GetGuestKey(guest);
 
         // Assert
-        key.Should().Be($"{firstName} {lastName}");
+        key.Should()
+           .Be($"{firstName} {lastName}");
     }
 
     [Fact]
@@ -42,6 +43,7 @@ public class GetGuestKey
         var key = mapper.GetGuestKey(guest);
 
         // Assert
-        key.Should().BeEmpty();
+        key.Should()
+           .BeEmpty();
     }
 }

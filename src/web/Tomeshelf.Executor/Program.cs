@@ -1,9 +1,9 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Quartz;
-using System;
 using Tomeshelf.Executor.Configuration;
 using Tomeshelf.Executor.Jobs;
 using Tomeshelf.Executor.Services;
@@ -13,12 +13,6 @@ namespace Tomeshelf.Executor;
 
 public class Program
 {
-    public static void Main(string[] args)
-    {
-        var app = BuildApp(args);
-        app.Run();
-    }
-
     public static WebApplication BuildApp(string[] args, Action<WebApplicationBuilder>? configureBuilder = null)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -75,5 +69,11 @@ public class Program
         app.MapDefaultEndpoints();
 
         return app;
+    }
+
+    public static void Main(string[] args)
+    {
+        var app = BuildApp(args);
+        app.Run();
     }
 }

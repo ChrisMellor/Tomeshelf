@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.HumbleBundle.Application.Abstractions.External;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
 
@@ -19,8 +19,8 @@ namespace Tomeshelf.HumbleBundle.Infrastructure.Bundles;
 public sealed class HumbleBundleScraper : IHumbleBundleScraper
 {
     public const string HttpClientName = "HumbleBundle.Scraper";
-    private static readonly Uri BundlesUri = new("https://www.humblebundle.com/bundles");
-    private static readonly Uri SiteBaseUri = new("https://www.humblebundle.com/");
+    private static readonly Uri BundlesUri = new Uri("https://www.humblebundle.com/bundles");
+    private static readonly Uri SiteBaseUri = new Uri("https://www.humblebundle.com/");
     private readonly HttpClient _httpClient;
     private readonly ILogger<HumbleBundleScraper> _logger;
 

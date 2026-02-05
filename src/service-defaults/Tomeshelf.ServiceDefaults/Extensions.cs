@@ -84,7 +84,7 @@ public static class Extensions
                 {
                     tracing.AddSource(builder.Environment.ApplicationName)
                            .AddAspNetCoreInstrumentation(tracing => tracing.Filter = context => !context.Request.Path.StartsWithSegments(HealthEndpointPath) && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath))
-                           //.AddGrpcClientInstrumentation()
+                            //.AddGrpcClientInstrumentation()
                            .AddHttpClientInstrumentation();
                 });
 
@@ -104,10 +104,7 @@ public static class Extensions
         {
             app.MapHealthChecks(HealthEndpointPath);
 
-            app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
-            {
-                Predicate = r => r.Tags.Contains("live")
-            });
+            app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions { Predicate = r => r.Tags.Contains("live") });
         }
 
         return app;

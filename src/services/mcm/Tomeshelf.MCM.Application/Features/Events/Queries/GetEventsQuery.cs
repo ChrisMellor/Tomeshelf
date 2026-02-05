@@ -4,4 +4,4 @@ using Tomeshelf.MCM.Application.Models;
 
 namespace Tomeshelf.MCM.Application.Features.Events.Queries;
 
-public sealed record GetEventsQuery() : IQuery<IReadOnlyList<EventConfigModel>>;
+public sealed record GetEventsQuery : IQuery<IReadOnlyList<EventConfigModel>>;

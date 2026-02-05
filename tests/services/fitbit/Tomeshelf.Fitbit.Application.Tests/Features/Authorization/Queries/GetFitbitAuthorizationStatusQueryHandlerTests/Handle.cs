@@ -18,15 +18,21 @@ public class Handle
         var accessToken = faker.Random.AlphaNumeric(16);
         var refreshToken = faker.Random.AlphaNumeric(16);
 
-        A.CallTo(() => tokenCache.AccessToken).Returns(accessToken);
-        A.CallTo(() => tokenCache.RefreshToken).Returns(refreshToken);
+        A.CallTo(() => tokenCache.AccessToken)
+         .Returns(accessToken);
+        A.CallTo(() => tokenCache.RefreshToken)
+         .Returns(refreshToken);
 
         // Act
         var result = await handler.Handle(new GetFitbitAuthorizationStatusQuery(), CancellationToken.None);
 
         // Assert
-        result.HasAccessToken.Should().BeTrue();
-        result.HasRefreshToken.Should().BeTrue();
+        result.HasAccessToken
+              .Should()
+              .BeTrue();
+        result.HasRefreshToken
+              .Should()
+              .BeTrue();
     }
 
     [Fact]
@@ -38,15 +44,21 @@ public class Handle
         var handler = new GetFitbitAuthorizationStatusQueryHandler(tokenCache);
         var refreshToken = faker.Random.AlphaNumeric(16);
 
-        A.CallTo(() => tokenCache.AccessToken).Returns(string.Empty);
-        A.CallTo(() => tokenCache.RefreshToken).Returns(refreshToken);
+        A.CallTo(() => tokenCache.AccessToken)
+         .Returns(string.Empty);
+        A.CallTo(() => tokenCache.RefreshToken)
+         .Returns(refreshToken);
 
         // Act
         var result = await handler.Handle(new GetFitbitAuthorizationStatusQuery(), CancellationToken.None);
 
         // Assert
-        result.HasAccessToken.Should().BeFalse();
-        result.HasRefreshToken.Should().BeTrue();
+        result.HasAccessToken
+              .Should()
+              .BeFalse();
+        result.HasRefreshToken
+              .Should()
+              .BeTrue();
     }
 
     [Fact]
@@ -58,15 +70,21 @@ public class Handle
         var handler = new GetFitbitAuthorizationStatusQueryHandler(tokenCache);
         var accessToken = faker.Random.AlphaNumeric(16);
 
-        A.CallTo(() => tokenCache.AccessToken).Returns(accessToken);
-        A.CallTo(() => tokenCache.RefreshToken).Returns(string.Empty);
+        A.CallTo(() => tokenCache.AccessToken)
+         .Returns(accessToken);
+        A.CallTo(() => tokenCache.RefreshToken)
+         .Returns(string.Empty);
 
         // Act
         var result = await handler.Handle(new GetFitbitAuthorizationStatusQuery(), CancellationToken.None);
 
         // Assert
-        result.HasAccessToken.Should().BeTrue();
-        result.HasRefreshToken.Should().BeFalse();
+        result.HasAccessToken
+              .Should()
+              .BeTrue();
+        result.HasRefreshToken
+              .Should()
+              .BeFalse();
     }
 
     [Fact]
@@ -76,14 +94,20 @@ public class Handle
         var tokenCache = A.Fake<IFitbitTokenCache>();
         var handler = new GetFitbitAuthorizationStatusQueryHandler(tokenCache);
 
-        A.CallTo(() => tokenCache.AccessToken).Returns(string.Empty);
-        A.CallTo(() => tokenCache.RefreshToken).Returns(string.Empty);
+        A.CallTo(() => tokenCache.AccessToken)
+         .Returns(string.Empty);
+        A.CallTo(() => tokenCache.RefreshToken)
+         .Returns(string.Empty);
 
         // Act
         var result = await handler.Handle(new GetFitbitAuthorizationStatusQuery(), CancellationToken.None);
 
         // Assert
-        result.HasAccessToken.Should().BeFalse();
-        result.HasRefreshToken.Should().BeFalse();
+        result.HasAccessToken
+              .Should()
+              .BeFalse();
+        result.HasRefreshToken
+              .Should()
+              .BeFalse();
     }
 }

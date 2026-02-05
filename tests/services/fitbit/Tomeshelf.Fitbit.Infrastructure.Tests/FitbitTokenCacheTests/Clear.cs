@@ -1,7 +1,5 @@
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Tomeshelf.Fitbit.Infrastructure;
 
 namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitTokenCacheTests;
 
@@ -18,11 +16,11 @@ public class Clear
 
         // Assert
         A.CallTo(() => session.Remove("fitbit_access_token"))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
         A.CallTo(() => session.Remove("fitbit_refresh_token"))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
         A.CallTo(() => session.Remove("fitbit_expires_at"))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
     }
 
     private static (FitbitTokenCache Cache, ISession Session) CreateCache()
@@ -31,9 +29,12 @@ public class Clear
         var context = A.Fake<HttpContext>();
         var session = A.Fake<ISession>();
 
-        A.CallTo(() => accessor.HttpContext).Returns(context);
-        A.CallTo(() => context.Session).Returns(session);
-        A.CallTo(() => session.IsAvailable).Returns(true);
+        A.CallTo(() => accessor.HttpContext)
+         .Returns(context);
+        A.CallTo(() => context.Session)
+         .Returns(session);
+        A.CallTo(() => session.IsAvailable)
+         .Returns(true);
 
         return (new FitbitTokenCache(accessor), session);
     }

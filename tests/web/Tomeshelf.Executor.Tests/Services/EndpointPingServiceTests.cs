@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -34,14 +29,30 @@ public class EndpointPingServiceTests
 
         var result = await service.SendAsync(new Uri("https://example.test"), "PUT", headers, CancellationToken.None);
 
-        result.Success.Should().BeTrue();
-        result.StatusCode.Should().Be(200);
-        result.Body.Should().Be("pong");
-        result.Message.Should().Be("OK");
+        result.Success
+              .Should()
+              .BeTrue();
+        result.StatusCode
+              .Should()
+              .Be(200);
+        result.Body
+              .Should()
+              .Be("pong");
+        result.Message
+              .Should()
+              .Be("OK");
 
-        var request = handler.Requests.Should().ContainSingle().Subject;
-        request.Method.Should().Be(HttpMethod.Put);
-        request.Headers.Contains("X-Test").Should().BeTrue();
+        var request = handler.Requests
+                             .Should()
+                             .ContainSingle()
+                             .Subject;
+        request.Method
+               .Should()
+               .Be(HttpMethod.Put);
+        request.Headers
+               .Contains("X-Test")
+               .Should()
+               .BeTrue();
 
         IEnumerable<string>? values = null;
         if (request.Headers.TryGetValues("Content-Type", out var requestValues))
@@ -53,8 +64,10 @@ public class EndpointPingServiceTests
             values = contentValues;
         }
 
-        values.Should().NotBeNull();
-        values!.Should().Contain("application/json");
+        values.Should()
+              .NotBeNull();
+        values!.Should()
+               .Contain("application/json");
     }
 
     [Fact]
@@ -62,7 +75,10 @@ public class EndpointPingServiceTests
     {
         var handler = new StubHttpMessageHandler((request, _) =>
         {
-            request.Method.Should().Be(HttpMethod.Post);
+            request.Method
+                   .Should()
+                   .Be(HttpMethod.Post);
+
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Accepted));
         });
         var client = new HttpClient(handler);
@@ -71,8 +87,12 @@ public class EndpointPingServiceTests
 
         var result = await service.SendAsync(new Uri("https://example.test"), " ", null, CancellationToken.None);
 
-        result.Success.Should().BeTrue();
-        result.StatusCode.Should().Be(202);
+        result.Success
+              .Should()
+              .BeTrue();
+        result.StatusCode
+              .Should()
+              .Be(202);
     }
 
     [Fact]
@@ -85,9 +105,17 @@ public class EndpointPingServiceTests
 
         var result = await service.SendAsync(new Uri("https://example.test"), "POST", null, CancellationToken.None);
 
-        result.Success.Should().BeFalse();
-        result.StatusCode.Should().BeNull();
-        result.Message.Should().Be("boom");
-        result.Body.Should().BeNull();
+        result.Success
+              .Should()
+              .BeFalse();
+        result.StatusCode
+              .Should()
+              .BeNull();
+        result.Message
+              .Should()
+              .Be("boom");
+        result.Body
+              .Should()
+              .BeNull();
     }
 }

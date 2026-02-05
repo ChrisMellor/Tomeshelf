@@ -1,9 +1,7 @@
 using System.Text;
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Tomeshelf.Fitbit.Infrastructure;
 
 namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitTokenCacheTests;
 
@@ -24,11 +22,11 @@ public class Update
 
         // Assert
         A.CallTo(() => session.Set("fitbit_access_token", A<byte[]>.That.Matches(b => Encoding.UTF8.GetString(b) == accessToken)))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
         A.CallTo(() => session.Set("fitbit_refresh_token", A<byte[]>.That.Matches(b => Encoding.UTF8.GetString(b) == refreshToken)))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
         A.CallTo(() => session.Set("fitbit_expires_at", A<byte[]>.That.Matches(b => Encoding.UTF8.GetString(b) == expiresAt.ToString("O"))))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
     }
 
     private static (FitbitTokenCache Cache, ISession Session) CreateCache()
@@ -37,9 +35,12 @@ public class Update
         var context = A.Fake<HttpContext>();
         var session = A.Fake<ISession>();
 
-        A.CallTo(() => accessor.HttpContext).Returns(context);
-        A.CallTo(() => context.Session).Returns(session);
-        A.CallTo(() => session.IsAvailable).Returns(true);
+        A.CallTo(() => accessor.HttpContext)
+         .Returns(context);
+        A.CallTo(() => context.Session)
+         .Returns(session);
+        A.CallTo(() => session.IsAvailable)
+         .Returns(true);
 
         return (new FitbitTokenCache(accessor), session);
     }

@@ -1,5 +1,3 @@
-using System.Net.Http;
-
 namespace Tomeshelf.Executor.Tests.TestUtilities;
 
 public sealed class TestHttpClientFactory : IHttpClientFactory

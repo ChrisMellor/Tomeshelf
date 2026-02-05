@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -23,10 +22,8 @@ public class EnumParsing
 
         var handler = new StubHttpMessageHandler((_, _) =>
         {
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
+
             return Task.FromResult(response);
         });
 
@@ -37,6 +34,9 @@ public class EnumParsing
         var result = await api.RedeemCodeAsync("ABC", CancellationToken.None);
 
         // Assert
-        result.Results[0].ErrorCode.Should().Be(RedeemErrorCode.NetworkError);
+        result.Results[0]
+              .ErrorCode
+              .Should()
+              .Be(RedeemErrorCode.NetworkError);
     }
 }

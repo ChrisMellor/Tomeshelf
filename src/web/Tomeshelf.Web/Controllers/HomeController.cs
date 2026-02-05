@@ -19,8 +19,8 @@ public class HomeController : Controller
     private readonly IBundlesApi _bundlesApi;
     private readonly IFitbitApi _fitbitApi;
     private readonly IGuestsApi _guestsApi;
-    private readonly IPaissaApi _paissaApi;
     private readonly ILogger<HomeController> _logger;
+    private readonly IPaissaApi _paissaApi;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="HomeController" /> class.
@@ -42,10 +42,7 @@ public class HomeController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        var errorViewModel = new ErrorViewModel
-        {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
-        };
+        var errorViewModel = new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier };
 
         return View(errorViewModel);
     }
@@ -81,6 +78,25 @@ public class HomeController : Controller
         return View();
     }
 
+    private async Task<string> GetBundlesSummaryAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var bundles = await _bundlesApi.GetBundlesAsync(false, cancellationToken);
+            var count = bundles?.Count ?? 0;
+
+            return count == 1
+                ? "1 bundle live"
+                : $"{count.ToString("N0", CultureInfo.CurrentCulture)} bundles live";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Unable to load bundle summary for home.");
+
+            return "Bundles unavailable";
+        }
+    }
+
     private async Task<string> GetEventsSummaryAsync(CancellationToken cancellationToken)
     {
         try
@@ -95,25 +111,8 @@ public class HomeController : Controller
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Unable to load Comic Con event summary for home.");
+
             return "Events unavailable";
-        }
-    }
-
-    private async Task<string> GetBundlesSummaryAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            var bundles = await _bundlesApi.GetBundlesAsync(includeExpired: false, cancellationToken);
-            var count = bundles?.Count ?? 0;
-
-            return count == 1
-                ? "1 bundle live"
-                : $"{count.ToString("N0", CultureInfo.CurrentCulture)} bundles live";
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Unable to load bundle summary for home.");
-            return "Bundles unavailable";
         }
     }
 
@@ -125,7 +124,7 @@ public class HomeController : Controller
                                 .ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var returnUrl = Url.ActionLink("Index", "Home") ?? $"{Request.Scheme}://{Request.Host}/";
 
-            var dashboard = await _fitbitApi.GetDashboardAsync(today, refresh: false, returnUrl, cancellationToken);
+            var dashboard = await _fitbitApi.GetDashboardAsync(today, false, returnUrl, cancellationToken);
             if (dashboard?.Activity?.Steps is int steps)
             {
                 return $"{steps.ToString("N0", CultureInfo.CurrentCulture)} steps today";
@@ -154,6 +153,7 @@ public class HomeController : Controller
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Unable to load Fitbit summary for home.");
+
             return "Fitbit unavailable";
         }
     }
@@ -183,6 +183,7 @@ public class HomeController : Controller
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Unable to load Paissa summary for home.");
+
             return "Gaming unavailable";
         }
     }

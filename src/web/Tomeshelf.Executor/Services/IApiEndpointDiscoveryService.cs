@@ -20,4 +20,3 @@ public interface IApiEndpointDiscoveryService
     /// </summary>
     Task<IReadOnlyList<ExecutorDiscoveredEndpoint>> GetEndpointsAsync(string baseAddress, CancellationToken cancellationToken);
 }
-

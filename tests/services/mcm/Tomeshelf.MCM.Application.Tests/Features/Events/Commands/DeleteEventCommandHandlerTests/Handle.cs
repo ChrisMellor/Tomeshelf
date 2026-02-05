@@ -19,14 +19,15 @@ public class Handle
         var command = new DeleteEventCommand(eventId);
 
         A.CallTo(() => service.DeleteAsync(eventId, A<CancellationToken>._))
-            .Returns(Task.FromResult(true));
+         .Returns(Task.FromResult(true));
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should().BeTrue();
+        result.Should()
+              .BeTrue();
         A.CallTo(() => service.DeleteAsync(eventId, A<CancellationToken>._))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
     }
 }

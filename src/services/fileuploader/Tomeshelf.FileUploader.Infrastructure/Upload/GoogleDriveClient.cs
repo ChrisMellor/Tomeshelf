@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Concurrent;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
@@ -7,12 +13,6 @@ using Google.Apis.Services;
 using Google.Apis.Upload;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Concurrent;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Tomeshelf.FileUploader.Application;
 using DriveFile = Google.Apis.Drive.v3.Data.File;
 
@@ -21,7 +21,7 @@ namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
 {
     private readonly DriveService _drive;
-    private readonly ConcurrentDictionary<string, string> _folderCache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, string> _folderCache = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     private readonly ILogger<GoogleDriveClient> _logger;
     private readonly GoogleDriveOptions _options;
     private readonly string? _sharedDriveId;

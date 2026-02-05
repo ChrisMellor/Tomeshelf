@@ -1,10 +1,10 @@
-using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Paissa.Application.Abstractions.External;
 using Tomeshelf.Paissa.Domain.Entities;
 
@@ -72,5 +72,4 @@ public sealed class PaissaClient : IPaissaClient
             throw;
         }
     }
-
 }

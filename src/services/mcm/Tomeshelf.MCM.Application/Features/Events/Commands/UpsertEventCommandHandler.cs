@@ -17,6 +17,7 @@ public sealed class UpsertEventCommandHandler : ICommandHandler<UpsertEventComma
     public async Task<bool> Handle(UpsertEventCommand command, CancellationToken cancellationToken)
     {
         await _eventService.UpsertAsync(command.Model, cancellationToken);
+
         return true;
     }
 }

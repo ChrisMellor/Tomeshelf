@@ -1,11 +1,11 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Tomeshelf.FileUploader.Application;
 using Tomeshelf.FileUploader.Application.Abstractions.Upload;
 using Tomeshelf.FileUploader.Application.Features.Uploads.Models;

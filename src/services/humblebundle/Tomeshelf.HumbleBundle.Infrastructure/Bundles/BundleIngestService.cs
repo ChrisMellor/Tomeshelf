@@ -1,10 +1,10 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.HumbleBundle.Application.Abstractions.Persistence;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
 using Tomeshelf.HumbleBundle.Domain.HumbleBundle;

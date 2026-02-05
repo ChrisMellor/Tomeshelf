@@ -12,9 +12,7 @@ public sealed class TomeshelfMcmDbContextFactory : IDesignTimeDbContextFactory<T
     public TomeshelfMcmDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<TomeshelfMcmDbContext>();
-        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__mcmdb")
-                               ?? Environment.GetEnvironmentVariable("ConnectionStrings:mcmdb")
-                               ?? "Server=(localdb)\\mssqllocaldb;Database=mcmdb;Trusted_Connection=True;MultipleActiveResultSets=true";
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__mcmdb") ?? Environment.GetEnvironmentVariable("ConnectionStrings:mcmdb") ?? "Server=(localdb)\\mssqllocaldb;Database=mcmdb;Trusted_Connection=True;MultipleActiveResultSets=true";
 
         optionsBuilder.UseSqlServer(connectionString);
 

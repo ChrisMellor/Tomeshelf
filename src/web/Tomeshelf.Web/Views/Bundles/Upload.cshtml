@@ -30,8 +30,12 @@
             <div>
                 <h2 class="h5 mb-1">Upload complete</h2>
                 <p class="mb-1">
-                    Processed <strong>@Model.Result.BooksProcessed</strong> book@(Model.Result.BooksProcessed == 1 ? string.Empty : "s")
-                    across <strong>@Model.Result.BundlesProcessed</strong> bundle@(Model.Result.BundlesProcessed == 1 ? string.Empty : "s").
+                    Processed <strong>@Model.Result.BooksProcessed</strong> book@(Model.Result.BooksProcessed == 1
+                                                                                    ? string.Empty
+                                                                                    : "s")
+                    across <strong>@Model.Result.BundlesProcessed</strong> bundle@(Model.Result.BundlesProcessed == 1
+                                                                                     ? string.Empty
+                                                                                     : "s").
                 </p>
                 <p class="mb-0 text-muted small">Files uploaded: <strong>@Model.Result.FilesUploaded</strong>, skipped (already present): <strong>@Model.Result.FilesSkipped</strong>. Completed at @Model.Result.UploadedAtUtc.ToLocalTime().ToString("f").</p>
             </div>
@@ -78,7 +82,7 @@
             @Html.AntiForgeryToken()
             <div class="mb-3">
                 <label for="archive" class="form-label">Bundle archive (.zip)</label>
-                <input type="file" class="form-control" id="archive" name="archive" accept=".zip,application/zip" required />
+                <input type="file" class="form-control" id="archive" name="archive" accept=".zip,application/zip" required/>
                 <div class="form-text">We do not store the archive; it's processed and uploaded directly to your Drive.</div>
                 <div class="invalid-feedback">Please choose a zip file exported from Humble Bundle.</div>
             </div>

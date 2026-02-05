@@ -14,16 +14,18 @@ namespace Tomeshelf.Paissa.Domain.Entities;
 /// </remarks>
 public sealed record PaissaDistrict
 {
-    public int Id { get; }
-    public string Name { get; }
-    public IReadOnlyList<PaissaPlot> OpenPlots { get; }
-
     private PaissaDistrict(int id, string name, IReadOnlyList<PaissaPlot> openPlots)
     {
         Id = id;
         Name = name;
         OpenPlots = openPlots;
     }
+
+    public int Id { get; }
+
+    public string Name { get; }
+
+    public IReadOnlyList<PaissaPlot> OpenPlots { get; }
 
     public static PaissaDistrict Create(int id, string name, IReadOnlyList<PaissaPlot> openPlots)
     {
@@ -54,9 +56,8 @@ public sealed record PaissaDistrict
 
     public PaissaDistrict? FilterAcceptingEntryPlots(bool requireKnownSize)
     {
-        var plots = OpenPlots
-            .Where(plot => plot.IsAcceptingEntries && (!requireKnownSize || plot.HasKnownSize))
-            .ToList();
+        var plots = OpenPlots.Where(plot => plot.IsAcceptingEntries && (!requireKnownSize || plot.HasKnownSize))
+                             .ToList();
 
         return plots.Count == 0
             ? null

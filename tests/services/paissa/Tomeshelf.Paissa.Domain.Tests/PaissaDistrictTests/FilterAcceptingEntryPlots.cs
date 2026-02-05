@@ -7,24 +7,6 @@ namespace Tomeshelf.Paissa.Domain.Tests.PaissaDistrictTests;
 public class FilterAcceptingEntryPlots
 {
     [Fact]
-    public void WhenNoneMatch_ReturnsNull()
-    {
-        // Arrange
-        var now = DateTimeOffset.UtcNow;
-        var plots = new List<PaissaPlot>
-        {
-            PaissaPlot.Create(1, 1, HousingPlotSize.Small, 100, now, PurchaseSystem.Personal, 2, LotteryPhase.ResultsProcessing)
-        };
-        var district = PaissaDistrict.Create(1, "Mist", plots);
-
-        // Act
-        var result = district.FilterAcceptingEntryPlots(requireKnownSize: true);
-
-        // Assert
-        result.Should().BeNull();
-    }
-
-    [Fact]
     public void RespectsKnownSizeFlag()
     {
         // Arrange
@@ -37,14 +19,39 @@ public class FilterAcceptingEntryPlots
         var district = PaissaDistrict.Create(1, "Mist", plots);
 
         // Act
-        var requireKnown = district.FilterAcceptingEntryPlots(requireKnownSize: true);
-        var allowUnknown = district.FilterAcceptingEntryPlots(requireKnownSize: false);
+        var requireKnown = district.FilterAcceptingEntryPlots(true);
+        var allowUnknown = district.FilterAcceptingEntryPlots(false);
 
         // Assert
-        requireKnown.Should().NotBeNull();
-        requireKnown!.OpenPlots.Should().HaveCount(1);
-        requireKnown.OpenPlots[0].PlotNumber.Should().Be(2);
-        allowUnknown.Should().NotBeNull();
-        allowUnknown!.OpenPlots.Should().HaveCount(2);
+        requireKnown.Should()
+                    .NotBeNull();
+        requireKnown!.OpenPlots
+                     .Should()
+                     .HaveCount(1);
+        requireKnown.OpenPlots[0]
+                    .PlotNumber
+                    .Should()
+                    .Be(2);
+        allowUnknown.Should()
+                    .NotBeNull();
+        allowUnknown!.OpenPlots
+                     .Should()
+                     .HaveCount(2);
+    }
+
+    [Fact]
+    public void WhenNoneMatch_ReturnsNull()
+    {
+        // Arrange
+        var now = DateTimeOffset.UtcNow;
+        var plots = new List<PaissaPlot> { PaissaPlot.Create(1, 1, HousingPlotSize.Small, 100, now, PurchaseSystem.Personal, 2, LotteryPhase.ResultsProcessing) };
+        var district = PaissaDistrict.Create(1, "Mist", plots);
+
+        // Act
+        var result = district.FilterAcceptingEntryPlots(true);
+
+        // Assert
+        result.Should()
+              .BeNull();
     }
 }

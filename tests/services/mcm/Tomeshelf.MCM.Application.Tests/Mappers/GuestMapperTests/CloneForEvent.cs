@@ -39,15 +39,39 @@ public class CloneForEvent
         var cloned = mapper.CloneForEvent(eventId, source);
 
         // Assert
-        cloned.EventId.Should().Be(eventId);
-        cloned.Id.Should().Be(guestId);
-        cloned.GuestInfoId.Should().Be(infoId);
-        cloned.Information.Should().NotBeNull();
-        cloned.Information!.FirstName.Should().Be(firstName);
-        cloned.Information.LastName.Should().Be(lastName);
-        cloned.Information.Socials.Should().NotBeNull();
-        cloned.Information.Socials!.Id.Should().Be(socialId);
-        cloned.Information.Socials.Twitter.Should().Be(source.Information.Socials!.Twitter);
-        cloned.IsDeleted.Should().BeFalse();
+        cloned.EventId
+              .Should()
+              .Be(eventId);
+        cloned.Id
+              .Should()
+              .Be(guestId);
+        cloned.GuestInfoId
+              .Should()
+              .Be(infoId);
+        cloned.Information
+              .Should()
+              .NotBeNull();
+        cloned.Information!.FirstName
+              .Should()
+              .Be(firstName);
+        cloned.Information
+              .LastName
+              .Should()
+              .Be(lastName);
+        cloned.Information
+              .Socials
+              .Should()
+              .NotBeNull();
+        cloned.Information.Socials!.Id
+              .Should()
+              .Be(socialId);
+        cloned.Information
+              .Socials
+              .Twitter
+              .Should()
+              .Be(source.Information.Socials!.Twitter);
+        cloned.IsDeleted
+              .Should()
+              .BeFalse();
     }
 }

@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -15,6 +11,40 @@ namespace Tomeshelf.Executor.Tests.Services;
 public class ExecutorConfigurationStoreTests
 {
     private const string SettingsEnvVar = "EXECUTOR_SETTINGS_DIR";
+
+    [Fact]
+    public async Task GetAsync_WhenEnvironmentFileExists_UsesEnvironmentFile()
+    {
+        var (directory, restore) = PrepareSettingsDirectory();
+        try
+        {
+            var environment = new TestHostEnvironment
+            {
+                ContentRootPath = directory,
+                EnvironmentName = "Development"
+            };
+
+            var defaultPath = Path.Combine(directory, "executorSettings.json");
+            var envPath = Path.Combine(directory, "executorSettings.Development.json");
+            File.WriteAllText(defaultPath, SerializeOptions("Default"));
+            File.WriteAllText(envPath, SerializeOptions("Environment"));
+
+            var store = new ExecutorConfigurationStore(environment, A.Fake<ILogger<ExecutorConfigurationStore>>());
+            var options = await store.GetAsync();
+
+            options.Endpoints
+                   .Should()
+                   .ContainSingle();
+            options.Endpoints[0]
+                   .Name
+                   .Should()
+                   .Be("Environment");
+        }
+        finally
+        {
+            restore();
+        }
+    }
 
     [Fact]
     public async Task GetAsync_WhenMissingFiles_ReturnsDefaults()
@@ -31,8 +61,12 @@ public class ExecutorConfigurationStoreTests
 
             var options = await store.GetAsync();
 
-            options.Enabled.Should().BeTrue();
-            options.Endpoints.Should().BeEmpty();
+            options.Enabled
+                   .Should()
+                   .BeTrue();
+            options.Endpoints
+                   .Should()
+                   .BeEmpty();
         }
         finally
         {
@@ -58,17 +92,14 @@ public class ExecutorConfigurationStoreTests
                 Enabled = false,
                 Endpoints = new List<EndpointScheduleOptions>
                 {
-                    new()
+                    new EndpointScheduleOptions
                     {
                         Name = "Ping",
                         Url = "https://example.test",
                         Cron = "0 0 * * * ?",
                         Method = "PUT",
                         Enabled = true,
-                        Headers = new Dictionary<string, string>
-                        {
-                            ["X-Test"] = "value"
-                        }
+                        Headers = new Dictionary<string, string> { ["X-Test"] = "value" }
                     }
                 }
             };
@@ -76,10 +107,20 @@ public class ExecutorConfigurationStoreTests
             await store.SaveAsync(options);
             var loaded = await store.GetAsync();
 
-            loaded.Enabled.Should().BeFalse();
-            loaded.Endpoints.Should().ContainSingle();
-            loaded.Endpoints[0].Name.Should().Be("Ping");
-            loaded.Endpoints[0].Headers.Should().ContainKey("X-Test");
+            loaded.Enabled
+                  .Should()
+                  .BeFalse();
+            loaded.Endpoints
+                  .Should()
+                  .ContainSingle();
+            loaded.Endpoints[0]
+                  .Name
+                  .Should()
+                  .Be("Ping");
+            loaded.Endpoints[0]
+                  .Headers
+                  .Should()
+                  .ContainKey("X-Test");
         }
         finally
         {
@@ -87,33 +128,22 @@ public class ExecutorConfigurationStoreTests
         }
     }
 
-    [Fact]
-    public async Task GetAsync_WhenEnvironmentFileExists_UsesEnvironmentFile()
+    private static (string Directory, Action Restore) PrepareSettingsDirectory()
     {
-        var (directory, restore) = PrepareSettingsDirectory();
-        try
+        var directory = Path.Combine(Path.GetTempPath(), "Tomeshelf.Executor.Tests", Guid.NewGuid()
+                                                                                         .ToString("N"));
+        Directory.CreateDirectory(directory);
+        var previous = Environment.GetEnvironmentVariable(SettingsEnvVar);
+        Environment.SetEnvironmentVariable(SettingsEnvVar, null);
+
+        return (directory, () =>
         {
-            var environment = new TestHostEnvironment
+            Environment.SetEnvironmentVariable(SettingsEnvVar, previous);
+            if (Directory.Exists(directory))
             {
-                ContentRootPath = directory,
-                EnvironmentName = "Development"
-            };
-
-            var defaultPath = Path.Combine(directory, "executorSettings.json");
-            var envPath = Path.Combine(directory, "executorSettings.Development.json");
-            File.WriteAllText(defaultPath, SerializeOptions("Default"));
-            File.WriteAllText(envPath, SerializeOptions("Environment"));
-
-            var store = new ExecutorConfigurationStore(environment, A.Fake<ILogger<ExecutorConfigurationStore>>());
-            var options = await store.GetAsync();
-
-            options.Endpoints.Should().ContainSingle();
-            options.Endpoints[0].Name.Should().Be("Environment");
-        }
-        finally
-        {
-            restore();
-        }
+                Directory.Delete(directory, true);
+            }
+        });
     }
 
     private static string SerializeOptions(string name)
@@ -138,22 +168,5 @@ public class ExecutorConfigurationStoreTests
         };
 
         return JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web));
-    }
-
-    private static (string Directory, Action Restore) PrepareSettingsDirectory()
-    {
-        var directory = Path.Combine(Path.GetTempPath(), "Tomeshelf.Executor.Tests", Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(directory);
-        var previous = Environment.GetEnvironmentVariable(SettingsEnvVar);
-        Environment.SetEnvironmentVariable(SettingsEnvVar, null);
-
-        return (directory, () =>
-        {
-            Environment.SetEnvironmentVariable(SettingsEnvVar, previous);
-            if (Directory.Exists(directory))
-            {
-                Directory.Delete(directory, true);
-            }
-        });
     }
 }

@@ -1,11 +1,11 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Application.Features.Overview.Models;
 
@@ -13,8 +13,8 @@ namespace Tomeshelf.Fitbit.Infrastructure;
 
 public sealed class FitbitOverviewService : IFitbitOverviewService
 {
-    private readonly TomeshelfFitbitDbContext _dbContext;
     private readonly IFitbitDashboardService _dashboardService;
+    private readonly TomeshelfFitbitDbContext _dbContext;
     private readonly ILogger<FitbitOverviewService> _logger;
 
     public FitbitOverviewService(IFitbitDashboardService dashboardService, TomeshelfFitbitDbContext dbContext, ILogger<FitbitOverviewService> logger)
@@ -34,9 +34,9 @@ public sealed class FitbitOverviewService : IFitbitOverviewService
         }
 
         var last7 = await BuildRangeAsync(date, 7, cancellationToken)
-            .ConfigureAwait(false);
+           .ConfigureAwait(false);
         var last30 = await BuildRangeAsync(date, 30, cancellationToken)
-            .ConfigureAwait(false);
+           .ConfigureAwait(false);
 
         return new FitbitOverviewDto
         {
@@ -57,14 +57,14 @@ public sealed class FitbitOverviewService : IFitbitOverviewService
 
         var snapshots = await _dbContext.DailySnapshots
                                         .AsNoTracking()
-                                        .Where(snapshot => snapshot.Date >= start && snapshot.Date <= date)
+                                        .Where(snapshot => (snapshot.Date >= start) && (snapshot.Date <= date))
                                         .ToListAsync(cancellationToken)
                                         .ConfigureAwait(false);
 
         var snapshotLookup = snapshots.ToDictionary(snapshot => snapshot.Date, snapshot => snapshot);
 
         var lastKnownWeight = await GetLastKnownWeightAsync(start, cancellationToken)
-            .ConfigureAwait(false);
+           .ConfigureAwait(false);
 
         var items = new List<FitbitOverviewDayDto>(days);
 
@@ -106,13 +106,13 @@ public sealed class FitbitOverviewService : IFitbitOverviewService
     {
         var previous = await _dbContext.DailySnapshots
                                        .AsNoTracking()
-                                       .Where(snapshot => snapshot.Date < startDate && (snapshot.CurrentWeightKg.HasValue || snapshot.StartingWeightKg.HasValue))
+                                       .Where(snapshot => (snapshot.Date < startDate) && (snapshot.CurrentWeightKg.HasValue || snapshot.StartingWeightKg.HasValue))
                                        .OrderByDescending(snapshot => snapshot.Date)
                                        .Select(snapshot => new
-                                       {
-                                           snapshot.CurrentWeightKg,
-                                           snapshot.StartingWeightKg
-                                       })
+                                        {
+                                            snapshot.CurrentWeightKg,
+                                            snapshot.StartingWeightKg
+                                        })
                                        .FirstOrDefaultAsync(cancellationToken)
                                        .ConfigureAwait(false);
 

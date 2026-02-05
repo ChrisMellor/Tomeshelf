@@ -11,9 +11,9 @@ public sealed class ExecutorConfigurationViewModel
 
     public List<EndpointSummaryViewModel> Endpoints { get; set; } = [];
 
-    public EndpointEditorModel Editor { get; set; } = new();
+    public EndpointEditorModel Editor { get; set; } = new EndpointEditorModel();
 
-    public EndpointPingModel Ping { get; set; } = new();
+    public EndpointPingModel Ping { get; set; } = new EndpointPingModel();
 
     public EndpointPingResultViewModel? PingResult { get; set; }
 

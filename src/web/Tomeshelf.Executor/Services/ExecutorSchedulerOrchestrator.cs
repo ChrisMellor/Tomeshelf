@@ -68,10 +68,7 @@ public sealed class ExecutorSchedulerOrchestrator : IExecutorSchedulerOrchestrat
                                          })
                                         .Build();
 
-            await scheduler.ScheduleJob(job, new HashSet<ITrigger>
-            {
-                trigger
-            }, true, cancellationToken);
+            await scheduler.ScheduleJob(job, new HashSet<ITrigger> { trigger }, true, cancellationToken);
         }
 
         if (!options.Enabled)

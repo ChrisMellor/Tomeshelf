@@ -23,10 +23,7 @@ public class Error
         var logger = A.Fake<ILogger<HomeController>>();
 
         var httpContext = new DefaultHttpContext { TraceIdentifier = "trace-123" };
-        var controller = new HomeController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger)
-        {
-            ControllerContext = new ControllerContext { HttpContext = httpContext }
-        };
+        var controller = new HomeController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
         var previous = Activity.Current;
         Activity.Current = null;
@@ -37,10 +34,19 @@ public class Error
             var result = controller.Error();
 
             // Assert
-            var view = result.Should().BeOfType<ViewResult>().Subject;
-            var model = view.Model.Should().BeOfType<ErrorViewModel>().Subject;
-            model.RequestId.Should().Be("trace-123");
-            model.ShowRequestId.Should().BeTrue();
+            var view = result.Should()
+                             .BeOfType<ViewResult>()
+                             .Subject;
+            var model = view.Model
+                            .Should()
+                            .BeOfType<ErrorViewModel>()
+                            .Subject;
+            model.RequestId
+                 .Should()
+                 .Be("trace-123");
+            model.ShowRequestId
+                 .Should()
+                 .BeTrue();
         }
         finally
         {

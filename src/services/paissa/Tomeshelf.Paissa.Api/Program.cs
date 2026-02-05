@@ -1,9 +1,9 @@
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Tomeshelf.Paissa.Application;
 using Tomeshelf.Paissa.Infrastructure;
 using Tomeshelf.ServiceDefaults;

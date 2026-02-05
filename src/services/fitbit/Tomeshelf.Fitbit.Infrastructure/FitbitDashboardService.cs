@@ -1,12 +1,12 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Fitbit.Application;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Application.Exceptions;
@@ -83,11 +83,65 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         if (snapshot is not null)
         {
             snapshot = await ApplyWeightFallbackAsync(date, snapshot, cancellationToken)
-                .ConfigureAwait(false);
+               .ConfigureAwait(false);
             _cache.Set(cacheKey, snapshot, CacheDuration);
         }
 
         return snapshot;
+    }
+
+    private async Task<FitbitWeightSummaryDto> ApplyWeightFallbackAsync(DateOnly date, FitbitWeightSummaryDto summary, CancellationToken cancellationToken)
+    {
+        if (HasWeightData(summary))
+        {
+            return summary;
+        }
+
+        var fallback = await _dbContext.DailySnapshots
+                                       .AsNoTracking()
+                                       .Where(snapshot => (snapshot.Date < date) && (snapshot.CurrentWeightKg.HasValue || snapshot.StartingWeightKg.HasValue))
+                                       .OrderByDescending(snapshot => snapshot.Date)
+                                       .Select(snapshot => new
+                                        {
+                                            snapshot.CurrentWeightKg,
+                                            snapshot.StartingWeightKg,
+                                            snapshot.BodyFatPercentage,
+                                            snapshot.LeanMassKg
+                                        })
+                                       .FirstOrDefaultAsync(cancellationToken)
+                                       .ConfigureAwait(false);
+
+        var weight = fallback?.CurrentWeightKg ?? fallback?.StartingWeightKg;
+        if (!weight.HasValue)
+        {
+            return summary;
+        }
+
+        return new FitbitWeightSummaryDto
+        {
+            StartingWeightKg = weight,
+            CurrentWeightKg = weight,
+            BodyFatPercentage = fallback?.BodyFatPercentage,
+            LeanMassKg = fallback?.LeanMassKg
+        };
+    }
+
+    private async Task<FitbitDashboardDto> ApplyWeightFallbackAsync(DateOnly date, FitbitDashboardDto snapshot, CancellationToken cancellationToken)
+    {
+        if (snapshot is null)
+        {
+            return null;
+        }
+
+        var updatedWeight = await ApplyWeightFallbackAsync(date, snapshot.Weight, cancellationToken)
+           .ConfigureAwait(false);
+
+        if (ReferenceEquals(updatedWeight, snapshot.Weight))
+        {
+            return snapshot;
+        }
+
+        return snapshot with { Weight = updatedWeight };
     }
 
     private static FitbitActivitySummaryDto BuildActivitySummary(ActivitiesResponse response)
@@ -337,7 +391,7 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         if (!weightHasData)
         {
             weightSummary = await ApplyWeightFallbackAsync(date, weightSummary, cancellationToken)
-                .ConfigureAwait(false);
+               .ConfigureAwait(false);
         }
 
         var snapshot = new FitbitDashboardDto
@@ -353,6 +407,26 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         var status = new FetchStatus(activitiesResult.IsSuccess, caloriesResult.IsSuccess, sleepResult.IsSuccess, weightHasData);
 
         return new DashboardFetchResult(snapshot, status);
+    }
+
+    private static Exception GetFirstFailure<T1, T2, T3, T4>(FetchResult<T1> activities, FetchResult<T2> calories, FetchResult<T3> sleep, FetchResult<T4> weight)
+    {
+        return activities.Exception ?? calories.Exception ?? sleep.Exception ?? weight.Exception ?? new InvalidOperationException("Failed to fetch Fitbit data.");
+    }
+
+    private static bool HasWeightData(FitbitWeightSummaryDto summary)
+    {
+        if (summary is null)
+        {
+            return false;
+        }
+
+        return summary.CurrentWeightKg.HasValue || summary.StartingWeightKg.HasValue || summary.ChangeKg.HasValue || summary.BodyFatPercentage.HasValue || summary.LeanMassKg.HasValue;
+    }
+
+    private static bool IsCancellation(Exception exception, CancellationToken cancellationToken)
+    {
+        return exception is OperationCanceledException && cancellationToken.IsCancellationRequested;
     }
 
     private static bool IsCriticalFitbitFailure(Exception exception)
@@ -449,6 +523,23 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         return null;
     }
 
+    private async Task<FetchResult<T>> TryFetchAsync<T>(string metric, Func<Task<T>> fetch, DateOnly date, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await fetch()
+               .ConfigureAwait(false);
+
+            return FetchResult<T>.Success(result);
+        }
+        catch (Exception ex) when (!IsCancellation(ex, cancellationToken))
+        {
+            _logger.LogWarning(ex, "Failed to fetch Fitbit {Metric} data for {Date}.", metric, date);
+
+            return FetchResult<T>.Failure(ex);
+        }
+    }
+
     private async Task UpsertSnapshotAsync(FitbitDashboardDto snapshot, CancellationToken cancellationToken, FetchStatus status)
     {
         var date = DateOnly.ParseExact(snapshot.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
@@ -509,102 +600,4 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         await _dbContext.SaveChangesAsync(cancellationToken)
                         .ConfigureAwait(false);
     }
-
-    private async Task<FetchResult<T>> TryFetchAsync<T>(string metric, Func<Task<T>> fetch, DateOnly date, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var result = await fetch().ConfigureAwait(false);
-
-            return FetchResult<T>.Success(result);
-        }
-        catch (Exception ex) when (!IsCancellation(ex, cancellationToken))
-        {
-            _logger.LogWarning(ex, "Failed to fetch Fitbit {Metric} data for {Date}.", metric, date);
-
-            return FetchResult<T>.Failure(ex);
-        }
-    }
-
-    private static bool IsCancellation(Exception exception, CancellationToken cancellationToken)
-    {
-        return exception is OperationCanceledException && cancellationToken.IsCancellationRequested;
-    }
-
-    private static Exception GetFirstFailure<T1, T2, T3, T4>(FetchResult<T1> activities, FetchResult<T2> calories, FetchResult<T3> sleep, FetchResult<T4> weight)
-    {
-        return activities.Exception ?? calories.Exception ?? sleep.Exception ?? weight.Exception ?? new InvalidOperationException("Failed to fetch Fitbit data.");
-    }
-
-    private static bool HasWeightData(FitbitWeightSummaryDto summary)
-    {
-        if (summary is null)
-        {
-            return false;
-        }
-
-        return summary.CurrentWeightKg.HasValue ||
-               summary.StartingWeightKg.HasValue ||
-               summary.ChangeKg.HasValue ||
-               summary.BodyFatPercentage.HasValue ||
-               summary.LeanMassKg.HasValue;
-    }
-
-    private async Task<FitbitWeightSummaryDto> ApplyWeightFallbackAsync(DateOnly date, FitbitWeightSummaryDto summary, CancellationToken cancellationToken)
-    {
-        if (HasWeightData(summary))
-        {
-            return summary;
-        }
-
-        var fallback = await _dbContext.DailySnapshots
-                                       .AsNoTracking()
-                                       .Where(snapshot => snapshot.Date < date && (snapshot.CurrentWeightKg.HasValue || snapshot.StartingWeightKg.HasValue))
-                                       .OrderByDescending(snapshot => snapshot.Date)
-                                       .Select(snapshot => new
-                                       {
-                                           snapshot.CurrentWeightKg,
-                                           snapshot.StartingWeightKg,
-                                           snapshot.BodyFatPercentage,
-                                           snapshot.LeanMassKg
-                                       })
-                                       .FirstOrDefaultAsync(cancellationToken)
-                                       .ConfigureAwait(false);
-
-        var weight = fallback?.CurrentWeightKg ?? fallback?.StartingWeightKg;
-        if (!weight.HasValue)
-        {
-            return summary;
-        }
-
-        return new FitbitWeightSummaryDto
-        {
-            StartingWeightKg = weight,
-            CurrentWeightKg = weight,
-            BodyFatPercentage = fallback?.BodyFatPercentage,
-            LeanMassKg = fallback?.LeanMassKg
-        };
-    }
-
-    private async Task<FitbitDashboardDto> ApplyWeightFallbackAsync(DateOnly date, FitbitDashboardDto snapshot, CancellationToken cancellationToken)
-    {
-        if (snapshot is null)
-        {
-            return null;
-        }
-
-        var updatedWeight = await ApplyWeightFallbackAsync(date, snapshot.Weight, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (ReferenceEquals(updatedWeight, snapshot.Weight))
-        {
-            return snapshot;
-        }
-
-        return snapshot with
-        {
-            Weight = updatedWeight
-        };
-    }
-
 }

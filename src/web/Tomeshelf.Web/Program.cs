@@ -1,3 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
@@ -7,13 +14,6 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Tomeshelf.ServiceDefaults;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Infrastructure;
@@ -26,17 +26,6 @@ namespace Tomeshelf.Web;
 /// </summary>
 public class Program
 {
-    /// <summary>
-    ///     Application entry point for the MVC web host.
-    ///     Configures services and starts the web server.
-    /// </summary>
-    /// <param name="args">Command-line arguments.</param>
-    public static void Main(string[] args)
-    {
-        var app = BuildApp(args);
-        app.Run();
-    }
-
     public static WebApplication BuildApp(string[] args, Action<WebApplicationBuilder>? configureBuilder = null)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -250,10 +239,10 @@ public class Program
                     client.Timeout = TimeSpan.FromSeconds(100);
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-               {
-                   AutomaticDecompression = DecompressionMethods.None,
-                   AllowAutoRedirect = false
-               })
+                {
+                    AutomaticDecompression = DecompressionMethods.None,
+                    AllowAutoRedirect = false
+                })
                .AddHttpMessageHandler<FitbitSessionCookieHandler>();
         builder.Services.AddScoped<IFitbitApi, FitbitApi>();
 
@@ -397,6 +386,17 @@ public class Program
         app.MapDefaultEndpoints();
 
         return app;
+    }
+
+    /// <summary>
+    ///     Application entry point for the MVC web host.
+    ///     Configures services and starts the web server.
+    /// </summary>
+    /// <param name="args">Command-line arguments.</param>
+    public static void Main(string[] args)
+    {
+        var app = BuildApp(args);
+        app.Run();
     }
 
     private static bool IsRunningInDocker()

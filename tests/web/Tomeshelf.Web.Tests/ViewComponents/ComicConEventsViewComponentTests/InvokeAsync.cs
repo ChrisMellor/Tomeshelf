@@ -24,21 +24,28 @@ public class InvokeAsync
         var logger = A.Fake<ILogger<ComicConEventsViewComponent>>();
         var events = new List<McmEventConfigModel>
         {
-            new() { Id = "mcm-1", Name = "MCM" }
+            new McmEventConfigModel
+            {
+                Id = "mcm-1",
+                Name = "MCM"
+            }
         };
-        A.CallTo(() => api.GetComicConEventsAsync(A<CancellationToken>._)).Returns(events);
+        A.CallTo(() => api.GetComicConEventsAsync(A<CancellationToken>._))
+         .Returns(events);
 
-        var component = new ComicConEventsViewComponent(api, logger)
-        {
-            ViewComponentContext = CreateViewComponentContext()
-        };
+        var component = new ComicConEventsViewComponent(api, logger) { ViewComponentContext = CreateViewComponentContext() };
 
         // Act
         var result = await component.InvokeAsync();
 
         // Assert
-        var view = result.Should().BeOfType<ViewViewComponentResult>().Subject;
-        view.ViewData.Model.Should().BeEquivalentTo(events);
+        var view = result.Should()
+                         .BeOfType<ViewViewComponentResult>()
+                         .Subject;
+        view.ViewData
+            .Model
+            .Should()
+            .BeEquivalentTo(events);
     }
 
     [Fact]
@@ -47,25 +54,29 @@ public class InvokeAsync
         // Arrange
         var api = A.Fake<IGuestsApi>();
         var logger = A.Fake<ILogger<ComicConEventsViewComponent>>();
-        A.CallTo(() => api.GetComicConEventsAsync(A<CancellationToken>._)).Throws(new InvalidOperationException("boom"));
+        A.CallTo(() => api.GetComicConEventsAsync(A<CancellationToken>._))
+         .Throws(new InvalidOperationException("boom"));
 
-        var component = new ComicConEventsViewComponent(api, logger)
-        {
-            ViewComponentContext = CreateViewComponentContext()
-        };
+        var component = new ComicConEventsViewComponent(api, logger) { ViewComponentContext = CreateViewComponentContext() };
 
         // Act
         var result = await component.InvokeAsync();
 
         // Assert
-        var view = result.Should().BeOfType<ViewViewComponentResult>().Subject;
-        view.ViewData.Model.Should().BeEquivalentTo(Array.Empty<McmEventConfigModel>());
+        var view = result.Should()
+                         .BeOfType<ViewViewComponentResult>()
+                         .Subject;
+        view.ViewData
+            .Model
+            .Should()
+            .BeEquivalentTo(Array.Empty<McmEventConfigModel>());
     }
 
     private static ViewComponentContext CreateViewComponentContext()
     {
         var httpContext = new DefaultHttpContext();
         var viewContext = new ViewContext { HttpContext = httpContext };
+
         return new ViewComponentContext { ViewContext = viewContext };
     }
 }

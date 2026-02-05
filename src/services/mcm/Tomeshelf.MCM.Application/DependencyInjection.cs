@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
-using Tomeshelf.MCM.Application.Abstractions.Mappers;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
+using Tomeshelf.MCM.Application.Abstractions.Mappers;
 using Tomeshelf.MCM.Application.Contracts;
 using Tomeshelf.MCM.Application.Features.Events.Commands;
 using Tomeshelf.MCM.Application.Features.Events.Queries;

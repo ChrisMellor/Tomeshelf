@@ -17,15 +17,12 @@ public sealed class XAppOnlyTokenProvider
 {
     public const string HttpClientName = "Shift.XAuth";
 
-    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true
-    };
+    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<XAppOnlyTokenProvider> _logger;
     private readonly IOptionsMonitor<ShiftKeyScannerOptions> _options;
-    private readonly SemaphoreSlim _refreshLock = new(1, 1);
+    private readonly SemaphoreSlim _refreshLock = new SemaphoreSlim(1, 1);
     private CachedToken? _cached;
 
     public XAppOnlyTokenProvider(IHttpClientFactory httpClientFactory, IOptionsMonitor<ShiftKeyScannerOptions> options, ILogger<XAppOnlyTokenProvider> logger)
@@ -51,19 +48,23 @@ public sealed class XAppOnlyTokenProvider
         if (string.IsNullOrWhiteSpace(settings.ApiKey) || string.IsNullOrWhiteSpace(settings.ApiSecret))
         {
             _logger.LogWarning("X app-only token requested but ApiKey/ApiSecret are not configured.");
+
             return null;
         }
 
         if (string.IsNullOrWhiteSpace(settings.OAuthTokenEndpoint))
         {
             _logger.LogWarning("X app-only token requested but OAuthTokenEndpoint is not configured.");
+
             return null;
         }
 
         var now = DateTimeOffset.UtcNow;
         var cacheWindow = TimeSpan.FromMinutes(Math.Clamp(settings.TokenCacheMinutes, 1, 1440));
 
-        if (_cached is { } cached && cached.ExpiresUtc > now)
+        if (_cached is
+                { } cached &&
+            (cached.ExpiresUtc > now))
         {
             return cached.AccessToken;
         }
@@ -71,7 +72,9 @@ public sealed class XAppOnlyTokenProvider
         await _refreshLock.WaitAsync(cancellationToken);
         try
         {
-            if (_cached is { } refreshed && refreshed.ExpiresUtc > now)
+            if (_cached is
+                    { } refreshed &&
+                (refreshed.ExpiresUtc > now))
             {
                 return refreshed.AccessToken;
             }
@@ -83,6 +86,7 @@ public sealed class XAppOnlyTokenProvider
             }
 
             _cached = new CachedToken(token, now.Add(cacheWindow));
+
             return token;
         }
         finally
@@ -101,10 +105,7 @@ public sealed class XAppOnlyTokenProvider
         var client = _httpClientFactory.CreateClient(HttpClientName);
 
         using var request = new HttpRequestMessage(HttpMethod.Post, settings.OAuthTokenEndpoint);
-        request.Content = new FormUrlEncodedContent(new[]
-        {
-            new KeyValuePair<string, string>("grant_type", "client_credentials")
-        });
+        request.Content = new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("grant_type", "client_credentials") });
 
         var credentials = $"{settings.ApiKey}:{settings.ApiSecret}";
         var encoded = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
@@ -115,6 +116,7 @@ public sealed class XAppOnlyTokenProvider
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogWarning("X app-only token request failed with status {StatusCode}.", (int)response.StatusCode);
+
             return null;
         }
 
@@ -131,7 +133,5 @@ public sealed class XAppOnlyTokenProvider
 
     private sealed record CachedToken(string AccessToken, DateTimeOffset ExpiresUtc);
 
-    private sealed record XTokenResponse(
-        [property: JsonPropertyName("token_type")] string? TokenType,
-        [property: JsonPropertyName("access_token")] string? AccessToken);
+    private sealed record XTokenResponse([property: JsonPropertyName("token_type")] string? TokenType, [property: JsonPropertyName("access_token")] string? AccessToken);
 }

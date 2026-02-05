@@ -7,10 +7,7 @@ namespace Tomeshelf.Application.Tests.Converters.NullableFlexibleDecimalConverte
 
 public class Read
 {
-    private readonly JsonSerializerOptions _options = new(JsonSerializerDefaults.Web)
-    {
-        Converters = { new NullableFlexibleDecimalConverter() }
-    };
+    private readonly JsonSerializerOptions _options = new JsonSerializerOptions(JsonSerializerDefaults.Web) { Converters = { new NullableFlexibleDecimalConverter() } };
 
     [Fact]
     public void Null_ReturnsNull()
@@ -27,7 +24,8 @@ public class Read
         var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should().BeNull();
+        value.Should()
+             .BeNull();
     }
 
     [Fact]
@@ -45,7 +43,8 @@ public class Read
         var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should().Be(123.45m);
+        value.Should()
+             .Be(123.45m);
     }
 
     [Fact]
@@ -63,7 +62,8 @@ public class Read
         var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should().Be(1234.50m);
+        value.Should()
+             .Be(1234.50m);
     }
 
     [Fact]
@@ -81,7 +81,8 @@ public class Read
         var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should().BeNull();
+        value.Should()
+             .BeNull();
     }
 
     [Fact]
@@ -99,6 +100,7 @@ public class Read
         var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should().BeNull();
+        value.Should()
+             .BeNull();
     }
 }

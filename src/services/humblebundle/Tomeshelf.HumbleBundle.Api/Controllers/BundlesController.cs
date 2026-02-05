@@ -1,15 +1,15 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.HumbleBundle.Application.HumbleBundle;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Commands;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Queries;
+using Tomeshelf.HumbleBundle.Application.HumbleBundle;
 
 namespace Tomeshelf.HumbleBundle.Api.Controllers;
 
@@ -17,9 +17,9 @@ namespace Tomeshelf.HumbleBundle.Api.Controllers;
 [Route("bundles")]
 public sealed class BundlesController : ControllerBase
 {
-    private readonly ICommandHandler<RefreshBundlesCommand, BundleIngestResult> _refreshHandler;
     private readonly ILogger<BundlesController> _logger;
     private readonly IQueryHandler<GetBundlesQuery, IReadOnlyList<BundleDto>> _queryHandler;
+    private readonly ICommandHandler<RefreshBundlesCommand, BundleIngestResult> _refreshHandler;
 
     public BundlesController(IQueryHandler<GetBundlesQuery, IReadOnlyList<BundleDto>> queryHandler, ICommandHandler<RefreshBundlesCommand, BundleIngestResult> refreshHandler, ILogger<BundlesController> logger)
     {

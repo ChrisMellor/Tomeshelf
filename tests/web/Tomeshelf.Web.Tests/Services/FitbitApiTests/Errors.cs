@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -20,10 +19,8 @@ public class Errors
         // Arrange
         var handler = new StubHttpMessageHandler((_, _) =>
         {
-            var response = new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
-            {
-                Content = new StringContent("service down", Encoding.UTF8, "text/plain")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.ServiceUnavailable) { Content = new StringContent("service down", Encoding.UTF8, "text/plain") };
+
             return Task.FromResult(response);
         });
 
@@ -34,7 +31,8 @@ public class Errors
         var action = () => api.GetOverviewAsync("2020-01-01", false, "https://return", CancellationToken.None);
 
         // Assert
-        await action.Should().ThrowAsync<FitbitBackendUnavailableException>()
-            .WithMessage("service down");
+        await action.Should()
+                    .ThrowAsync<FitbitBackendUnavailableException>()
+                    .WithMessage("service down");
     }
 }

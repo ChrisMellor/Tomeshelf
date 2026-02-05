@@ -16,7 +16,9 @@ public class Defaults
         var enabled = model.Enabled;
 
         // Assert
-        method.Should().Be("POST");
-        enabled.Should().BeTrue();
+        method.Should()
+              .Be("POST");
+        enabled.Should()
+               .BeTrue();
     }
 }

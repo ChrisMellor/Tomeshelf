@@ -10,13 +10,20 @@ public class NextDate
     public void WhenSelectedDateIsToday_NextDateIsNull()
     {
         // Arrange
-        var today = DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd");
+        var today = DateOnly.FromDateTime(DateTime.Today)
+                            .ToString("yyyy-MM-dd");
 
         // Act
         var model = FitnessDashboardViewModel.Empty(today, WeightUnit.Stones);
 
         // Assert
-        model.NextDate.Should().BeNull();
-        model.PreviousDate.Should().Be(DateOnly.FromDateTime(DateTime.Today).AddDays(-1).ToString("yyyy-MM-dd"));
+        model.NextDate
+             .Should()
+             .BeNull();
+        model.PreviousDate
+             .Should()
+             .Be(DateOnly.FromDateTime(DateTime.Today)
+                         .AddDays(-1)
+                         .ToString("yyyy-MM-dd"));
     }
 }

@@ -7,6 +7,29 @@ namespace Tomeshelf.Executor.Tests.Models.CronBuilderViewModelTests;
 public class Constructor
 {
     [Fact]
+    public void WhenInitialValueNull_UsesEmptyString()
+    {
+        // Arrange
+        var faker = new Faker();
+        var inputId = faker.Random.Word();
+        var inputName = faker.Random.Word();
+
+        // Act
+        var model = new CronBuilderViewModel(inputId, inputName, null);
+
+        // Assert
+        model.InitialValue
+             .Should()
+             .BeEmpty();
+        model.InputId
+             .Should()
+             .Be(inputId);
+        model.InputName
+             .Should()
+             .Be(inputName);
+    }
+
+    [Fact]
     public void WhenNullInputId_Throws()
     {
         // Arrange
@@ -16,7 +39,8 @@ public class Constructor
         Action act = () => new CronBuilderViewModel(null!, faker.Random.Word(), "* * * * *");
 
         // Assert
-        act.Should().Throw<ArgumentNullException>();
+        act.Should()
+           .Throw<ArgumentNullException>();
     }
 
     [Fact]
@@ -29,23 +53,7 @@ public class Constructor
         Action act = () => new CronBuilderViewModel(faker.Random.Word(), null!, "* * * * *");
 
         // Assert
-        act.Should().Throw<ArgumentNullException>();
-    }
-
-    [Fact]
-    public void WhenInitialValueNull_UsesEmptyString()
-    {
-        // Arrange
-        var faker = new Faker();
-        var inputId = faker.Random.Word();
-        var inputName = faker.Random.Word();
-
-        // Act
-        var model = new CronBuilderViewModel(inputId, inputName, null);
-
-        // Assert
-        model.InitialValue.Should().BeEmpty();
-        model.InputId.Should().Be(inputId);
-        model.InputName.Should().Be(inputName);
+        act.Should()
+           .Throw<ArgumentNullException>();
     }
 }

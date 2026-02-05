@@ -1,5 +1,5 @@
 using System;
-using System.Net;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -20,10 +20,8 @@ public class EmptyPayload
         // Arrange
         var handler = new StubHttpMessageHandler((_, _) =>
         {
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("null", Encoding.UTF8, "application/json")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("null", Encoding.UTF8, "application/json") };
+
             return Task.FromResult(response);
         });
 
@@ -31,10 +29,11 @@ public class EmptyPayload
         var api = new FileUploadsApi(new TestHttpClientFactory(client), A.Fake<ILogger<FileUploadsApi>>());
 
         // Act
-        var action = () => api.UploadBundleAsync(new System.IO.MemoryStream(new byte[] { 1 }), "bundle.zip", null, CancellationToken.None);
+        var action = () => api.UploadBundleAsync(new MemoryStream(new byte[] { 1 }), "bundle.zip", null, CancellationToken.None);
 
         // Assert
-        await action.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("Empty upload response payload");
+        await action.Should()
+                    .ThrowAsync<InvalidOperationException>()
+                    .WithMessage("Empty upload response payload");
     }
 }

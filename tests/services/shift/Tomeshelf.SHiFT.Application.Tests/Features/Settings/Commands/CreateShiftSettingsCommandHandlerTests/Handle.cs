@@ -23,7 +23,7 @@ public class Handle
         var email = faker.Internet.Email();
 
         A.CallTo(() => repository.EmailExistsAsync(email, null, A<CancellationToken>._))
-            .Returns(Task.FromResult(true));
+         .Returns(Task.FromResult(true));
 
         var command = new CreateShiftSettingsCommand(email, faker.Random.AlphaNumeric(8), "psn");
 
@@ -31,7 +31,8 @@ public class Handle
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should()
+                 .ThrowAsync<InvalidOperationException>();
     }
 
     [Fact]
@@ -48,10 +49,11 @@ public class Handle
         var service = "psn";
 
         A.CallTo(() => repository.EmailExistsAsync(email, null, A<CancellationToken>._))
-            .Returns(Task.FromResult(false));
-        A.CallTo(() => clock.UtcNow).Returns(now);
+         .Returns(Task.FromResult(false));
+        A.CallTo(() => clock.UtcNow)
+         .Returns(now);
         A.CallTo(() => repository.CreateAsync(A<SettingsEntity>._, A<CancellationToken>._))
-            .Returns(Task.FromResult(7));
+         .Returns(Task.FromResult(7));
 
         var command = new CreateShiftSettingsCommand(email, string.Empty, service);
 
@@ -59,14 +61,12 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should().Be(7);
-        A.CallTo(() => protector.Protect(A<string>._)).MustNotHaveHappened();
-        A.CallTo(() => repository.CreateAsync(A<SettingsEntity>.That.Matches(entity =>
-                entity.Email == email &&
-                entity.DefaultService == service &&
-                entity.EncryptedPassword == null &&
-                entity.UpdatedUtc == now),
-            A<CancellationToken>._)).MustHaveHappenedOnceExactly();
+        result.Should()
+              .Be(7);
+        A.CallTo(() => protector.Protect(A<string>._))
+         .MustNotHaveHappened();
+        A.CallTo(() => repository.CreateAsync(A<SettingsEntity>.That.Matches(entity => (entity.Email == email) && (entity.DefaultService == service) && (entity.EncryptedPassword == null) && (entity.UpdatedUtc == now)), A<CancellationToken>._))
+         .MustHaveHappenedOnceExactly();
     }
 
     [Fact]
@@ -85,11 +85,13 @@ public class Handle
         var encrypted = faker.Random.AlphaNumeric(16);
 
         A.CallTo(() => repository.EmailExistsAsync(email, null, A<CancellationToken>._))
-            .Returns(Task.FromResult(false));
-        A.CallTo(() => clock.UtcNow).Returns(now);
-        A.CallTo(() => protector.Protect(password)).Returns(encrypted);
+         .Returns(Task.FromResult(false));
+        A.CallTo(() => clock.UtcNow)
+         .Returns(now);
+        A.CallTo(() => protector.Protect(password))
+         .Returns(encrypted);
         A.CallTo(() => repository.CreateAsync(A<SettingsEntity>._, A<CancellationToken>._))
-            .Returns(Task.FromResult(9));
+         .Returns(Task.FromResult(9));
 
         var command = new CreateShiftSettingsCommand(email, password, service);
 
@@ -97,13 +99,11 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should().Be(9);
-        A.CallTo(() => protector.Protect(password)).MustHaveHappenedOnceExactly();
-        A.CallTo(() => repository.CreateAsync(A<SettingsEntity>.That.Matches(entity =>
-                entity.Email == email &&
-                entity.DefaultService == service &&
-                entity.EncryptedPassword == encrypted &&
-                entity.UpdatedUtc == now),
-            A<CancellationToken>._)).MustHaveHappenedOnceExactly();
+        result.Should()
+              .Be(9);
+        A.CallTo(() => protector.Protect(password))
+         .MustHaveHappenedOnceExactly();
+        A.CallTo(() => repository.CreateAsync(A<SettingsEntity>.That.Matches(entity => (entity.Email == email) && (entity.DefaultService == service) && (entity.EncryptedPassword == encrypted) && (entity.UpdatedUtc == now)), A<CancellationToken>._))
+         .MustHaveHappenedOnceExactly();
     }
 }

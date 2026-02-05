@@ -19,19 +19,33 @@ public class GetAllAsync
         var service = new EventService(repository);
         var entities = new List<EventEntity>
         {
-            new() { Id = faker.Random.AlphaNumeric(8), Name = faker.Company.CompanyName() },
-            new() { Id = faker.Random.AlphaNumeric(8), Name = faker.Company.CompanyName() }
+            new EventEntity
+            {
+                Id = faker.Random.AlphaNumeric(8),
+                Name = faker.Company.CompanyName()
+            },
+            new EventEntity
+            {
+                Id = faker.Random.AlphaNumeric(8),
+                Name = faker.Company.CompanyName()
+            }
         };
 
-        var expected = entities.Select(entity => new EventConfigModel { Id = entity.Id, Name = entity.Name }).ToList();
+        var expected = entities.Select(entity => new EventConfigModel
+                                {
+                                    Id = entity.Id,
+                                    Name = entity.Name
+                                })
+                               .ToList();
 
         A.CallTo(() => repository.GetAllAsync(A<CancellationToken>._))
-            .Returns(Task.FromResult<IReadOnlyList<EventEntity>>(entities));
+         .Returns(Task.FromResult<IReadOnlyList<EventEntity>>(entities));
 
         // Act
         var result = await service.GetAllAsync(CancellationToken.None);
 
         // Assert
-        result.Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+        result.Should()
+              .BeEquivalentTo(expected, options => options.WithStrictOrdering());
     }
 }

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -5,9 +8,6 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Tomeshelf.ServiceDefaults;
 
@@ -57,8 +57,8 @@ public static class ExecutorDiscoveryExtensions
         ArgumentNullException.ThrowIfNull(app);
 
         var resolvedPattern = string.IsNullOrWhiteSpace(pattern)
-                ? ExecutorDiscoveryConstants.DefaultPath
-                : pattern.Trim();
+            ? ExecutorDiscoveryConstants.DefaultPath
+            : pattern.Trim();
         if (!resolvedPattern.StartsWith('/'))
         {
             resolvedPattern = "/" + resolvedPattern;
@@ -67,7 +67,9 @@ public static class ExecutorDiscoveryExtensions
         app.MapGet(resolvedPattern, (IApiDescriptionGroupCollectionProvider provider, IHostEnvironment environment) =>
             {
                 var serviceName = environment?.ApplicationName ?? "unknown";
-                var endpoints = provider.ApiDescriptionGroups.Items.SelectMany(g => g.Items)
+                var endpoints = provider.ApiDescriptionGroups
+                                        .Items
+                                        .SelectMany(g => g.Items)
                                         .Where(d => d is not null && !string.IsNullOrWhiteSpace(d.RelativePath) && !string.IsNullOrWhiteSpace(d.HttpMethod))
                                         .Select(CreateEndpoint)
                                         .Where(static e => e is not null)
@@ -86,6 +88,25 @@ public static class ExecutorDiscoveryExtensions
         return app;
     }
 
+    private static bool AllowsBody(ApiDescription description)
+    {
+        if ((description.HttpMethod?.Equals("GET", StringComparison.OrdinalIgnoreCase) == true) || (description.HttpMethod?.Equals("DELETE", StringComparison.OrdinalIgnoreCase) == true) || (description.HttpMethod?.Equals("HEAD", StringComparison.OrdinalIgnoreCase) == true))
+        {
+            // Commonly body-less verbs.
+            if (!description.ParameterDescriptions.Any(static p => (p.Source == BindingSource.Body) || (p.Source == BindingSource.Form)))
+            {
+                return false;
+            }
+        }
+
+        if (description.SupportedRequestFormats?.Count > 0)
+        {
+            return true;
+        }
+
+        return description.ParameterDescriptions.Any(static p => (p.Source == BindingSource.Body) || (p.Source == BindingSource.Form) || (p.Source == BindingSource.FormFile));
+    }
+
     private static ExecutorDiscoveredEndpoint? CreateEndpoint(ApiDescription description)
     {
         var method = description.HttpMethod?.ToUpperInvariant();
@@ -97,7 +118,9 @@ public static class ExecutorDiscoveryExtensions
         var relativePath = "/" + description.RelativePath!.TrimStart('/');
 
         var displayName = description.ActionDescriptor?.DisplayName;
-        var descriptionText = description.ActionDescriptor?.EndpointMetadata?.OfType<ProducesResponseTypeAttribute>()
+        var descriptionText = description.ActionDescriptor
+                                        ?.EndpointMetadata
+                                        ?.OfType<ProducesResponseTypeAttribute>()
                                         ?.FirstOrDefault()
                                         ?.StatusCode switch
         {
@@ -123,24 +146,5 @@ public static class ExecutorDiscoveryExtensions
         }
 
         return new ExecutorDiscoveredEndpoint(id, method, relativePath, displayName, descriptionText, allowBody, groupName);
-    }
-
-    private static bool AllowsBody(ApiDescription description)
-    {
-        if ((description.HttpMethod?.Equals("GET", StringComparison.OrdinalIgnoreCase) == true) || (description.HttpMethod?.Equals("DELETE", StringComparison.OrdinalIgnoreCase) == true) || (description.HttpMethod?.Equals("HEAD", StringComparison.OrdinalIgnoreCase) == true))
-        {
-            // Commonly body-less verbs.
-            if (!description.ParameterDescriptions.Any(static p => (p.Source == BindingSource.Body) || (p.Source == BindingSource.Form)))
-            {
-                return false;
-            }
-        }
-
-        if (description.SupportedRequestFormats?.Count > 0)
-        {
-            return true;
-        }
-
-        return description.ParameterDescriptions.Any(static p => (p.Source == BindingSource.Body) || (p.Source == BindingSource.Form) || (p.Source == BindingSource.FormFile));
     }
 }

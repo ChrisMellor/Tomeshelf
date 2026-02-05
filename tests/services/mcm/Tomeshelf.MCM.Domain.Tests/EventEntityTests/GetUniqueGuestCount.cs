@@ -6,6 +6,31 @@ namespace Tomeshelf.MCM.Domain.Tests.EventEntityTests;
 public class GetUniqueGuestCount
 {
     [Fact]
+    public void EmptyGuestId_CountsAsUnique()
+    {
+        // Arrange
+        var guestA = Guid.NewGuid();
+        var guestB = Guid.NewGuid();
+        var eventEntity = new EventEntity
+        {
+            Guests = new List<GuestEntity>
+            {
+                new GuestEntity { Id = guestA },
+                new GuestEntity { Id = Guid.Empty },
+                new GuestEntity { Id = guestB },
+                new GuestEntity { Id = Guid.Empty }
+            }
+        };
+
+        // Act
+        var uniqueGuestCount = eventEntity.GetUniqueGuestCount();
+
+        // Assert
+        uniqueGuestCount.Should()
+                        .Be(3);
+    }
+
+    [Fact]
     public void NoGuests_ReturnsZero()
     {
         // Arrange
@@ -15,7 +40,32 @@ public class GetUniqueGuestCount
         var uniqueGuestCount = eventEntity.GetUniqueGuestCount();
 
         // Assert
-        uniqueGuestCount.Should().Be(0);
+        uniqueGuestCount.Should()
+                        .Be(0);
+    }
+
+    [Fact]
+    public void WithDuplicateGuests_ReturnsCorrectCount()
+    {
+        // Arrange
+        var guestA = Guid.NewGuid();
+        var guestB = Guid.NewGuid();
+        var eventEntity = new EventEntity
+        {
+            Guests = new List<GuestEntity>
+            {
+                new GuestEntity { Id = guestA },
+                new GuestEntity { Id = guestB },
+                new GuestEntity { Id = guestA }
+            }
+        };
+
+        // Act
+        var uniqueGuestCount = eventEntity.GetUniqueGuestCount();
+
+        // Assert
+        uniqueGuestCount.Should()
+                        .Be(2);
     }
 
     [Fact]
@@ -29,9 +79,9 @@ public class GetUniqueGuestCount
         {
             Guests = new List<GuestEntity>
             {
-                new() { Id = guestA },
-                new() { Id = guestB },
-                new() { Id = guestC }
+                new GuestEntity { Id = guestA },
+                new GuestEntity { Id = guestB },
+                new GuestEntity { Id = guestC }
             }
         };
 
@@ -39,53 +89,7 @@ public class GetUniqueGuestCount
         var uniqueGuestCount = eventEntity.GetUniqueGuestCount();
 
         // Assert
-        uniqueGuestCount.Should().Be(3);
-    }
-
-    [Fact]
-    public void WithDuplicateGuests_ReturnsCorrectCount()
-    {
-        // Arrange
-        var guestA = Guid.NewGuid();
-        var guestB = Guid.NewGuid();
-        var eventEntity = new EventEntity
-        {
-            Guests = new List<GuestEntity>
-            {
-                new() { Id = guestA },
-                new() { Id = guestB },
-                new() { Id = guestA }
-            }
-        };
-
-        // Act
-        var uniqueGuestCount = eventEntity.GetUniqueGuestCount();
-
-        // Assert
-        uniqueGuestCount.Should().Be(2);
-    }
-
-    [Fact]
-    public void EmptyGuestId_CountsAsUnique()
-    {
-        // Arrange
-        var guestA = Guid.NewGuid();
-        var guestB = Guid.NewGuid();
-        var eventEntity = new EventEntity
-        {
-            Guests = new List<GuestEntity>
-            {
-                new() { Id = guestA },
-                new() { Id = Guid.Empty },
-                new() { Id = guestB },
-                new() { Id = Guid.Empty }
-            }
-        };
-
-        // Act
-        var uniqueGuestCount = eventEntity.GetUniqueGuestCount();
-
-        // Assert
-        uniqueGuestCount.Should().Be(3);
+        uniqueGuestCount.Should()
+                        .Be(3);
     }
 }

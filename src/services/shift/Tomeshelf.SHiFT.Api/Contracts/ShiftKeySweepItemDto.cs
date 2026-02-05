@@ -10,8 +10,4 @@ namespace Tomeshelf.SHiFT.Api.Contracts;
 /// <param name="Sources">Sources that reported the code.</param>
 /// <param name="Summary">Summary of redemption attempts for this code.</param>
 /// <param name="Results">Detailed redemption results for each configured account.</param>
-public sealed record ShiftKeySweepItemDto(
-    string Code,
-    IReadOnlyList<string> Sources,
-    RedeemSummaryDto Summary,
-    IReadOnlyList<RedeemResult> Results);
+public sealed record ShiftKeySweepItemDto(string Code, IReadOnlyList<string> Sources, RedeemSummaryDto Summary, IReadOnlyList<RedeemResult> Results);

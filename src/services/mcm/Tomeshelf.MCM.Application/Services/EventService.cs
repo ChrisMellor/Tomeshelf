@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
 using Tomeshelf.MCM.Application.Models;
-using Tomeshelf.MCM.Domain.Mcm;
 
 namespace Tomeshelf.MCM.Application.Services;
 
@@ -57,13 +56,12 @@ public class EventService : IEventService
     {
         var entities = await _eventRepository.GetAllAsync(cancellationToken);
 
-        return entities
-            .Select(entity => new EventConfigModel
-            {
-                Id = entity.Id,
-                Name = entity.Name
-            })
-            .ToList();
+        return entities.Select(entity => new EventConfigModel
+                        {
+                            Id = entity.Id,
+                            Name = entity.Name
+                        })
+                       .ToList();
     }
 
     /// <summary>

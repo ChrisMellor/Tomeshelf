@@ -15,6 +15,7 @@ public class GetUnitLabel
         var result = WeightUnitConverter.GetUnitLabel(unit);
 
         // Assert
-        result.Should().Be(expected);
+        result.Should()
+              .Be(expected);
     }
 }

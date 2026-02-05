@@ -1,8 +1,10 @@
 @model IReadOnlyList<Tomeshelf.Web.Models.Mcm.McmEventConfigModel>
 
-@if ((Model is null) || (Model.Count == 0))
+@if (Model is null || (Model.Count == 0))
 {
-    <li><span class="dropdown-item-text text-muted">No events available</span></li>
+    <li>
+        <span class="dropdown-item-text text-muted">No events available</span>
+    </li>
 }
 else
 {

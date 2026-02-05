@@ -1,7 +1,7 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using Tomeshelf.HumbleBundle.Application.Abstractions.External;
 using Tomeshelf.HumbleBundle.Application.Abstractions.Persistence;
 using Tomeshelf.HumbleBundle.Infrastructure.Bundles;

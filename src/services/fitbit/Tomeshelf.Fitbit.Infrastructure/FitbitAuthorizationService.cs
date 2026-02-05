@@ -1,7 +1,3 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -12,6 +8,10 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Tomeshelf.Fitbit.Application;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Infrastructure.Models;
@@ -83,63 +83,6 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
         }
 
         return new Uri(builder.ToString());
-    }
-
-    public static Uri BuildCallbackUri(FitbitOptions options, HttpRequest request)
-    {
-        if (options is null)
-        {
-            throw new ArgumentNullException(nameof(options));
-        }
-
-        var path = string.IsNullOrWhiteSpace(options.CallbackPath) ? new PathString("/api/fitbit/auth/callback") :
-            options.CallbackPath.StartsWith("/", StringComparison.Ordinal) ? new PathString(options.CallbackPath) : new PathString("/" + options.CallbackPath);
-
-        Uri baseUri;
-
-        if (string.IsNullOrWhiteSpace(options.CallbackBaseUri))
-        {
-            if (request is null)
-            {
-                throw new InvalidOperationException("Fitbit CallbackBaseUri is not configured and no HTTP request is available to infer it.");
-            }
-
-            if (string.IsNullOrWhiteSpace(request.Scheme))
-            {
-                throw new InvalidOperationException("Cannot infer Fitbit callback URI because the current HTTP request has no scheme.");
-            }
-
-            if (!request.Host.HasValue)
-            {
-                throw new InvalidOperationException("Cannot infer Fitbit callback URI because the current HTTP request has no host.");
-            }
-
-            baseUri = new Uri($"{request.Scheme}://{request.Host.ToUriComponent()}");
-
-            if (request.PathBase.HasValue)
-            {
-                path = request.PathBase.Add(path);
-            }
-        }
-        else if (!Uri.TryCreate(options.CallbackBaseUri, UriKind.Absolute, out baseUri))
-        {
-            throw new InvalidOperationException($"Invalid Fitbit CallbackBaseUri '{options.CallbackBaseUri}'.");
-        }
-        else if (request?.PathBase.HasValue == true)
-        {
-            path = request.PathBase.Add(path);
-        }
-
-        var pathValue = path.HasValue
-            ? path.Value
-            : "/api/fitbit/auth/callback";
-
-        if ((pathValue.Length == 0) || (pathValue[0] != '/'))
-        {
-            pathValue = "/" + pathValue;
-        }
-
-        return new Uri(baseUri, pathValue);
     }
 
     public async Task ExchangeAuthorizationCodeAsync(string code, string codeVerifier, CancellationToken cancellationToken)
@@ -223,6 +166,63 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
         return false;
     }
 
+    public static Uri BuildCallbackUri(FitbitOptions options, HttpRequest request)
+    {
+        if (options is null)
+        {
+            throw new ArgumentNullException(nameof(options));
+        }
+
+        var path = string.IsNullOrWhiteSpace(options.CallbackPath) ? new PathString("/api/fitbit/auth/callback") :
+            options.CallbackPath.StartsWith("/", StringComparison.Ordinal) ? new PathString(options.CallbackPath) : new PathString("/" + options.CallbackPath);
+
+        Uri baseUri;
+
+        if (string.IsNullOrWhiteSpace(options.CallbackBaseUri))
+        {
+            if (request is null)
+            {
+                throw new InvalidOperationException("Fitbit CallbackBaseUri is not configured and no HTTP request is available to infer it.");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Scheme))
+            {
+                throw new InvalidOperationException("Cannot infer Fitbit callback URI because the current HTTP request has no scheme.");
+            }
+
+            if (!request.Host.HasValue)
+            {
+                throw new InvalidOperationException("Cannot infer Fitbit callback URI because the current HTTP request has no host.");
+            }
+
+            baseUri = new Uri($"{request.Scheme}://{request.Host.ToUriComponent()}");
+
+            if (request.PathBase.HasValue)
+            {
+                path = request.PathBase.Add(path);
+            }
+        }
+        else if (!Uri.TryCreate(options.CallbackBaseUri, UriKind.Absolute, out baseUri))
+        {
+            throw new InvalidOperationException($"Invalid Fitbit CallbackBaseUri '{options.CallbackBaseUri}'.");
+        }
+        else if (request?.PathBase.HasValue == true)
+        {
+            path = request.PathBase.Add(path);
+        }
+
+        var pathValue = path.HasValue
+            ? path.Value
+            : "/api/fitbit/auth/callback";
+
+        if ((pathValue.Length == 0) || (pathValue[0] != '/'))
+        {
+            pathValue = "/" + pathValue;
+        }
+
+        return new Uri(baseUri, pathValue);
+    }
+
     private static string Base64UrlEncode(byte[] data)
     {
         return Convert.ToBase64String(data)
@@ -251,5 +251,4 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
     {
         return $"fitbit:oauth:state:{state}";
     }
-
 }

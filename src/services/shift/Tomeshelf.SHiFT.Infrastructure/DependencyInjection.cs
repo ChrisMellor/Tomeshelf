@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Tomeshelf.SHiFT.Application.Abstractions.Common;
 using Tomeshelf.SHiFT.Application.Abstractions.External;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
@@ -57,7 +57,7 @@ public static class DependencyInjection
 
         var dataProtection = builder.Services
                                     .AddDataProtection()
-                                    //.SetApplicationName("Tomeshelf.SHiFT")
+                                     //.SetApplicationName("Tomeshelf.SHiFT")
                                     .PersistKeysToDbContext<TomeshelfShiftDbContext>();
 
         builder.Services.AddScoped<IShiftSettingsRepository, ShiftSettingsRepository>();
@@ -69,40 +69,37 @@ public static class DependencyInjection
         builder.Services.AddSingleton<ISecretProtector, DataProtectionSecretProtector>();
         builder.Services.AddSingleton<IClock, SystemClock>();
 
-        builder.Services.AddHttpClient(ShiftWebSession.HttpClientName, client =>
-        {
-            client.BaseAddress = new Uri("https://shift.gearboxsoftware.com/");
-            client.Timeout = TimeSpan.FromSeconds(30);
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-SHiFT/1.0");
-        })
-        .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-        {
-            CookieContainer = new CookieContainer(),
-            AllowAutoRedirect = true,
-            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
-        })
-        .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
+        builder.Services
+               .AddHttpClient(ShiftWebSession.HttpClientName, client =>
+                {
+                    client.BaseAddress = new Uri("https://shift.gearboxsoftware.com/");
+                    client.Timeout = TimeSpan.FromSeconds(30);
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-SHiFT/1.0");
+                })
+               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+                {
+                    CookieContainer = new CookieContainer(),
+                    AllowAutoRedirect = true,
+                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
+                })
+               .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
 
-        builder.Services.AddHttpClient(XShiftKeySource.HttpClientName, client =>
-        {
-            client.Timeout = TimeSpan.FromSeconds(20);
-            client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-SHiFT/1.0");
-        })
-        .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-        {
-            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
-        });
+        builder.Services
+               .AddHttpClient(XShiftKeySource.HttpClientName, client =>
+                {
+                    client.Timeout = TimeSpan.FromSeconds(20);
+                    client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-SHiFT/1.0");
+                })
+               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli });
 
-        builder.Services.AddHttpClient(XAppOnlyTokenProvider.HttpClientName, client =>
-        {
-            client.Timeout = TimeSpan.FromSeconds(10);
-            client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-SHiFT/1.0");
-        })
-        .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-        {
-            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
-        });
+        builder.Services
+               .AddHttpClient(XAppOnlyTokenProvider.HttpClientName, client =>
+                {
+                    client.Timeout = TimeSpan.FromSeconds(10);
+                    client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-SHiFT/1.0");
+                })
+               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli });
     }
 }

@@ -3,4 +3,4 @@ using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
 
 namespace Tomeshelf.HumbleBundle.Application.Features.Bundles.Commands;
 
-public sealed record RefreshBundlesCommand() : ICommand<BundleIngestResult>;
+public sealed record RefreshBundlesCommand : ICommand<BundleIngestResult>;

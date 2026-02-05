@@ -1,7 +1,7 @@
+using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 
 namespace Tomeshelf.Fitbit.Infrastructure;
@@ -27,7 +27,9 @@ public static class DependencyInjection
         builder.Services.AddHttpClient(FitbitApiClient.HttpClientName, client =>
         {
             var apiBase = builder.Configuration.GetValue<string>("Fitbit:ApiBase");
-            client.BaseAddress = new Uri(string.IsNullOrWhiteSpace(apiBase) ? "https://api.fitbit.com/" : apiBase);
+            client.BaseAddress = new Uri(string.IsNullOrWhiteSpace(apiBase)
+                                             ? "https://api.fitbit.com/"
+                                             : apiBase);
             client.Timeout = TimeSpan.FromSeconds(30);
             client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-FitbitApi/1.0");
         });
@@ -35,7 +37,9 @@ public static class DependencyInjection
         builder.Services.AddHttpClient(FitbitAuthorizationService.HttpClientName, client =>
         {
             var apiBase = builder.Configuration.GetValue<string>("Fitbit:ApiBase");
-            client.BaseAddress = new Uri(string.IsNullOrWhiteSpace(apiBase) ? "https://api.fitbit.com/" : apiBase);
+            client.BaseAddress = new Uri(string.IsNullOrWhiteSpace(apiBase)
+                                             ? "https://api.fitbit.com/"
+                                             : apiBase);
             client.Timeout = TimeSpan.FromSeconds(30);
             client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-FitbitApi/1.0");
         });

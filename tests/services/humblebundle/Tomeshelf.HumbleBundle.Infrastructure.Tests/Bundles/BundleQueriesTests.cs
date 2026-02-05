@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Tomeshelf.HumbleBundle.Domain.HumbleBundle;
-using Tomeshelf.HumbleBundle.Infrastructure;
 using Tomeshelf.HumbleBundle.Infrastructure.Bundles;
 
 namespace Tomeshelf.HumbleBundle.Infrastructure.Tests.Bundles;
@@ -43,14 +37,20 @@ public class BundleQueriesTests
 
         result.Select(r => r.MachineName)
               .Should()
-              .Equal(new[] { "b2", "b1", "b4", "b3" });
+              .Equal("b2", "b1", "b4", "b3");
 
-        result.Should().NotContain(r => r.MachineName == "b5");
+        result.Should()
+              .NotContain(r => r.MachineName == "b5");
         result.Select(r => r.GeneratedUtc)
               .Distinct()
               .Should()
               .HaveCount(1);
-        result[0].GeneratedUtc.Should().BeOnOrAfter(before).And.BeOnOrBefore(after);
+        result[0]
+           .GeneratedUtc
+           .Should()
+           .BeOnOrAfter(before)
+           .And
+           .BeOnOrBefore(after);
     }
 
     [Fact]
@@ -83,27 +83,24 @@ public class BundleQueriesTests
 
         result.Select(r => r.MachineName)
               .Should()
-              .Equal(new[] { "b5", "b2", "b1", "b4", "b3" });
+              .Equal("b5", "b2", "b1", "b4", "b3");
 
         result.Select(r => r.GeneratedUtc)
               .Distinct()
               .Should()
               .HaveCount(1);
-        result[0].GeneratedUtc.Should().BeOnOrAfter(before).And.BeOnOrBefore(after);
-    }
-
-    private static TomeshelfBundlesDbContext CreateContext()
-    {
-        var options = new DbContextOptionsBuilder<TomeshelfBundlesDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
-            .Options;
-
-        return new TomeshelfBundlesDbContext(options);
+        result[0]
+           .GeneratedUtc
+           .Should()
+           .BeOnOrAfter(before)
+           .And
+           .BeOnOrBefore(after);
     }
 
     private static Bundle CreateBundle(string machineName, string title, DateTimeOffset? endsAt)
     {
         var now = DateTimeOffset.UtcNow;
+
         return new Bundle
         {
             MachineName = machineName,
@@ -122,5 +119,14 @@ public class BundleQueriesTests
             LastSeenUtc = now.AddDays(-1),
             LastUpdatedUtc = now.AddDays(-1)
         };
+    }
+
+    private static TomeshelfBundlesDbContext CreateContext()
+    {
+        var options = new DbContextOptionsBuilder<TomeshelfBundlesDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                       .ToString("N"))
+                                                                              .Options;
+
+        return new TomeshelfBundlesDbContext(options);
     }
 }

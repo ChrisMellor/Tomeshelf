@@ -3,7 +3,6 @@ using Bogus;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Tomeshelf.Fitbit.Infrastructure;
 
 namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitTokenCacheTests;
 
@@ -20,14 +19,15 @@ public class AccessToken
 
         byte[]? stored = null;
         A.CallTo(() => session.TryGetValue("fitbit_access_token", out stored))
-            .Returns(true)
-            .AssignsOutAndRefParameters(bytes);
+         .Returns(true)
+         .AssignsOutAndRefParameters(bytes);
 
         // Act
         var result = cache.AccessToken;
 
         // Assert
-        result.Should().Be(token);
+        result.Should()
+              .Be(token);
     }
 
     [Fact]
@@ -38,13 +38,14 @@ public class AccessToken
 
         byte[]? stored = null;
         A.CallTo(() => session.TryGetValue("fitbit_access_token", out stored))
-            .Returns(false);
+         .Returns(false);
 
         // Act
         var result = cache.AccessToken;
 
         // Assert
-        result.Should().BeNull();
+        result.Should()
+              .BeNull();
     }
 
     private static (FitbitTokenCache Cache, ISession Session) CreateCache()
@@ -53,9 +54,12 @@ public class AccessToken
         var context = A.Fake<HttpContext>();
         var session = A.Fake<ISession>();
 
-        A.CallTo(() => accessor.HttpContext).Returns(context);
-        A.CallTo(() => context.Session).Returns(session);
-        A.CallTo(() => session.IsAvailable).Returns(true);
+        A.CallTo(() => accessor.HttpContext)
+         .Returns(context);
+        A.CallTo(() => context.Session)
+         .Returns(session);
+        A.CallTo(() => session.IsAvailable)
+         .Returns(true);
 
         return (new FitbitTokenCache(accessor), session);
     }

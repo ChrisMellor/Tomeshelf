@@ -28,10 +28,18 @@ public class UpdateSettings
         settings.UpdateSettings(newEmail, newEncryptedPassword, newDefaultService);
 
         // Assert
-        settings.Email.Should().Be(newEmail);
-        settings.EncryptedPassword.Should().Be(newEncryptedPassword);
-        settings.DefaultService.Should().Be(newDefaultService);
-        settings.UpdatedUtc.Should().BeAfter(DateTimeOffset.UtcNow.AddMinutes(-1));
+        settings.Email
+                .Should()
+                .Be(newEmail);
+        settings.EncryptedPassword
+                .Should()
+                .Be(newEncryptedPassword);
+        settings.DefaultService
+                .Should()
+                .Be(newDefaultService);
+        settings.UpdatedUtc
+                .Should()
+                .BeAfter(DateTimeOffset.UtcNow.AddMinutes(-1));
     }
 
     [Fact]
@@ -56,9 +64,17 @@ public class UpdateSettings
         settings.UpdateSettings(email, encryptedPassword, defaultService);
 
         // Assert
-        settings.Email.Should().Be(email);
-        settings.EncryptedPassword.Should().Be(encryptedPassword);
-        settings.DefaultService.Should().Be(defaultService);
-        settings.UpdatedUtc.Should().BeAfter(initialUpdatedUtc);
+        settings.Email
+                .Should()
+                .Be(email);
+        settings.EncryptedPassword
+                .Should()
+                .Be(encryptedPassword);
+        settings.DefaultService
+                .Should()
+                .Be(defaultService);
+        settings.UpdatedUtc
+                .Should()
+                .BeAfter(initialUpdatedUtc);
     }
 }

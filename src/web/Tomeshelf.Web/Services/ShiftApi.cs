@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -6,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Shift;
 
 namespace Tomeshelf.Web.Services;
@@ -13,10 +13,9 @@ namespace Tomeshelf.Web.Services;
 public sealed class ShiftApi : IShiftApi
 {
     public const string HttpClientName = "Web.Shift";
-    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
-    {
-        Converters = { new JsonStringEnumConverter() }
-    };
+
+    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
+
     private readonly HttpClient _http;
     private readonly ILogger<ShiftApi> _logger;
 

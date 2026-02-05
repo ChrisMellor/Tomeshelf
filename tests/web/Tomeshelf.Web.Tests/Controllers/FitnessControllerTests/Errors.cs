@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -6,9 +9,6 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models.Fitness;
 using Tomeshelf.Web.Services;
@@ -108,7 +108,7 @@ public class Errors
         A.CallTo(() => urlHelper.Action(A<UrlActionContext>._))
          .Returns("https://example.test/fitness");
         A.CallTo(() => urlHelper.ActionContext)
-            .Returns(new ActionContext(httpContext, new RouteData(), new ActionDescriptor()));
+         .Returns(new ActionContext(httpContext, new RouteData(), new ActionDescriptor()));
 
         return new FitnessController(api, logger)
         {

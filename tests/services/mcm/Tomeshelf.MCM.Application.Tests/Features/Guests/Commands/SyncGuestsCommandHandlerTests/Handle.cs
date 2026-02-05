@@ -21,15 +21,16 @@ public class Handle
         var command = new SyncGuestsCommand(eventId);
         var expected = new GuestSyncResultDto("Succeeded", 1, 2, 0, 3, faker.Date.RecentOffset());
 
-        A.CallTo(() => service.SyncAsync(A<EventConfigModel>.That.Matches(model => model.Id == eventId && model.Name == string.Empty), A<CancellationToken>._))
-            .Returns(Task.FromResult(expected));
+        A.CallTo(() => service.SyncAsync(A<EventConfigModel>.That.Matches(model => (model.Id == eventId) && (model.Name == string.Empty)), A<CancellationToken>._))
+         .Returns(Task.FromResult(expected));
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should().BeSameAs(expected);
-        A.CallTo(() => service.SyncAsync(A<EventConfigModel>.That.Matches(model => model.Id == eventId && model.Name == string.Empty), A<CancellationToken>._))
-            .MustHaveHappenedOnceExactly();
+        result.Should()
+              .BeSameAs(expected);
+        A.CallTo(() => service.SyncAsync(A<EventConfigModel>.That.Matches(model => (model.Id == eventId) && (model.Name == string.Empty)), A<CancellationToken>._))
+         .MustHaveHappenedOnceExactly();
     }
 }

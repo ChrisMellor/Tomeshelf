@@ -1,4 +1,3 @@
-using System;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,17 +18,29 @@ public class ProgramTests
         });
 
         var services = app.Services;
-        services.GetRequiredService<IExecutorConfigurationStore>().Should().NotBeNull();
-        services.GetRequiredService<IExecutorSchedulerOrchestrator>().Should().NotBeNull();
-        services.GetRequiredService<IApiEndpointDiscoveryService>().Should().NotBeNull();
-        services.GetRequiredService<IEndpointPingService>().Should().NotBeNull();
+        services.GetRequiredService<IExecutorConfigurationStore>()
+                .Should()
+                .NotBeNull();
+        services.GetRequiredService<IExecutorSchedulerOrchestrator>()
+                .Should()
+                .NotBeNull();
+        services.GetRequiredService<IApiEndpointDiscoveryService>()
+                .Should()
+                .NotBeNull();
+        services.GetRequiredService<IEndpointPingService>()
+                .Should()
+                .NotBeNull();
 
         services.GetServices<IHostedService>()
-            .Should()
-            .ContainSingle(service => service is ExecutorSchedulerHostedService);
+                .Should()
+                .ContainSingle(service => service is ExecutorSchedulerHostedService);
 
         var factory = services.GetRequiredService<IHttpClientFactory>();
-        factory.CreateClient(TriggerEndpointJob.HttpClientName).Should().NotBeNull();
-        factory.CreateClient(ApiEndpointDiscoveryService.HttpClientName).Should().NotBeNull();
+        factory.CreateClient(TriggerEndpointJob.HttpClientName)
+               .Should()
+               .NotBeNull();
+        factory.CreateClient(ApiEndpointDiscoveryService.HttpClientName)
+               .Should()
+               .NotBeNull();
     }
 }

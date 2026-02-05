@@ -1,7 +1,6 @@
 using Bogus;
 using FakeItEasy;
 using FluentAssertions;
-using Tomeshelf.Fitbit.Application;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Application.Features.Dashboard.Queries;
 
@@ -28,7 +27,7 @@ public class Handle
         };
 
         A.CallTo(() => dashboardService.GetDashboardAsync(date, false, A<CancellationToken>._))
-            .Returns(Task.FromResult(expected));
+         .Returns(Task.FromResult(expected));
 
         var query = new GetFitbitDashboardQuery(date, false);
 
@@ -36,8 +35,9 @@ public class Handle
         var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
-        result.Should().BeSameAs(expected);
+        result.Should()
+              .BeSameAs(expected);
         A.CallTo(() => dashboardService.GetDashboardAsync(date, false, A<CancellationToken>._))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
     }
 }

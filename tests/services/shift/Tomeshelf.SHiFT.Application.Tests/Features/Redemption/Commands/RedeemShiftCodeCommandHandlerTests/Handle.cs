@@ -17,20 +17,18 @@ public class Handle
         var gearbox = A.Fake<IGearboxClient>();
         var handler = new RedeemShiftCodeCommandHandler(gearbox);
         var code = "CODE-12345-ABCDE-67890-FGHIJ";
-        IReadOnlyList<RedeemResult> expected = new List<RedeemResult>
-        {
-            new(1, faker.Internet.Email(), "psn", true, null, null)
-        };
+        IReadOnlyList<RedeemResult> expected = new List<RedeemResult> { new RedeemResult(1, faker.Internet.Email(), "psn", true, null, null) };
 
         A.CallTo(() => gearbox.RedeemCodeAsync(code, A<CancellationToken>._))
-            .Returns(Task.FromResult(expected));
+         .Returns(Task.FromResult(expected));
 
         // Act
         var result = await handler.Handle(new RedeemShiftCodeCommand(code), CancellationToken.None);
 
         // Assert
-        result.Should().BeSameAs(expected);
+        result.Should()
+              .BeSameAs(expected);
         A.CallTo(() => gearbox.RedeemCodeAsync(code, A<CancellationToken>._))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
     }
 }

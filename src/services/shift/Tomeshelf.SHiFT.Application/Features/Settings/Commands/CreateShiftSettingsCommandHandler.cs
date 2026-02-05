@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.SHiFT.Application.Abstractions.Common;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
+using Tomeshelf.SHiFT.Application.Abstractions.Common;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
 using Tomeshelf.SHiFT.Application.Abstractions.Security;
 using Tomeshelf.SHiFT.Domain.Entities;

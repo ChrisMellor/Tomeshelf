@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
 using FluentAssertions;
 using Tomeshelf.FileUploader.Infrastructure.Upload;
 
@@ -8,6 +5,31 @@ namespace Tomeshelf.FileUploader.Infrastructure.Tests.Upload;
 
 public class BundleFileOrganiserTests
 {
+    [Fact]
+    public void BuildPlan_FallsBackToRootDirectoryName_WhenNoBundleFolderPresent()
+    {
+        var root = CreateTempDirectory();
+        try
+        {
+            File.WriteAllText(Path.Combine(root, "PlainBook.txt"), "data");
+
+            var organiser = new BundleFileOrganiser();
+
+            var plans = organiser.BuildPlan(root);
+
+            plans.Should()
+                 .HaveCount(1);
+            plans[0]
+               .BundleName
+               .Should()
+               .Be(new DirectoryInfo(root).Name);
+        }
+        finally
+        {
+            TryDeleteDirectory(root);
+        }
+    }
+
     [Fact]
     public void BuildPlan_UsesBundleDirectoryAndSupplementNaming()
     {
@@ -23,37 +45,19 @@ public class BundleFileOrganiserTests
 
             var plans = organiser.BuildPlan(root);
 
-            plans.Should().HaveCount(1);
+            plans.Should()
+                 .HaveCount(1);
             var plan = plans[0];
-            plan.BundleName.Should().Be("Great Bundle by Authors");
-            plan.BookTitle.Should().Be("Unknown Title");
-            plan.Files.Select(file => file.TargetFileName)
-                .Should().BeEquivalentTo(new[]
-                {
-                    "Unknown Title.pdf",
-                    "Unknown Title - Supplement.zip"
-                });
-        }
-        finally
-        {
-            TryDeleteDirectory(root);
-        }
-    }
-
-    [Fact]
-    public void BuildPlan_FallsBackToRootDirectoryName_WhenNoBundleFolderPresent()
-    {
-        var root = CreateTempDirectory();
-        try
-        {
-            File.WriteAllText(Path.Combine(root, "PlainBook.txt"), "data");
-
-            var organiser = new BundleFileOrganiser();
-
-            var plans = organiser.BuildPlan(root);
-
-            plans.Should().HaveCount(1);
-            plans[0].BundleName.Should().Be(new DirectoryInfo(root).Name);
+            plan.BundleName
+                .Should()
+                .Be("Great Bundle by Authors");
+            plan.BookTitle
+                .Should()
+                .Be("Unknown Title");
+            plan.Files
+                .Select(file => file.TargetFileName)
+                .Should()
+                .BeEquivalentTo("Unknown Title.pdf", "Unknown Title - Supplement.zip");
         }
         finally
         {
@@ -63,7 +67,8 @@ public class BundleFileOrganiserTests
 
     private static string CreateTempDirectory()
     {
-        var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid()
+                                                                           .ToString("N"));
         Directory.CreateDirectory(path);
 
         return path;
@@ -83,8 +88,6 @@ public class BundleFileOrganiserTests
                 Directory.Delete(path, true);
             }
         }
-        catch
-        {
-        }
+        catch { }
     }
 }

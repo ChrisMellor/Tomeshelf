@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.MCM.Application.Features.Events.Commands;
 using Tomeshelf.MCM.Application.Features.Events.Queries;
@@ -34,10 +34,7 @@ public class ConfigController : ControllerBase
     /// <param name="getHandler">Query handler for retrieving event configurations.</param>
     /// <param name="upsertHandler">Command handler for inserting or updating event configurations.</param>
     /// <param name="deleteHandler">Command handler for deleting event configurations.</param>
-    public ConfigController(
-        IQueryHandler<GetEventsQuery, IReadOnlyList<EventConfigModel>> getHandler,
-        ICommandHandler<UpsertEventCommand, bool> upsertHandler,
-        ICommandHandler<DeleteEventCommand, bool> deleteHandler)
+    public ConfigController(IQueryHandler<GetEventsQuery, IReadOnlyList<EventConfigModel>> getHandler, ICommandHandler<UpsertEventCommand, bool> upsertHandler, ICommandHandler<DeleteEventCommand, bool> deleteHandler)
     {
         _getHandler = getHandler;
         _upsertHandler = upsertHandler;

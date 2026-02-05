@@ -1,18 +1,11 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Tomeshelf.SHiFT.Api.Contracts;
-using Tomeshelf.SHiFT.Application;
-using Tomeshelf.Application.Shared.Abstractions.Messaging;
-using Tomeshelf.SHiFT.Application.Features.KeyDiscovery.Commands;
-using Tomeshelf.SHiFT.Application.Features.KeyDiscovery.Models;
-using Tomeshelf.SHiFT.Application.Features.Redemption.Commands;
-using Tomeshelf.SHiFT.Application.Features.Redemption.Redeem;
 
 namespace Tomeshelf.SHiFT.Api.Controllers;
 
@@ -29,17 +22,14 @@ namespace Tomeshelf.SHiFT.Api.Controllers;
 public class GearboxController : ControllerBase
 {
     private readonly ICommandHandler<RedeemShiftCodeCommand, IReadOnlyList<RedeemResult>> _handler;
-    private readonly ICommandHandler<SweepShiftKeysCommand, ShiftKeySweepResult> _sweepHandler;
     private readonly IOptionsMonitor<ShiftKeyScannerOptions> _options;
+    private readonly ICommandHandler<SweepShiftKeysCommand, ShiftKeySweepResult> _sweepHandler;
 
     /// <summary>
     ///     Initializes a new instance of the GearboxController class with the specified gearbox service.
     /// </summary>
     /// <param name="gearboxClient">The service used to manage gearbox operations. Cannot be null.</param>
-    public GearboxController(
-        ICommandHandler<RedeemShiftCodeCommand, IReadOnlyList<RedeemResult>> handler,
-        ICommandHandler<SweepShiftKeysCommand, ShiftKeySweepResult> sweepHandler,
-        IOptionsMonitor<ShiftKeyScannerOptions> options)
+    public GearboxController(ICommandHandler<RedeemShiftCodeCommand, IReadOnlyList<RedeemResult>> handler, ICommandHandler<SweepShiftKeysCommand, ShiftKeySweepResult> sweepHandler, IOptionsMonitor<ShiftKeyScannerOptions> options)
     {
         _handler = handler;
         _sweepHandler = sweepHandler;
@@ -92,20 +82,18 @@ public class GearboxController : ControllerBase
 
         var result = await _sweepHandler.Handle(new SweepShiftKeysCommand(lookback), cancellationToken);
 
-        var items = result.Items.Select(item =>
-        {
-            var total = item.Results.Count;
-            var succeeded = item.Results.Count(r => r.Success);
-            var summary = new RedeemSummaryDto(total, succeeded, total - succeeded);
+        var items = result.Items
+                          .Select(item =>
+                           {
+                               var total = item.Results.Count;
+                               var succeeded = item.Results.Count(r => r.Success);
+                               var summary = new RedeemSummaryDto(total, succeeded, total - succeeded);
 
-            return new ShiftKeySweepItemDto(item.Code, item.Sources, summary, item.Results);
-        }).ToList();
+                               return new ShiftKeySweepItemDto(item.Code, item.Sources, summary, item.Results);
+                           })
+                          .ToList();
 
-        var responseSummary = new ShiftKeySweepSummaryDto(
-            result.Summary.TotalKeys,
-            result.Summary.TotalRedemptionAttempts,
-            result.Summary.TotalSucceeded,
-            result.Summary.TotalFailed);
+        var responseSummary = new ShiftKeySweepSummaryDto(result.Summary.TotalKeys, result.Summary.TotalRedemptionAttempts, result.Summary.TotalSucceeded, result.Summary.TotalFailed);
 
         return Ok(new ShiftKeySweepResponseDto(result.SinceUtc, result.ScannedAtUtc, responseSummary, items));
     }

@@ -1,14 +1,14 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.Fitbit.Application;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
+using Tomeshelf.Fitbit.Application;
 using Tomeshelf.Fitbit.Application.Exceptions;
 using Tomeshelf.Fitbit.Application.Features.Dashboard.Queries;
 using Tomeshelf.Fitbit.Application.Features.Overview.Models;
@@ -21,9 +21,9 @@ namespace Tomeshelf.Fitbit.Api.Controllers;
 public sealed class FitbitController : ControllerBase
 {
     private readonly IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto> _dashboardHandler;
-    private readonly IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto> _overviewHandler;
     private readonly ILogger<FitbitController> _logger;
     private readonly IOptionsMonitor<FitbitOptions> _options;
+    private readonly IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto> _overviewHandler;
 
     public FitbitController(IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto> dashboardHandler, IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto> overviewHandler, IOptionsMonitor<FitbitOptions> options, ILogger<FitbitController> logger)
     {

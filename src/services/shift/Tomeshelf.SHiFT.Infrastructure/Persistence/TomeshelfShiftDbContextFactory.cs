@@ -1,6 +1,6 @@
-using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using System;
 
 namespace Tomeshelf.SHiFT.Infrastructure.Persistence;
 
@@ -12,9 +12,7 @@ public sealed class TomeshelfShiftDbContextFactory : IDesignTimeDbContextFactory
     public TomeshelfShiftDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<TomeshelfShiftDbContext>();
-        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__shiftdb")
-                               ?? Environment.GetEnvironmentVariable("ConnectionStrings:shiftdb")
-                               ?? "Server=(localdb)\\mssqllocaldb;Database=shiftdb;Trusted_Connection=True;MultipleActiveResultSets=true";
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__shiftdb") ?? Environment.GetEnvironmentVariable("ConnectionStrings:shiftdb") ?? "Server=(localdb)\\mssqllocaldb;Database=shiftdb;Trusted_Connection=True;MultipleActiveResultSets=true";
 
         optionsBuilder.UseSqlServer(connectionString);
 

@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Infrastructure;
 using Tomeshelf.Web.Models.Bundles;
 using Tomeshelf.Web.Services;
@@ -143,10 +143,7 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
     {
         if (archive is null || (archive.Length == 0))
         {
-            return View(new BundleUploadViewModel
-            {
-                Error = "Please choose a Humble Bundle zip archive to upload."
-            });
+            return View(new BundleUploadViewModel { Error = "Please choose a Humble Bundle zip archive to upload." });
         }
 
         try
@@ -154,26 +151,17 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
             var auth = GetDriveAuth();
             if (auth is null)
             {
-                return View(new BundleUploadViewModel
-                {
-                    Error = "Google Drive is not authorised. Please run the OAuth flow first."
-                });
+                return View(new BundleUploadViewModel { Error = "Google Drive is not authorised. Please run the OAuth flow first." });
             }
 
             await using var stream = archive.OpenReadStream();
             var result = await _uploadsApi.UploadBundleAsync(stream, archive.FileName, auth, cancellationToken);
 
-            return View(new BundleUploadViewModel
-            {
-                Result = result
-            });
+            return View(new BundleUploadViewModel { Result = result });
         }
         catch (Exception ex)
         {
-            return View(new BundleUploadViewModel
-            {
-                Error = $"Upload failed: {ex.Message}"
-            });
+            return View(new BundleUploadViewModel { Error = $"Upload failed: {ex.Message}" });
         }
     }
 

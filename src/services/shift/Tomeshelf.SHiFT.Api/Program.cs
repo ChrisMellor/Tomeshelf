@@ -1,10 +1,10 @@
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Tomeshelf.ServiceDefaults;
 using Tomeshelf.SHiFT.Application;
 using Tomeshelf.SHiFT.Infrastructure;
@@ -54,9 +54,9 @@ public class Program
         });
 
         builder.Services
-            .AddOptions<ShiftKeyScannerOptions>()
-            .Bind(builder.Configuration.GetSection(ShiftKeyScannerOptions.SectionName))
-            .ValidateDataAnnotations();
+               .AddOptions<ShiftKeyScannerOptions>()
+               .Bind(builder.Configuration.GetSection(ShiftKeyScannerOptions.SectionName))
+               .ValidateDataAnnotations();
 
         builder.Services.AddMemoryCache();
         builder.Services.AddAuthorization();
@@ -84,6 +84,7 @@ public class Program
         {
             app.UseHttpsRedirection();
         }
+
         app.UseAuthorization();
         app.MapControllers();
 

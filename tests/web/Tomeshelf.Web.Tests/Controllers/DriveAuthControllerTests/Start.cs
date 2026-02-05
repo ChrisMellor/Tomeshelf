@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models.DriveAuth;
 using Tomeshelf.Web.Tests.TestUtilities;
@@ -52,11 +52,11 @@ public class Start
     {
         // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            ["GoogleDrive:ClientId"] = "client",
-            ["GoogleDrive:ClientSecret"] = "secret",
-            ["GoogleDrive:UserEmail"] = "user@example.com"
-        })
+                                                {
+                                                    ["GoogleDrive:ClientId"] = "client",
+                                                    ["GoogleDrive:ClientSecret"] = "secret",
+                                                    ["GoogleDrive:UserEmail"] = "user@example.com"
+                                                })
                                                .Build();
 
         var session = new TestSession();

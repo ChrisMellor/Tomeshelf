@@ -15,13 +15,17 @@ public class UpsertAsync
         var faker = new Faker();
         var repository = A.Fake<IEventRepository>();
         var service = new EventService(repository);
-        var model = new EventConfigModel { Id = faker.Random.AlphaNumeric(8), Name = faker.Company.CompanyName() };
+        var model = new EventConfigModel
+        {
+            Id = faker.Random.AlphaNumeric(8),
+            Name = faker.Company.CompanyName()
+        };
 
         // Act
         await service.UpsertAsync(model, CancellationToken.None);
 
         // Assert
         A.CallTo(() => repository.UpsertAsync(model, A<CancellationToken>._))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
     }
 }

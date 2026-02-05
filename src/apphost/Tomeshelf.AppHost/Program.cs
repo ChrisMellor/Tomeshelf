@@ -1,11 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Docker.Resources.ServiceNodes;
 using Microsoft.Extensions.Configuration;
 using Projects;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Tomeshelf.AppHost;
 
@@ -19,20 +19,10 @@ public class Program
     private const string ExecutorSettingsVolumeName = "executor-settings";
     private const string SqlDataVolumeName = "tomeshelf-sql-data";
 
-    /// <summary>
-    ///     Application entry point for the Aspire AppHost.
-    ///     Defines resources and wiring for the distributed application.
-    /// </summary>
-    /// <param name="args">Command-line arguments.</param>
-    public static void Main(string[] args)
-    {
-        var app = BuildApp(args);
-        app.Run();
-    }
-
     public static DistributedApplication BuildApp(string[] args, Action<IDistributedApplicationBuilder>? configureBuilder = null)
     {
         var builder = CreateBuilder(args, configureBuilder);
+
         return builder.Build();
     }
 
@@ -41,7 +31,8 @@ public class Program
         var options = new DistributedApplicationOptions
         {
             Args = args,
-            AssemblyName = typeof(Program).Assembly.GetName().Name
+            AssemblyName = typeof(Program).Assembly.GetName()
+                                          .Name
         };
         var builder = DistributedApplication.CreateBuilder(options);
         builder.Configuration.AddUserSecrets<Program>(true);
@@ -71,6 +62,62 @@ public class Program
                .WithDashboard(rb => rb.WithHostPort(18888));
 
         return builder;
+    }
+
+    /// <summary>
+    ///     Application entry point for the Aspire AppHost.
+    ///     Defines resources and wiring for the distributed application.
+    /// </summary>
+    /// <param name="args">Command-line arguments.</param>
+    public static void Main(string[] args)
+    {
+        var app = BuildApp(args);
+        app.Run();
+    }
+
+    private static void ApplyShiftScannerSettings(IResourceBuilder<ProjectResource> api, IConfigurationSection scanner)
+    {
+        ArgumentNullException.ThrowIfNull(api);
+        ArgumentNullException.ThrowIfNull(scanner);
+
+        ApplyValue(api, "ShiftKeyScanner__LookbackHours", scanner["LookbackHours"]);
+
+        var xSection = scanner.GetSection("X");
+        ApplyValue(api, "ShiftKeyScanner__X__Enabled", xSection["Enabled"]);
+        ApplyValue(api, "ShiftKeyScanner__X__ApiBaseV2", xSection["ApiBaseV2"]);
+        ApplyValue(api, "ShiftKeyScanner__X__OAuthTokenEndpoint", xSection["OAuthTokenEndpoint"]);
+        ApplyValue(api, "ShiftKeyScanner__X__BearerToken", xSection["BearerToken"]);
+        ApplyValue(api, "ShiftKeyScanner__X__ApiKey", xSection["ApiKey"]);
+        ApplyValue(api, "ShiftKeyScanner__X__ApiSecret", xSection["ApiSecret"]);
+        ApplyValue(api, "ShiftKeyScanner__X__TokenCacheMinutes", xSection["TokenCacheMinutes"]);
+        ApplyValue(api, "ShiftKeyScanner__X__MaxPages", xSection["MaxPages"]);
+        ApplyValue(api, "ShiftKeyScanner__X__MaxResultsPerPage", xSection["MaxResultsPerPage"]);
+        ApplyValue(api, "ShiftKeyScanner__X__ExcludeReplies", xSection["ExcludeReplies"]);
+        ApplyValue(api, "ShiftKeyScanner__X__ExcludeRetweets", xSection["ExcludeRetweets"]);
+
+        var usernames = xSection.GetSection("Usernames")
+                                .GetChildren();
+        var index = 0;
+        foreach (var username in usernames)
+        {
+            if (string.IsNullOrWhiteSpace(username.Value))
+            {
+                continue;
+            }
+
+            api.WithEnvironment($"ShiftKeyScanner__X__Usernames__{index}", username.Value);
+            index++;
+        }
+    }
+
+    private static void ApplyValue(IResourceBuilder<ProjectResource> api, string key, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        api.WithEnvironment(key, value);
     }
 
     private static string ResolveHostExecutorSettingsDirectory()
@@ -321,49 +368,5 @@ public class Program
         }
 
         return web;
-    }
-
-    private static void ApplyShiftScannerSettings(IResourceBuilder<ProjectResource> api, IConfigurationSection scanner)
-    {
-        ArgumentNullException.ThrowIfNull(api);
-        ArgumentNullException.ThrowIfNull(scanner);
-
-        ApplyValue(api, "ShiftKeyScanner__LookbackHours", scanner["LookbackHours"]);
-
-        var xSection = scanner.GetSection("X");
-        ApplyValue(api, "ShiftKeyScanner__X__Enabled", xSection["Enabled"]);
-        ApplyValue(api, "ShiftKeyScanner__X__ApiBaseV2", xSection["ApiBaseV2"]);
-        ApplyValue(api, "ShiftKeyScanner__X__OAuthTokenEndpoint", xSection["OAuthTokenEndpoint"]);
-        ApplyValue(api, "ShiftKeyScanner__X__BearerToken", xSection["BearerToken"]);
-        ApplyValue(api, "ShiftKeyScanner__X__ApiKey", xSection["ApiKey"]);
-        ApplyValue(api, "ShiftKeyScanner__X__ApiSecret", xSection["ApiSecret"]);
-        ApplyValue(api, "ShiftKeyScanner__X__TokenCacheMinutes", xSection["TokenCacheMinutes"]);
-        ApplyValue(api, "ShiftKeyScanner__X__MaxPages", xSection["MaxPages"]);
-        ApplyValue(api, "ShiftKeyScanner__X__MaxResultsPerPage", xSection["MaxResultsPerPage"]);
-        ApplyValue(api, "ShiftKeyScanner__X__ExcludeReplies", xSection["ExcludeReplies"]);
-        ApplyValue(api, "ShiftKeyScanner__X__ExcludeRetweets", xSection["ExcludeRetweets"]);
-
-        var usernames = xSection.GetSection("Usernames").GetChildren();
-        var index = 0;
-        foreach (var username in usernames)
-        {
-            if (string.IsNullOrWhiteSpace(username.Value))
-            {
-                continue;
-            }
-
-            api.WithEnvironment($"ShiftKeyScanner__X__Usernames__{index}", username.Value);
-            index++;
-        }
-    }
-
-    private static void ApplyValue(IResourceBuilder<ProjectResource> api, string key, string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return;
-        }
-
-        api.WithEnvironment(key, value);
     }
 }

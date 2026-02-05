@@ -1,10 +1,10 @@
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Tomeshelf.FileUploader.Application;
 using Tomeshelf.FileUploader.Infrastructure;
 using Tomeshelf.ServiceDefaults;

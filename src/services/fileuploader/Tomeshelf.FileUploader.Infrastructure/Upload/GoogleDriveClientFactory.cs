@@ -1,6 +1,6 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System;
 using Tomeshelf.FileUploader.Application;
 
 namespace Tomeshelf.FileUploader.Infrastructure.Upload;

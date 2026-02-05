@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -20,10 +19,8 @@ public class IncludeExpired
         // Arrange
         var handler = new StubHttpMessageHandler((request, _) =>
         {
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("[]", Encoding.UTF8, "application/json")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("[]", Encoding.UTF8, "application/json") };
+
             return Task.FromResult(response);
         });
 
@@ -34,7 +31,11 @@ public class IncludeExpired
         await api.GetBundlesAsync(false, CancellationToken.None);
 
         // Assert
-        handler.Requests.Should().ContainSingle();
-        handler.Requests[0].RequestUri!.PathAndQuery.Should().Be("/bundles?includeExpired=false");
+        handler.Requests
+               .Should()
+               .ContainSingle();
+        handler.Requests[0].RequestUri!.PathAndQuery
+               .Should()
+               .Be("/bundles?includeExpired=false");
     }
 }

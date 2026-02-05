@@ -1,7 +1,6 @@
 using Bogus;
 using FakeItEasy;
 using FluentAssertions;
-using Tomeshelf.Fitbit.Application;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Application.Features.Overview.Models;
 using Tomeshelf.Fitbit.Application.Features.Overview.Queries;
@@ -29,12 +28,20 @@ public class Handle
                 Sleep = new FitbitSleepSummaryDto { Levels = new FitbitSleepLevelsDto() },
                 Activity = new FitbitActivitySummaryDto(null, null, null)
             },
-            Last7Days = new FitbitOverviewRangeDto { Days = 7, Items = Array.Empty<FitbitOverviewDayDto>() },
-            Last30Days = new FitbitOverviewRangeDto { Days = 30, Items = Array.Empty<FitbitOverviewDayDto>() }
+            Last7Days = new FitbitOverviewRangeDto
+            {
+                Days = 7,
+                Items = Array.Empty<FitbitOverviewDayDto>()
+            },
+            Last30Days = new FitbitOverviewRangeDto
+            {
+                Days = 30,
+                Items = Array.Empty<FitbitOverviewDayDto>()
+            }
         };
 
         A.CallTo(() => overviewService.GetOverviewAsync(date, true, A<CancellationToken>._))
-            .Returns(Task.FromResult(expected));
+         .Returns(Task.FromResult(expected));
 
         var query = new GetFitbitOverviewQuery(date, true);
 
@@ -42,8 +49,9 @@ public class Handle
         var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
-        result.Should().BeSameAs(expected);
+        result.Should()
+              .BeSameAs(expected);
         A.CallTo(() => overviewService.GetOverviewAsync(date, true, A<CancellationToken>._))
-            .MustHaveHappenedOnceExactly();
+         .MustHaveHappenedOnceExactly();
     }
 }

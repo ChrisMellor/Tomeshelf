@@ -9,16 +9,18 @@ namespace Tomeshelf.Paissa.Domain.Entities;
 /// </summary>
 public sealed record PaissaWorld
 {
-    public int Id { get; }
-    public string Name { get; }
-    public IReadOnlyList<PaissaDistrict> Districts { get; }
-
     private PaissaWorld(int id, string name, IReadOnlyList<PaissaDistrict> districts)
     {
         Id = id;
         Name = name;
         Districts = districts;
     }
+
+    public int Id { get; }
+
+    public string Name { get; }
+
+    public IReadOnlyList<PaissaDistrict> Districts { get; }
 
     public static PaissaWorld Create(int id, string name, IReadOnlyList<PaissaDistrict> districts)
     {
@@ -49,11 +51,10 @@ public sealed record PaissaWorld
 
     public PaissaWorld FilterAcceptingEntryDistricts(bool requireKnownSize)
     {
-        var districts = Districts
-            .Select(district => district.FilterAcceptingEntryPlots(requireKnownSize))
-            .Where(district => district is not null)
-            .Select(district => district!)
-            .ToList();
+        var districts = Districts.Select(district => district.FilterAcceptingEntryPlots(requireKnownSize))
+                                 .Where(district => district is not null)
+                                 .Select(district => district!)
+                                 .ToList();
 
         return Create(Id, Name, districts);
     }

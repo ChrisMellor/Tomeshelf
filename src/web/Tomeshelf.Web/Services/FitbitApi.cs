@@ -32,7 +32,7 @@ public sealed class FitbitApi : IFitbitApi
         var url = BuildQuery("api/Fitbit/Dashboard", date, refresh, returnUrl);
 
         return await GetPayloadAsync<FitbitDashboardModel>(url, "Fitbit dashboard", cancellationToken)
-            .ConfigureAwait(false);
+           .ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -41,12 +41,7 @@ public sealed class FitbitApi : IFitbitApi
         var url = BuildQuery("api/Fitbit/Overview", date, refresh, returnUrl);
 
         return await GetPayloadAsync<FitbitOverviewModel>(url, "Fitbit overview", cancellationToken)
-            .ConfigureAwait(false);
-    }
-
-    private static JsonSerializerOptions CreateSerializerOptions()
-    {
-        return new JsonSerializerOptions(JsonSerializerDefaults.Web);
+           .ConfigureAwait(false);
     }
 
     private static string BuildQuery(string basePath, string date, bool refresh, string returnUrl)
@@ -68,6 +63,11 @@ public sealed class FitbitApi : IFitbitApi
         var query = $"?{string.Join("&", parameters)}";
 
         return $"{basePath}{query}";
+    }
+
+    private static JsonSerializerOptions CreateSerializerOptions()
+    {
+        return new JsonSerializerOptions(JsonSerializerDefaults.Web);
     }
 
     private async Task<T> GetPayloadAsync<T>(string url, string payloadName, CancellationToken cancellationToken)

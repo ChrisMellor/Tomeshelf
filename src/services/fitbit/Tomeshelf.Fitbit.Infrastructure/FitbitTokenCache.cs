@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Http;
 using System;
+using Microsoft.AspNetCore.Http;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 
 namespace Tomeshelf.Fitbit.Infrastructure;
@@ -11,6 +11,7 @@ public sealed class FitbitTokenCache : IFitbitTokenCache
     private const string SessionExpiresAtKey = "fitbit_expires_at";
 
     private readonly IHttpContextAccessor _httpContextAccessor;
+
     public FitbitTokenCache(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
@@ -21,19 +22,6 @@ public sealed class FitbitTokenCache : IFitbitTokenCache
         get
         {
             if (TryGetSessionValue(SessionAccessTokenKey, out var sessionToken))
-            {
-                return sessionToken;
-            }
-
-            return null;
-        }
-    }
-
-    public string RefreshToken
-    {
-        get
-        {
-            if (TryGetSessionValue(SessionRefreshTokenKey, out var sessionToken))
             {
                 return sessionToken;
             }
@@ -55,6 +43,19 @@ public sealed class FitbitTokenCache : IFitbitTokenCache
         }
     }
 
+    public string RefreshToken
+    {
+        get
+        {
+            if (TryGetSessionValue(SessionRefreshTokenKey, out var sessionToken))
+            {
+                return sessionToken;
+            }
+
+            return null;
+        }
+    }
+
     public void Clear()
     {
         ClearSession();
@@ -63,6 +64,42 @@ public sealed class FitbitTokenCache : IFitbitTokenCache
     public void Update(string accessToken, string refreshToken, DateTimeOffset? expiresAtUtc)
     {
         UpdateSession(accessToken, refreshToken, expiresAtUtc);
+    }
+
+    private void ClearSession()
+    {
+        var session = _httpContextAccessor.HttpContext?.Session;
+        if (session is null || !session.IsAvailable)
+        {
+            return;
+        }
+
+        session.Remove(SessionAccessTokenKey);
+        session.Remove(SessionRefreshTokenKey);
+        session.Remove(SessionExpiresAtKey);
+    }
+
+    private bool TryGetSessionValue(string key, out string value)
+    {
+        var session = _httpContextAccessor.HttpContext?.Session;
+        if (session is null || !session.IsAvailable)
+        {
+            value = null;
+
+            return false;
+        }
+
+        var stored = session.GetString(key);
+        if (string.IsNullOrWhiteSpace(stored))
+        {
+            value = null;
+
+            return false;
+        }
+
+        value = stored;
+
+        return true;
     }
 
     private void UpdateSession(string accessToken, string refreshToken, DateTimeOffset? expiresAtUtc)
@@ -91,38 +128,5 @@ public sealed class FitbitTokenCache : IFitbitTokenCache
         {
             session.Remove(SessionExpiresAtKey);
         }
-    }
-
-    private void ClearSession()
-    {
-        var session = _httpContextAccessor.HttpContext?.Session;
-        if (session is null || !session.IsAvailable)
-        {
-            return;
-        }
-
-        session.Remove(SessionAccessTokenKey);
-        session.Remove(SessionRefreshTokenKey);
-        session.Remove(SessionExpiresAtKey);
-    }
-
-    private bool TryGetSessionValue(string key, out string value)
-    {
-        var session = _httpContextAccessor.HttpContext?.Session;
-        if (session is null || !session.IsAvailable)
-        {
-            value = null;
-            return false;
-        }
-
-        var stored = session.GetString(key);
-        if (string.IsNullOrWhiteSpace(stored))
-        {
-            value = null;
-            return false;
-        }
-
-        value = stored;
-        return true;
     }
 }

@@ -1,13 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
 using Tomeshelf.MCM.Application.Models;
 using Tomeshelf.MCM.Domain.Mcm;
-using Tomeshelf.MCM.Infrastructure;
 
 namespace Tomeshelf.MCM.Infrastructure.Repositories;
 

@@ -28,5 +28,4 @@ public interface IFitbitApi
     /// <param name="cancellationToken">Cancellation token for the HTTP request.</param>
     /// <returns>The overview payload or null when unavailable.</returns>
     Task<FitbitOverviewModel> GetOverviewAsync(string date, bool refresh, string returnUrl, CancellationToken cancellationToken);
-
 }

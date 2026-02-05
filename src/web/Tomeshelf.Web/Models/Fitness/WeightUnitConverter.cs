@@ -8,6 +8,31 @@ public static class WeightUnitConverter
     private const double KilogramsPerStone = 6.35029318;
     private const double PoundsPerStone = 14d;
 
+    public static double? Convert(double? kilograms, WeightUnit unit)
+    {
+        if (!kilograms.HasValue)
+        {
+            return null;
+        }
+
+        return unit switch
+        {
+            WeightUnit.Pounds => kilograms.Value * PoundsPerKilogram,
+            WeightUnit.Stones => kilograms.Value / KilogramsPerStone,
+            _ => kilograms.Value
+        };
+    }
+
+    public static string GetUnitLabel(WeightUnit unit)
+    {
+        return unit switch
+        {
+            WeightUnit.Stones => "st",
+            WeightUnit.Pounds => "lb",
+            _ => "kg"
+        };
+    }
+
     public static WeightUnit Parse(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -15,7 +40,8 @@ public static class WeightUnitConverter
             return WeightUnit.Stones;
         }
 
-        return value.Trim().ToLowerInvariant() switch
+        return value.Trim()
+                    .ToLowerInvariant() switch
         {
             "st" or "stone" or "stones" => WeightUnit.Stones,
             "lb" or "lbs" or "pound" or "pounds" => WeightUnit.Pounds,
@@ -31,31 +57,6 @@ public static class WeightUnitConverter
             WeightUnit.Stones => "st",
             WeightUnit.Pounds => "lb",
             _ => "kg"
-        };
-    }
-
-    public static string GetUnitLabel(WeightUnit unit)
-    {
-        return unit switch
-        {
-            WeightUnit.Stones => "st",
-            WeightUnit.Pounds => "lb",
-            _ => "kg"
-        };
-    }
-
-    public static double? Convert(double? kilograms, WeightUnit unit)
-    {
-        if (!kilograms.HasValue)
-        {
-            return null;
-        }
-
-        return unit switch
-        {
-            WeightUnit.Pounds => kilograms.Value * PoundsPerKilogram,
-            WeightUnit.Stones => kilograms.Value / KilogramsPerStone,
-            _ => kilograms.Value
         };
     }
 

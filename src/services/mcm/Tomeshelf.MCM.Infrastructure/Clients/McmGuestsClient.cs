@@ -1,11 +1,11 @@
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Tomeshelf.MCM.Application.Abstractions.Clients;
 using Tomeshelf.MCM.Application.Records;
 using Tomeshelf.MCM.Infrastructure.Responses;
@@ -60,17 +60,13 @@ public class McmGuestsClient : IMcmGuestsClient
     {
         var requestUri = $"api/people?key={Uri.EscapeDataString(eventId)}";
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
-        {
-            Content = new StringContent("{}", Encoding.UTF8, "application/json")
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, requestUri) { Content = new StringContent("{}", Encoding.UTF8, "application/json") };
 
         using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
-            var safeEventId = eventId?
-                .Replace("\r", string.Empty)
-                .Replace("\n", string.Empty);
+            var safeEventId = eventId?.Replace("\r", string.Empty)
+                                      .Replace("\n", string.Empty);
 
             _logger.LogWarning("MCM API returned {StatusCode} for event {EventId}.", response.StatusCode, safeEventId);
             response.EnsureSuccessStatusCode();
@@ -191,8 +187,8 @@ public class McmGuestsClient : IMcmGuestsClient
             }
 
             var description = !string.IsNullOrWhiteSpace(person.Bio)
-            ? person.Bio
-            : person.KnownFor;
+                ? person.Bio
+                : person.KnownFor;
 
             var profileUrl = PickProfileUrl(person) ?? string.Empty;
             var imageUrl = PickImageUrl(person.Images) ?? string.Empty;

@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -22,14 +21,9 @@ public class RedeemCodeAsync
     {
         // Arrange
         string? requestBody = null;
-        var responsePayload = new RedeemResponseModel(
-            new RedeemSummaryModel(1, 1, 0),
-            new[] { new RedeemResultModel(1, "user@example.com", "steam", true, null, null) });
+        var responsePayload = new RedeemResponseModel(new RedeemSummaryModel(1, 1, 0), new[] { new RedeemResultModel(1, "user@example.com", "steam", true, null, null) });
 
-        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
-        {
-            Converters = { new JsonStringEnumConverter() }
-        };
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
 
         var handler = new StubHttpMessageHandler(async (request, cancellationToken) =>
         {
@@ -38,10 +32,7 @@ public class RedeemCodeAsync
                 : await request.Content.ReadAsStringAsync(cancellationToken);
 
             var json = JsonSerializer.Serialize(responsePayload, options);
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
 
             return response;
         });
@@ -53,10 +44,18 @@ public class RedeemCodeAsync
         var result = await api.RedeemCodeAsync("ABC", CancellationToken.None);
 
         // Assert
-        result.Summary.Total.Should().Be(1);
-        handler.Requests.Should().ContainSingle();
-        handler.Requests[0].RequestUri!.PathAndQuery.Should().Be("/gearbox/redeem");
-        requestBody.Should().Contain("\"code\":\"ABC\"");
+        result.Summary
+              .Total
+              .Should()
+              .Be(1);
+        handler.Requests
+               .Should()
+               .ContainSingle();
+        handler.Requests[0].RequestUri!.PathAndQuery
+               .Should()
+               .Be("/gearbox/redeem");
+        requestBody.Should()
+                   .Contain("\"code\":\"ABC\"");
     }
 
     [Fact]
@@ -65,10 +64,8 @@ public class RedeemCodeAsync
         // Arrange
         var handler = new StubHttpMessageHandler((_, _) =>
         {
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("null", Encoding.UTF8, "application/json")
-            };
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("null", Encoding.UTF8, "application/json") };
+
             return Task.FromResult(response);
         });
 
@@ -79,7 +76,8 @@ public class RedeemCodeAsync
         var action = () => api.RedeemCodeAsync("ABC", CancellationToken.None);
 
         // Assert
-        await action.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("Empty SHiFT payload");
+        await action.Should()
+                    .ThrowAsync<InvalidOperationException>()
+                    .WithMessage("Empty SHiFT payload");
     }
 }

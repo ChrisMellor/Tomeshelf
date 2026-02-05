@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.MCM.Application.Contracts;
 using Tomeshelf.MCM.Application.Features.Guests.Commands;
@@ -31,9 +31,7 @@ public class GuestsController : ControllerBase
     /// </summary>
     /// <param name="queryHandler">Query handler for retrieving guest data.</param>
     /// <param name="syncHandler">Command handler for syncing guest data.</param>
-    public GuestsController(
-        IQueryHandler<GetGuestsQuery, PagedResult<GuestDto>> queryHandler,
-        ICommandHandler<SyncGuestsCommand, GuestSyncResultDto?> syncHandler)
+    public GuestsController(IQueryHandler<GetGuestsQuery, PagedResult<GuestDto>> queryHandler, ICommandHandler<SyncGuestsCommand, GuestSyncResultDto?> syncHandler)
     {
         _queryHandler = queryHandler;
         _syncHandler = syncHandler;

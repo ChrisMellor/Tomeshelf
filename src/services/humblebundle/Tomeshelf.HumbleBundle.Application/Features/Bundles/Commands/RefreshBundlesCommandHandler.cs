@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Tomeshelf.HumbleBundle.Application.Abstractions.External;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
+using Tomeshelf.HumbleBundle.Application.Abstractions.External;
 using Tomeshelf.HumbleBundle.Application.Abstractions.Persistence;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
 
@@ -21,6 +21,7 @@ public sealed class RefreshBundlesCommandHandler : ICommandHandler<RefreshBundle
     public async Task<BundleIngestResult> Handle(RefreshBundlesCommand command, CancellationToken cancellationToken)
     {
         var scraped = await _scraper.ScrapeAsync(cancellationToken);
+
         return await _ingestService.UpsertAsync(scraped, cancellationToken);
     }
 }

@@ -1,36 +1,29 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
+namespace Tomeshelf.Infrastructure.Persistence.Fitbit.Migrations;
 
-namespace Tomeshelf.Infrastructure.Persistence.Fitbit.Migrations
+/// <inheritdoc />
+public partial class DropFitbitCredentials : Migration
 {
     /// <inheritdoc />
-    public partial class DropFitbitCredentials : Migration
+    protected override void Down(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
+        migrationBuilder.CreateTable("FitbitCredentials", table => new
         {
-            migrationBuilder.DropTable(
-                name: "FitbitCredentials");
-        }
+            Id = table.Column<int>("int", nullable: false),
+            AccessToken = table.Column<string>("nvarchar(2048)", maxLength: 2048, nullable: true),
+            RefreshToken = table.Column<string>("nvarchar(2048)", maxLength: 2048, nullable: true),
+            ExpiresAtUtc = table.Column<DateTimeOffset>("datetimeoffset", nullable: true)
+        }, constraints: table =>
+        {
+            table.PrimaryKey("PK_FitbitCredentials", x => x.Id);
+        });
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.CreateTable(
-                name: "FitbitCredentials",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    AccessToken = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
-                    RefreshToken = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
-                    ExpiresAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FitbitCredentials", x => x.Id);
-                });
-        }
+    /// <inheritdoc />
+    protected override void Up(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropTable("FitbitCredentials");
     }
 }

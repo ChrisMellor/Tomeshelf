@@ -1,10 +1,10 @@
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Bundles;
 
 namespace Tomeshelf.Web.Services;
@@ -15,7 +15,7 @@ namespace Tomeshelf.Web.Services;
 public sealed class BundlesApi : IBundlesApi
 {
     public const string HttpClientName = "Web.Bundles";
-    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
     private readonly HttpClient _http;
     private readonly ILogger<BundlesApi> _logger;
 

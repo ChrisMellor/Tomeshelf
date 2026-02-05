@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Models.Shift;
 using Tomeshelf.Web.Services;
 
@@ -24,13 +24,19 @@ public sealed class ShiftController(IShiftApi api) : Controller
         if (string.IsNullOrWhiteSpace(code))
         {
             ModelState.AddModelError(nameof(ShiftIndexViewModel.Code), "Enter a SHiFT code to redeem.");
+
             return View("Index", new ShiftIndexViewModel { Code = model.Code });
         }
 
         try
         {
             var response = await api.RedeemCodeAsync(code, cancellationToken);
-            return View("Index", new ShiftIndexViewModel { Code = code, Response = response });
+
+            return View("Index", new ShiftIndexViewModel
+            {
+                Code = code,
+                Response = response
+            });
         }
         catch (Exception ex)
         {
