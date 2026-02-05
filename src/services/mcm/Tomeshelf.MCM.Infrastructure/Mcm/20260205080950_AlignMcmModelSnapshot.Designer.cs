@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tomeshelf.MCM.Infrastructure;
 
 #nullable disable
 
-namespace Tomeshelf.Infrastructure.Persistence.Migrations.Mcm
+namespace Tomeshelf.MCM.Infrastructure.Mcm
 {
     [DbContext(typeof(TomeshelfMcmDbContext))]
-    partial class TomeshelfMcmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260205080950_AlignMcmModelSnapshot")]
+    partial class AlignMcmModelSnapshot
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

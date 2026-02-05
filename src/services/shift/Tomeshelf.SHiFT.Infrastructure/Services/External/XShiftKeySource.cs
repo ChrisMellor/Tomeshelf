@@ -133,7 +133,7 @@ public sealed class XShiftKeySource : IShiftKeySource
         var tweets = new List<XV2Tweet>();
         var maxResults = Math.Clamp(settings.MaxResultsPerPage, 5, 100);
         var maxPages = Math.Clamp(settings.MaxPages, 1, 20);
-        var startTime = sinceUtc.ToUniversalTime().ToString("o", CultureInfo.InvariantCulture);
+        var startTime = FormatRfc3339Utc(sinceUtc);
 
         string? nextToken = null;
 
@@ -223,6 +223,11 @@ public sealed class XShiftKeySource : IShiftKeySource
         }
 
         return url;
+    }
+
+    private static string FormatRfc3339Utc(DateTimeOffset value)
+    {
+        return value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
     }
 
     private sealed record XUserLookupResponse

@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tomeshelf.SHiFT.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace Tomeshelf.SHiFT.Infrastructure.Persistence
+namespace Tomeshelf.SHiFT.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(TomeshelfShiftDbContext))]
-    partial class TomeshelfShiftDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260203024731_20260203_FixShiftModel")]
+    partial class _20260203_FixShiftModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

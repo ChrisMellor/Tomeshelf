@@ -14,9 +14,9 @@ public class GuestEntity
 
     public Guid GuestInfoId { get; set; }
 
-    public GuestInfoEntity Information { get; set; }
+    public GuestInfoEntity? Information { get; set; }
 
-    public string EventId { get; set; }
+    public string? EventId { get; set; }
 
-    public EventEntity Event { get; set; }
+    public EventEntity? Event { get; set; }
 }
