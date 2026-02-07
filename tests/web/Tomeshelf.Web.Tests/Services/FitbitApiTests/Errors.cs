@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Services;
 using Tomeshelf.Web.Tests.TestUtilities;
@@ -28,11 +27,10 @@ public class Errors
         var api = new FitbitApi(new TestHttpClientFactory(client), A.Fake<ILogger<FitbitApi>>());
 
         // Act
-        var action = () => api.GetOverviewAsync("2020-01-01", false, "https://return", CancellationToken.None);
+        // Act
+        var exception = await Should.ThrowAsync<FitbitBackendUnavailableException>(() => api.GetOverviewAsync("2020-01-01", false, "https://return", CancellationToken.None));
 
         // Assert
-        await action.Should()
-                    .ThrowAsync<FitbitBackendUnavailableException>()
-                    .WithMessage("service down");
+        exception.Message.ShouldBe("service down");
     }
 }

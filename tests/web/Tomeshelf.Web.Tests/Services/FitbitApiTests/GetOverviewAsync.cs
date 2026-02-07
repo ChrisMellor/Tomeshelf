@@ -5,7 +5,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Fitness;
 using Tomeshelf.Web.Services;
@@ -33,8 +32,7 @@ public class GetOverviewAsync
         var result = await api.GetOverviewAsync("2020-01-01", false, "https://return", CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeNull();
+        result.ShouldBeNull();
     }
 
     [Fact]
@@ -52,15 +50,11 @@ public class GetOverviewAsync
         var api = new FitbitApi(new TestHttpClientFactory(client), A.Fake<ILogger<FitbitApi>>());
 
         // Act
-        var action = () => api.GetOverviewAsync("2020-01-01", false, "https://return", CancellationToken.None);
+        // Act
+        var exception = await Should.ThrowAsync<FitbitAuthorizationRequiredException>(() => api.GetOverviewAsync("2020-01-01", false, "https://return", CancellationToken.None));
 
         // Assert
-        var exception = await action.Should()
-                                    .ThrowAsync<FitbitAuthorizationRequiredException>();
-        exception.Which
-                 .Location
-                 .Should()
-                 .Be(new Uri("https://example.test/auth"));
+        exception.Location.ShouldBe(new Uri("https://example.test/auth"));
     }
 
     [Fact]
@@ -84,12 +78,8 @@ public class GetOverviewAsync
         var result = await api.GetOverviewAsync("2020-01-01", false, "https://return", CancellationToken.None);
 
         // Assert
-        result.Should()
-              .NotBeNull();
-        result!.Daily
-               .Date
-               .Should()
-               .Be("2020-01-01");
+        result.ShouldNotBeNull();
+        result!.Daily.Date.ShouldBe("2020-01-01");
     }
 
     [Fact]
@@ -107,11 +97,10 @@ public class GetOverviewAsync
         var api = new FitbitApi(new TestHttpClientFactory(client), A.Fake<ILogger<FitbitApi>>());
 
         // Act
-        var action = () => api.GetOverviewAsync("2020-01-01", false, "https://return", CancellationToken.None);
+        // Act
+        var exception = await Should.ThrowAsync<FitbitBackendUnavailableException>(() => api.GetOverviewAsync("2020-01-01", false, "https://return", CancellationToken.None));
 
         // Assert
-        await action.Should()
-                    .ThrowAsync<FitbitBackendUnavailableException>()
-                    .WithMessage("Fitbit rate limit reached. Please wait a moment and try again.");
+        exception.Message.ShouldBe("Fitbit rate limit reached. Please wait a moment and try again.");
     }
 }

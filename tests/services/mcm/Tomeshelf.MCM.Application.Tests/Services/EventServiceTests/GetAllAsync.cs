@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
 using Tomeshelf.MCM.Application.Models;
 using Tomeshelf.MCM.Application.Services;
@@ -45,7 +44,11 @@ public class GetAllAsync
         var result = await service.GetAllAsync(CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeEquivalentTo(expected, options => options.WithStrictOrdering());
+        result.Count.ShouldBe(expected.Count);
+        for (var index = 0; index < expected.Count; index++)
+        {
+            result[index].Id.ShouldBe(expected[index].Id);
+            result[index].Name.ShouldBe(expected[index].Name);
+        }
     }
 }

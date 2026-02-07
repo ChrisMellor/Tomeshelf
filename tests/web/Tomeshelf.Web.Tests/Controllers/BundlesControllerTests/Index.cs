@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Controllers;
@@ -101,61 +100,32 @@ public class Index
         var result = await controller.Index(false, CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<BundlesIndexViewModel>()
-                        .Subject;
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<BundlesIndexViewModel>();
 
-        model.ActiveBundles
-             .Should()
-             .HaveCount(2);
-        model.ExpiredBundles
-             .Should()
-             .HaveCount(1);
-        model.NewBundlesCount
-             .Should()
-             .Be(1);
-        model.UpdatedBundlesCount
-             .Should()
-             .Be(1);
-        model.DataTimestampUtc
-             .Should()
-             .Be(new DateTimeOffset(2020, 1, 3, 0, 0, 0, TimeSpan.Zero));
+        model.ActiveBundles.Count.ShouldBe(2);
+        model.ExpiredBundles.ShouldHaveSingleItem();
+        model.NewBundlesCount.ShouldBe(1);
+        model.UpdatedBundlesCount.ShouldBe(1);
+        model.DataTimestampUtc.ShouldBe(new DateTimeOffset(2020, 1, 3, 0, 0, 0, TimeSpan.Zero));
 
         var categories = model.ActiveBundles
                               .Select(group => group.Category)
                               .ToList();
-        categories.Should()
-                  .Contain(new[] { "Books", "Games" });
+        categories.ShouldContain("Books");
+        categories.ShouldContain("Games");
 
         var gamesBundle = model.ActiveBundles
                                .SelectMany(group => group.Bundles)
                                .Single(bundle => bundle.MachineName == "bundle-one");
-        gamesBundle.Title
-                   .Should()
-                   .Be("Bundle One");
-        gamesBundle.TimeRemaining
-                   .Should()
-                   .NotBeNull();
-        gamesBundle.IsNewSinceLastFetch
-                   .Should()
-                   .BeTrue();
+        gamesBundle.Title.ShouldBe("Bundle One");
+        gamesBundle.TimeRemaining.ShouldNotBeNull();
+        gamesBundle.IsNewSinceLastFetch.ShouldBeTrue();
 
         var expired = model.ExpiredBundles.Single();
-        expired.IsExpired
-               .Should()
-               .BeTrue();
-        expired.TimeRemaining
-               .Should()
-               .BeNull();
+        expired.IsExpired.ShouldBeTrue();
+        expired.TimeRemaining.ShouldBeNull();
 
-        httpContext.Response
-                   .Headers["Set-Cookie"]
-                   .ToString()
-                   .Should()
-                   .Contain(LastViewedCookieName);
+        httpContext.Response.Headers["Set-Cookie"].ToString().ShouldContain(LastViewedCookieName);
     }
 }

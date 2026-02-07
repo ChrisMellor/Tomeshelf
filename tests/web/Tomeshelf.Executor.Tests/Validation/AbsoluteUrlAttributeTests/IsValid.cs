@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using FluentAssertions;
 using Tomeshelf.Executor.Validation;
 
 namespace Tomeshelf.Executor.Tests.Validation.AbsoluteUrlAttributeTests;
@@ -17,11 +16,9 @@ public class IsValid
         var result = _attribute.GetValidationResult(value, new ValidationContext(new object()) { DisplayName = "Url" });
 
         // Assert
-        result.Should()
-              .NotBe(ValidationResult.Success);
-        result!.ErrorMessage
-               .Should()
-               .Contain("must be a fully-qualified http, https, or ftp URL");
+        result.ShouldNotBe(ValidationResult.Success);
+        result.ShouldNotBeNull();
+        result!.ErrorMessage.ShouldContain("must be a fully-qualified http, https, or ftp URL");
     }
 
     [Theory]
@@ -38,7 +35,6 @@ public class IsValid
         var result = _attribute.GetValidationResult(value, new ValidationContext(new object()));
 
         // Assert
-        result.Should()
-              .Be(ValidationResult.Success);
+        result.ShouldBe(ValidationResult.Success);
     }
 }

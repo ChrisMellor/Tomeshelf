@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models;
@@ -29,20 +28,11 @@ public class Index
         var result = await controller.Index("mcm-2026", null, CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        view.ViewName
-            .Should()
-            .Be("Index");
-        view.Model
-            .Should()
-            .BeEquivalentTo(groups);
-        ((string)controller.ViewBag.EventName).Should()
-                                              .Be("mcm-2026");
-        ((int)controller.ViewBag.Total).Should()
-                                       .Be(42);
-        ((long)controller.ViewBag.ElapsedMs).Should()
-                                            .BeGreaterThanOrEqualTo(0);
+        var view = result.ShouldBeOfType<ViewResult>();
+        view.ViewName.ShouldBe("Index");
+        view.Model.ShouldBeSameAs(groups);
+        ((string)controller.ViewBag.EventName).ShouldBe("mcm-2026");
+        ((int)controller.ViewBag.Total).ShouldBe(42);
+        ((long)controller.ViewBag.ElapsedMs >= 0).ShouldBeTrue();
     }
 }

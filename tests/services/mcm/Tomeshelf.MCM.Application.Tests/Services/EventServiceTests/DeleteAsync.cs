@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
 using Tomeshelf.MCM.Application.Services;
 
@@ -24,8 +23,7 @@ public class DeleteAsync
         var result = await service.DeleteAsync(id, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeTrue();
+        result.ShouldBeTrue();
         A.CallTo(() => repository.DeleteAsync(id, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

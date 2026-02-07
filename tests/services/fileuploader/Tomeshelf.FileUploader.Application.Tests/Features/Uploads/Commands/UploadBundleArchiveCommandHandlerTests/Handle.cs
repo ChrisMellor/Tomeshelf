@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.FileUploader.Application.Abstractions.Upload;
 using Tomeshelf.FileUploader.Application.Features.Uploads.Commands;
 using Tomeshelf.FileUploader.Application.Features.Uploads.Models;
@@ -29,9 +28,8 @@ public class Handle
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var exception = await act.Should()
-                                 .ThrowAsync<InvalidOperationException>();
-        exception.WithMessage(expectedException.Message);
+        var exception = await Should.ThrowAsync<InvalidOperationException>(act);
+        exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => uploadService.UploadAsync(archiveStream, fileName, overrideOptions, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }
@@ -56,8 +54,7 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .Be(expectedResult);
+        result.ShouldBeSameAs(expectedResult);
         A.CallTo(() => uploadService.UploadAsync(archiveStream, fileName, overrideOptions, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Commands;
 
@@ -28,9 +27,8 @@ public class Handle
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var exception = await act.Should()
-                                 .ThrowAsync<InvalidOperationException>();
-        exception.WithMessage(expectedException.Message);
+        var exception = await Should.ThrowAsync<InvalidOperationException>(act);
+        exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => authorizationService.BuildAuthorizationUri(returnUrl, out outState))
          .MustHaveHappenedOnceExactly();
     }
@@ -57,14 +55,9 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .NotBeNull();
-        result!.AuthorizationUri
-               .Should()
-               .Be(expectedUri);
-        result.State
-              .Should()
-              .Be(expectedState);
+        result.ShouldNotBeNull();
+        result!.AuthorizationUri.ShouldBe(expectedUri);
+        result.State.ShouldBe(expectedState);
         A.CallTo(() => authorizationService.BuildAuthorizationUri(returnUrl, out outState))
          .MustHaveHappenedOnceExactly();
     }

@@ -1,5 +1,4 @@
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -59,24 +58,12 @@ public sealed class GetDashboardAsync
         var third = await service.GetDashboardAsync(date, true, CancellationToken.None);
 
         // Assert
-        first.Should()
-             .NotBeNull();
-        first!.Activity
-              .Steps
-              .Should()
-              .Be(1);
-        second.Should()
-              .NotBeNull();
-        second!.Activity
-               .Steps
-               .Should()
-               .Be(1);
-        third.Should()
-             .NotBeNull();
-        third!.Activity
-              .Steps
-              .Should()
-              .Be(2);
+        first.ShouldNotBeNull();
+        first!.Activity.Steps.ShouldBe(1);
+        second.ShouldNotBeNull();
+        second!.Activity.Steps.ShouldBe(1);
+        third.ShouldNotBeNull();
+        third!.Activity.Steps.ShouldBe(2);
     }
 
     [Fact]
@@ -152,15 +139,8 @@ public sealed class GetDashboardAsync
         var dashboard = await service.GetDashboardAsync(date, true, CancellationToken.None);
 
         // Assert
-        dashboard.Should()
-                 .NotBeNull();
-        dashboard!.Sleep
-                  .Bedtime
-                  .Should()
-                  .Be("22:15");
-        dashboard.Sleep
-                 .WakeTime
-                 .Should()
-                 .Be("06:45");
+        dashboard.ShouldNotBeNull();
+        dashboard!.Sleep.Bedtime.ShouldBe("22:15");
+        dashboard.Sleep.WakeTime.ShouldBe("06:45");
     }
 }

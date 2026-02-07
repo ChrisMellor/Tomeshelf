@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.Paissa.Application.Abstractions.Common;
 using Tomeshelf.Paissa.Application.Abstractions.External;
 using Tomeshelf.Paissa.Application.Features.Housing.Queries;
@@ -44,13 +43,8 @@ public class Handle
         var result = await handler.Handle(new GetAcceptingEntriesQuery(), CancellationToken.None);
 
         // Assert
-        result.Districts
-              .Should()
-              .HaveCount(1);
-        result.Districts[0]
-              .Name
-              .Should()
-              .Be("Known");
+        result.Districts.ShouldHaveSingleItem();
+        result.Districts[0].Name.ShouldBe("Known");
     }
 
     [Fact]
@@ -91,61 +85,28 @@ public class Handle
         var result = await handler.Handle(new GetAcceptingEntriesQuery(), CancellationToken.None);
 
         // Assert
-        result.Districts
-              .Should()
-              .HaveCount(2);
-        result.Districts[0]
-              .Name
-              .Should()
-              .Be("Alpha");
-        result.Districts[1]
-              .Name
-              .Should()
-              .Be("beta");
+        result.Districts.Count.ShouldBe(2);
+        result.Districts[0].Name.ShouldBe("Alpha");
+        result.Districts[1].Name.ShouldBe("beta");
 
         var sizeGroups = result.Districts[0].SizeGroups;
-        sizeGroups.Should()
-                  .HaveCount(3);
-        sizeGroups[0]
-           .Size
-           .Should()
-           .Be("Large");
-        sizeGroups[1]
-           .Size
-           .Should()
-           .Be("Medium");
-        sizeGroups[2]
-           .Size
-           .Should()
-           .Be("Small");
+        sizeGroups.Count.ShouldBe(3);
+        sizeGroups[0].Size.ShouldBe("Large");
+        sizeGroups[1].Size.ShouldBe("Medium");
+        sizeGroups[2].Size.ShouldBe("Small");
 
         var mediumGroup = sizeGroups[1];
-        mediumGroup.Plots
-                   .Should()
-                   .HaveCount(1);
-        mediumGroup.Plots[0]
-                   .Ward
-                   .Should()
-                   .Be(1);
-        mediumGroup.Plots[0]
-                   .Plot
-                   .Should()
-                   .Be(1);
+        mediumGroup.Plots.ShouldHaveSingleItem();
+        mediumGroup.Plots[0].Ward.ShouldBe(1);
+        mediumGroup.Plots[0].Plot.ShouldBe(1);
 
         var betaSmallPlots = result.Districts[1]
                                    .SizeGroups
                                    .First(group => group.Size == "Small")
                                    .Plots;
-        betaSmallPlots.Should()
-                      .HaveCount(1);
-        betaSmallPlots[0]
-           .Ward
-           .Should()
-           .Be(1);
-        betaSmallPlots[0]
-           .Plot
-           .Should()
-           .Be(2);
+        betaSmallPlots.ShouldHaveSingleItem();
+        betaSmallPlots[0].Ward.ShouldBe(1);
+        betaSmallPlots[0].Plot.ShouldBe(2);
     }
 
     [Fact]
@@ -178,20 +139,11 @@ public class Handle
         var result = await handler.Handle(new GetAcceptingEntriesQuery(), CancellationToken.None);
 
         // Assert
-        result.Should()
-              .NotBeNull();
-        result.WorldId
-              .Should()
-              .Be(worldId);
-        result.WorldName
-              .Should()
-              .Be(worldName);
-        result.RetrievedAtUtc
-              .Should()
-              .Be(now);
-        result.Districts
-              .Should()
-              .HaveCount(1);
+        result.ShouldNotBeNull();
+        result.WorldId.ShouldBe(worldId);
+        result.WorldName.ShouldBe(worldName);
+        result.RetrievedAtUtc.ShouldBe(now);
+        result.Districts.ShouldHaveSingleItem();
         A.CallTo(() => client.GetWorldAsync(worldId, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

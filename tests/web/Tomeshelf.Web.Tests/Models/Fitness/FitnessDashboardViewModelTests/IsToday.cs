@@ -1,5 +1,4 @@
 using System;
-using FluentAssertions;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.FitnessDashboardViewModelTests;
@@ -17,11 +16,7 @@ public class IsToday
         var model = FitnessDashboardViewModel.Empty(today, WeightUnit.Stones);
 
         // Assert
-        model.IsToday
-             .Should()
-             .BeTrue();
-        model.CanRefresh
-             .Should()
-             .BeFalse();
+        model.IsToday.ShouldBeTrue();
+        model.CanRefresh.ShouldBeFalse();
     }
 }

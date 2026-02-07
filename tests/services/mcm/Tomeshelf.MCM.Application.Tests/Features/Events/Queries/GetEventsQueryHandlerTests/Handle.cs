@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.MCM.Application.Features.Events.Queries;
 using Tomeshelf.MCM.Application.Models;
 using Tomeshelf.MCM.Application.Services;
@@ -37,8 +36,12 @@ public class Handle
         var result = await handler.Handle(new GetEventsQuery(), CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeEquivalentTo(expectedEvents, options => options.WithStrictOrdering());
+        result.Count.ShouldBe(expectedEvents.Count);
+        for (var index = 0; index < expectedEvents.Count; index++)
+        {
+            result[index].Id.ShouldBe(expectedEvents[index].Id);
+            result[index].Name.ShouldBe(expectedEvents[index].Name);
+        }
         A.CallTo(() => service.GetAllAsync(A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

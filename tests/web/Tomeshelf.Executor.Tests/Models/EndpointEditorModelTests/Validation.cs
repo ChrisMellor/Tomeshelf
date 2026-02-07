@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using FluentAssertions;
 using Tomeshelf.Executor.Models;
 
 namespace Tomeshelf.Executor.Tests.Models.EndpointEditorModelTests;
@@ -17,9 +16,7 @@ public class Validation
         var isValid = Validator.TryValidateObject(model, new ValidationContext(model), results, true);
 
         // Assert
-        isValid.Should()
-               .BeFalse();
-        results.Should()
-               .NotBeEmpty();
+        isValid.ShouldBeFalse();
+        results.ShouldNotBeEmpty();
     }
 }

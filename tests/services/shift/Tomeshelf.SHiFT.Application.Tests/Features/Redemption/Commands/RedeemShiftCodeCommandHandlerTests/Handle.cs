@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.SHiFT.Application.Abstractions.External;
 using Tomeshelf.SHiFT.Application.Features.Redemption.Commands;
 using Tomeshelf.SHiFT.Application.Features.Redemption.Redeem;
@@ -26,8 +25,7 @@ public class Handle
         var result = await handler.Handle(new RedeemShiftCodeCommand(code), CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeSameAs(expected);
+        result.ShouldBeSameAs(expected);
         A.CallTo(() => gearbox.RedeemCodeAsync(code, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

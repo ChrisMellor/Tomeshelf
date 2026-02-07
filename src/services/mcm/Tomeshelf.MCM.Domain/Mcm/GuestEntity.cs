@@ -1,9 +1,18 @@
-﻿using System;
+using System;
 
 namespace Tomeshelf.MCM.Domain.Mcm;
 
 public class GuestEntity
 {
+    public GuestEntity()
+    {
+        Id = Guid.NewGuid();
+        AddedAt = DateTimeOffset.UtcNow;
+        IsDeleted = false;
+        Information = new GuestInfoEntity();
+        GuestInfoId = Information.Id; 
+    }
+
     public Guid Id { get; set; }
 
     public DateTimeOffset AddedAt { get; set; }

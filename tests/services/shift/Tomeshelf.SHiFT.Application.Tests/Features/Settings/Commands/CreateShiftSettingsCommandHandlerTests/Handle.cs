@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.SHiFT.Application.Abstractions.Common;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
 using Tomeshelf.SHiFT.Application.Abstractions.Security;
@@ -31,8 +30,7 @@ public class Handle
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should()
-                 .ThrowAsync<InvalidOperationException>();
+        await Should.ThrowAsync<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -61,8 +59,40 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .Be(7);
+        result.ShouldBe(7);
+        A.CallTo(() => protector.Protect(A<string>._))
+         .MustNotHaveHappened();
+        A.CallTo(() => repository.CreateAsync(A<SettingsEntity>.That.Matches(entity => (entity.Email == email) && (entity.DefaultService == service) && (entity.EncryptedPassword == null) && (entity.UpdatedUtc == now)), A<CancellationToken>._))
+         .MustHaveHappenedOnceExactly();
+    }
+
+    [Fact]
+    public async Task WithNullPassword_SetsNullEncryptedPassword()
+    {
+        // Arrange
+        var faker = new Faker();
+        var repository = A.Fake<IShiftSettingsRepository>();
+        var protector = A.Fake<ISecretProtector>();
+        var clock = A.Fake<IClock>();
+        var handler = new CreateShiftSettingsCommandHandler(repository, protector, clock);
+        var now = faker.Date.RecentOffset();
+        var email = faker.Internet.Email();
+        var service = "psn";
+
+        A.CallTo(() => repository.EmailExistsAsync(email, null, A<CancellationToken>._))
+         .Returns(Task.FromResult(false));
+        A.CallTo(() => clock.UtcNow)
+         .Returns(now);
+        A.CallTo(() => repository.CreateAsync(A<SettingsEntity>._, A<CancellationToken>._))
+         .Returns(Task.FromResult(11));
+
+        var command = new CreateShiftSettingsCommand(email, null, service);
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.ShouldBe(11);
         A.CallTo(() => protector.Protect(A<string>._))
          .MustNotHaveHappened();
         A.CallTo(() => repository.CreateAsync(A<SettingsEntity>.That.Matches(entity => (entity.Email == email) && (entity.DefaultService == service) && (entity.EncryptedPassword == null) && (entity.UpdatedUtc == now)), A<CancellationToken>._))
@@ -99,8 +129,7 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .Be(9);
+        result.ShouldBe(9);
         A.CallTo(() => protector.Protect(password))
          .MustHaveHappenedOnceExactly();
         A.CallTo(() => repository.CreateAsync(A<SettingsEntity>.That.Matches(entity => (entity.Email == email) && (entity.DefaultService == service) && (entity.EncryptedPassword == encrypted) && (entity.UpdatedUtc == now)), A<CancellationToken>._))

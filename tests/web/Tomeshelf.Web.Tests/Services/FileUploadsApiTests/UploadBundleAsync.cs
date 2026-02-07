@@ -7,7 +7,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Bundles;
 using Tomeshelf.Web.Services;
@@ -67,23 +66,12 @@ public class UploadBundleAsync
         var result = await api.UploadBundleAsync(stream, "bundle.zip", auth, CancellationToken.None);
 
         // Assert
-        result.BundlesProcessed
-              .Should()
-              .Be(1);
-        fileName.Should()
-                .Be("bundle.zip");
-        parts["credentials.clientId"]
-           .Should()
-           .Be("client");
-        parts["credentials.clientSecret"]
-           .Should()
-           .Be("secret");
-        parts["credentials.refreshToken"]
-           .Should()
-           .Be("refresh");
-        parts["credentials.userEmail"]
-           .Should()
-           .Be("user@example.com");
+        result.BundlesProcessed.ShouldBe(1);
+        fileName.ShouldBe("bundle.zip");
+        parts["credentials.clientId"].ShouldBe("client");
+        parts["credentials.clientSecret"].ShouldBe("secret");
+        parts["credentials.refreshToken"].ShouldBe("refresh");
+        parts["credentials.userEmail"].ShouldBe("user@example.com");
     }
 
     [Fact]
@@ -122,14 +110,10 @@ public class UploadBundleAsync
         await api.UploadBundleAsync(stream, "bundle.zip", null, CancellationToken.None);
 
         // Assert
-        parts.Should()
-             .NotContainKey("credentials.clientId");
-        parts.Should()
-             .NotContainKey("credentials.clientSecret");
-        parts.Should()
-             .NotContainKey("credentials.refreshToken");
-        parts.Should()
-             .NotContainKey("credentials.userEmail");
+        parts.ContainsKey("credentials.clientId").ShouldBeFalse();
+        parts.ContainsKey("credentials.clientSecret").ShouldBeFalse();
+        parts.ContainsKey("credentials.refreshToken").ShouldBeFalse();
+        parts.ContainsKey("credentials.userEmail").ShouldBeFalse();
     }
 
     [Fact]
@@ -141,10 +125,7 @@ public class UploadBundleAsync
         var api = new FileUploadsApi(new TestHttpClientFactory(client), A.Fake<ILogger<FileUploadsApi>>());
 
         // Act
-        var action = () => api.UploadBundleAsync(null!, "bundle.zip", null, CancellationToken.None);
-
-        // Assert
-        await action.Should()
-                    .ThrowAsync<ArgumentNullException>();
+        // Act
+        await Should.ThrowAsync<ArgumentNullException>(() => api.UploadBundleAsync(null!, "bundle.zip", null, CancellationToken.None));
     }
 }

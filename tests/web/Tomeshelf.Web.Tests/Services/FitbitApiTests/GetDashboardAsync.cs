@@ -5,7 +5,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Fitness;
 using Tomeshelf.Web.Services;
@@ -38,8 +37,7 @@ public class GetDashboardAsync
         await api.GetDashboardAsync("2020-01-01", true, "https://return.example/?a=1", CancellationToken.None);
 
         // Assert
-        path.Should()
-            .Be("/api/Fitbit/Dashboard?date=2020-01-01&refresh=true&returnUrl=https%3A%2F%2Freturn.example%2F%3Fa%3D1");
+        path.ShouldBe("/api/Fitbit/Dashboard?date=2020-01-01&refresh=true&returnUrl=https%3A%2F%2Freturn.example%2F%3Fa%3D1");
     }
 
     [Fact]
@@ -57,14 +55,10 @@ public class GetDashboardAsync
         var api = new FitbitApi(new TestHttpClientFactory(client), A.Fake<ILogger<FitbitApi>>());
 
         // Act
-        var action = () => api.GetDashboardAsync("2020-01-01", false, "https://return.example", CancellationToken.None);
+        // Act
+        var exception = await Should.ThrowAsync<FitbitAuthorizationRequiredException>(() => api.GetDashboardAsync("2020-01-01", false, "https://return.example", CancellationToken.None));
 
         // Assert
-        var exception = await action.Should()
-                                    .ThrowAsync<FitbitAuthorizationRequiredException>();
-        exception.Which
-                 .Location
-                 .Should()
-                 .Be(new Uri("https://example.test/fitness"));
+        exception.Location.ShouldBe(new Uri("https://example.test/fitness"));
     }
 }

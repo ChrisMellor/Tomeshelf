@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.FitnessDashboardViewModelTests;
@@ -15,23 +14,11 @@ public class Empty
         var model = FitnessDashboardViewModel.Empty(selectedDate, WeightUnit.Pounds, "error");
 
         // Assert
-        model.SelectedDate
-             .Should()
-             .Be(selectedDate);
-        model.NextDate
-             .Should()
-             .Be("2020-01-02");
-        model.PreviousDate
-             .Should()
-             .Be("2019-12-31");
-        model.HasData
-             .Should()
-             .BeFalse();
-        model.ErrorMessage
-             .Should()
-             .Be("error");
-        model.Unit
-             .Should()
-             .Be(WeightUnit.Pounds);
+        model.SelectedDate.ShouldBe(selectedDate);
+        model.NextDate.ShouldBe("2020-01-02");
+        model.PreviousDate.ShouldBe("2019-12-31");
+        model.HasData.ShouldBeFalse();
+        model.ErrorMessage.ShouldBe("error");
+        model.Unit.ShouldBe(WeightUnit.Pounds);
     }
 }

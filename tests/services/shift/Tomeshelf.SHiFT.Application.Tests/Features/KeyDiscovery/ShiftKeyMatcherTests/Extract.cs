@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.SHiFT.Application.Features.KeyDiscovery;
 
 namespace Tomeshelf.SHiFT.Application.Tests.Features.KeyDiscovery.ShiftKeyMatcherTests;
@@ -15,14 +14,9 @@ public class Extract
         var results = ShiftKeyMatcher.Extract(text);
 
         // Assert
-        results.Should()
-               .HaveCount(2);
-        results[0]
-           .Should()
-           .Be("ABCDE-FGHIJ-KLMNO-PQRST-UVWXY");
-        results[1]
-           .Should()
-           .Be("12345-ABCDE-67890-FGHIJ-KLMNO");
+        results.Count.ShouldBe(2);
+        results[0].ShouldBe("ABCDE-FGHIJ-KLMNO-PQRST-UVWXY");
+        results[1].ShouldBe("12345-ABCDE-67890-FGHIJ-KLMNO");
     }
 
     [Fact]
@@ -37,9 +31,20 @@ public class Extract
         var whitespaceResult = ShiftKeyMatcher.Extract(whitespace);
 
         // Assert
-        nullResult.Should()
-                  .BeEmpty();
-        whitespaceResult.Should()
-                        .BeEmpty();
+        nullResult.ShouldBeEmpty();
+        whitespaceResult.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void WhenNoMatches_ReturnsEmpty()
+    {
+        // Arrange
+        var text = "No valid codes here, just ABCDE-FGHIJ-KLMNO.";
+
+        // Act
+        var results = ShiftKeyMatcher.Extract(text);
+
+        // Assert
+        results.ShouldBeEmpty();
     }
 }

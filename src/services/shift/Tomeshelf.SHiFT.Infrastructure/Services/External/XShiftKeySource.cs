@@ -3,12 +3,17 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.SHiFT.Application;
+using Tomeshelf.SHiFT.Application.Abstractions.External;
+using Tomeshelf.SHiFT.Application.Features.KeyDiscovery;
+using Tomeshelf.SHiFT.Application.Features.KeyDiscovery.Models;
 
 namespace Tomeshelf.SHiFT.Infrastructure.Services.External;
 

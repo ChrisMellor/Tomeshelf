@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Mcm;
@@ -59,19 +59,11 @@ public class GetComicConEventsAsync
         var second = await api.GetComicConEventsAsync(CancellationToken.None);
 
         // Assert
-        callCount.Should()
-                 .Be(1);
-        first.Should()
-             .HaveCount(2);
-        first[0]
-           .Name
-           .Should()
-           .Be("Birmingham");
-        first[1]
-           .Name
-           .Should()
-           .Be("London");
-        second.Should()
-              .BeEquivalentTo(first);
+        callCount.ShouldBe(1);
+        first.Count.ShouldBe(2);
+        first[0].Name.ShouldBe("Birmingham");
+        first[1].Name.ShouldBe("London");
+        second.Select(item => item.Id).ShouldBe(first.Select(item => item.Id));
+        second.Select(item => item.Name).ShouldBe(first.Select(item => item.Name));
     }
 }

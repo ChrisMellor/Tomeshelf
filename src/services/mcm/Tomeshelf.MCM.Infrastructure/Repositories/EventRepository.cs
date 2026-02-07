@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -44,12 +44,16 @@ public class EventRepository : IEventRepository
     /// </returns>
     public async Task<bool> DeleteAsync(string id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Events.FindAsync([id], cancellationToken);
+        var entity = await _dbContext.Events
+            .Include(e => e.Guests)
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        
         if (entity is null)
         {
             return false;
         }
 
+        // Remove the event entity, guests will be cascade deleted
         _dbContext.Events.Remove(entity);
         await _dbContext.SaveChangesAsync(cancellationToken);
 

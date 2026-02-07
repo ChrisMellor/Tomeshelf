@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Queries;
 
@@ -27,12 +26,8 @@ public class Handle
         var result = await handler.Handle(new GetFitbitAuthorizationStatusQuery(), CancellationToken.None);
 
         // Assert
-        result.HasAccessToken
-              .Should()
-              .BeTrue();
-        result.HasRefreshToken
-              .Should()
-              .BeTrue();
+        result.HasAccessToken.ShouldBeTrue();
+        result.HasRefreshToken.ShouldBeTrue();
     }
 
     [Fact]
@@ -53,12 +48,8 @@ public class Handle
         var result = await handler.Handle(new GetFitbitAuthorizationStatusQuery(), CancellationToken.None);
 
         // Assert
-        result.HasAccessToken
-              .Should()
-              .BeFalse();
-        result.HasRefreshToken
-              .Should()
-              .BeTrue();
+        result.HasAccessToken.ShouldBeFalse();
+        result.HasRefreshToken.ShouldBeTrue();
     }
 
     [Fact]
@@ -79,12 +70,8 @@ public class Handle
         var result = await handler.Handle(new GetFitbitAuthorizationStatusQuery(), CancellationToken.None);
 
         // Assert
-        result.HasAccessToken
-              .Should()
-              .BeTrue();
-        result.HasRefreshToken
-              .Should()
-              .BeFalse();
+        result.HasAccessToken.ShouldBeTrue();
+        result.HasRefreshToken.ShouldBeFalse();
     }
 
     [Fact]
@@ -103,11 +90,7 @@ public class Handle
         var result = await handler.Handle(new GetFitbitAuthorizationStatusQuery(), CancellationToken.None);
 
         // Assert
-        result.HasAccessToken
-              .Should()
-              .BeFalse();
-        result.HasRefreshToken
-              .Should()
-              .BeFalse();
+        result.HasAccessToken.ShouldBeFalse();
+        result.HasRefreshToken.ShouldBeFalse();
     }
 }

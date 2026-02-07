@@ -1,7 +1,6 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Tomeshelf.Web.Infrastructure;
 
@@ -23,13 +22,8 @@ public class SendAsync
         await client.GetAsync("https://example.test/");
 
         // Assert
-        inner.LastRequest
-             .Should()
-             .NotBeNull();
-        inner.LastRequest!.Headers
-             .Contains("Cookie")
-             .Should()
-             .BeFalse();
+        inner.LastRequest.ShouldNotBeNull();
+        inner.LastRequest!.Headers.Contains("Cookie").ShouldBeFalse();
     }
 
     [Fact]
@@ -47,18 +41,10 @@ public class SendAsync
         await client.GetAsync("https://example.test/");
 
         // Assert
-        inner.LastRequest
-             .Should()
-             .NotBeNull();
-        inner.LastRequest!.Headers
-             .TryGetValues("Cookie", out var values)
-             .Should()
-             .BeTrue();
-        values.Should()
-              .ContainSingle()
-              .Which
-              .Should()
-              .Be($"{FitbitSessionCookieHandler.FitbitSessionCookieName}=abc");
+        inner.LastRequest.ShouldNotBeNull();
+        inner.LastRequest!.Headers.TryGetValues("Cookie", out var values).ShouldBeTrue();
+        var value = values.ShouldHaveSingleItem();
+        value.ShouldBe($"{FitbitSessionCookieHandler.FitbitSessionCookieName}=abc");
     }
 
     private sealed class CapturingHandler : HttpMessageHandler

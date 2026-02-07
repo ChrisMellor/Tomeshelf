@@ -1,7 +1,6 @@
 using System.Text;
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 
 namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitTokenCacheTests;
@@ -26,8 +25,7 @@ public class RefreshToken
         var result = cache.RefreshToken;
 
         // Assert
-        result.Should()
-              .Be(token);
+        result.ShouldBe(token);
     }
 
     [Fact]
@@ -44,8 +42,7 @@ public class RefreshToken
         var result = cache.RefreshToken;
 
         // Assert
-        result.Should()
-              .BeNull();
+        result.ShouldBeNull();
     }
 
     private static (FitbitTokenCache Cache, ISession Session) CreateCache()

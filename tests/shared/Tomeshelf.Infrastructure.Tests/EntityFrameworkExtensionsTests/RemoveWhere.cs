@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using FluentAssertions;
 using Tomeshelf.Infrastructure.Shared;
 
 namespace Tomeshelf.Infrastructure.Tests.EntityFrameworkExtensionsTests;
@@ -27,8 +26,7 @@ public class RemoveWhere
         method.Invoke(null, new object[] { items, predicate });
 
         // Assert
-        items.Should()
-             .Equal(1, 3, 5);
+        items.ShouldBe(new[] { 1, 3, 5 });
     }
 
     [Fact]
@@ -47,8 +45,7 @@ public class RemoveWhere
         method.Invoke(null, new object[] { items, predicate });
 
         // Assert
-        items.Should()
-             .Equal("alpha", "bravo");
+        items.ShouldBe(new[] { "alpha", "bravo" });
     }
 
     private static MethodInfo GetRemoveWhereMethod(Type itemType)
@@ -57,8 +54,7 @@ public class RemoveWhere
         var type = assembly.GetType("Tomeshelf.Infrastructure.Shared.EntityFrameworkExtensions", true);
         var method = type!.GetMethod("RemoveWhere", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 
-        method.Should()
-              .NotBeNull();
+        method.ShouldNotBeNull();
 
         return method!.MakeGenericMethod(itemType);
     }

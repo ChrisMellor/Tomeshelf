@@ -1,5 +1,4 @@
 using System;
-using FluentAssertions;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.FitnessDashboardViewModelTests;
@@ -17,13 +16,9 @@ public class NextDate
         var model = FitnessDashboardViewModel.Empty(today, WeightUnit.Stones);
 
         // Assert
-        model.NextDate
-             .Should()
-             .BeNull();
-        model.PreviousDate
-             .Should()
-             .Be(DateOnly.FromDateTime(DateTime.Today)
-                         .AddDays(-1)
-                         .ToString("yyyy-MM-dd"));
+        model.NextDate.ShouldBeNull();
+        model.PreviousDate.ShouldBe(DateOnly.FromDateTime(DateTime.Today)
+                             .AddDays(-1)
+                             .ToString("yyyy-MM-dd"));
     }
 }

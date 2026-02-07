@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -33,12 +32,8 @@ public class Errors
         var result = await controller.Index("2020-01-01", false, "kg", CancellationToken.None);
 
         // Assert
-        var redirect = result.Should()
-                             .BeOfType<RedirectResult>()
-                             .Subject;
-        redirect.Url
-                .Should()
-                .Be(location.ToString());
+        var redirect = result.ShouldBeOfType<RedirectResult>();
+        redirect.Url.ShouldBe(location.ToString());
     }
 
     [Fact]
@@ -56,19 +51,10 @@ public class Errors
         var result = await controller.Index("2020-01-02", false, "kg", CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<FitnessDashboardViewModel>()
-                        .Subject;
-        model.ErrorMessage
-             .Should()
-             .Be("service down");
-        model.Unit
-             .Should()
-             .Be(WeightUnit.Kilograms);
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<FitnessDashboardViewModel>();
+        model.ErrorMessage.ShouldBe("service down");
+        model.Unit.ShouldBe(WeightUnit.Kilograms);
     }
 
     [Fact]
@@ -86,16 +72,9 @@ public class Errors
         var result = await controller.Index("2020-01-03", false, "kg", CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<FitnessDashboardViewModel>()
-                        .Subject;
-        model.ErrorMessage
-             .Should()
-             .Be("Unable to load Fitbit data at this time.");
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<FitnessDashboardViewModel>();
+        model.ErrorMessage.ShouldBe("Unable to load Fitbit data at this time.");
     }
 
     private static FitnessController CreateController(IFitbitApi api, ILogger<FitnessController> logger)

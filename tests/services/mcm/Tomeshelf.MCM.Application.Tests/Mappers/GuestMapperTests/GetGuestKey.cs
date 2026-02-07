@@ -1,5 +1,4 @@
 using Bogus;
-using FluentAssertions;
 using Tomeshelf.MCM.Application.Mappers;
 using Tomeshelf.MCM.Domain.Mcm;
 
@@ -28,8 +27,7 @@ public class GetGuestKey
         var key = mapper.GetGuestKey(guest);
 
         // Assert
-        key.Should()
-           .Be($"{firstName} {lastName}");
+        key.ShouldBe($"{firstName} {lastName}");
     }
 
     [Fact]
@@ -43,7 +41,6 @@ public class GetGuestKey
         var key = mapper.GetGuestKey(guest);
 
         // Assert
-        key.Should()
-           .BeEmpty();
+        key.ShouldBe(string.Empty);
     }
 }

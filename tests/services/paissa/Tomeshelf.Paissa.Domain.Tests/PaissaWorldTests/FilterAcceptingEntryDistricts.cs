@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.Paissa.Domain.Entities;
 using Tomeshelf.Paissa.Domain.ValueObjects;
 
@@ -25,18 +24,9 @@ public class FilterAcceptingEntryDistricts
         var result = world.FilterAcceptingEntryDistricts(true);
 
         // Assert
-        result.Id
-              .Should()
-              .Be(10);
-        result.Name
-              .Should()
-              .Be("Alpha");
-        result.Districts
-              .Should()
-              .HaveCount(1);
-        result.Districts[0]
-              .Name
-              .Should()
-              .Be("Lavender");
+        result.Id.ShouldBe(10);
+        result.Name.ShouldBe("Alpha");
+        result.Districts.ShouldHaveSingleItem();
+        result.Districts[0].Name.ShouldBe("Lavender");
     }
 }

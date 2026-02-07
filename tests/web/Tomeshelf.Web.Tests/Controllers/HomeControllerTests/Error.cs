@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -34,19 +33,10 @@ public class Error
             var result = controller.Error();
 
             // Assert
-            var view = result.Should()
-                             .BeOfType<ViewResult>()
-                             .Subject;
-            var model = view.Model
-                            .Should()
-                            .BeOfType<ErrorViewModel>()
-                            .Subject;
-            model.RequestId
-                 .Should()
-                 .Be("trace-123");
-            model.ShowRequestId
-                 .Should()
-                 .BeTrue();
+            var view = result.ShouldBeOfType<ViewResult>();
+            var model = view.Model.ShouldBeOfType<ErrorViewModel>();
+            model.RequestId.ShouldBe("trace-123");
+            model.ShowRequestId.ShouldBeTrue();
         }
         finally
         {

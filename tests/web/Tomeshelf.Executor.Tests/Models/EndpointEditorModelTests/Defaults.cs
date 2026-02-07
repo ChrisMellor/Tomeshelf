@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.Executor.Models;
 
 namespace Tomeshelf.Executor.Tests.Models.EndpointEditorModelTests;
@@ -16,9 +15,7 @@ public class Defaults
         var enabled = model.Enabled;
 
         // Assert
-        method.Should()
-              .Be("POST");
-        enabled.Should()
-               .BeTrue();
+        method.ShouldBe("POST");
+        enabled.ShouldBeTrue();
     }
 }

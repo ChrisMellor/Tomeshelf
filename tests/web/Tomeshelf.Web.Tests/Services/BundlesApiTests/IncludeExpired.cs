@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Services;
 using Tomeshelf.Web.Tests.TestUtilities;
@@ -31,11 +30,7 @@ public class IncludeExpired
         await api.GetBundlesAsync(false, CancellationToken.None);
 
         // Assert
-        handler.Requests
-               .Should()
-               .ContainSingle();
-        handler.Requests[0].RequestUri!.PathAndQuery
-               .Should()
-               .Be("/bundles?includeExpired=false");
+        var request = handler.Requests.ShouldHaveSingleItem();
+        request.RequestUri!.PathAndQuery.ShouldBe("/bundles?includeExpired=false");
     }
 }

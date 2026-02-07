@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
 using Tomeshelf.SHiFT.Application.Features.Settings.Queries;
 using Tomeshelf.SHiFT.Domain.Entities;
@@ -32,23 +31,12 @@ public class Handle
         var result = await handler.Handle(new GetShiftSettingsQuery(2), CancellationToken.None);
 
         // Assert
-        result.Should()
-              .NotBeNull();
-        result!.Id
-               .Should()
-               .Be(entity.Id);
-        result.Email
-              .Should()
-              .Be(entity.Email);
-        result.DefaultService
-              .Should()
-              .Be(entity.DefaultService);
-        result.HasPassword
-              .Should()
-              .BeTrue();
-        result.UpdatedUtc
-              .Should()
-              .Be(entity.UpdatedUtc);
+        result.ShouldNotBeNull();
+        result!.Id.ShouldBe(entity.Id);
+        result.Email.ShouldBe(entity.Email);
+        result.DefaultService.ShouldBe(entity.DefaultService);
+        result.HasPassword.ShouldBeTrue();
+        result.UpdatedUtc.ShouldBe(entity.UpdatedUtc);
     }
 
     [Fact]
@@ -65,7 +53,33 @@ public class Handle
         var result = await handler.Handle(new GetShiftSettingsQuery(1), CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeNull();
+        result.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task WhenPasswordMissing_SetsHasPasswordFalse()
+    {
+        // Arrange
+        var faker = new Faker();
+        var repository = A.Fake<IShiftSettingsRepository>();
+        var handler = new GetShiftSettingsQueryHandler(repository);
+        var entity = new SettingsEntity
+        {
+            Id = 3,
+            Email = faker.Internet.Email(),
+            DefaultService = faker.Random.Word(),
+            EncryptedPassword = "   ",
+            UpdatedUtc = faker.Date.RecentOffset()
+        };
+
+        A.CallTo(() => repository.GetByIdAsync(3, A<CancellationToken>._))
+         .Returns(Task.FromResult<SettingsEntity?>(entity));
+
+        // Act
+        var result = await handler.Handle(new GetShiftSettingsQuery(3), CancellationToken.None);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result!.HasPassword.ShouldBeFalse();
     }
 }

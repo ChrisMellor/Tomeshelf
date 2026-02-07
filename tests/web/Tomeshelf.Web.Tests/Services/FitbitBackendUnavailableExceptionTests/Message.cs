@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.Web.Services;
 
 namespace Tomeshelf.Web.Tests.Services.FitbitBackendUnavailableExceptionTests;
@@ -12,9 +11,7 @@ public class Message
         var exception = new FitbitBackendUnavailableException(" ");
 
         // Assert
-        exception.Message
-                 .Should()
-                 .Be("Fitbit service is unavailable. Please try again in a moment.");
+        exception.Message.ShouldBe("Fitbit service is unavailable. Please try again in a moment.");
     }
 
     [Fact]
@@ -24,9 +21,7 @@ public class Message
         var exception = new FitbitBackendUnavailableException("<html>bad gateway</html>");
 
         // Assert
-        exception.Message
-                 .Should()
-                 .Be("Fitbit service is unavailable. Please try again in a moment.");
+        exception.Message.ShouldBe("Fitbit service is unavailable. Please try again in a moment.");
     }
 
     [Fact]
@@ -36,9 +31,7 @@ public class Message
         var exception = new FitbitBackendUnavailableException("{\"message\":\"Oops\"}");
 
         // Assert
-        exception.Message
-                 .Should()
-                 .Be("Oops");
+        exception.Message.ShouldBe("Oops");
     }
 
     [Fact]
@@ -48,8 +41,6 @@ public class Message
         var exception = new FitbitBackendUnavailableException("\"Too busy\"");
 
         // Assert
-        exception.Message
-                 .Should()
-                 .Be("Too busy");
+        exception.Message.ShouldBe("Too busy");
     }
 }

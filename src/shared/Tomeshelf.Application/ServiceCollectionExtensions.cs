@@ -14,6 +14,11 @@ public static class ServiceCollectionExtensions
     /// <returns>The same service collection for chaining.</returns>
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddTransient<IDummyService, DummyService>();
         return services;
     }
 }
+
+public interface IDummyService {}
+
+public class DummyService : IDummyService {}

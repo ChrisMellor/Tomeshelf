@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Commands;
 
@@ -33,9 +32,8 @@ public class Handle
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var exception = await act.Should()
-                                 .ThrowAsync<InvalidOperationException>();
-        exception.WithMessage(expectedException.Message);
+        var exception = await Should.ThrowAsync<InvalidOperationException>(act);
+        exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => authorizationService.TryConsumeState(command.State!, out outCodeVerifier, out outReturnUrl))
          .MustHaveHappenedOnceExactly();
         A.CallTo(() => authorizationService.ExchangeAuthorizationCodeAsync(command.Code, codeVerifier, A<CancellationToken>._))
@@ -60,12 +58,8 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.IsInvalidState
-              .Should()
-              .BeTrue();
-        result.ReturnUrl
-              .Should()
-              .Be("/fitness");
+        result.IsInvalidState.ShouldBeTrue();
+        result.ReturnUrl.ShouldBe("/fitness");
         A.CallTo(() => authorizationService.TryConsumeState(command.State!, out outCodeVerifier, out outReturnUrl))
          .MustHaveHappenedOnceExactly();
         A.CallTo(() => authorizationService.ExchangeAuthorizationCodeAsync(A<string>._, A<string>._, A<CancellationToken>._))
@@ -96,12 +90,8 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.IsInvalidState
-              .Should()
-              .BeFalse();
-        result.ReturnUrl
-              .Should()
-              .Be(returnUrl);
+        result.IsInvalidState.ShouldBeFalse();
+        result.ReturnUrl.ShouldBe(returnUrl);
         A.CallTo(() => authorizationService.TryConsumeState(command.State!, out outCodeVerifier, out outReturnUrl))
          .MustHaveHappenedOnceExactly();
         A.CallTo(() => authorizationService.ExchangeAuthorizationCodeAsync(command.Code, codeVerifier, A<CancellationToken>._))

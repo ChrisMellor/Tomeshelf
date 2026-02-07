@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -37,26 +36,12 @@ public class Result
         var result = controller.Result();
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        view.ViewName
-            .Should()
-            .Be("OAuthResult");
-        var model = view.Model
-                        .Should()
-                        .BeOfType<OAuthResultViewModel>()
-                        .Subject;
-        model.Success
-             .Should()
-             .BeFalse();
-        model.Message
-             .Should()
-             .Be("boom");
-        httpContext.Session
-                   .GetString(ErrorKey)
-                   .Should()
-                   .BeNull();
+        var view = result.ShouldBeOfType<ViewResult>();
+        view.ViewName.ShouldBe("OAuthResult");
+        var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
+        model.Success.ShouldBeFalse();
+        model.Message.ShouldBe("boom");
+        httpContext.Session.GetString(ErrorKey).ShouldBeNull();
     }
 
     [Fact]
@@ -80,20 +65,10 @@ public class Result
         var result = controller.Result("https://example.test/from-query");
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<OAuthResultViewModel>()
-                        .Subject;
-        model.RedirectUrl
-             .Should()
-             .Be("https://example.test/from-query");
-        httpContext.Session
-                   .GetString(ReturnUrlKey)
-                   .Should()
-                   .BeNull();
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
+        model.RedirectUrl.ShouldBe("https://example.test/from-query");
+        httpContext.Session.GetString(ReturnUrlKey).ShouldBeNull();
     }
 
     [Fact]
@@ -112,19 +87,10 @@ public class Result
         var result = controller.Result();
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<OAuthResultViewModel>()
-                        .Subject;
-        model.Success
-             .Should()
-             .BeFalse();
-        model.Message
-             .Should()
-             .Be("Google authorisation did not complete. Please try again.");
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
+        model.Success.ShouldBeFalse();
+        model.Message.ShouldBe("Google authorisation did not complete. Please try again.");
     }
 
     [Fact]
@@ -149,25 +115,11 @@ public class Result
         var result = controller.Result();
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<OAuthResultViewModel>()
-                        .Subject;
-        model.Success
-             .Should()
-             .BeTrue();
-        model.UserEmail
-             .Should()
-             .Be("user@example.com");
-        model.RedirectUrl
-             .Should()
-             .Be("https://example.test/return");
-        httpContext.Session
-                   .GetString(ReturnUrlKey)
-                   .Should()
-                   .BeNull();
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
+        model.Success.ShouldBeTrue();
+        model.UserEmail.ShouldBe("user@example.com");
+        model.RedirectUrl.ShouldBe("https://example.test/return");
+        httpContext.Session.GetString(ReturnUrlKey).ShouldBeNull();
     }
 }

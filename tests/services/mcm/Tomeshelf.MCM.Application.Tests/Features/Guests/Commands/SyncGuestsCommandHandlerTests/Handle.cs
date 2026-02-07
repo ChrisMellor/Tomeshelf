@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.MCM.Application.Contracts;
 using Tomeshelf.MCM.Application.Features.Guests.Commands;
 using Tomeshelf.MCM.Application.Models;
@@ -28,8 +27,7 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeSameAs(expected);
+        result.ShouldBeSameAs(expected);
         A.CallTo(() => service.SyncAsync(A<EventConfigModel>.That.Matches(model => (model.Id == eventId) && (model.Name == string.Empty)), A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

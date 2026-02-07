@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.SHiFT.Application.Abstractions.Common;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
 using Tomeshelf.SHiFT.Application.Abstractions.Security;
@@ -34,8 +33,7 @@ public class Handle
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should()
-                 .ThrowAsync<InvalidOperationException>();
+        await Should.ThrowAsync<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -57,8 +55,7 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeFalse();
+        result.ShouldBeFalse();
     }
 
     [Fact]
@@ -95,21 +92,86 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeTrue();
-        entity.Email
-              .Should()
-              .Be(newEmail);
-        entity.DefaultService
-              .Should()
-              .Be("xbox");
-        entity.EncryptedPassword
-              .Should()
-              .Be(encrypted);
-        entity.UpdatedUtc
-              .Should()
-              .Be(now);
+        result.ShouldBeTrue();
+        entity.Email.ShouldBe(newEmail);
+        entity.DefaultService.ShouldBe("xbox");
+        entity.EncryptedPassword.ShouldBe(encrypted);
+        entity.UpdatedUtc.ShouldBe(now);
         A.CallTo(() => repository.UpdateAsync(1, entity, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
+    }
+
+    [Fact]
+    public async Task PasswordNull_DoesNotChangeEncryptedPassword()
+    {
+        // Arrange
+        var faker = new Faker();
+        var repository = A.Fake<IShiftSettingsRepository>();
+        var protector = A.Fake<ISecretProtector>();
+        var clock = A.Fake<IClock>();
+        var handler = new UpdateShiftSettingsCommandHandler(repository, protector, clock);
+        var entity = new SettingsEntity
+        {
+            Id = 4,
+            Email = faker.Internet.Email(),
+            DefaultService = "psn",
+            EncryptedPassword = "existing"
+        };
+
+        var now = faker.Date.RecentOffset();
+        A.CallTo(() => repository.GetByIdAsync(4, A<CancellationToken>._))
+         .Returns(Task.FromResult<SettingsEntity?>(entity));
+        A.CallTo(() => repository.EmailExistsAsync(A<string>._, 4, A<CancellationToken>._))
+         .Returns(Task.FromResult(false));
+        A.CallTo(() => clock.UtcNow)
+         .Returns(now);
+
+        var command = new UpdateShiftSettingsCommand(4, faker.Internet.Email(), null, "steam");
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.ShouldBeTrue();
+        entity.EncryptedPassword.ShouldBe("existing");
+        A.CallTo(() => protector.Protect(A<string>._))
+         .MustNotHaveHappened();
+    }
+
+    [Fact]
+    public async Task EmptyPassword_SetsEncryptedPasswordToNull()
+    {
+        // Arrange
+        var faker = new Faker();
+        var repository = A.Fake<IShiftSettingsRepository>();
+        var protector = A.Fake<ISecretProtector>();
+        var clock = A.Fake<IClock>();
+        var handler = new UpdateShiftSettingsCommandHandler(repository, protector, clock);
+        var entity = new SettingsEntity
+        {
+            Id = 9,
+            Email = faker.Internet.Email(),
+            DefaultService = "psn",
+            EncryptedPassword = "existing"
+        };
+
+        var now = faker.Date.RecentOffset();
+        A.CallTo(() => repository.GetByIdAsync(9, A<CancellationToken>._))
+         .Returns(Task.FromResult<SettingsEntity?>(entity));
+        A.CallTo(() => repository.EmailExistsAsync(A<string>._, 9, A<CancellationToken>._))
+         .Returns(Task.FromResult(false));
+        A.CallTo(() => clock.UtcNow)
+         .Returns(now);
+
+        var command = new UpdateShiftSettingsCommand(9, faker.Internet.Email(), string.Empty, "steam");
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.ShouldBeTrue();
+        entity.EncryptedPassword.ShouldBeNull();
+        A.CallTo(() => protector.Protect(A<string>._))
+         .MustNotHaveHappened();
     }
 }

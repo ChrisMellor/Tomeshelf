@@ -1,9 +1,23 @@
-﻿using System;
+using System;
 
 namespace Tomeshelf.MCM.Domain.Mcm;
 
 public class GuestInfoEntity
 {
+    public GuestInfoEntity()
+    {
+        Id = Guid.NewGuid();
+        FirstName = string.Empty;
+        LastName = string.Empty;
+        Bio = string.Empty;
+        KnownFor = string.Empty;
+        Category = string.Empty;
+        DaysAppearing = string.Empty;
+        ImageUrl = string.Empty;
+        Socials = new GuestSocial();
+        GuestId = Guid.NewGuid();
+    }
+
     public Guid Id { get; set; }
 
     public string? FirstName { get; set; }

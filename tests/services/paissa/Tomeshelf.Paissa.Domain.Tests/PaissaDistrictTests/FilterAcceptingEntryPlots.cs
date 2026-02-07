@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.Paissa.Domain.Entities;
 using Tomeshelf.Paissa.Domain.ValueObjects;
 
@@ -23,20 +22,11 @@ public class FilterAcceptingEntryPlots
         var allowUnknown = district.FilterAcceptingEntryPlots(false);
 
         // Assert
-        requireKnown.Should()
-                    .NotBeNull();
-        requireKnown!.OpenPlots
-                     .Should()
-                     .HaveCount(1);
-        requireKnown.OpenPlots[0]
-                    .PlotNumber
-                    .Should()
-                    .Be(2);
-        allowUnknown.Should()
-                    .NotBeNull();
-        allowUnknown!.OpenPlots
-                     .Should()
-                     .HaveCount(2);
+        requireKnown.ShouldNotBeNull();
+        requireKnown!.OpenPlots.ShouldHaveSingleItem();
+        requireKnown.OpenPlots[0].PlotNumber.ShouldBe(2);
+        allowUnknown.ShouldNotBeNull();
+        allowUnknown!.OpenPlots.Count.ShouldBe(2);
     }
 
     [Fact]
@@ -51,7 +41,6 @@ public class FilterAcceptingEntryPlots
         var result = district.FilterAcceptingEntryPlots(true);
 
         // Assert
-        result.Should()
-              .BeNull();
+        result.ShouldBeNull();
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -65,25 +64,12 @@ public class Index
         var result = await controller.Index(CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<HomeIndexViewModel>()
-                        .Subject;
-        model.EventsSummary
-             .Should()
-             .Be("1 event configured");
-        model.EducationSummary
-             .Should()
-             .Be("2 bundles live");
-        model.HealthSummary
-             .Should()
-             .Be("123 steps today");
-        model.GamingSummary
-             .Should()
-             .Be("3 plots listed");
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<HomeIndexViewModel>();
+        model.EventsSummary.ShouldBe("1 event configured");
+        model.EducationSummary.ShouldBe("2 bundles live");
+        model.HealthSummary.ShouldBe("123 steps today");
+        model.GamingSummary.ShouldBe("3 plots listed");
     }
 
     [Fact]
@@ -111,16 +97,9 @@ public class Index
         var result = await controller.Index(CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<HomeIndexViewModel>()
-                        .Subject;
-        model.EducationSummary
-             .Should()
-             .Be("Bundles unavailable");
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<HomeIndexViewModel>();
+        model.EducationSummary.ShouldBe("Bundles unavailable");
     }
 
     [Fact]
@@ -148,16 +127,9 @@ public class Index
         var result = await controller.Index(CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<HomeIndexViewModel>()
-                        .Subject;
-        model.HealthSummary
-             .Should()
-             .Be("Connect Fitbit to sync");
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<HomeIndexViewModel>();
+        model.HealthSummary.ShouldBe("Connect Fitbit to sync");
     }
 
     private static HomeController CreateController(IBundlesApi bundlesApi, IFitbitApi fitbitApi, IGuestsApi guestsApi, IPaissaApi paissaApi, ILogger<HomeController> logger)

@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.HumbleBundle.Domain.HumbleBundle;
 
 namespace Tomeshelf.HumbleBundle.Domain.Tests.BundleTests;
@@ -15,12 +14,8 @@ public class GetRemainingTime
         var remainingTime = bundle.GetRemainingTime();
 
         // Assert
-        remainingTime.Should()
-                     .HaveValue();
-        remainingTime!.Value
-                      .TotalHours
-                      .Should()
-                      .BeGreaterThan(0);
+        remainingTime.HasValue.ShouldBeTrue();
+        (remainingTime.Value.TotalHours > 0).ShouldBeTrue();
     }
 
     [Fact]
@@ -33,12 +28,8 @@ public class GetRemainingTime
         var remainingTime = bundle.GetRemainingTime();
 
         // Assert
-        remainingTime.Should()
-                     .HaveValue();
-        remainingTime!.Value
-                      .TotalHours
-                      .Should()
-                      .BeLessThan(0);
+        remainingTime.HasValue.ShouldBeTrue();
+        (remainingTime.Value.TotalHours < 0).ShouldBeTrue();
     }
 
     [Fact]
@@ -51,7 +42,6 @@ public class GetRemainingTime
         var remainingTime = bundle.GetRemainingTime();
 
         // Assert
-        remainingTime.Should()
-                     .NotHaveValue();
+        remainingTime.HasValue.ShouldBeFalse();
     }
 }

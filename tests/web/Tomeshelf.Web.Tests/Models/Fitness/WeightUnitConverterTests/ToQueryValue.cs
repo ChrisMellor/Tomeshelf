@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.WeightUnitConverterTests;
@@ -15,7 +14,6 @@ public class ToQueryValue
         var result = WeightUnitConverter.ToQueryValue(unit);
 
         // Assert
-        result.Should()
-              .Be(expected);
+        result.ShouldBe(expected);
     }
 }

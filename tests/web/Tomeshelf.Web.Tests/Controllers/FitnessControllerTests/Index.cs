@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -45,35 +44,14 @@ public class Index
         var result = await controller.Index(date, false, "kg", CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<FitnessDashboardViewModel>()
-                        .Subject;
-        model.Summary
-             .Should()
-             .NotBeNull();
-        model.Summary
-             .Activity
-             .Steps
-             .Should()
-             .Be(250);
-        model.ErrorMessage
-             .Should()
-             .BeNull();
-        model.HasData
-             .Should()
-             .BeTrue();
-        model.Last7Days
-             .HasData
-             .Should()
-             .BeFalse();
-        model.Last30Days
-             .HasData
-             .Should()
-             .BeFalse();
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<FitnessDashboardViewModel>();
+        model.Summary.ShouldNotBeNull();
+        model.Summary!.Activity.Steps.ShouldBe(250);
+        model.ErrorMessage.ShouldBeNull();
+        model.HasData.ShouldBeTrue();
+        model.Last7Days.HasData.ShouldBeFalse();
+        model.Last30Days.HasData.ShouldBeFalse();
     }
 
     [Fact]
@@ -93,31 +71,14 @@ public class Index
         var result = await controller.Index(date, false, "lb", CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<FitnessDashboardViewModel>()
-                        .Subject;
-        model.SelectedDate
-             .Should()
-             .Be(date);
-        model.PreviousDate
-             .Should()
-             .Be("2019-12-31");
-        model.NextDate
-             .Should()
-             .Be("2020-01-02");
-        model.Unit
-             .Should()
-             .Be(WeightUnit.Pounds);
-        model.ErrorMessage
-             .Should()
-             .Be("No Fitbit data is available for the selected date.");
-        model.HasData
-             .Should()
-             .BeFalse();
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<FitnessDashboardViewModel>();
+        model.SelectedDate.ShouldBe(date);
+        model.PreviousDate.ShouldBe("2019-12-31");
+        model.NextDate.ShouldBe("2020-01-02");
+        model.Unit.ShouldBe(WeightUnit.Pounds);
+        model.ErrorMessage.ShouldBe("No Fitbit data is available for the selected date.");
+        model.HasData.ShouldBeFalse();
 
         A.CallTo(() => api.GetOverviewAsync(date, false, A<string>._, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
@@ -172,31 +133,13 @@ public class Index
         var result = await controller.Index(date, false, "lb", CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<FitnessDashboardViewModel>()
-                        .Subject;
-        model.Last7Days
-             .HasData
-             .Should()
-             .BeTrue();
-        model.Last7Days
-             .Metrics
-             .Should()
-             .HaveCount(4);
-        model.Last7Days
-             .Metrics[0]
-             .Values[0]!.Value
-             .Should()
-             .BeApproximately(22.0462, 0.01);
-        model.Last7Days
-             .Metrics[1]
-             .Values[0]!.Value
-             .Should()
-             .Be(1000);
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<FitnessDashboardViewModel>();
+        model.Last7Days.HasData.ShouldBeTrue();
+        model.Last7Days.Metrics.Count.ShouldBe(4);
+        var weightValue = model.Last7Days.Metrics[0].Values[0]!.Value;
+        weightValue.ShouldBeInRange(22.0362, 22.0562);
+        model.Last7Days.Metrics[1].Values[0]!.Value.ShouldBe(1000);
     }
 
     [Fact]
@@ -233,26 +176,12 @@ public class Index
         var result = await controller.Index(date, false, "kg", CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<FitnessDashboardViewModel>()
-                        .Subject;
-        model.Summary
-             .Should()
-             .BeNull();
-        model.ErrorMessage
-             .Should()
-             .Be("No daily Fitbit data is available for the selected date.");
-        model.HasData
-             .Should()
-             .BeFalse();
-        model.Last7Days
-             .HasData
-             .Should()
-             .BeTrue();
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<FitnessDashboardViewModel>();
+        model.Summary.ShouldBeNull();
+        model.ErrorMessage.ShouldBe("No daily Fitbit data is available for the selected date.");
+        model.HasData.ShouldBeFalse();
+        model.Last7Days.HasData.ShouldBeTrue();
     }
 
     private static FitnessController CreateController(IFitbitApi api, ILogger<FitnessController> logger)

@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Services;
 using Tomeshelf.Web.Tests.TestUtilities;
@@ -29,11 +28,10 @@ public class EmptyPayload
         var api = new FileUploadsApi(new TestHttpClientFactory(client), A.Fake<ILogger<FileUploadsApi>>());
 
         // Act
-        var action = () => api.UploadBundleAsync(new MemoryStream(new byte[] { 1 }), "bundle.zip", null, CancellationToken.None);
+        // Act
+        var exception = await Should.ThrowAsync<InvalidOperationException>(() => api.UploadBundleAsync(new MemoryStream(new byte[] { 1 }), "bundle.zip", null, CancellationToken.None));
 
         // Assert
-        await action.Should()
-                    .ThrowAsync<InvalidOperationException>()
-                    .WithMessage("Empty upload response payload");
+        exception.Message.ShouldBe("Empty upload response payload");
     }
 }

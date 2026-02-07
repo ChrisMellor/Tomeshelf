@@ -1,7 +1,6 @@
 using System.IO;
 using System.Text;
 using System.Text.Json;
-using FluentAssertions;
 using Tomeshelf.Application.Shared;
 
 namespace Tomeshelf.Application.Tests.Converters.NullableFlexibleDecimalConverterTests;
@@ -22,8 +21,7 @@ public class Write
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
-        json.Should()
-            .Be("null");
+        json.ShouldBe("null");
     }
 
     [Fact]
@@ -40,7 +38,6 @@ public class Write
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
-        json.Should()
-            .Be("12.34");
+        json.ShouldBe("12.34");
     }
 }

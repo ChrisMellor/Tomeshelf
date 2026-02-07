@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.WeightUnitConverterTests;
@@ -12,8 +11,7 @@ public class Convert
         var result = WeightUnitConverter.Convert(null, WeightUnit.Kilograms);
 
         // Assert
-        result.Should()
-              .BeNull();
+        result.ShouldBeNull();
     }
 
     [Fact]
@@ -23,11 +21,8 @@ public class Convert
         var result = WeightUnitConverter.Convert(10, WeightUnit.Pounds);
 
         // Assert
-        result.Should()
-              .HaveValue();
-        result!.Value
-               .Should()
-               .BeApproximately(22.0462, 0.01);
+        result.HasValue.ShouldBeTrue();
+        result!.Value.ShouldBeInRange(22.0362, 22.0562);
     }
 
     [Fact]
@@ -37,10 +32,7 @@ public class Convert
         var result = WeightUnitConverter.Convert(10, WeightUnit.Stones);
 
         // Assert
-        result.Should()
-              .HaveValue();
-        result!.Value
-               .Should()
-               .BeApproximately(1.5747, 0.01);
+        result.HasValue.ShouldBeTrue();
+        result!.Value.ShouldBeInRange(1.5647, 1.5847);
     }
 }

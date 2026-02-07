@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Application.Features.Dashboard.Queries;
 
@@ -35,8 +34,7 @@ public class Handle
         var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeSameAs(expected);
+        result.ShouldBeSameAs(expected);
         A.CallTo(() => dashboardService.GetDashboardAsync(date, false, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

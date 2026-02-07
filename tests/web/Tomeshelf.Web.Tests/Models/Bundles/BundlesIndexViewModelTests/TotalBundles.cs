@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using FluentAssertions;
 using Tomeshelf.Web.Models.Bundles;
 
 namespace Tomeshelf.Web.Tests.Models.Bundles.BundlesIndexViewModelTests;
@@ -35,8 +34,7 @@ public class TotalBundles
         var total = model.TotalBundles;
 
         // Assert
-        total.Should()
-             .Be(3);
+        total.ShouldBe(3);
     }
 
     [Fact]
@@ -67,7 +65,6 @@ public class TotalBundles
         var total = model.TotalBundles;
 
         // Assert
-        total.Should()
-             .Be(5);
+        total.ShouldBe(5);
     }
 }

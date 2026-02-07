@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Shift;
 using Tomeshelf.Web.Services;
@@ -34,9 +33,6 @@ public class EnumParsing
         var result = await api.RedeemCodeAsync("ABC", CancellationToken.None);
 
         // Assert
-        result.Results[0]
-              .ErrorCode
-              .Should()
-              .Be(RedeemErrorCode.NetworkError);
+        result.Results[0].ErrorCode.ShouldBe(RedeemErrorCode.NetworkError);
     }
 }

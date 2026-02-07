@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Tomeshelf.MCM.Application.Abstractions.Clients;
@@ -15,7 +17,18 @@ public static class DependencyInjection
 
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
     {
+        Debug.WriteLine("--- Configuration Sources before connection string check ---");
+        foreach (var source in builder.Configuration.Sources)
+        {
+            Debug.WriteLine($"- Source: {source.GetType().Name}");
+            // No need to cast to FileConfigurationSource, just print type name
+        }
+        Debug.WriteLine("----------------------------------------------------------");
+
+
         var connectionString = builder.Configuration[$"ConnectionStrings:{ConnectionName}"];
+        Debug.WriteLine($"Connection string for {ConnectionName}: {connectionString}");
+
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             throw new InvalidOperationException($"Connection string '{ConnectionName}' is missing.");

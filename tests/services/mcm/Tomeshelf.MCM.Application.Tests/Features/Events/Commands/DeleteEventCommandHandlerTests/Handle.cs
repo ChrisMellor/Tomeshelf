@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.MCM.Application.Features.Events.Commands;
 using Tomeshelf.MCM.Application.Services;
 
@@ -25,8 +24,7 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeTrue();
+        result.ShouldBeTrue();
         A.CallTo(() => service.DeleteAsync(eventId, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

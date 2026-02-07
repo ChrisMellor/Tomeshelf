@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Tomeshelf.Application.Shared;
 
@@ -16,7 +15,6 @@ public class AddApplication
         var result = services.AddApplication();
 
         // Assert
-        result.Should()
-              .BeSameAs(services);
+        result.ShouldBeSameAs(services);
     }
 }

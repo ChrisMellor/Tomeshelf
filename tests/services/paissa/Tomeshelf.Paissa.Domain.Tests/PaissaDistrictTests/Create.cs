@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.Paissa.Domain.Entities;
 
 namespace Tomeshelf.Paissa.Domain.Tests.PaissaDistrictTests;
@@ -12,11 +11,11 @@ public class Create
         var plots = new List<PaissaPlot>();
 
         // Act
-        Action act = () => PaissaDistrict.Create(1, string.Empty, plots);
+        // Act
+        var exception = Should.Throw<ArgumentException>(() => PaissaDistrict.Create(1, string.Empty, plots));
 
         // Assert
-        act.Should()
-           .Throw<ArgumentException>();
+        exception.ShouldNotBeNull();
     }
 
     [Fact]
@@ -26,11 +25,11 @@ public class Create
         var plots = new List<PaissaPlot>();
 
         // Act
-        Action act = () => PaissaDistrict.Create(0, "Mist", plots);
+        // Act
+        var exception = Should.Throw<ArgumentOutOfRangeException>(() => PaissaDistrict.Create(0, "Mist", plots));
 
         // Assert
-        act.Should()
-           .Throw<ArgumentOutOfRangeException>();
+        exception.ShouldNotBeNull();
     }
 
     [Fact]
@@ -40,22 +39,22 @@ public class Create
         var plots = new List<PaissaPlot>();
 
         // Act
-        Action act = () => PaissaDistrict.Create(1, null!, plots);
+        // Act
+        var exception = Should.Throw<ArgumentException>(() => PaissaDistrict.Create(1, null!, plots));
 
         // Assert
-        act.Should()
-           .Throw<ArgumentException>();
+        exception.ShouldNotBeNull();
     }
 
     [Fact]
     public void NullPlots_ThrowsArgumentNullException()
     {
         // Act
-        Action act = () => PaissaDistrict.Create(1, "Mist", null!);
+        // Act
+        var exception = Should.Throw<ArgumentNullException>(() => PaissaDistrict.Create(1, "Mist", null!));
 
         // Assert
-        act.Should()
-           .Throw<ArgumentNullException>();
+        exception.ShouldNotBeNull();
     }
 
     [Fact]
@@ -65,11 +64,11 @@ public class Create
         var plots = new List<PaissaPlot> { null! };
 
         // Act
-        Action act = () => PaissaDistrict.Create(1, "Mist", plots);
+        // Act
+        var exception = Should.Throw<ArgumentException>(() => PaissaDistrict.Create(1, "Mist", plots));
 
         // Assert
-        act.Should()
-           .Throw<ArgumentException>();
+        exception.ShouldNotBeNull();
     }
 
     [Fact]
@@ -82,16 +81,9 @@ public class Create
         var district = PaissaDistrict.Create(1, "Mist", plots);
 
         // Assert
-        district.Should()
-                .NotBeNull();
-        district.Id
-                .Should()
-                .Be(1);
-        district.Name
-                .Should()
-                .Be("Mist");
-        district.OpenPlots
-                .Should()
-                .BeEmpty();
+        district.ShouldNotBeNull();
+        district.Id.ShouldBe(1);
+        district.Name.ShouldBe("Mist");
+        district.OpenPlots.ShouldBeEmpty();
     }
 }

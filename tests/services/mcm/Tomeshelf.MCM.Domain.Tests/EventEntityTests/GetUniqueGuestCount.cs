@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.MCM.Domain.Mcm;
 
 namespace Tomeshelf.MCM.Domain.Tests.EventEntityTests;
@@ -6,90 +5,60 @@ namespace Tomeshelf.MCM.Domain.Tests.EventEntityTests;
 public class GetUniqueGuestCount
 {
     [Fact]
-    public void EmptyGuestId_CountsAsUnique()
+    public void ReturnsCorrectCount()
     {
         // Arrange
-        var guestA = Guid.NewGuid();
-        var guestB = Guid.NewGuid();
         var eventEntity = new EventEntity
         {
             Guests = new List<GuestEntity>
             {
-                new GuestEntity { Id = guestA },
-                new GuestEntity { Id = Guid.Empty },
-                new GuestEntity { Id = guestB },
-                new GuestEntity { Id = Guid.Empty }
+                new() { Id = Guid.NewGuid(), Information = new GuestInfoEntity { FirstName = "John", LastName = "Doe" } },
+                new() { Id = Guid.NewGuid(), Information = new GuestInfoEntity { FirstName = "Jane", LastName = "Doe" } },
+                new() { Id = Guid.NewGuid(), Information = new GuestInfoEntity { FirstName = "John", LastName = "Doe" } }
             }
         };
 
         // Act
-        var uniqueGuestCount = eventEntity.GetUniqueGuestCount();
+        var result = eventEntity.GetUniqueGuestCount();
 
         // Assert
-        uniqueGuestCount.Should()
-                        .Be(3);
+        result.ShouldBe(2);
     }
 
     [Fact]
-    public void NoGuests_ReturnsZero()
+    public void ReturnsZero_WhenNoGuests()
     {
         // Arrange
-        var eventEntity = new EventEntity();
+        var eventEntity = new EventEntity
+        {
+            Guests = new List<GuestEntity>()
+        };
 
         // Act
-        var uniqueGuestCount = eventEntity.GetUniqueGuestCount();
+        var result = eventEntity.GetUniqueGuestCount();
 
         // Assert
-        uniqueGuestCount.Should()
-                        .Be(0);
+        result.ShouldBe(0);
     }
 
     [Fact]
-    public void WithDuplicateGuests_ReturnsCorrectCount()
+    public void ExcludesDeletedGuests()
     {
         // Arrange
-        var guestA = Guid.NewGuid();
-        var guestB = Guid.NewGuid();
         var eventEntity = new EventEntity
         {
             Guests = new List<GuestEntity>
             {
-                new GuestEntity { Id = guestA },
-                new GuestEntity { Id = guestB },
-                new GuestEntity { Id = guestA }
+                new() { Id = Guid.NewGuid(), Information = new GuestInfoEntity { FirstName = "John", LastName = "Doe" } },
+                new() { Id = Guid.NewGuid(), Information = new GuestInfoEntity { FirstName = "Jane", LastName = "Doe" }, IsDeleted = true },
+                new() { Id = Guid.NewGuid(), Information = new GuestInfoEntity { FirstName = "Jim", LastName = "Smith" } }
             }
         };
 
         // Act
-        var uniqueGuestCount = eventEntity.GetUniqueGuestCount();
+        var result = eventEntity.GetUniqueGuestCount();
 
         // Assert
-        uniqueGuestCount.Should()
-                        .Be(2);
-    }
-
-    [Fact]
-    public void WithUniqueGuests_ReturnsCorrectCount()
-    {
-        // Arrange
-        var guestA = Guid.NewGuid();
-        var guestB = Guid.NewGuid();
-        var guestC = Guid.NewGuid();
-        var eventEntity = new EventEntity
-        {
-            Guests = new List<GuestEntity>
-            {
-                new GuestEntity { Id = guestA },
-                new GuestEntity { Id = guestB },
-                new GuestEntity { Id = guestC }
-            }
-        };
-
-        // Act
-        var uniqueGuestCount = eventEntity.GetUniqueGuestCount();
-
-        // Assert
-        uniqueGuestCount.Should()
-                        .Be(3);
+        result.ShouldBe(2);
     }
 }

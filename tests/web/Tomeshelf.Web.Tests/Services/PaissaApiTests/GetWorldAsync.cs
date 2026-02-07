@@ -6,7 +6,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Paissa;
 using Tomeshelf.Web.Services;
@@ -37,15 +36,9 @@ public class GetWorldAsync
         var result = await api.GetWorldAsync(CancellationToken.None);
 
         // Assert
-        result.WorldName
-              .Should()
-              .Be("World");
-        handler.Requests
-               .Should()
-               .ContainSingle();
-        handler.Requests[0].RequestUri!.PathAndQuery
-               .Should()
-               .Be("/paissa/world");
+        result.WorldName.ShouldBe("World");
+        var request = handler.Requests.ShouldHaveSingleItem();
+        request.RequestUri!.PathAndQuery.ShouldBe("/paissa/world");
     }
 
     [Fact]
@@ -63,11 +56,10 @@ public class GetWorldAsync
         var api = new PaissaApi(new TestHttpClientFactory(client), A.Fake<ILogger<PaissaApi>>());
 
         // Act
-        var action = () => api.GetWorldAsync(CancellationToken.None);
+        // Act
+        var exception = await Should.ThrowAsync<InvalidOperationException>(() => api.GetWorldAsync(CancellationToken.None));
 
         // Assert
-        await action.Should()
-                    .ThrowAsync<InvalidOperationException>()
-                    .WithMessage("Empty Paissa payload");
+        exception.Message.ShouldBe("Empty Paissa payload");
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models.Shift;
@@ -27,19 +26,10 @@ public class Redeem
         var result = await controller.Redeem(model, CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        view.ViewName
-            .Should()
-            .Be("Index");
-        var viewModel = view.Model
-                            .Should()
-                            .BeOfType<ShiftIndexViewModel>()
-                            .Subject;
-        viewModel.ErrorMessage
-                 .Should()
-                 .Be("Redeem failed: boom");
+        var view = result.ShouldBeOfType<ViewResult>();
+        view.ViewName.ShouldBe("Index");
+        var viewModel = view.Model.ShouldBeOfType<ShiftIndexViewModel>();
+        viewModel.ErrorMessage.ShouldBe("Redeem failed: boom");
     }
 
     [Fact]
@@ -54,32 +44,14 @@ public class Redeem
         var result = await controller.Redeem(model, CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        view.ViewName
-            .Should()
-            .Be("Index");
-        var viewModel = view.Model
-                            .Should()
-                            .BeOfType<ShiftIndexViewModel>()
-                            .Subject;
-        viewModel.Code
-                 .Should()
-                 .Be(model.Code);
-        controller.ModelState
-                  .IsValid
-                  .Should()
-                  .BeFalse();
-        controller.ModelState[nameof(ShiftIndexViewModel.Code)]
-                  .Errors
-                  .Should()
-                  .ContainSingle();
-        controller.ModelState[nameof(ShiftIndexViewModel.Code)]
-                  .Errors[0]
-                  .ErrorMessage
-                  .Should()
-                  .Be("Enter a SHiFT code to redeem.");
+        var view = result.ShouldBeOfType<ViewResult>();
+        view.ViewName.ShouldBe("Index");
+        var viewModel = view.Model.ShouldBeOfType<ShiftIndexViewModel>();
+        viewModel.Code.ShouldBe(model.Code);
+        controller.ModelState.IsValid.ShouldBeFalse();
+        var errors = controller.ModelState[nameof(ShiftIndexViewModel.Code)].Errors;
+        errors.ShouldHaveSingleItem();
+        errors[0].ErrorMessage.ShouldBe("Enter a SHiFT code to redeem.");
         A.CallTo(() => api.RedeemCodeAsync(A<string>._, A<CancellationToken>._))
          .MustNotHaveHappened();
     }
@@ -100,22 +72,11 @@ public class Redeem
         var result = await controller.Redeem(model, CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        view.ViewName
-            .Should()
-            .Be("Index");
-        var viewModel = view.Model
-                            .Should()
-                            .BeOfType<ShiftIndexViewModel>()
-                            .Subject;
-        viewModel.Code
-                 .Should()
-                 .Be("ABC");
-        viewModel.Response
-                 .Should()
-                 .Be(response);
+        var view = result.ShouldBeOfType<ViewResult>();
+        view.ViewName.ShouldBe("Index");
+        var viewModel = view.Model.ShouldBeOfType<ShiftIndexViewModel>();
+        viewModel.Code.ShouldBe("ABC");
+        viewModel.Response.ShouldBeSameAs(response);
         A.CallTo(() => api.RedeemCodeAsync("ABC", A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.HumbleBundle.Application.Abstractions.External;
 using Tomeshelf.HumbleBundle.Application.Abstractions.Persistence;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Commands;
@@ -27,9 +26,8 @@ public class Handle
         Func<Task> act = () => handler.Handle(new RefreshBundlesCommand(), CancellationToken.None);
 
         // Assert
-        var exception = await act.Should()
-                                 .ThrowAsync<InvalidOperationException>();
-        exception.WithMessage(expectedException.Message);
+        var exception = await Should.ThrowAsync<InvalidOperationException>(act);
+        exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => ingestService.UpsertAsync(A<IReadOnlyList<ScrapedBundle>>._, A<CancellationToken>._))
          .MustNotHaveHappened();
     }
@@ -57,8 +55,7 @@ public class Handle
         var result = await handler.Handle(new RefreshBundlesCommand(), CancellationToken.None);
 
         // Assert
-        result.Should()
-              .Be(expectedResult);
+        result.ShouldBe(expectedResult);
         A.CallTo(() => scraper.ScrapeAsync(A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
         A.CallTo(() => ingestService.UpsertAsync(scrapedBundles, A<CancellationToken>._))

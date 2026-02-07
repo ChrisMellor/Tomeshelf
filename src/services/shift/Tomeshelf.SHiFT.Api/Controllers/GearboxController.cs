@@ -3,9 +3,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.SHiFT.Api.Contracts;
+using Tomeshelf.SHiFT.Application;
+using Tomeshelf.SHiFT.Application.Features.KeyDiscovery.Commands;
+using Tomeshelf.SHiFT.Application.Features.KeyDiscovery.Models;
+using Tomeshelf.SHiFT.Application.Features.Redemption.Commands;
+using Tomeshelf.SHiFT.Application.Features.Redemption.Redeem;
 
 namespace Tomeshelf.SHiFT.Api.Controllers;
 

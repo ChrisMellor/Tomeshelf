@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Application.Features.Overview.Models;
 using Tomeshelf.Fitbit.Application.Features.Overview.Queries;
@@ -49,8 +48,7 @@ public class Handle
         var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeSameAs(expected);
+        result.ShouldBeSameAs(expected);
         A.CallTo(() => overviewService.GetOverviewAsync(date, true, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

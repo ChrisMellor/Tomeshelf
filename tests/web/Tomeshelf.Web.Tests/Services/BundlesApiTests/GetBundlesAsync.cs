@@ -6,7 +6,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Bundles;
 using Tomeshelf.Web.Services;
@@ -44,18 +43,10 @@ public class GetBundlesAsync
         var result = await api.GetBundlesAsync(true, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .HaveCount(1);
-        result[0]
-           .MachineName
-           .Should()
-           .Be("bundle-one");
-        handler.Requests
-               .Should()
-               .ContainSingle();
-        handler.Requests[0].RequestUri!.PathAndQuery
-               .Should()
-               .Be("/bundles?includeExpired=true");
+        var bundle = result.ShouldHaveSingleItem();
+        bundle.MachineName.ShouldBe("bundle-one");
+        var request = handler.Requests.ShouldHaveSingleItem();
+        request.RequestUri!.PathAndQuery.ShouldBe("/bundles?includeExpired=true");
     }
 
     [Fact]
@@ -73,11 +64,10 @@ public class GetBundlesAsync
         var api = new BundlesApi(new TestHttpClientFactory(client), A.Fake<ILogger<BundlesApi>>());
 
         // Act
-        var action = () => api.GetBundlesAsync(false, CancellationToken.None);
+        // Act
+        var exception = await Should.ThrowAsync<InvalidOperationException>(() => api.GetBundlesAsync(false, CancellationToken.None));
 
         // Assert
-        await action.Should()
-                    .ThrowAsync<InvalidOperationException>()
-                    .WithMessage("Empty bundle payload");
+        exception.Message.ShouldBe("Empty bundle payload");
     }
 }

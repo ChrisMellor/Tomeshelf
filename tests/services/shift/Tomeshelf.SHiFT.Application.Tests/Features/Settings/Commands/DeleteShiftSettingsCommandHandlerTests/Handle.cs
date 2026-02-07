@@ -1,5 +1,4 @@
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
 using Tomeshelf.SHiFT.Application.Features.Settings.Commands;
 
@@ -19,8 +18,7 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeTrue();
+        result.ShouldBeTrue();
         A.CallTo(() => repository.DeleteAsync(5, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

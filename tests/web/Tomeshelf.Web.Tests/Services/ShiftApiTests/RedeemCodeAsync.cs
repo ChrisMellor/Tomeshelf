@@ -6,7 +6,6 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Shift;
 using Tomeshelf.Web.Services;
@@ -44,18 +43,10 @@ public class RedeemCodeAsync
         var result = await api.RedeemCodeAsync("ABC", CancellationToken.None);
 
         // Assert
-        result.Summary
-              .Total
-              .Should()
-              .Be(1);
-        handler.Requests
-               .Should()
-               .ContainSingle();
-        handler.Requests[0].RequestUri!.PathAndQuery
-               .Should()
-               .Be("/gearbox/redeem");
-        requestBody.Should()
-                   .Contain("\"code\":\"ABC\"");
+        result.Summary.Total.ShouldBe(1);
+        var request = handler.Requests.ShouldHaveSingleItem();
+        request.RequestUri!.PathAndQuery.ShouldBe("/gearbox/redeem");
+        requestBody.ShouldContain("\"code\":\"ABC\"");
     }
 
     [Fact]
@@ -73,11 +64,10 @@ public class RedeemCodeAsync
         var api = new ShiftApi(new TestHttpClientFactory(client), A.Fake<ILogger<ShiftApi>>());
 
         // Act
-        var action = () => api.RedeemCodeAsync("ABC", CancellationToken.None);
+        // Act
+        var exception = await Should.ThrowAsync<InvalidOperationException>(() => api.RedeemCodeAsync("ABC", CancellationToken.None));
 
         // Assert
-        await action.Should()
-                    .ThrowAsync<InvalidOperationException>()
-                    .WithMessage("Empty SHiFT payload");
+        exception.Message.ShouldBe("Empty SHiFT payload");
     }
 }

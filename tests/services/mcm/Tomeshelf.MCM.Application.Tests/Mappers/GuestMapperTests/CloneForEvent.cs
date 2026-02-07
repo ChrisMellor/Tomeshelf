@@ -1,5 +1,4 @@
 using Bogus;
-using FluentAssertions;
 using Tomeshelf.MCM.Application.Mappers;
 using Tomeshelf.MCM.Domain.Mcm;
 
@@ -39,39 +38,15 @@ public class CloneForEvent
         var cloned = mapper.CloneForEvent(eventId, source);
 
         // Assert
-        cloned.EventId
-              .Should()
-              .Be(eventId);
-        cloned.Id
-              .Should()
-              .Be(guestId);
-        cloned.GuestInfoId
-              .Should()
-              .Be(infoId);
-        cloned.Information
-              .Should()
-              .NotBeNull();
-        cloned.Information!.FirstName
-              .Should()
-              .Be(firstName);
-        cloned.Information
-              .LastName
-              .Should()
-              .Be(lastName);
-        cloned.Information
-              .Socials
-              .Should()
-              .NotBeNull();
-        cloned.Information.Socials!.Id
-              .Should()
-              .Be(socialId);
-        cloned.Information
-              .Socials
-              .Twitter
-              .Should()
-              .Be(source.Information.Socials!.Twitter);
-        cloned.IsDeleted
-              .Should()
-              .BeFalse();
+        cloned.EventId.ShouldBe(eventId);
+        cloned.Id.ShouldBe(guestId);
+        cloned.GuestInfoId.ShouldBe(infoId);
+        cloned.Information.ShouldNotBeNull();
+        cloned.Information!.FirstName.ShouldBe(firstName);
+        cloned.Information.LastName.ShouldBe(lastName);
+        cloned.Information.Socials.ShouldNotBeNull();
+        cloned.Information.Socials!.Id.ShouldBe(socialId);
+        cloned.Information.Socials.Twitter.ShouldBe(source.Information.Socials!.Twitter);
+        cloned.IsDeleted.ShouldBeFalse();
     }
 }

@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.HumbleBundle.Application.Abstractions.Persistence;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Queries;
 using Tomeshelf.HumbleBundle.Application.HumbleBundle;
@@ -32,8 +31,7 @@ public class Handle
         var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeEquivalentTo(expectedBundles, options => options.WithStrictOrdering());
+        result.ShouldBe(expectedBundles);
         A.CallTo(() => queries.GetBundlesAsync(includeExpired, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

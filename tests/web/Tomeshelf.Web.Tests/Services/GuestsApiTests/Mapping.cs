@@ -5,7 +5,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Mcm;
@@ -59,27 +58,12 @@ public class Mapping
         // Assert
         var person = result.Groups[0]
                            .Items[0];
-        person.FirstName
-              .Should()
-              .Be("Jane");
-        person.LastName
-              .Should()
-              .Be("Doe");
-        person.PubliclyVisible
-              .Should()
-              .BeFalse();
-        person.ProfileUrl
-              .Should()
-              .Be("https://example.test/profile");
-        person.Images
-              .Should()
-              .ContainSingle();
-        person.Images[0]
-              .Big
-              .Should()
-              .Be("https://example.test/image.jpg");
-        person.RemovedAt
-              .Should()
-              .Be("2020-01-03T09:00:00.0000000+00:00");
+        person.FirstName.ShouldBe("Jane");
+        person.LastName.ShouldBe("Doe");
+        person.PubliclyVisible.ShouldBeFalse();
+        person.ProfileUrl.ShouldBe("https://example.test/profile");
+        var image = person.Images.ShouldHaveSingleItem();
+        image.Big.ShouldBe("https://example.test/image.jpg");
+        person.RemovedAt.ShouldBe("2020-01-03T09:00:00.0000000+00:00");
     }
 }

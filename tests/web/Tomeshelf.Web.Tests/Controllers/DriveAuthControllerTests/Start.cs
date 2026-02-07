@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -29,22 +28,11 @@ public class Start
         var result = controller.Start();
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        view.ViewName
-            .Should()
-            .Be("OAuthResult");
-        var model = view.Model
-                        .Should()
-                        .BeOfType<OAuthResultViewModel>()
-                        .Subject;
-        model.Success
-             .Should()
-             .BeFalse();
-        model.Message
-             .Should()
-             .Contain("Google Drive OAuth is not configured");
+        var view = result.ShouldBeOfType<ViewResult>();
+        view.ViewName.ShouldBe("OAuthResult");
+        var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
+        model.Success.ShouldBeFalse();
+        model.Message.ShouldContain("Google Drive OAuth is not configured");
     }
 
     [Fact]
@@ -77,30 +65,13 @@ public class Start
         var result = controller.Start("https://example.test/return");
 
         // Assert
-        var challenge = result.Should()
-                              .BeOfType<ChallengeResult>()
-                              .Subject;
-        challenge.AuthenticationSchemes
-                 .Should()
-                 .ContainSingle()
-                 .Which
-                 .Should()
-                 .Be(DriveAuthController.AuthenticationScheme);
-        challenge.Properties
-                 .RedirectUri
-                 .Should()
-                 .Be("https://example.test/drive-auth/result");
-        challenge.Properties
-                 .Items
-                 .Should()
-                 .ContainKey("login_hint");
-        challenge.Properties
-                 .Items["login_hint"]
-                 .Should()
-                 .Be("user@example.com");
-        httpContext.Session
-                   .GetString(ReturnUrlKey)
-                   .Should()
-                   .Be("https://example.test/return");
+        var challenge = result.ShouldBeOfType<ChallengeResult>();
+        var scheme = challenge.AuthenticationSchemes.ShouldHaveSingleItem();
+        scheme.ShouldBe(DriveAuthController.AuthenticationScheme);
+        challenge.Properties?.RedirectUri.ShouldBe("https://example.test/drive-auth/result");
+        challenge.Properties.ShouldNotBeNull();
+        challenge.Properties!.Items.ContainsKey("login_hint").ShouldBeTrue();
+        challenge.Properties.Items["login_hint"].ShouldBe("user@example.com");
+        httpContext.Session.GetString(ReturnUrlKey).ShouldBe("https://example.test/return");
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,6 +10,17 @@ namespace Tomeshelf.MCM.Domain.Mcm;
 /// </summary>
 public sealed class EventEntity
 {
+    public EventEntity() : this(string.Empty, string.Empty)
+    {
+    }
+
+    public EventEntity(string id, string name, ICollection<GuestEntity>? guests = null)
+    {
+        Id = id ?? string.Empty;
+        Name = name ?? string.Empty;
+        Guests = guests ?? new List<GuestEntity>();
+    }
+
     /// <summary>
     ///     Gets or sets the unique identifier for the entity.
     /// </summary>
@@ -40,7 +51,8 @@ public sealed class EventEntity
     /// <returns>The count of unique guests.</returns>
     public int GetUniqueGuestCount()
     {
-        return Guests.DistinctBy(g => g.Id)
+        return Guests.Where(g => !g.IsDeleted)
+                     .DistinctBy(g => (g.Information!.FirstName, g.Information.LastName))
                      .Count();
     }
 }

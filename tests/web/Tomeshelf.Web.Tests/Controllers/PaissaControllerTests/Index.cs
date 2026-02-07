@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models.Paissa;
@@ -40,24 +39,11 @@ public class Index
         var result = await controller.Index(CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<PaissaIndexViewModel>()
-                        .Subject;
-        model.TotalPlotCount
-             .Should()
-             .Be(3);
-        model.WorldId
-             .Should()
-             .Be(7);
-        model.WorldName
-             .Should()
-             .Be("Cerberus");
-        model.Districts
-             .Should()
-             .BeSameAs(world.Districts);
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<PaissaIndexViewModel>();
+        model.TotalPlotCount.ShouldBe(3);
+        model.WorldId.ShouldBe(7);
+        model.WorldName.ShouldBe("Cerberus");
+        model.Districts.ShouldBeSameAs(world.Districts);
     }
 }

@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -32,16 +31,9 @@ public class Upload
         var result = await controller.Upload(null, CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<BundleUploadViewModel>()
-                        .Subject;
-        model.Error
-             .Should()
-             .Be("Please choose a Humble Bundle zip archive to upload.");
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<BundleUploadViewModel>();
+        model.Error.ShouldBe("Please choose a Humble Bundle zip archive to upload.");
     }
 
     [Fact]
@@ -55,16 +47,9 @@ public class Upload
         var result = await controller.Upload(file, CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<BundleUploadViewModel>()
-                        .Subject;
-        model.Error
-             .Should()
-             .Be("Google Drive is not authorised. Please run the OAuth flow first.");
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<BundleUploadViewModel>();
+        model.Error.ShouldBe("Google Drive is not authorised. Please run the OAuth flow first.");
     }
 
     [Fact]
@@ -88,16 +73,9 @@ public class Upload
         var result = await controller.Upload(file, CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<BundleUploadViewModel>()
-                        .Subject;
-        model.Result
-             .Should()
-             .Be(resultModel);
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<BundleUploadViewModel>();
+        model.Result.ShouldBeSameAs(resultModel);
         A.CallTo(() => uploadsApi.UploadBundleAsync(A<Stream>._, "bundle.zip", A<GoogleDriveAuthModel?>.That.Matches(auth => (auth.ClientId == "client") && (auth.ClientSecret == "secret") && (auth.RefreshToken == "refresh") && (auth.UserEmail == "user@example.com")), A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }
@@ -112,16 +90,9 @@ public class Upload
         var result = controller.Upload();
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<BundleUploadViewModel>()
-                        .Subject;
-        model.Error
-             .Should()
-             .Be("Google Drive is not authorised yet. Run the OAuth flow first.");
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<BundleUploadViewModel>();
+        model.Error.ShouldBe("Google Drive is not authorised yet. Run the OAuth flow first.");
     }
 
     [Fact]
@@ -142,16 +113,9 @@ public class Upload
         var result = await controller.Upload(file, CancellationToken.None);
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewResult>()
-                         .Subject;
-        var model = view.Model
-                        .Should()
-                        .BeOfType<BundleUploadViewModel>()
-                        .Subject;
-        model.Error
-             .Should()
-             .Be("Upload failed: boom");
+        var view = result.ShouldBeOfType<ViewResult>();
+        var model = view.Model.ShouldBeOfType<BundleUploadViewModel>();
+        model.Error.ShouldBe("Upload failed: boom");
     }
 
     private static IFormFile CreateArchive()

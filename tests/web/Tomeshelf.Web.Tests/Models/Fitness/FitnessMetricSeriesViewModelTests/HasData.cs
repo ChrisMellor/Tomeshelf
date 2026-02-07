@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Bogus;
-using FluentAssertions;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.FitnessMetricSeriesViewModelTests;
@@ -28,8 +27,7 @@ public class HasData
         var hasData = model.HasData;
 
         // Assert
-        hasData.Should()
-               .BeFalse();
+        hasData.ShouldBeFalse();
     }
 
     [Fact]
@@ -54,8 +52,7 @@ public class HasData
         var hasData = model.HasData;
 
         // Assert
-        hasData.Should()
-               .BeTrue();
+        hasData.ShouldBeTrue();
     }
 
     [Fact]
@@ -75,7 +72,6 @@ public class HasData
         var hasData = model.HasData;
 
         // Assert
-        hasData.Should()
-               .BeFalse();
+        hasData.ShouldBeFalse();
     }
 }

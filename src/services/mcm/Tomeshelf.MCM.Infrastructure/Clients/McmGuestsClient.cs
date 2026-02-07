@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -100,7 +102,7 @@ public class McmGuestsClient : IMcmGuestsClient
     ///     first name, last name, or alternative name, in that order of preference. Returns an empty string if no name
     ///     information is available.
     /// </returns>
-    private static string BuildName(McmEventResponse.Person person)
+    internal static string BuildName(McmEventResponse.Person person)
     {
         var firstName = person.FirstName?.Trim();
         var lastName = person.LastName?.Trim();
@@ -135,7 +137,7 @@ public class McmGuestsClient : IMcmGuestsClient
     ///     The first non-empty, non-white-space string from the input array, trimmed of leading and trailing white space; or
     ///     null if all values are null, empty, or white space.
     /// </returns>
-    private static string FirstNonEmpty(params string?[] values)
+    internal static string FirstNonEmpty(params string?[] values)
     {
         foreach (var value in values)
         {
@@ -145,7 +147,7 @@ public class McmGuestsClient : IMcmGuestsClient
             }
         }
 
-        return null;
+        return string.Empty;
     }
 
     /// <summary>
@@ -165,7 +167,7 @@ public class McmGuestsClient : IMcmGuestsClient
     ///     A read-only list of guest records corresponding to valid people in the input array. The list is empty if no
     ///     valid guests are found.
     /// </returns>
-    private static IReadOnlyList<GuestRecord> MapGuests(McmEventResponse.Person[] people)
+    internal static IReadOnlyList<GuestRecord> MapGuests(McmEventResponse.Person?[] people)
     {
         if (people.Length == 0)
         {
@@ -190,8 +192,8 @@ public class McmGuestsClient : IMcmGuestsClient
                 ? person.Bio
                 : person.KnownFor;
 
-            var profileUrl = PickProfileUrl(person) ?? string.Empty;
-            var imageUrl = PickImageUrl(person.Images) ?? string.Empty;
+            var profileUrl = PickProfileUrl(person);
+            var imageUrl = PickImageUrl(person.Images);
 
             records.Add(new GuestRecord(name, description ?? string.Empty, profileUrl, imageUrl));
         }
@@ -210,11 +212,11 @@ public class McmGuestsClient : IMcmGuestsClient
     /// </remarks>
     /// <param name="images">An array of image objects to search for a valid image URL. The array can be null or empty.</param>
     /// <returns>A string containing the first non-empty image URL found, or null if no valid URL is available.</returns>
-    private static string PickImageUrl(McmEventResponse.Image[] images)
+    internal static string PickImageUrl(McmEventResponse.Image?[]? images)
     {
         if (images is null || (images.Length == 0))
         {
-            return null;
+            return string.Empty;
         }
 
         foreach (var image in images)
@@ -231,7 +233,7 @@ public class McmGuestsClient : IMcmGuestsClient
             }
         }
 
-        return null;
+        return string.Empty;
     }
 
     /// <summary>
@@ -245,7 +247,7 @@ public class McmGuestsClient : IMcmGuestsClient
     /// </remarks>
     /// <param name="person">The person whose profile URLs are to be evaluated. Cannot be null.</param>
     /// <returns>A string containing the first non-empty profile URL found for the person, or null if none are available.</returns>
-    private static string PickProfileUrl(McmEventResponse.Person person)
+    internal static string PickProfileUrl(McmEventResponse.Person person)
     {
         return FirstNonEmpty(person.ProfileUrl, person.Imdb, person.Twitter, person.Instagram, person.Facebook, person.YouTube, person.Twitch, person.TikTok, person.Fandom, person.DeviantArt, person.Tumblr, person.Snapchat);
     }

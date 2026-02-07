@@ -1,5 +1,4 @@
 using Bogus;
-using FluentAssertions;
 using Tomeshelf.Executor.Models;
 
 namespace Tomeshelf.Executor.Tests.Models.CronBuilderViewModelTests;
@@ -18,15 +17,9 @@ public class Constructor
         var model = new CronBuilderViewModel(inputId, inputName, null);
 
         // Assert
-        model.InitialValue
-             .Should()
-             .BeEmpty();
-        model.InputId
-             .Should()
-             .Be(inputId);
-        model.InputName
-             .Should()
-             .Be(inputName);
+        model.InitialValue.ShouldBe(string.Empty);
+        model.InputId.ShouldBe(inputId);
+        model.InputName.ShouldBe(inputName);
     }
 
     [Fact]
@@ -39,8 +32,7 @@ public class Constructor
         Action act = () => new CronBuilderViewModel(null!, faker.Random.Word(), "* * * * *");
 
         // Assert
-        act.Should()
-           .Throw<ArgumentNullException>();
+        Should.Throw<ArgumentNullException>(act);
     }
 
     [Fact]
@@ -53,7 +45,6 @@ public class Constructor
         Action act = () => new CronBuilderViewModel(faker.Random.Word(), null!, "* * * * *");
 
         // Assert
-        act.Should()
-           .Throw<ArgumentNullException>();
+        Should.Throw<ArgumentNullException>(act);
     }
 }

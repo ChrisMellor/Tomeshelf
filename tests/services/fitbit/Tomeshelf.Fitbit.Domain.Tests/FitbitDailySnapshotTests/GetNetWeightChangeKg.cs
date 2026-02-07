@@ -1,5 +1,3 @@
-using FluentAssertions;
-
 namespace Tomeshelf.Fitbit.Domain.Tests.FitbitDailySnapshotTests;
 
 public class GetNetWeightChangeKg
@@ -18,11 +16,8 @@ public class GetNetWeightChangeKg
         var netChange = snapshot.GetNetWeightChangeKg();
 
         // Assert
-        netChange.Should()
-                 .HaveValue();
-        netChange!.Value
-                  .Should()
-                  .BeApproximately(-1.5, 0.01);
+        netChange.HasValue.ShouldBeTrue();
+        netChange!.Value.ShouldBeInRange(-1.51, -1.49);
     }
 
     [Fact]
@@ -39,8 +34,7 @@ public class GetNetWeightChangeKg
         var netChange = snapshot.GetNetWeightChangeKg();
 
         // Assert
-        netChange.Should()
-                 .NotHaveValue();
+        netChange.HasValue.ShouldBeFalse();
     }
 
     [Fact]
@@ -57,8 +51,7 @@ public class GetNetWeightChangeKg
         var netChange = snapshot.GetNetWeightChangeKg();
 
         // Assert
-        netChange.Should()
-                 .NotHaveValue();
+        netChange.HasValue.ShouldBeFalse();
     }
 
     [Fact]
@@ -75,8 +68,7 @@ public class GetNetWeightChangeKg
         var netChange = snapshot.GetNetWeightChangeKg();
 
         // Assert
-        netChange.Should()
-                 .NotHaveValue();
+        netChange.HasValue.ShouldBeFalse();
     }
 
     [Fact]
@@ -93,10 +85,7 @@ public class GetNetWeightChangeKg
         var netChange = snapshot.GetNetWeightChangeKg();
 
         // Assert
-        netChange.Should()
-                 .HaveValue();
-        netChange!.Value
-                  .Should()
-                  .BeApproximately(0.0, 0.01);
+        netChange.HasValue.ShouldBeTrue();
+        netChange!.Value.ShouldBeInRange(-0.01, 0.01);
     }
 }

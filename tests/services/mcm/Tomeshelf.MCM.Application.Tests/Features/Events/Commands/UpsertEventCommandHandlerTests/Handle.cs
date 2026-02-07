@@ -1,6 +1,5 @@
 using Bogus;
 using FakeItEasy;
-using FluentAssertions;
 using Tomeshelf.MCM.Application.Features.Events.Commands;
 using Tomeshelf.MCM.Application.Models;
 using Tomeshelf.MCM.Application.Services;
@@ -31,9 +30,8 @@ public class Handle
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var exception = await act.Should()
-                                 .ThrowAsync<InvalidOperationException>();
-        exception.WithMessage(expectedException.Message);
+        var exception = await Should.ThrowAsync<InvalidOperationException>(act);
+        exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => service.UpsertAsync(model, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }
@@ -59,8 +57,7 @@ public class Handle
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should()
-              .BeTrue();
+        result.ShouldBeTrue();
         A.CallTo(() => service.UpsertAsync(model, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

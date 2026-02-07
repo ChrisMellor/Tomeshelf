@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
@@ -39,13 +38,11 @@ public class InvokeAsync
         var result = await component.InvokeAsync();
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewViewComponentResult>()
-                         .Subject;
-        view.ViewData
-            .Model
-            .Should()
-            .BeEquivalentTo(events);
+        var view = result.ShouldBeOfType<ViewViewComponentResult>();
+        var model = view.ViewData.Model.ShouldBeAssignableTo<IEnumerable<McmEventConfigModel>>();
+        var item = model.ShouldHaveSingleItem();
+        item.Id.ShouldBe("mcm-1");
+        item.Name.ShouldBe("MCM");
     }
 
     [Fact]
@@ -63,13 +60,9 @@ public class InvokeAsync
         var result = await component.InvokeAsync();
 
         // Assert
-        var view = result.Should()
-                         .BeOfType<ViewViewComponentResult>()
-                         .Subject;
-        view.ViewData
-            .Model
-            .Should()
-            .BeEquivalentTo(Array.Empty<McmEventConfigModel>());
+        var view = result.ShouldBeOfType<ViewViewComponentResult>();
+        var model = view.ViewData.Model.ShouldBeAssignableTo<IEnumerable<McmEventConfigModel>>();
+        model.ShouldBeEmpty();
     }
 
     private static ViewComponentContext CreateViewComponentContext()

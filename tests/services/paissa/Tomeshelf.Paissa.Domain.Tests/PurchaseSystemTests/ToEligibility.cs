@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.Paissa.Domain.ValueObjects;
 
 namespace Tomeshelf.Paissa.Domain.Tests.PurchaseSystemTests;
@@ -12,15 +11,9 @@ public class ToEligibility
         var eligibility = PurchaseSystem.None.ToEligibility();
 
         // Assert
-        eligibility.AllowsPersonal
-                   .Should()
-                   .BeFalse();
-        eligibility.AllowsFreeCompany
-                   .Should()
-                   .BeFalse();
-        eligibility.IsUnknown
-                   .Should()
-                   .BeTrue();
+        eligibility.AllowsPersonal.ShouldBeFalse();
+        eligibility.AllowsFreeCompany.ShouldBeFalse();
+        eligibility.IsUnknown.ShouldBeTrue();
     }
 
     [Theory]
@@ -33,11 +26,7 @@ public class ToEligibility
         var eligibility = system.ToEligibility();
 
         // Assert
-        eligibility.AllowsPersonal
-                   .Should()
-                   .Be(allowsPersonal);
-        eligibility.AllowsFreeCompany
-                   .Should()
-                   .Be(allowsFreeCompany);
+        eligibility.AllowsPersonal.ShouldBe(allowsPersonal);
+        eligibility.AllowsFreeCompany.ShouldBe(allowsFreeCompany);
     }
 }

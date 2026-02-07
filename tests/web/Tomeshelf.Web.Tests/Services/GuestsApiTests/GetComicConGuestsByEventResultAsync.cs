@@ -5,7 +5,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Mcm;
@@ -78,36 +77,13 @@ public class GetComicConGuestsByEventResultAsync
         var result = await api.GetComicConGuestsByEventResultAsync("mcm-2026", CancellationToken.None);
 
         // Assert
-        result.Total
-              .Should()
-              .Be(3);
-        result.Groups
-              .Should()
-              .HaveCount(2);
-        result.Groups[0]
-              .CreatedDate
-              .Should()
-              .Be(new DateTime(2020, 1, 2));
-        result.Groups[0]
-              .Items
-              .Should()
-              .HaveCount(2);
-        result.Groups[0]
-              .Items[0]
-              .FirstName
-              .Should()
-              .Be("Bob");
-        result.Groups[0]
-              .Items[0]
-              .LastName
-              .Should()
-              .Be("Alpha");
-        result.Groups[1]
-              .CreatedDate
-              .Should()
-              .Be(new DateTime(2020, 1, 1));
-        handler.Requests
-               .Should()
-               .HaveCount(2);
+        result.Total.ShouldBe(3);
+        result.Groups.Count.ShouldBe(2);
+        result.Groups[0].CreatedDate.ShouldBe(new DateTime(2020, 1, 2));
+        result.Groups[0].Items.Count.ShouldBe(2);
+        result.Groups[0].Items[0].FirstName.ShouldBe("Bob");
+        result.Groups[0].Items[0].LastName.ShouldBe("Alpha");
+        result.Groups[1].CreatedDate.ShouldBe(new DateTime(2020, 1, 1));
+        handler.Requests.Count.ShouldBe(2);
     }
 }

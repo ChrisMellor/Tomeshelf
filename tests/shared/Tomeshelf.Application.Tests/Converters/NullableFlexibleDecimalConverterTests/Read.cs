@@ -1,6 +1,5 @@
 using System.Text;
 using System.Text.Json;
-using FluentAssertions;
 using Tomeshelf.Application.Shared;
 
 namespace Tomeshelf.Application.Tests.Converters.NullableFlexibleDecimalConverterTests;
@@ -24,8 +23,7 @@ public class Read
         var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should()
-             .BeNull();
+        value.ShouldBeNull();
     }
 
     [Fact]
@@ -43,8 +41,7 @@ public class Read
         var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should()
-             .Be(123.45m);
+        value.ShouldBe(123.45m);
     }
 
     [Fact]
@@ -62,8 +59,7 @@ public class Read
         var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should()
-             .Be(1234.50m);
+        value.ShouldBe(1234.50m);
     }
 
     [Fact]
@@ -81,8 +77,7 @@ public class Read
         var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should()
-             .BeNull();
+        value.ShouldBeNull();
     }
 
     [Fact]
@@ -100,7 +95,6 @@ public class Read
         var value = converter.Read(ref reader, typeof(decimal?), _options);
 
         // Assert
-        value.Should()
-             .BeNull();
+        value.ShouldBeNull();
     }
 }

@@ -1,9 +1,25 @@
-﻿using System;
+using System;
 
 namespace Tomeshelf.MCM.Domain.Mcm;
 
 public class GuestSocial
 {
+    public GuestSocial()
+    {
+        Id = Guid.NewGuid();
+        Twitter = string.Empty;
+        Facebook = string.Empty;
+        Instagram = string.Empty;
+        Imdb = string.Empty;
+        YouTube = string.Empty;
+        Twitch = string.Empty;
+        Snapchat = string.Empty;
+        DeviantArt = string.Empty;
+        Tumblr = string.Empty;
+        Fandom = string.Empty;
+        GuestInfoId = Guid.NewGuid();
+    }
+
     public Guid Id { get; set; }
 
     public string? Twitter { get; set; }

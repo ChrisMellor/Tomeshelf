@@ -21,7 +21,7 @@ namespace Tomeshelf.MCM.Application.Services;
 ///     repository, enabling retrieval of paged guest lists and synchronization of guest data for specific events. It is
 ///     intended for internal use within the application and is not thread-safe.
 /// </remarks>
-internal sealed class GuestsService : IGuestsService
+public sealed class GuestsService : IGuestsService
 {
     private readonly IMcmGuestsClient _client;
     private readonly IGuestMapper _mapper;
@@ -172,12 +172,7 @@ internal sealed class GuestsService : IGuestsService
         return new GuestSyncResultDto("Succeeded", added, updated, removed, total, DateTimeOffset.UtcNow);
     }
 
-    /// <summary>
-    ///     Creates a new GuestEntity instance by mapping data from the specified GuestRecord.
-    /// </summary>
-    /// <param name="record">The GuestRecord containing the source data to map to a GuestEntity. Cannot be null.</param>
-    /// <returns>A GuestEntity populated with information from the provided GuestRecord.</returns>
-    private static GuestEntity MapRecordToGuest(GuestRecord record)
+    internal static GuestEntity MapRecordToGuest(GuestRecord record)
     {
         var (firstName, lastName) = SplitName(record.Name);
         var profileUrl = record.ProfileUrl;
@@ -196,18 +191,7 @@ internal sealed class GuestsService : IGuestsService
         return new GuestEntity { Information = information };
     }
 
-    /// <summary>
-    ///     Splits a full name into first and last name components based on the last space character.
-    /// </summary>
-    /// <param name="name">
-    ///     The full name to split. Leading and trailing whitespace is ignored. If null, empty, or consists only of
-    ///     whitespace, both components will be empty strings.
-    /// </param>
-    /// <returns>
-    ///     A tuple containing the first name and last name. If the input does not contain a space, the entire trimmed input
-    ///     is returned as the first name and the last name is an empty string.
-    /// </returns>
-    private static (string FirstName, string LastName) SplitName(string name)
+    internal static (string FirstName, string LastName) SplitName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
         {

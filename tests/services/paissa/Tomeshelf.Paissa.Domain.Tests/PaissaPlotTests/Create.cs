@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Tomeshelf.Paissa.Domain.Entities;
 using Tomeshelf.Paissa.Domain.ValueObjects;
 
@@ -13,11 +12,11 @@ public class Create
         var updated = default(DateTimeOffset);
 
         // Act
-        Action act = () => PaissaPlot.Create(1, 1, HousingPlotSize.Small, 0, updated, PurchaseSystem.None, 0, LotteryPhase.Unknown);
+        // Act
+        var exception = Should.Throw<ArgumentException>(() => PaissaPlot.Create(1, 1, HousingPlotSize.Small, 0, updated, PurchaseSystem.None, 0, LotteryPhase.Unknown));
 
         // Assert
-        act.Should()
-           .Throw<ArgumentException>();
+        exception.ShouldNotBeNull();
     }
 
     [Theory]
@@ -29,11 +28,11 @@ public class Create
         var updated = DateTimeOffset.UtcNow;
 
         // Act
-        Action act = () => PaissaPlot.Create(wardNumber, plotNumber, HousingPlotSize.Small, 0, updated, PurchaseSystem.None, 0, LotteryPhase.Unknown);
+        // Act
+        var exception = Should.Throw<ArgumentOutOfRangeException>(() => PaissaPlot.Create(wardNumber, plotNumber, HousingPlotSize.Small, 0, updated, PurchaseSystem.None, 0, LotteryPhase.Unknown));
 
         // Assert
-        act.Should()
-           .Throw<ArgumentOutOfRangeException>();
+        exception.ShouldNotBeNull();
     }
 
     [Fact]
@@ -43,11 +42,11 @@ public class Create
         var updated = DateTimeOffset.UtcNow;
 
         // Act
-        Action act = () => PaissaPlot.Create(1, 1, HousingPlotSize.Small, 0, updated, PurchaseSystem.None, -1, LotteryPhase.Unknown);
+        // Act
+        var exception = Should.Throw<ArgumentOutOfRangeException>(() => PaissaPlot.Create(1, 1, HousingPlotSize.Small, 0, updated, PurchaseSystem.None, -1, LotteryPhase.Unknown));
 
         // Assert
-        act.Should()
-           .Throw<ArgumentOutOfRangeException>();
+        exception.ShouldNotBeNull();
     }
 
     [Fact]
@@ -57,11 +56,11 @@ public class Create
         var updated = DateTimeOffset.UtcNow;
 
         // Act
-        Action act = () => PaissaPlot.Create(1, 1, HousingPlotSize.Small, -1, updated, PurchaseSystem.None, 0, LotteryPhase.Unknown);
+        // Act
+        var exception = Should.Throw<ArgumentOutOfRangeException>(() => PaissaPlot.Create(1, 1, HousingPlotSize.Small, -1, updated, PurchaseSystem.None, 0, LotteryPhase.Unknown));
 
         // Assert
-        act.Should()
-           .Throw<ArgumentOutOfRangeException>();
+        exception.ShouldNotBeNull();
     }
 
     [Fact]
@@ -74,34 +73,14 @@ public class Create
         var plot = PaissaPlot.Create(2, 15, HousingPlotSize.Medium, 123456, updated, PurchaseSystem.FreeCompany | PurchaseSystem.Personal, 12, LotteryPhase.AcceptingEntries);
 
         // Assert
-        plot.WardNumber
-            .Should()
-            .Be(2);
-        plot.PlotNumber
-            .Should()
-            .Be(15);
-        plot.Size
-            .Should()
-            .Be(HousingPlotSize.Medium);
-        plot.Price
-            .Should()
-            .Be(123456);
-        plot.LastUpdatedUtc
-            .Should()
-            .Be(updated);
-        plot.IsAcceptingEntries
-            .Should()
-            .BeTrue();
-        plot.HasKnownSize
-            .Should()
-            .BeTrue();
-        plot.Eligibility
-            .AllowsPersonal
-            .Should()
-            .BeTrue();
-        plot.Eligibility
-            .AllowsFreeCompany
-            .Should()
-            .BeTrue();
+        plot.WardNumber.ShouldBe(2);
+        plot.PlotNumber.ShouldBe(15);
+        plot.Size.ShouldBe(HousingPlotSize.Medium);
+        plot.Price.ShouldBe(123456);
+        plot.LastUpdatedUtc.ShouldBe(updated);
+        plot.IsAcceptingEntries.ShouldBeTrue();
+        plot.HasKnownSize.ShouldBeTrue();
+        plot.Eligibility.AllowsPersonal.ShouldBeTrue();
+        plot.Eligibility.AllowsFreeCompany.ShouldBeTrue();
     }
 }

@@ -1,5 +1,4 @@
 using Bogus;
-using FluentAssertions;
 using Tomeshelf.MCM.Application.Mappers;
 using Tomeshelf.MCM.Domain.Mcm;
 
@@ -37,38 +36,16 @@ public class UpdateGuest
         var changed = mapper.UpdateGuest(target, source);
 
         // Assert
-        changed.Should()
-               .BeTrue();
-        target.IsDeleted
-              .Should()
-              .BeFalse();
-        target.RemovedAt
-              .Should()
-              .BeNull();
-        target.AddedAt
-              .Should()
-              .NotBe(default);
-        target.Information
-              .Should()
-              .NotBeNull();
-        target.Information!.FirstName
-              .Should()
-              .Be(source.Information!.FirstName);
-        target.Information
-              .LastName
-              .Should()
-              .Be(source.Information.LastName);
-        target.Information
-              .Bio
-              .Should()
-              .Be(source.Information.Bio);
-        target.Information
-              .Socials
-              .Should()
-              .NotBeNull();
-        target.Information.Socials!.Imdb
-              .Should()
-              .Be(source.Information.Socials!.Imdb);
+        changed.ShouldBeTrue();
+        target.IsDeleted.ShouldBeFalse();
+        target.RemovedAt.ShouldBeNull();
+        target.AddedAt.ShouldNotBe(default);
+        target.Information.ShouldNotBeNull();
+        target.Information!.FirstName.ShouldBe(source.Information!.FirstName);
+        target.Information.LastName.ShouldBe(source.Information.LastName);
+        target.Information.Bio.ShouldBe(source.Information.Bio);
+        target.Information.Socials.ShouldNotBeNull();
+        target.Information.Socials!.Imdb.ShouldBe(source.Information.Socials!.Imdb);
     }
 
     [Fact]
@@ -89,10 +66,7 @@ public class UpdateGuest
         var changed = mapper.UpdateGuest(target, source);
 
         // Assert
-        changed.Should()
-               .BeFalse();
-        target.Information!.FirstName
-              .Should()
-              .Be(originalFirstName);
+        changed.ShouldBeFalse();
+        target.Information!.FirstName.ShouldBe(originalFirstName);
     }
 }
