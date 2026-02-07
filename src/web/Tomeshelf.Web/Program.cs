@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
@@ -14,6 +7,13 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Tomeshelf.ServiceDefaults;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Infrastructure;
@@ -142,7 +142,7 @@ public class Program
         builder.Services.AddTransient<FitbitSessionCookieHandler>();
         builder.Services.Configure<FormOptions>(options =>
         {
-            options.MultipartBodyLengthLimit = 1_073_741_824; // ~1GB
+            options.MultipartBodyLengthLimit = 1_073_741_824;
         });
 
         builder.Services
@@ -239,10 +239,10 @@ public class Program
                     client.Timeout = TimeSpan.FromSeconds(100);
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-                {
-                    AutomaticDecompression = DecompressionMethods.None,
-                    AllowAutoRedirect = false
-                })
+               {
+                   AutomaticDecompression = DecompressionMethods.None,
+                   AllowAutoRedirect = false
+               })
                .AddHttpMessageHandler<FitbitSessionCookieHandler>();
         builder.Services.AddScoped<IFitbitApi, FitbitApi>();
 
@@ -341,7 +341,7 @@ public class Program
                     client.Timeout = TimeSpan.FromMinutes(30);
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None })
-               .ConfigureHttpMessageHandlerBuilder(b => b.AdditionalHandlers.Clear()); // disable default/standard resilience timeouts for large uploads
+               .ConfigureHttpMessageHandlerBuilder(b => b.AdditionalHandlers.Clear());
         builder.Services.AddScoped<IFileUploadsApi, FileUploadsApi>();
 
         var app = builder.Build();

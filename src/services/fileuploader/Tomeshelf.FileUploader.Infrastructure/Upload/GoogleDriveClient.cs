@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Concurrent;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
@@ -13,6 +7,12 @@ using Google.Apis.Services;
 using Google.Apis.Upload;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Concurrent;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Tomeshelf.FileUploader.Application;
 using DriveFile = Google.Apis.Drive.v3.Data.File;
 
@@ -74,7 +74,7 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         {
             if (!string.IsNullOrWhiteSpace(_rootFolderId))
             {
-                return parentId; // anchor directly to the provided folder id
+                return parentId;
             }
 
             throw new InvalidOperationException("Folder path must contain at least one segment.");
@@ -134,7 +134,7 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
                 var update = _drive.Files.Update(new DriveFile { Name = fileName }, existing.Id, content, mimeType);
                 update.Fields = "id";
                 update.SupportsAllDrives = true;
-                update.ChunkSize = ResumableUpload.MinimumChunkSize * 32; // ~8MB chunks
+                update.ChunkSize = ResumableUpload.MinimumChunkSize * 32;
                 var result = await update.UploadAsync(cancellationToken);
                 ValidateUpload(result, fileName, existing.Id);
 
@@ -152,7 +152,7 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
 
                 create.Fields = "id";
                 create.SupportsAllDrives = true;
-                create.ChunkSize = ResumableUpload.MinimumChunkSize * 32; // ~8MB chunks
+                create.ChunkSize = ResumableUpload.MinimumChunkSize * 32;
                 var result = await create.UploadAsync(cancellationToken);
                 ValidateUpload(result, fileName, parentFolderId);
 

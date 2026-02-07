@@ -1,4 +1,5 @@
 using Bogus;
+using Shouldly;
 using Tomeshelf.MCM.Application.Mappers;
 using Tomeshelf.MCM.Domain.Mcm;
 
@@ -9,7 +10,6 @@ public class GetGuestKey
     [Fact]
     public void TrimsNamesAndCombines()
     {
-        // Arrange
         var faker = new Faker();
         var mapper = new GuestMapper();
         var firstName = faker.Name.FirstName();
@@ -23,24 +23,19 @@ public class GetGuestKey
             }
         };
 
-        // Act
         var key = mapper.GetGuestKey(guest);
 
-        // Assert
         key.ShouldBe($"{firstName} {lastName}");
     }
 
     [Fact]
     public void WhenNamesMissing_ReturnsEmpty()
     {
-        // Arrange
         var mapper = new GuestMapper();
         var guest = new GuestEntity { Information = new GuestInfoEntity() };
 
-        // Act
         var key = mapper.GetGuestKey(guest);
 
-        // Assert
         key.ShouldBe(string.Empty);
     }
 }

@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using Shouldly;
 using Tomeshelf.FileUploader.Infrastructure.Upload;
 
 namespace Tomeshelf.FileUploader.Infrastructure.Tests.Upload.EpubMetadataReaderTests;
@@ -8,7 +9,6 @@ public class GetMetadata
     [Fact]
     public void ReadsTitleFromEpub()
     {
-        // Arrange
         var tempDir = CreateTempDirectory();
         var epubPath = Path.Combine(tempDir, "book.epub");
 
@@ -29,10 +29,8 @@ public class GetMetadata
                 }
             }
 
-            // Act
             var metadata = EpubMetadataReader.GetMetadata(epubPath);
 
-            // Assert
             metadata.Title.ShouldBe("Test Title");
         }
         finally
@@ -43,7 +41,8 @@ public class GetMetadata
 
     private static string CreateTempDirectory()
     {
-        var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid()
+                                                                           .ToString("N"));
         Directory.CreateDirectory(path);
 
         return path;

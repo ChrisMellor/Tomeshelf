@@ -1,6 +1,7 @@
-using System.IO.Compression;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using Shouldly;
+using System.IO.Compression;
 using Tomeshelf.FileUploader.Application;
 using Tomeshelf.FileUploader.Infrastructure.Upload;
 
@@ -11,7 +12,6 @@ public class UploadAsync
     [Fact]
     public async Task ThrowsWhenNoFilesFound()
     {
-        // Arrange
         using var archive = CreateZipStream();
         var organiser = new BundleFileOrganiser();
         var factory = new RecordingDriveFactory();
@@ -24,10 +24,8 @@ public class UploadAsync
         });
         var service = new BundleUploadService(organiser, factory, options, NullLogger<BundleUploadService>.Instance);
 
-        // Act
         var action = async () => await service.UploadAsync(archive, "bundle.zip", null, CancellationToken.None);
 
-        // Assert
         var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         exception.Message.ShouldContain("No files were found in the uploaded bundle.");
         factory.CreateCalls.ShouldBe(0);
@@ -36,7 +34,6 @@ public class UploadAsync
     [Fact]
     public async Task UploadsFilesAndUsesOverrideOptions()
     {
-        // Arrange
         using var archive = CreateZipStream(("My Bundle by Author/BookOne.txt", "content"), ("My Bundle by Author/BookOne_supplement.zip", "supplement"));
 
         var organiser = new BundleFileOrganiser();
@@ -64,10 +61,8 @@ public class UploadAsync
 
         var service = new BundleUploadService(organiser, factory, options, NullLogger<BundleUploadService>.Instance);
 
-        // Act
         var result = await service.UploadAsync(archive, "bundle.zip", overrideOptions, CancellationToken.None);
 
-        // Assert
         result.ShouldNotBeNull();
         result.BundlesProcessed.ShouldBe(1);
         result.BooksProcessed.ShouldBe(1);
@@ -82,7 +77,9 @@ public class UploadAsync
         factory.Options.RefreshToken.ShouldBe("override-refresh");
         factory.Options.UserEmail.ShouldBe("default@example.com");
         factory.Client.FolderPaths.ShouldHaveSingleItem();
-        factory.Client.FolderPaths[0].ShouldBe("OverrideRoot/My Bundle by Author/Unknown Title");
+        factory.Client
+               .FolderPaths[0]
+               .ShouldBe("OverrideRoot/My Bundle by Author/Unknown Title");
     }
 
     private static MemoryStream CreateZipStream(params (string Path, string Content)[] entries)

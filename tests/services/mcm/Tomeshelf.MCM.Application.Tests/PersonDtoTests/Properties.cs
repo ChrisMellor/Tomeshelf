@@ -1,3 +1,4 @@
+using Shouldly;
 using Tomeshelf.MCM.Application.Mcm;
 
 namespace Tomeshelf.MCM.Application.Tests.PersonDtoTests;
@@ -7,7 +8,6 @@ public class Properties
     [Fact]
     public void CanSetAndGetValues()
     {
-        // Arrange
         var id = "person-id-1";
         var uid = "person-uid-1";
         var publiclyVisible = true;
@@ -33,13 +33,30 @@ public class Properties
         var autographAmount = 10.50m;
         var photoOpAmount = 20.00m;
         var photoOpTableAmount = 15.00m;
-        var peopleCategories = new List<object> { "Category1", "Category2" };
-        var globalCategories = new List<CategoryDto> { new CategoryDto { Id = "cat-id-1", Name = "Category A" } };
-        var images = new List<ImageSetDto> { new ImageSetDto { Big = "big.jpg" } };
-        var schedules = new List<ScheduleDto> { new ScheduleDto { Id = "sched-id-1", Title = "Panel" } };
+        var peopleCategories = new List<object>
+        {
+            "Category1",
+            "Category2"
+        };
+        var globalCategories = new List<CategoryDto>
+        {
+            new()
+            {
+                Id = "cat-id-1",
+                Name = "Category A"
+            }
+        };
+        var images = new List<ImageSetDto> { new() { Big = "big.jpg" } };
+        var schedules = new List<ScheduleDto>
+        {
+            new()
+            {
+                Id = "sched-id-1",
+                Title = "Panel"
+            }
+        };
         var removedAt = "2025-01-01";
 
-        // Act
         var dto = new PersonDto
         {
             Id = id,
@@ -74,7 +91,6 @@ public class Properties
             RemovedAt = removedAt
         };
 
-        // Assert
         dto.Id.ShouldBe(id);
         dto.Uid.ShouldBe(uid);
         dto.PubliclyVisible.ShouldBe(publiclyVisible);
@@ -110,16 +126,13 @@ public class Properties
     [Fact]
     public void DefaultsAreExpected()
     {
-        // Arrange
         var dto = new PersonDto();
 
-        // Act
         var peopleCategories = dto.PeopleCategories;
         var globalCategories = dto.GlobalCategories;
         var images = dto.Images;
         var schedules = dto.Schedules;
 
-        // Assert
         dto.Id.ShouldBeNull();
         dto.Uid.ShouldBeNull();
         dto.PubliclyVisible.ShouldBeFalse();

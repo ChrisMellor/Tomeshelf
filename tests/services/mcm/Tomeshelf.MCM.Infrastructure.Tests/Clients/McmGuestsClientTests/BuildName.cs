@@ -1,3 +1,4 @@
+using Shouldly;
 using Tomeshelf.MCM.Infrastructure.Clients;
 using Tomeshelf.MCM.Infrastructure.Responses;
 
@@ -13,13 +14,15 @@ public class BuildName
     [InlineData(" ", " ", "Johnny")]
     public void BuildsNameCorrectly(string? firstName, string? lastName, string expectedName)
     {
-        // Arrange
-        var person = new McmEventResponse.Person { FirstName = firstName, LastName = lastName, AltName = "Johnny" };
+        var person = new McmEventResponse.Person
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            AltName = "Johnny"
+        };
 
-        // Act
         var result = McmGuestsClient.BuildName(person);
 
-        // Assert
         result.ShouldBe(expectedName);
     }
 }

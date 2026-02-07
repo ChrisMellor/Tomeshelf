@@ -1,5 +1,6 @@
 using FakeItEasy;
 using Microsoft.EntityFrameworkCore;
+using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.Security;
 using Tomeshelf.SHiFT.Domain.Entities;
 using Tomeshelf.SHiFT.Infrastructure.Persistence.Repositories;
@@ -12,7 +13,6 @@ public class CreateAsync
     [Fact]
     public async Task PersistsTrimmedValues_AndProtectsPassword()
     {
-        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
         A.CallTo(() => protector.Protect("secret"))
@@ -26,12 +26,10 @@ public class CreateAsync
             EncryptedPassword = " secret "
         };
 
-        // Act
         var before = DateTimeOffset.UtcNow;
         var id = await repository.CreateAsync(request, CancellationToken.None);
         var after = DateTimeOffset.UtcNow;
 
-        // Assert
         var stored = await context.ShiftSettings.SingleAsync(entity => entity.Id == id);
         stored.Email.ShouldBe("user@example.com");
         stored.DefaultService.ShouldBe("steam");
@@ -39,37 +37,9 @@ public class CreateAsync
         stored.UpdatedUtc.ShouldBeInRange(before, after);
     }
 
-    [Theory]
-    [InlineData("", "psn", "secret", "email", "Missing email")]
-    [InlineData("user@example.com", "", "secret", "service", "Missing service")]
-    [InlineData("user@example.com", "psn", " ", "password", "Missing password")]
-    public async Task ThrowsWhenRequiredValuesMissing(string email, string service, string password, string paramName, string expectedMessage)
-    {
-        // Arrange
-        await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
-        var protector = A.Fake<ISecretProtector>();
-        var repository = new ShiftSettingsRepository(context, protector);
-
-        var request = new SettingsEntity
-        {
-            Email = email,
-            DefaultService = service,
-            EncryptedPassword = password
-        };
-
-        // Act
-        var action = () => repository.CreateAsync(request, CancellationToken.None);
-
-        // Assert
-        var exception = await Should.ThrowAsync<ArgumentNullException>(action);
-        exception.ParamName.ShouldBe(paramName);
-        exception.Message.ShouldContain(expectedMessage);
-    }
-
     [Fact]
     public async Task Throws_WhenEmailAlreadyExists()
     {
-        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
         var repository = new ShiftSettingsRepository(context, protector);
@@ -89,11 +59,33 @@ public class CreateAsync
             EncryptedPassword = "secret"
         };
 
-        // Act
         var action = () => repository.CreateAsync(request, CancellationToken.None);
 
-        // Assert
         var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         exception.Message.ShouldBe("SHiFT email already exists");
+    }
+
+    [Theory]
+    [InlineData("", "psn", "secret", "email", "Missing email")]
+    [InlineData("user@example.com", "", "secret", "service", "Missing service")]
+    [InlineData("user@example.com", "psn", " ", "password", "Missing password")]
+    public async Task ThrowsWhenRequiredValuesMissing(string email, string service, string password, string paramName, string expectedMessage)
+    {
+        await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
+        var protector = A.Fake<ISecretProtector>();
+        var repository = new ShiftSettingsRepository(context, protector);
+
+        var request = new SettingsEntity
+        {
+            Email = email,
+            DefaultService = service,
+            EncryptedPassword = password
+        };
+
+        var action = () => repository.CreateAsync(request, CancellationToken.None);
+
+        var exception = await Should.ThrowAsync<ArgumentNullException>(action);
+        exception.ParamName.ShouldBe(paramName);
+        exception.Message.ShouldContain(expectedMessage);
     }
 }

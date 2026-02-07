@@ -1,5 +1,6 @@
 using Bogus;
 using FakeItEasy;
+using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
 using Tomeshelf.SHiFT.Application.Features.Settings.Queries;
 using Tomeshelf.SHiFT.Domain.Entities;
@@ -11,7 +12,6 @@ public class Handle
     [Fact]
     public async Task WhenEntityExists_MapsToDto()
     {
-        // Arrange
         var faker = new Faker();
         var repository = A.Fake<IShiftSettingsRepository>();
         var handler = new GetShiftSettingsQueryHandler(repository);
@@ -27,10 +27,8 @@ public class Handle
         A.CallTo(() => repository.GetByIdAsync(2, A<CancellationToken>._))
          .Returns(Task.FromResult<SettingsEntity?>(entity));
 
-        // Act
         var result = await handler.Handle(new GetShiftSettingsQuery(2), CancellationToken.None);
 
-        // Assert
         result.ShouldNotBeNull();
         result!.Id.ShouldBe(entity.Id);
         result.Email.ShouldBe(entity.Email);
@@ -42,24 +40,20 @@ public class Handle
     [Fact]
     public async Task WhenMissing_ReturnsNull()
     {
-        // Arrange
         var repository = A.Fake<IShiftSettingsRepository>();
         var handler = new GetShiftSettingsQueryHandler(repository);
 
         A.CallTo(() => repository.GetByIdAsync(1, A<CancellationToken>._))
          .Returns(Task.FromResult<SettingsEntity?>(null));
 
-        // Act
         var result = await handler.Handle(new GetShiftSettingsQuery(1), CancellationToken.None);
 
-        // Assert
         result.ShouldBeNull();
     }
 
     [Fact]
     public async Task WhenPasswordMissing_SetsHasPasswordFalse()
     {
-        // Arrange
         var faker = new Faker();
         var repository = A.Fake<IShiftSettingsRepository>();
         var handler = new GetShiftSettingsQueryHandler(repository);
@@ -75,10 +69,8 @@ public class Handle
         A.CallTo(() => repository.GetByIdAsync(3, A<CancellationToken>._))
          .Returns(Task.FromResult<SettingsEntity?>(entity));
 
-        // Act
         var result = await handler.Handle(new GetShiftSettingsQuery(3), CancellationToken.None);
 
-        // Assert
         result.ShouldNotBeNull();
         result!.HasPassword.ShouldBeFalse();
     }

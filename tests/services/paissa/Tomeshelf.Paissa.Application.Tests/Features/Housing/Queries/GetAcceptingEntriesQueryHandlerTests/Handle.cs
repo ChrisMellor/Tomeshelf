@@ -1,5 +1,6 @@
 using Bogus;
 using FakeItEasy;
+using Shouldly;
 using Tomeshelf.Paissa.Application.Abstractions.Common;
 using Tomeshelf.Paissa.Application.Abstractions.External;
 using Tomeshelf.Paissa.Application.Features.Housing.Queries;
@@ -13,7 +14,6 @@ public class Handle
     [Fact]
     public async Task FiltersUnknownSizes_WhenRequireKnownSize()
     {
-        // Arrange
         var client = A.Fake<IPaissaClient>();
         var settings = A.Fake<IPaissaWorldSettings>();
         var clock = A.Fake<IClock>();
@@ -39,18 +39,17 @@ public class Handle
         A.CallTo(() => client.GetWorldAsync(3, A<CancellationToken>._))
          .Returns(Task.FromResult(world));
 
-        // Act
         var result = await handler.Handle(new GetAcceptingEntriesQuery(), CancellationToken.None);
 
-        // Assert
         result.Districts.ShouldHaveSingleItem();
-        result.Districts[0].Name.ShouldBe("Known");
+        result.Districts[0]
+              .Name
+              .ShouldBe("Known");
     }
 
     [Fact]
     public async Task OrdersDistrictsAndGroupsBySize()
     {
-        // Arrange
         var client = A.Fake<IPaissaClient>();
         var settings = A.Fake<IPaissaWorldSettings>();
         var clock = A.Fake<IClock>();
@@ -81,38 +80,53 @@ public class Handle
         A.CallTo(() => client.GetWorldAsync(7, A<CancellationToken>._))
          .Returns(Task.FromResult(world));
 
-        // Act
         var result = await handler.Handle(new GetAcceptingEntriesQuery(), CancellationToken.None);
 
-        // Assert
         result.Districts.Count.ShouldBe(2);
-        result.Districts[0].Name.ShouldBe("Alpha");
-        result.Districts[1].Name.ShouldBe("beta");
+        result.Districts[0]
+              .Name
+              .ShouldBe("Alpha");
+        result.Districts[1]
+              .Name
+              .ShouldBe("beta");
 
         var sizeGroups = result.Districts[0].SizeGroups;
         sizeGroups.Count.ShouldBe(3);
-        sizeGroups[0].Size.ShouldBe("Large");
-        sizeGroups[1].Size.ShouldBe("Medium");
-        sizeGroups[2].Size.ShouldBe("Small");
+        sizeGroups[0]
+           .Size
+           .ShouldBe("Large");
+        sizeGroups[1]
+           .Size
+           .ShouldBe("Medium");
+        sizeGroups[2]
+           .Size
+           .ShouldBe("Small");
 
         var mediumGroup = sizeGroups[1];
         mediumGroup.Plots.ShouldHaveSingleItem();
-        mediumGroup.Plots[0].Ward.ShouldBe(1);
-        mediumGroup.Plots[0].Plot.ShouldBe(1);
+        mediumGroup.Plots[0]
+                   .Ward
+                   .ShouldBe(1);
+        mediumGroup.Plots[0]
+                   .Plot
+                   .ShouldBe(1);
 
         var betaSmallPlots = result.Districts[1]
                                    .SizeGroups
                                    .First(group => group.Size == "Small")
                                    .Plots;
         betaSmallPlots.ShouldHaveSingleItem();
-        betaSmallPlots[0].Ward.ShouldBe(1);
-        betaSmallPlots[0].Plot.ShouldBe(2);
+        betaSmallPlots[0]
+           .Ward
+           .ShouldBe(1);
+        betaSmallPlots[0]
+           .Plot
+           .ShouldBe(2);
     }
 
     [Fact]
     public async Task ValidQuery_ReturnsPaissaWorldSummary()
     {
-        // Arrange
         var faker = new Faker();
         var client = A.Fake<IPaissaClient>();
         var settings = A.Fake<IPaissaWorldSettings>();
@@ -135,10 +149,8 @@ public class Handle
         A.CallTo(() => client.GetWorldAsync(worldId, A<CancellationToken>._))
          .Returns(Task.FromResult(world));
 
-        // Act
         var result = await handler.Handle(new GetAcceptingEntriesQuery(), CancellationToken.None);
 
-        // Assert
         result.ShouldNotBeNull();
         result.WorldId.ShouldBe(worldId);
         result.WorldName.ShouldBe(worldName);

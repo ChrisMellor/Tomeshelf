@@ -1,3 +1,4 @@
+using Shouldly;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.WeightUnitConverterTests;
@@ -15,10 +16,8 @@ public class Parse
     [InlineData("unknown", WeightUnit.Stones)]
     public void ReturnsExpectedUnit(string value, WeightUnit expected)
     {
-        // Act
         var result = WeightUnitConverter.Parse(value);
 
-        // Assert
         result.ShouldBe(expected);
     }
 }

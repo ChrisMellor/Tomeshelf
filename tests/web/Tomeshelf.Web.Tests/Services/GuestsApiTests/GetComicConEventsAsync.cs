@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Shouldly;
 using Tomeshelf.Web.Models.Mcm;
 using Tomeshelf.Web.Services;
 using Tomeshelf.Web.Tests.TestUtilities;
@@ -20,7 +21,6 @@ public class GetComicConEventsAsync
     [Fact]
     public async Task FiltersAndCachesEvents()
     {
-        // Arrange
         var payload = new List<McmEventConfigModel>
         {
             new()
@@ -54,16 +54,20 @@ public class GetComicConEventsAsync
         var cache = new MemoryCache(new MemoryCacheOptions());
         var api = new GuestsApi(new TestHttpClientFactory(client), A.Fake<ILogger<GuestsApi>>(), cache);
 
-        // Act
         var first = await api.GetComicConEventsAsync(CancellationToken.None);
         var second = await api.GetComicConEventsAsync(CancellationToken.None);
 
-        // Assert
         callCount.ShouldBe(1);
         first.Count.ShouldBe(2);
-        first[0].Name.ShouldBe("Birmingham");
-        first[1].Name.ShouldBe("London");
-        second.Select(item => item.Id).ShouldBe(first.Select(item => item.Id));
-        second.Select(item => item.Name).ShouldBe(first.Select(item => item.Name));
+        first[0]
+           .Name
+           .ShouldBe("Birmingham");
+        first[1]
+           .Name
+           .ShouldBe("London");
+        second.Select(item => item.Id)
+              .ShouldBe(first.Select(item => item.Id));
+        second.Select(item => item.Name)
+              .ShouldBe(first.Select(item => item.Name));
     }
 }

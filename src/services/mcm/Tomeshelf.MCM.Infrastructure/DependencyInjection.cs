@@ -1,9 +1,8 @@
-using System;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Diagnostics;
 using Tomeshelf.MCM.Application.Abstractions.Clients;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
 using Tomeshelf.MCM.Infrastructure.Clients;
@@ -21,10 +20,9 @@ public static class DependencyInjection
         foreach (var source in builder.Configuration.Sources)
         {
             Debug.WriteLine($"- Source: {source.GetType().Name}");
-            // No need to cast to FileConfigurationSource, just print type name
         }
-        Debug.WriteLine("----------------------------------------------------------");
 
+        Debug.WriteLine("----------------------------------------------------------");
 
         var connectionString = builder.Configuration[$"ConnectionStrings:{ConnectionName}"];
         Debug.WriteLine($"Connection string for {ConnectionName}: {connectionString}");

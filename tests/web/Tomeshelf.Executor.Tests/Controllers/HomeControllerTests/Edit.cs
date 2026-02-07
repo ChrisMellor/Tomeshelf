@@ -1,14 +1,10 @@
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
+using Shouldly;
 using Tomeshelf.Executor.Configuration;
-using Tomeshelf.Executor.Controllers;
 using Tomeshelf.Executor.Models;
 using Tomeshelf.Executor.Services;
 using Tomeshelf.Executor.Tests.TestUtilities;
-using Tomeshelf.ServiceDefaults;
 
 namespace Tomeshelf.Executor.Tests.Controllers.HomeControllerTests;
 
@@ -17,25 +13,21 @@ public class Edit
     [Fact]
     public async Task Get_MissingEndpoint_Redirects()
     {
-        // Arrange
         var controller = HomeControllerTestHarness.CreateController(new ExecutorOptions(), new List<ApiServiceDescriptor>(), out _, out _, out _, out _);
 
-        // Act
         var result = await controller.Edit("missing", CancellationToken.None);
 
-        // Assert
         result.ShouldBeOfType<RedirectToActionResult>();
     }
 
     [Fact]
     public async Task Post_Valid_UpdatesEndpoint()
     {
-        // Arrange
         var options = new ExecutorOptions
         {
             Endpoints = new List<EndpointScheduleOptions>
             {
-                new EndpointScheduleOptions
+                new()
                 {
                     Name = "Existing",
                     Url = "https://example.test",
@@ -59,13 +51,16 @@ public class Edit
             Enabled = true
         };
 
-        // Act
         var result = await controller.Edit("Existing", "Existing", model, CancellationToken.None);
 
-        // Assert
         result.ShouldBeOfType<RedirectToActionResult>();
-        controller.TempData["StatusMessage"].ShouldBe("Updated endpoint 'Updated'.");
-        options.Endpoints[0].Name.ShouldBe("Updated");
-        options.Endpoints[0].Url.ShouldBe("http://updated.test/");
+        controller.TempData["StatusMessage"]
+                  .ShouldBe("Updated endpoint 'Updated'.");
+        options.Endpoints[0]
+               .Name
+               .ShouldBe("Updated");
+        options.Endpoints[0]
+               .Url
+               .ShouldBe("http://updated.test/");
     }
 }

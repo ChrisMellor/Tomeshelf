@@ -1,3 +1,6 @@
+using FakeItEasy;
+using Microsoft.Extensions.Logging;
+using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -5,8 +8,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using FakeItEasy;
-using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Paissa;
 using Tomeshelf.Web.Services;
 using Tomeshelf.Web.Tests.TestUtilities;
@@ -18,7 +19,6 @@ public class GetWorldAsync
     [Fact]
     public async Task DeserializesPayload()
     {
-        // Arrange
         var world = new PaissaWorldModel(1, "World", DateTimeOffset.UtcNow, new List<PaissaDistrictModel>());
         var json = JsonSerializer.Serialize(world, new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
@@ -32,10 +32,8 @@ public class GetWorldAsync
         using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
         var api = new PaissaApi(new TestHttpClientFactory(client), A.Fake<ILogger<PaissaApi>>());
 
-        // Act
         var result = await api.GetWorldAsync(CancellationToken.None);
 
-        // Assert
         result.WorldName.ShouldBe("World");
         var request = handler.Requests.ShouldHaveSingleItem();
         request.RequestUri!.PathAndQuery.ShouldBe("/paissa/world");
@@ -44,7 +42,6 @@ public class GetWorldAsync
     [Fact]
     public async Task WhenPayloadEmpty_Throws()
     {
-        // Arrange
         var handler = new StubHttpMessageHandler((_, _) =>
         {
             var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("null", Encoding.UTF8, "application/json") };
@@ -55,11 +52,8 @@ public class GetWorldAsync
         using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
         var api = new PaissaApi(new TestHttpClientFactory(client), A.Fake<ILogger<PaissaApi>>());
 
-        // Act
-        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(() => api.GetWorldAsync(CancellationToken.None));
 
-        // Assert
         exception.Message.ShouldBe("Empty Paissa payload");
     }
 }

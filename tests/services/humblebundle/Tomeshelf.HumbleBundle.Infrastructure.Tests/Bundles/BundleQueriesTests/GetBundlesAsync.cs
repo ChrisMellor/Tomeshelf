@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Shouldly;
 using Tomeshelf.HumbleBundle.Domain.HumbleBundle;
 using Tomeshelf.HumbleBundle.Infrastructure.Bundles;
 
@@ -9,7 +10,6 @@ public class GetBundlesAsync
     [Fact]
     public async Task ExcludesExpiredAndOrdersByEndDateThenTitle()
     {
-        // Arrange
         await using var context = CreateContext();
         var now = DateTimeOffset.UtcNow;
         var past = now.AddHours(-2);
@@ -31,21 +31,23 @@ public class GetBundlesAsync
         var queries = new BundleQueries(context);
         var before = DateTimeOffset.UtcNow;
 
-        // Act
         var result = await queries.GetBundlesAsync(false, CancellationToken.None);
 
-        // Assert
         var after = DateTimeOffset.UtcNow;
-        result.Select(r => r.MachineName).ShouldBe(new[] { "b2", "b1", "b4", "b3" });
+        result.Select(r => r.MachineName)
+              .ShouldBe(new[] { "b2", "b1", "b4", "b3" });
         result.ShouldNotContain(r => r.MachineName == "b5");
-        result.Select(r => r.GeneratedUtc).Distinct().ShouldHaveSingleItem();
-        result[0].GeneratedUtc.ShouldBeInRange(before, after);
+        result.Select(r => r.GeneratedUtc)
+              .Distinct()
+              .ShouldHaveSingleItem();
+        result[0]
+           .GeneratedUtc
+           .ShouldBeInRange(before, after);
     }
 
     [Fact]
     public async Task IncludesExpiredAndOrdersByEndDateThenTitle()
     {
-        // Arrange
         await using var context = CreateContext();
         var now = DateTimeOffset.UtcNow;
         var past = now.AddHours(-2);
@@ -67,14 +69,17 @@ public class GetBundlesAsync
         var queries = new BundleQueries(context);
         var before = DateTimeOffset.UtcNow;
 
-        // Act
         var result = await queries.GetBundlesAsync(true, CancellationToken.None);
 
-        // Assert
         var after = DateTimeOffset.UtcNow;
-        result.Select(r => r.MachineName).ShouldBe(new[] { "b5", "b2", "b1", "b4", "b3" });
-        result.Select(r => r.GeneratedUtc).Distinct().ShouldHaveSingleItem();
-        result[0].GeneratedUtc.ShouldBeInRange(before, after);
+        result.Select(r => r.MachineName)
+              .ShouldBe(new[] { "b5", "b2", "b1", "b4", "b3" });
+        result.Select(r => r.GeneratedUtc)
+              .Distinct()
+              .ShouldHaveSingleItem();
+        result[0]
+           .GeneratedUtc
+           .ShouldBeInRange(before, after);
     }
 
     private static Bundle CreateBundle(string machineName, string title, DateTimeOffset? endsAt)
@@ -103,9 +108,9 @@ public class GetBundlesAsync
 
     private static TomeshelfBundlesDbContext CreateContext()
     {
-        var options = new DbContextOptionsBuilder<TomeshelfBundlesDbContext>()
-                      .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
-                      .Options;
+        var options = new DbContextOptionsBuilder<TomeshelfBundlesDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                       .ToString("N"))
+                                                                              .Options;
 
         return new TomeshelfBundlesDbContext(options);
     }

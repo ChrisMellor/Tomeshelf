@@ -1,7 +1,6 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
+using Shouldly;
 using Tomeshelf.Executor.Configuration;
 using Tomeshelf.Executor.Services;
 using Tomeshelf.Executor.Tests.TestUtilities;
@@ -13,7 +12,6 @@ public class SaveAsync
     [Fact]
     public async Task WritesAndReadsBack()
     {
-        // Arrange
         var (directory, restore) = ExecutorConfigurationStoreTestHarness.PrepareSettingsDirectory();
         try
         {
@@ -29,7 +27,7 @@ public class SaveAsync
                 Enabled = false,
                 Endpoints = new List<EndpointScheduleOptions>
                 {
-                    new EndpointScheduleOptions
+                    new()
                     {
                         Name = "Ping",
                         Url = "https://example.test",
@@ -41,16 +39,15 @@ public class SaveAsync
                 }
             };
 
-            // Act
             await store.SaveAsync(options);
             var loaded = await store.GetAsync();
 
-            // Assert
             loaded.Enabled.ShouldBeFalse();
             var endpoint = loaded.Endpoints.ShouldHaveSingleItem();
             endpoint.Name.ShouldBe("Ping");
             endpoint.Headers.ShouldNotBeNull();
-            endpoint.Headers!.ContainsKey("X-Test").ShouldBeTrue();
+            endpoint.Headers!.ContainsKey("X-Test")
+                    .ShouldBeTrue();
         }
         finally
         {

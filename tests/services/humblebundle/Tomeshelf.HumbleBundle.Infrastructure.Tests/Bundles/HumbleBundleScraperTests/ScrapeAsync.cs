@@ -1,6 +1,7 @@
+using Microsoft.Extensions.Logging.Abstractions;
+using Shouldly;
 using System.Net;
 using System.Text;
-using Microsoft.Extensions.Logging.Abstractions;
 using Tomeshelf.HumbleBundle.Infrastructure.Bundles;
 
 namespace Tomeshelf.HumbleBundle.Infrastructure.Tests.Bundles.HumbleBundleScraperTests;
@@ -10,7 +11,6 @@ public class ScrapeAsync
     [Fact]
     public async Task ParsesBundlesFromHtmlPayload()
     {
-        // Arrange
         var json = """
                    {"userOptions":{},"data":{"books":{"mosaic":[{"products":[
                      {"machine_name":"bundle-one","tile_stamp":"Bundle","tile_name":"Bundle One","tile_short_name":"One","short_marketing_blurb":"Deal {with} braces","product_url":"/bundle-one","tile_image":"https://img.test/tile.png","tile_logo":"https://img.test/logo.png","high_res_tile_image":"https://img.test/hero.png","start_date|datetime":"2025-01-01T00:00:00Z","end_date|datetime":"2025-01-10T00:00:00Z"},
@@ -26,10 +26,8 @@ public class ScrapeAsync
         var scraper = new HumbleBundleScraper(factory, NullLogger<HumbleBundleScraper>.Instance);
         var before = DateTimeOffset.UtcNow;
 
-        // Act
         var bundles = await scraper.ScrapeAsync(CancellationToken.None);
 
-        // Assert
         var after = DateTimeOffset.UtcNow;
         factory.LastName.ShouldBe(HumbleBundleScraper.HttpClientName);
         handler.RequestMessage.ShouldNotBeNull();
@@ -70,7 +68,6 @@ public class ScrapeAsync
     [Fact]
     public async Task ReturnsEmptyList_WhenNoBundleDataIsPresent()
     {
-        // Arrange
         var json = """
                    {"userOptions":{},"data":{}}
                    """;
@@ -78,25 +75,20 @@ public class ScrapeAsync
         var handler = new StubHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(html, Encoding.UTF8, "text/html") });
         var scraper = new HumbleBundleScraper(new StubHttpClientFactory(new HttpClient(handler)), NullLogger<HumbleBundleScraper>.Instance);
 
-        // Act
         var bundles = await scraper.ScrapeAsync(CancellationToken.None);
 
-        // Assert
         bundles.ShouldBeEmpty();
     }
 
     [Fact]
     public async Task Throws_WhenJsonPayloadIsMissing()
     {
-        // Arrange
         var html = "<html><body>No payload</body></html>";
         var handler = new StubHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(html, Encoding.UTF8, "text/html") });
         var scraper = new HumbleBundleScraper(new StubHttpClientFactory(new HttpClient(handler)), NullLogger<HumbleBundleScraper>.Instance);
 
-        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(() => scraper.ScrapeAsync(CancellationToken.None));
 
-        // Assert
         exception.Message.ShouldBe("Unable to locate Humble Bundle JSON payload in the HTML response.");
     }
 

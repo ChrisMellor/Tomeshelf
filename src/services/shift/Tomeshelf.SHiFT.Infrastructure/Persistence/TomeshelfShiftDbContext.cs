@@ -10,7 +10,6 @@ public sealed class TomeshelfShiftDbContext : DbContext, IDataProtectionKeyConte
 
     public DbSet<SettingsEntity> ShiftSettings => Set<SettingsEntity>();
 
-    // Data Protection keys table
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

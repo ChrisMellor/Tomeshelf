@@ -1,5 +1,6 @@
 using Bogus;
 using FakeItEasy;
+using Shouldly;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
 using Tomeshelf.MCM.Application.Services;
 
@@ -10,7 +11,6 @@ public class DeleteAsync
     [Fact]
     public async Task CallsRepositoryAndReturnsResult()
     {
-        // Arrange
         var faker = new Faker();
         var repository = A.Fake<IEventRepository>();
         var service = new EventService(repository);
@@ -19,10 +19,8 @@ public class DeleteAsync
         A.CallTo(() => repository.DeleteAsync(id, A<CancellationToken>._))
          .Returns(Task.FromResult(true));
 
-        // Act
         var result = await service.DeleteAsync(id, CancellationToken.None);
 
-        // Assert
         result.ShouldBeTrue();
         A.CallTo(() => repository.DeleteAsync(id, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();

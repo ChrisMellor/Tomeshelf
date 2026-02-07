@@ -136,7 +136,7 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
     /// <param name="archive">Zip archive containing the bundle files.</param>
     /// <param name="cancellationToken">Cancellation token for the API call.</param>
     [HttpPost("upload")]
-    [RequestSizeLimit(1_073_741_824)] // ~1GB
+    [RequestSizeLimit(1_073_741_824)]
     [RequestFormLimits(MultipartBodyLengthLimit = 1_073_741_824)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Upload([FromForm] IFormFile archive, CancellationToken cancellationToken = default)

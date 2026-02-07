@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Executor.Configuration;
@@ -14,7 +11,6 @@ public class StartAsync
     [Fact]
     public async Task OptionsChange_TriggersRefresh()
     {
-        // Arrange
         var orchestrator = A.Fake<IExecutorSchedulerOrchestrator>();
         A.CallTo(() => orchestrator.RefreshAsync(A<ExecutorOptions?>._, A<CancellationToken>._))
          .Returns(Task.CompletedTask);
@@ -28,11 +24,9 @@ public class StartAsync
          .Invokes(() => tcs.TrySetResult(true))
          .Returns(Task.CompletedTask);
 
-        // Act
         monitor.Set(new ExecutorOptions());
         await tcs.Task.WaitAsync(TimeSpan.FromSeconds(1));
 
-        // Assert
         A.CallTo(() => orchestrator.RefreshAsync(A<ExecutorOptions>._, A<CancellationToken>._))
          .MustHaveHappened();
     }
@@ -40,7 +34,6 @@ public class StartAsync
     [Fact]
     public async Task RefreshesSchedulerAndRegistersChangeHandler()
     {
-        // Arrange
         var orchestrator = A.Fake<IExecutorSchedulerOrchestrator>();
         A.CallTo(() => orchestrator.RefreshAsync(A<ExecutorOptions?>._, A<CancellationToken>._))
          .Returns(Task.CompletedTask);
@@ -49,10 +42,8 @@ public class StartAsync
         var monitor = new TestOptionsMonitor<ExecutorOptions>(options);
         var service = new ExecutorSchedulerHostedService(orchestrator, monitor, A.Fake<ILogger<ExecutorSchedulerHostedService>>());
 
-        // Act
         await service.StartAsync(CancellationToken.None);
 
-        // Assert
         A.CallTo(() => orchestrator.RefreshAsync(null, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

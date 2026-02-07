@@ -1,9 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
 using Tomeshelf.MCM.Application.Models;
 using Tomeshelf.MCM.Domain.Mcm;
@@ -45,15 +45,14 @@ public class EventRepository : IEventRepository
     public async Task<bool> DeleteAsync(string id, CancellationToken cancellationToken)
     {
         var entity = await _dbContext.Events
-            .Include(e => e.Guests)
-            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
-        
+                                     .Include(e => e.Guests)
+                                     .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+
         if (entity is null)
         {
             return false;
         }
 
-        // Remove the event entity, guests will be cascade deleted
         _dbContext.Events.Remove(entity);
         await _dbContext.SaveChangesAsync(cancellationToken);
 

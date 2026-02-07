@@ -1,3 +1,4 @@
+using Shouldly;
 using Tomeshelf.MCM.Application.Records;
 using Tomeshelf.MCM.Application.Services;
 
@@ -6,15 +7,24 @@ namespace Tomeshelf.MCM.Application.Tests.GuestsServiceTests;
 public class MapRecordToGuest
 {
     [Fact]
-    public void MapsRecordCorrectly()
+    public void MapsNullSocials_WhenProfileUrlEmpty()
     {
-        // Arrange
-        var guestRecord = new GuestRecord("Test Guest", "Test Description", "http://example.com/profile", "http://example.com/image.jpg");
+        var guestRecord = new GuestRecord("Test Guest", "Test Description", "", "http://example.com/image.jpg");
 
-        // Act
         var result = GuestsService.MapRecordToGuest(guestRecord);
 
-        // Assert
+        result.ShouldNotBeNull();
+        result.Information.ShouldNotBeNull();
+        result.Information!.Socials.ShouldBeNull();
+    }
+
+    [Fact]
+    public void MapsRecordCorrectly()
+    {
+        var guestRecord = new GuestRecord("Test Guest", "Test Description", "http://example.com/profile", "http://example.com/image.jpg");
+
+        var result = GuestsService.MapRecordToGuest(guestRecord);
+
         result.ShouldNotBeNull();
         result.Information.ShouldNotBeNull();
         result.Information!.FirstName.ShouldBe("Test");
@@ -23,20 +33,5 @@ public class MapRecordToGuest
         result.Information.ImageUrl.ShouldBe("http://example.com/image.jpg");
         result.Information.Socials.ShouldNotBeNull();
         result.Information.Socials!.Imdb.ShouldBe("http://example.com/profile");
-    }
-
-    [Fact]
-    public void MapsNullSocials_WhenProfileUrlEmpty()
-    {
-        // Arrange
-        var guestRecord = new GuestRecord("Test Guest", "Test Description", "", "http://example.com/image.jpg");
-
-        // Act
-        var result = GuestsService.MapRecordToGuest(guestRecord);
-
-        // Assert
-        result.ShouldNotBeNull();
-        result.Information.ShouldNotBeNull();
-        result.Information!.Socials.ShouldBeNull();
     }
 }

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using Microsoft.AspNetCore.DataProtection;
+﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
 using Tomeshelf.SHiFT.Application.Abstractions.Common;
 using Tomeshelf.SHiFT.Application.Abstractions.External;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
@@ -57,7 +57,6 @@ public static class DependencyInjection
 
         var dataProtection = builder.Services
                                     .AddDataProtection()
-                                     //.SetApplicationName("Tomeshelf.SHiFT")
                                     .PersistKeysToDbContext<TomeshelfShiftDbContext>();
 
         builder.Services.AddScoped<IShiftSettingsRepository, ShiftSettingsRepository>();
@@ -77,11 +76,11 @@ public static class DependencyInjection
                     client.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf-SHiFT/1.0");
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-                {
-                    CookieContainer = new CookieContainer(),
-                    AllowAutoRedirect = true,
-                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
-                })
+               {
+                   CookieContainer = new CookieContainer(),
+                   AllowAutoRedirect = true,
+                   AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
+               })
                .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
 
         builder.Services

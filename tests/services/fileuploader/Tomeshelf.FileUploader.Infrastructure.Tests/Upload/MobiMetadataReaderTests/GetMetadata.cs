@@ -1,4 +1,5 @@
 using System.Text;
+using Shouldly;
 using Tomeshelf.FileUploader.Infrastructure.Upload;
 
 namespace Tomeshelf.FileUploader.Infrastructure.Tests.Upload.MobiMetadataReaderTests;
@@ -8,7 +9,6 @@ public class GetMetadata
     [Fact]
     public void FallsBackToPdbTitleWhenNoExth()
     {
-        // Arrange
         var tempDir = CreateTempDirectory();
         var path = Path.Combine(tempDir, "book.mobi");
 
@@ -21,10 +21,8 @@ public class GetMetadata
 
             File.WriteAllBytes(path, data);
 
-            // Act
             var metadata = MobiMetadataReader.GetMetadata(path);
 
-            // Assert
             metadata.Title.ShouldBe("Fallback Title");
         }
         finally
@@ -36,7 +34,6 @@ public class GetMetadata
     [Fact]
     public void UsesExthTitleWhenPresent()
     {
-        // Arrange
         var tempDir = CreateTempDirectory();
         var path = Path.Combine(tempDir, "book.mobi");
 
@@ -60,10 +57,8 @@ public class GetMetadata
 
             File.WriteAllBytes(path, data);
 
-            // Act
             var metadata = MobiMetadataReader.GetMetadata(path);
 
-            // Assert
             metadata.Title.ShouldBe("Mobi Title");
         }
         finally
@@ -74,7 +69,8 @@ public class GetMetadata
 
     private static string CreateTempDirectory()
     {
-        var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid()
+                                                                           .ToString("N"));
         Directory.CreateDirectory(path);
 
         return path;

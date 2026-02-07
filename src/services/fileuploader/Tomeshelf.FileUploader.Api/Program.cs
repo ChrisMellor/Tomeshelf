@@ -1,10 +1,10 @@
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Tomeshelf.FileUploader.Application;
 using Tomeshelf.FileUploader.Infrastructure;
 using Tomeshelf.ServiceDefaults;
@@ -37,7 +37,7 @@ public class Program
         builder.Services.Configure<GoogleDriveOptions>(builder.Configuration.GetSection("GoogleDrive"));
         builder.Services.Configure<FormOptions>(options =>
         {
-            options.MultipartBodyLengthLimit = 1_073_741_824; // ~1GB
+            options.MultipartBodyLengthLimit = 1_073_741_824;
         });
 
         builder.Services.ConfigureHttpJsonOptions(options =>

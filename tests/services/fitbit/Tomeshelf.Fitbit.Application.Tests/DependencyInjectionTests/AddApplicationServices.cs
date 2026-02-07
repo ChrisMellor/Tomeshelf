@@ -1,7 +1,7 @@
 using FakeItEasy;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
-using Tomeshelf.Fitbit.Application;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Commands;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Models;
@@ -17,19 +17,16 @@ public class AddApplicationServices
     [Fact]
     public void RegistersHandlers()
     {
-        // Arrange
         var services = new ServiceCollection();
         services.AddSingleton(A.Fake<IFitbitDashboardService>());
         services.AddSingleton(A.Fake<IFitbitOverviewService>());
         services.AddSingleton(A.Fake<IFitbitAuthorizationService>());
         services.AddSingleton(A.Fake<IFitbitTokenCache>());
 
-        // Act
         services.AddApplicationServices();
 
         using var provider = services.BuildServiceProvider();
 
-        // Assert
         provider.GetRequiredService<IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto>>()
                 .ShouldBeOfType<GetFitbitDashboardQueryHandler>();
         provider.GetRequiredService<IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto>>()

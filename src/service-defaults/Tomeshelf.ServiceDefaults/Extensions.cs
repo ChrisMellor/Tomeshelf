@@ -10,9 +10,6 @@ using OpenTelemetry.Trace;
 
 namespace Tomeshelf.ServiceDefaults;
 
-// Adds common .NET Aspire services: service discovery, resilience, health checks, and OpenTelemetry.
-// This project should be referenced by each service project in your solution.
-// To learn more about using this project, see https://aka.ms/dotnet/aspire/service-defaults
 /// <summary>
 ///     Helper extensions to add common service defaults (OpenTelemetry, health checks, discovery).
 /// </summary>
@@ -84,7 +81,6 @@ public static class Extensions
                 {
                     tracing.AddSource(builder.Environment.ApplicationName)
                            .AddAspNetCoreInstrumentation(tracing => tracing.Filter = context => !context.Request.Path.StartsWithSegments(HealthEndpointPath) && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath))
-                            //.AddGrpcClientInstrumentation()
                            .AddHttpClientInstrumentation();
                 });
 
@@ -125,12 +121,6 @@ public static class Extensions
                    .AddOpenTelemetry()
                    .UseOtlpExporter();
         }
-
-        //if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
-        //{
-        //    builder.Services.AddOpenTelemetry()
-        //       .UseAzureMonitor();
-        //}
 
         return builder;
     }

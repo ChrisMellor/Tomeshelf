@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Session;
+using Shouldly;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models.Bundles;
 using Tomeshelf.Web.Services;
@@ -24,13 +25,10 @@ public class Upload
     [Fact]
     public async Task WhenArchiveMissing_ShowsUploadError()
     {
-        // Arrange
         var controller = new BundlesController(A.Fake<IBundlesApi>(), A.Fake<IFileUploadsApi>());
 
-        // Act
         var result = await controller.Upload(null, CancellationToken.None);
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<BundleUploadViewModel>();
         model.Error.ShouldBe("Please choose a Humble Bundle zip archive to upload.");
@@ -39,14 +37,11 @@ public class Upload
     [Fact]
     public async Task WhenAuthMissing_ShowsAuthError()
     {
-        // Arrange
         var controller = CreateController(out _);
         var file = CreateArchive();
 
-        // Act
         var result = await controller.Upload(file, CancellationToken.None);
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<BundleUploadViewModel>();
         model.Error.ShouldBe("Google Drive is not authorised. Please run the OAuth flow first.");
@@ -55,7 +50,6 @@ public class Upload
     [Fact]
     public async Task WhenAuthPresent_UploadsArchive()
     {
-        // Arrange
         var uploadsApi = A.Fake<IFileUploadsApi>();
         var controller = CreateController(out var session, uploadsApi);
         session.SetString(ClientIdKey, "client");
@@ -69,10 +63,8 @@ public class Upload
         A.CallTo(() => uploadsApi.UploadBundleAsync(A<Stream>._, "bundle.zip", A<GoogleDriveAuthModel?>._, A<CancellationToken>._))
          .Returns(resultModel);
 
-        // Act
         var result = await controller.Upload(file, CancellationToken.None);
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<BundleUploadViewModel>();
         model.Result.ShouldBeSameAs(resultModel);
@@ -83,13 +75,10 @@ public class Upload
     [Fact]
     public void WhenTokensMissing_ShowsAuthorizationError()
     {
-        // Arrange
         var controller = CreateController(out _);
 
-        // Act
         var result = controller.Upload();
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<BundleUploadViewModel>();
         model.Error.ShouldBe("Google Drive is not authorised yet. Run the OAuth flow first.");
@@ -98,7 +87,6 @@ public class Upload
     [Fact]
     public async Task WhenUploadThrows_ReturnsError()
     {
-        // Arrange
         var uploadsApi = A.Fake<IFileUploadsApi>();
         var controller = CreateController(out var session, uploadsApi);
         session.SetString(ClientIdKey, "client");
@@ -109,10 +97,8 @@ public class Upload
         A.CallTo(() => uploadsApi.UploadBundleAsync(A<Stream>._, "bundle.zip", A<GoogleDriveAuthModel?>._, A<CancellationToken>._))
          .Throws(new Exception("boom"));
 
-        // Act
         var result = await controller.Upload(file, CancellationToken.None);
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<BundleUploadViewModel>();
         model.Error.ShouldBe("Upload failed: boom");

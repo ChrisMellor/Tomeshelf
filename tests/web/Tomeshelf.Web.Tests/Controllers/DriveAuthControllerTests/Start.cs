@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.Configuration;
+using Shouldly;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models.DriveAuth;
 using Tomeshelf.Web.Tests.TestUtilities;
@@ -19,15 +20,12 @@ public class Start
     [Fact]
     public void WhenConfigMissing_ReturnsOAuthResultView()
     {
-        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>())
                                                .Build();
         var controller = new DriveAuthController(config) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
 
-        // Act
         var result = controller.Start();
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         view.ViewName.ShouldBe("OAuthResult");
         var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
@@ -38,7 +36,6 @@ public class Start
     [Fact]
     public void WhenConfigPresent_SetsReturnUrlAndChallenges()
     {
-        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
                                                 {
                                                     ["GoogleDrive:ClientId"] = "client",
@@ -61,17 +58,21 @@ public class Start
             Url = urlHelper
         };
 
-        // Act
         var result = controller.Start("https://example.test/return");
 
-        // Assert
         var challenge = result.ShouldBeOfType<ChallengeResult>();
         var scheme = challenge.AuthenticationSchemes.ShouldHaveSingleItem();
         scheme.ShouldBe(DriveAuthController.AuthenticationScheme);
         challenge.Properties?.RedirectUri.ShouldBe("https://example.test/drive-auth/result");
         challenge.Properties.ShouldNotBeNull();
-        challenge.Properties!.Items.ContainsKey("login_hint").ShouldBeTrue();
-        challenge.Properties.Items["login_hint"].ShouldBe("user@example.com");
-        httpContext.Session.GetString(ReturnUrlKey).ShouldBe("https://example.test/return");
+        challenge.Properties!.Items
+                 .ContainsKey("login_hint")
+                 .ShouldBeTrue();
+        challenge.Properties
+                 .Items["login_hint"]
+                 .ShouldBe("user@example.com");
+        httpContext.Session
+                   .GetString(ReturnUrlKey)
+                   .ShouldBe("https://example.test/return");
     }
 }

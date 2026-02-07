@@ -1,3 +1,4 @@
+using Shouldly;
 using Tomeshelf.MCM.Application.Services;
 
 namespace Tomeshelf.MCM.Application.Tests.GuestsServiceTests;
@@ -11,13 +12,10 @@ public class SplitName
     [InlineData(" ", "", "")]
     public void SplitsNameCorrectly(string name, string expectedFirstName, string expectedLastName)
     {
-        // Arrange
         var input = name;
 
-        // Act
-        (string firstName, string lastName) = GuestsService.SplitName(input);
+        var (firstName, lastName) = GuestsService.SplitName(input);
 
-        // Assert
         firstName.ShouldBe(expectedFirstName);
         lastName.ShouldBe(expectedLastName);
     }

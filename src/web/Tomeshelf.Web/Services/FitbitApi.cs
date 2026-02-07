@@ -192,10 +192,7 @@ public sealed class FitbitBackendUnavailableException : Exception
                     }
                 }
             }
-            catch (JsonException)
-            {
-                // Ignore invalid JSON and fall back to the original payload.
-            }
+            catch (JsonException) { }
         }
 
         if (trimmed.StartsWith("\"", StringComparison.Ordinal) && trimmed.EndsWith("\"", StringComparison.Ordinal))
@@ -204,10 +201,7 @@ public sealed class FitbitBackendUnavailableException : Exception
             {
                 trimmed = JsonSerializer.Deserialize<string>(trimmed) ?? trimmed;
             }
-            catch (JsonException)
-            {
-                // Ignore invalid JSON string and fall back to the original payload.
-            }
+            catch (JsonException) { }
         }
 
         return trimmed;

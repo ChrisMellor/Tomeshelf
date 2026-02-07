@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
+using Shouldly;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models.Fitness;
 using Tomeshelf.Web.Services;
@@ -19,7 +20,6 @@ public class Errors
     [Fact]
     public async Task WhenAuthorizationRequired_Redirects()
     {
-        // Arrange
         var api = A.Fake<IFitbitApi>();
         var logger = A.Fake<ILogger<FitnessController>>();
         var location = new Uri("https://example.test/fitbit/auth");
@@ -28,10 +28,8 @@ public class Errors
 
         var controller = CreateController(api, logger);
 
-        // Act
         var result = await controller.Index("2020-01-01", false, "kg", CancellationToken.None);
 
-        // Assert
         var redirect = result.ShouldBeOfType<RedirectResult>();
         redirect.Url.ShouldBe(location.ToString());
     }
@@ -39,7 +37,6 @@ public class Errors
     [Fact]
     public async Task WhenBackendUnavailable_ReturnsErrorView()
     {
-        // Arrange
         var api = A.Fake<IFitbitApi>();
         var logger = A.Fake<ILogger<FitnessController>>();
         A.CallTo(() => api.GetOverviewAsync("2020-01-02", A<bool>._, A<string>._, A<CancellationToken>._))
@@ -47,10 +44,8 @@ public class Errors
 
         var controller = CreateController(api, logger);
 
-        // Act
         var result = await controller.Index("2020-01-02", false, "kg", CancellationToken.None);
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<FitnessDashboardViewModel>();
         model.ErrorMessage.ShouldBe("service down");
@@ -60,7 +55,6 @@ public class Errors
     [Fact]
     public async Task WhenUnexpectedException_ReturnsGenericError()
     {
-        // Arrange
         var api = A.Fake<IFitbitApi>();
         var logger = A.Fake<ILogger<FitnessController>>();
         A.CallTo(() => api.GetOverviewAsync("2020-01-03", A<bool>._, A<string>._, A<CancellationToken>._))
@@ -68,10 +62,8 @@ public class Errors
 
         var controller = CreateController(api, logger);
 
-        // Act
         var result = await controller.Index("2020-01-03", false, "kg", CancellationToken.None);
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<FitnessDashboardViewModel>();
         model.ErrorMessage.ShouldBe("Unable to load Fitbit data at this time.");

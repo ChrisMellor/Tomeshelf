@@ -1,3 +1,4 @@
+using Shouldly;
 using Tomeshelf.MCM.Infrastructure.Responses;
 
 namespace Tomeshelf.MCM.Infrastructure.Tests.McmEventResponseTests;
@@ -7,7 +8,6 @@ public class Person
     [Fact]
     public void CanSetAndGetValues()
     {
-        // Arrange
         var id = "person-id-1";
         var uid = "person-uid-1";
         var publiclyVisible = true;
@@ -37,13 +37,23 @@ public class Person
         var photoOpAmount = "20.00";
         var photoOpTableAmount = "15.00";
         var peopleCategories = new object[] { "Category1", "Category2" };
-        var globalCategories = new McmEventResponse.GlobalCategory[] { new McmEventResponse.GlobalCategory { Id = "cat-id-1", Name = "Category A" } };
-        var images = new McmEventResponse.Image[] { new McmEventResponse.Image { Big = "big.jpg" } };
+        var globalCategories = new[]
+        {
+            new McmEventResponse.GlobalCategory
+            {
+                Id = "cat-id-1",
+                Name = "Category A"
+            }
+        };
+        var images = new[] { new McmEventResponse.Image { Big = "big.jpg" } };
         var discoverable = true;
         var epicPhotoUrl = "http://epicphoto.com";
-        var sort = new { Field = "Name", Order = "asc" };
+        var sort = new
+        {
+            Field = "Name",
+            Order = "asc"
+        };
 
-        // Act
         var person = new McmEventResponse.Person
         {
             Id = id,
@@ -82,7 +92,6 @@ public class Person
             Sort = sort
         };
 
-        // Assert
         person.Id.ShouldBe(id);
         person.Uid.ShouldBe(uid);
         person.PubliclyVisible.ShouldBe(publiclyVisible);

@@ -1,4 +1,5 @@
 using Bogus;
+using Shouldly;
 using Tomeshelf.SHiFT.Domain.Entities;
 
 namespace Tomeshelf.SHiFT.Domain.Tests.SettingsEntityTests;
@@ -8,7 +9,6 @@ public class UpdateSettings
     [Fact]
     public void UpdatesAllFieldsAndTimestamp()
     {
-        // Arrange
         var faker = new Faker();
         var settings = new SettingsEntity
         {
@@ -23,11 +23,9 @@ public class UpdateSettings
         var newEncryptedPassword = faker.Random.AlphaNumeric(12);
         var newDefaultService = faker.Random.Word();
 
-        // Act
         var beforeUpdate = DateTimeOffset.UtcNow;
         settings.UpdateSettings(newEmail, newEncryptedPassword, newDefaultService);
 
-        // Assert
         settings.Email.ShouldBe(newEmail);
         settings.EncryptedPassword.ShouldBe(newEncryptedPassword);
         settings.DefaultService.ShouldBe(newDefaultService);
@@ -37,7 +35,6 @@ public class UpdateSettings
     [Fact]
     public void WithSameValues_StillUpdatesTimestamp()
     {
-        // Arrange
         var faker = new Faker();
         var initialUpdatedUtc = DateTimeOffset.UtcNow.AddDays(-1);
         var email = faker.Internet.Email();
@@ -52,11 +49,9 @@ public class UpdateSettings
             UpdatedUtc = initialUpdatedUtc
         };
 
-        // Act
         var beforeUpdate = DateTimeOffset.UtcNow;
         settings.UpdateSettings(email, encryptedPassword, defaultService);
 
-        // Assert
         settings.Email.ShouldBe(email);
         settings.EncryptedPassword.ShouldBe(encryptedPassword);
         settings.DefaultService.ShouldBe(defaultService);

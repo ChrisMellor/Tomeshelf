@@ -1,5 +1,6 @@
 using Bogus;
 using FakeItEasy;
+using Shouldly;
 using Tomeshelf.MCM.Application.Features.Events.Commands;
 using Tomeshelf.MCM.Application.Services;
 
@@ -10,7 +11,6 @@ public class Handle
     [Fact]
     public async Task CallsServiceAndReturnsResult()
     {
-        // Arrange
         var faker = new Faker();
         var service = A.Fake<IEventService>();
         var handler = new DeleteEventCommandHandler(service);
@@ -20,10 +20,8 @@ public class Handle
         A.CallTo(() => service.DeleteAsync(eventId, A<CancellationToken>._))
          .Returns(Task.FromResult(true));
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.ShouldBeTrue();
         A.CallTo(() => service.DeleteAsync(eventId, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AngleSharp;
+using AngleSharp.Dom;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -6,8 +8,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using AngleSharp;
-using AngleSharp.Dom;
 using Tomeshelf.SHiFT.Application.Abstractions.External;
 using Tomeshelf.SHiFT.Application.Features.Redemption.Models;
 
@@ -40,9 +40,6 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
     public ShiftWebSession(IHttpClientFactory httpClientFactory)
     {
         _httpClient = httpClientFactory.CreateClient(HttpClientName);
-
-        //_httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Tomeshelf.SHiFT.Api/1.0");
-        //_httpClient.DefaultRequestHeaders.Accept.ParseAdd("text/html,application/xhtml+xml,application/json");
 
         var config = Configuration.Default;
         _browsingContext = BrowsingContext.New(config);
@@ -159,13 +156,6 @@ public sealed class ShiftWebSession : IAsyncDisposable, IShiftWebSession
     {
         using var req = new HttpRequestMessage(HttpMethod.Get, "rewards");
         req.Headers.Referrer = new Uri("https://shift.gearboxsoftware.com/home");
-
-        //req.Content = new FormUrlEncodedContent(new Dictionary<string, string>
-        //{
-        //    ["authenticity_token"] = csrfToken,
-        //    ["user[email]"] = email,
-        //    ["user[password]"] = password
-        //});
 
         using var res = await _httpClient.SendAsync(req, cancellationToken);
         res.EnsureSuccessStatusCode();

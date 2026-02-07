@@ -1,4 +1,4 @@
-using Tomeshelf.SHiFT.Application;
+using Shouldly;
 
 namespace Tomeshelf.SHiFT.Application.Tests.ShiftKeyScannerOptionsTests;
 
@@ -7,14 +7,11 @@ public class Defaults
     [Fact]
     public void Defaults_AreExpected()
     {
-        // Arrange
         var options = new ShiftKeyScannerOptions();
 
-        // Act
         var lookback = options.LookbackHours;
         var x = options.X;
 
-        // Assert
         lookback.ShouldBe(24);
         x.Enabled.ShouldBeTrue();
         x.ApiBaseV2.ShouldBe("https://api.x.com/2/");

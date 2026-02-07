@@ -1,9 +1,8 @@
+using Microsoft.Extensions.Hosting;
+using Shouldly;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Tomeshelf.Web.Services;
 using Tomeshelf.Web.Tests.TestUtilities;
 
@@ -14,7 +13,6 @@ public class BuildApp
     [Fact]
     public void Development_UsesDefaultServiceAddresses()
     {
-        // Arrange
         var config = new Dictionary<string, string?>
         {
             ["Services:McmApiBase"] = "https://config.test/",
@@ -27,7 +25,6 @@ public class BuildApp
         using var app = ProgramTestHarness.BuildApp(Environments.Development, config);
         var factory = app.Services.GetRequiredService<IHttpClientFactory>();
 
-        // Act
         var guests = factory.CreateClient(GuestsApi.HttpClientName);
         var bundles = factory.CreateClient(BundlesApi.HttpClientName);
         var fitbit = factory.CreateClient(FitbitApi.HttpClientName);
@@ -35,7 +32,6 @@ public class BuildApp
         var shift = factory.CreateClient(ShiftApi.HttpClientName);
         var uploads = factory.CreateClient(FileUploadsApi.HttpClientName);
 
-        // Assert
         guests.BaseAddress.ShouldBe(new Uri("https://mcmapi"));
         guests.Timeout.ShouldBe(TimeSpan.FromSeconds(100));
         guests.DefaultRequestVersion.ShouldBe(HttpVersion.Version11);
@@ -57,10 +53,19 @@ public class BuildApp
         uploads.Timeout.ShouldBe(TimeSpan.FromMinutes(30));
     }
 
+    public static IEnumerable<object[]> InvalidServiceUris()
+    {
+        yield return new object[] { "Services:McmApiBase", GuestsApi.HttpClientName, "Invalid URI in configuration setting 'Services:McmApiBase'." };
+        yield return new object[] { "Services:HumbleBundleApiBase", BundlesApi.HttpClientName, "Invalid URI in configuration setting 'Services:HumbleBundleApiBase'." };
+        yield return new object[] { "Services:FitbitApiBase", FitbitApi.HttpClientName, "Invalid URI in configuration setting 'Services:FitbitApiBase'." };
+        yield return new object[] { "Services:PaissaApiBase", PaissaApi.HttpClientName, "Invalid URI in configuration setting 'Services:PaissaApiBase'." };
+        yield return new object[] { "Services:ShiftApiBase", ShiftApi.HttpClientName, "Invalid URI in configuration setting 'Services:ShiftApiBase'." };
+        yield return new object[] { "Services:FileUploaderApiBase", FileUploadsApi.HttpClientName, "Invalid URI in configuration setting 'Services:FileUploaderApiBase'." };
+    }
+
     [Fact]
     public void Production_UsesApiBaseFallbackForGuests()
     {
-        // Arrange
         var config = new Dictionary<string, string?>
         {
             ["Services:McmApiBase"] = null,
@@ -69,19 +74,16 @@ public class BuildApp
 
         using var app = ProgramTestHarness.BuildApp(Environments.Production, config);
 
-        // Act
         var client = app.Services
                         .GetRequiredService<IHttpClientFactory>()
                         .CreateClient(GuestsApi.HttpClientName);
 
-        // Assert
         client.BaseAddress.ShouldBe(new Uri("https://fallback.example.test/"));
     }
 
     [Fact]
     public void Production_UsesConfiguredServiceAddresses()
     {
-        // Arrange
         var config = new Dictionary<string, string?>
         {
             ["Services:McmApiBase"] = "https://mcm.example.test/",
@@ -95,7 +97,6 @@ public class BuildApp
         using var app = ProgramTestHarness.BuildApp(Environments.Production, config);
         var factory = app.Services.GetRequiredService<IHttpClientFactory>();
 
-        // Act
         var guests = factory.CreateClient(GuestsApi.HttpClientName);
         var bundles = factory.CreateClient(BundlesApi.HttpClientName);
         var fitbit = factory.CreateClient(FitbitApi.HttpClientName);
@@ -103,7 +104,6 @@ public class BuildApp
         var shift = factory.CreateClient(ShiftApi.HttpClientName);
         var uploads = factory.CreateClient(FileUploadsApi.HttpClientName);
 
-        // Assert
         guests.BaseAddress.ShouldBe(new Uri("https://mcm.example.test/"));
         bundles.BaseAddress.ShouldBe(new Uri("https://humble.example.test/"));
         fitbit.BaseAddress.ShouldBe(new Uri("https://fitbit.example.test/"));
@@ -116,25 +116,12 @@ public class BuildApp
     [MemberData(nameof(InvalidServiceUris))]
     public void WhenInvalidUriConfigured_Throws(string key, string clientName, string message)
     {
-        // Arrange
         var config = new Dictionary<string, string?> { [key] = "not-a-uri" };
         using var app = ProgramTestHarness.BuildApp(Environments.Production, config);
         var factory = app.Services.GetRequiredService<IHttpClientFactory>();
 
-        // Act
         var exception = Should.Throw<InvalidOperationException>(() => factory.CreateClient(clientName));
 
-        // Assert
         exception.Message.ShouldBe(message);
-    }
-
-    public static IEnumerable<object[]> InvalidServiceUris()
-    {
-        yield return new object[] { "Services:McmApiBase", GuestsApi.HttpClientName, "Invalid URI in configuration setting 'Services:McmApiBase'." };
-        yield return new object[] { "Services:HumbleBundleApiBase", BundlesApi.HttpClientName, "Invalid URI in configuration setting 'Services:HumbleBundleApiBase'." };
-        yield return new object[] { "Services:FitbitApiBase", FitbitApi.HttpClientName, "Invalid URI in configuration setting 'Services:FitbitApiBase'." };
-        yield return new object[] { "Services:PaissaApiBase", PaissaApi.HttpClientName, "Invalid URI in configuration setting 'Services:PaissaApiBase'." };
-        yield return new object[] { "Services:ShiftApiBase", ShiftApi.HttpClientName, "Invalid URI in configuration setting 'Services:ShiftApiBase'." };
-        yield return new object[] { "Services:FileUploaderApiBase", FileUploadsApi.HttpClientName, "Invalid URI in configuration setting 'Services:FileUploaderApiBase'." };
     }
 }

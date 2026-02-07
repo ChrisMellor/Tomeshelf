@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Bogus;
+using Shouldly;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.FitnessMetricSeriesViewModelTests;
@@ -9,7 +10,6 @@ public class HasData
     [Fact]
     public void WhenAllValuesNull_ReturnsFalse()
     {
-        // Arrange
         var faker = new Faker();
         var model = new FitnessMetricSeriesViewModel
         {
@@ -23,17 +23,14 @@ public class HasData
             }
         };
 
-        // Act
         var hasData = model.HasData;
 
-        // Assert
         hasData.ShouldBeFalse();
     }
 
     [Fact]
     public void WhenAnyValuePresent_ReturnsTrue()
     {
-        // Arrange
         var faker = new Faker();
         var model = new FitnessMetricSeriesViewModel
         {
@@ -48,17 +45,14 @@ public class HasData
             }
         };
 
-        // Act
         var hasData = model.HasData;
 
-        // Assert
         hasData.ShouldBeTrue();
     }
 
     [Fact]
     public void WhenValuesNull_ReturnsFalse()
     {
-        // Arrange
         var faker = new Faker();
         var model = new FitnessMetricSeriesViewModel
         {
@@ -68,10 +62,8 @@ public class HasData
             Values = null
         };
 
-        // Act
         var hasData = model.HasData;
 
-        // Assert
         hasData.ShouldBeFalse();
     }
 }

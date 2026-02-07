@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
+using Shouldly;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models.Bundles;
 using Tomeshelf.Web.Models.Fitness;
@@ -24,7 +25,6 @@ public class Index
     [Fact]
     public async Task BuildsSummaryStrings()
     {
-        // Arrange
         var bundlesApi = A.Fake<IBundlesApi>();
         var fitbitApi = A.Fake<IFitbitApi>();
         var guestsApi = A.Fake<IGuestsApi>();
@@ -32,27 +32,27 @@ public class Index
         var logger = A.Fake<ILogger<HomeController>>();
 
         A.CallTo(() => guestsApi.GetComicConEventsAsync(A<CancellationToken>._))
-         .Returns(new List<McmEventConfigModel> { new McmEventConfigModel() });
+         .Returns(new List<McmEventConfigModel> { new() });
         A.CallTo(() => bundlesApi.GetBundlesAsync(false, A<CancellationToken>._))
          .Returns(new List<BundleModel>
           {
-              new BundleModel(),
-              new BundleModel()
+              new(),
+              new()
           });
         A.CallTo(() => fitbitApi.GetDashboardAsync(A<string>._, A<bool>._, A<string>._, A<CancellationToken>._))
          .Returns(Task.FromResult(new FitbitDashboardModel { Activity = new FitbitActivityModel { Steps = 123 } }));
 
         var world = new PaissaWorldModel(12, "Zalera", DateTimeOffset.UtcNow, new List<PaissaDistrictModel>
         {
-            new PaissaDistrictModel(1, "Mist", new List<PaissaSizeGroupModel>
+            new(1, "Mist", new List<PaissaSizeGroupModel>
             {
-                new PaissaSizeGroupModel("S", "s", new List<PaissaPlotModel>
+                new("S", "s", new List<PaissaPlotModel>
                 {
-                    new PaissaPlotModel(1, 1, 0, 0, DateTimeOffset.UtcNow, true, true, false),
-                    new PaissaPlotModel(1, 2, 0, 0, DateTimeOffset.UtcNow, true, true, false)
+                    new(1, 1, 0, 0, DateTimeOffset.UtcNow, true, true, false),
+                    new(1, 2, 0, 0, DateTimeOffset.UtcNow, true, true, false)
                 })
             }),
-            new PaissaDistrictModel(2, "Goblet", new List<PaissaSizeGroupModel> { new PaissaSizeGroupModel("M", "m", new List<PaissaPlotModel> { new PaissaPlotModel(2, 1, 0, 0, DateTimeOffset.UtcNow, true, true, false) }) })
+            new(2, "Goblet", new List<PaissaSizeGroupModel> { new("M", "m", new List<PaissaPlotModel> { new(2, 1, 0, 0, DateTimeOffset.UtcNow, true, true, false) }) })
         });
 
         A.CallTo(() => paissaApi.GetWorldAsync(A<CancellationToken>._))
@@ -60,10 +60,8 @@ public class Index
 
         var controller = CreateController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger);
 
-        // Act
         var result = await controller.Index(CancellationToken.None);
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<HomeIndexViewModel>();
         model.EventsSummary.ShouldBe("1 event configured");
@@ -75,7 +73,6 @@ public class Index
     [Fact]
     public async Task WhenBundlesApiFails_ShowsUnavailableSummary()
     {
-        // Arrange
         var bundlesApi = A.Fake<IBundlesApi>();
         var fitbitApi = A.Fake<IFitbitApi>();
         var guestsApi = A.Fake<IGuestsApi>();
@@ -93,10 +90,8 @@ public class Index
 
         var controller = CreateController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger);
 
-        // Act
         var result = await controller.Index(CancellationToken.None);
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<HomeIndexViewModel>();
         model.EducationSummary.ShouldBe("Bundles unavailable");
@@ -105,7 +100,6 @@ public class Index
     [Fact]
     public async Task WhenFitbitAuthorizationRequired_ShowsConnectMessage()
     {
-        // Arrange
         var bundlesApi = A.Fake<IBundlesApi>();
         var fitbitApi = A.Fake<IFitbitApi>();
         var guestsApi = A.Fake<IGuestsApi>();
@@ -123,10 +117,8 @@ public class Index
 
         var controller = CreateController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger);
 
-        // Act
         var result = await controller.Index(CancellationToken.None);
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<HomeIndexViewModel>();
         model.HealthSummary.ShouldBe("Connect Fitbit to sync");

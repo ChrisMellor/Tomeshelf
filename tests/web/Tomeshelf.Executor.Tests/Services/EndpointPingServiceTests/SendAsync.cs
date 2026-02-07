@@ -1,10 +1,7 @@
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
+using Shouldly;
 using Tomeshelf.Executor.Services;
 using Tomeshelf.Executor.Tests.TestUtilities;
 
@@ -15,7 +12,6 @@ public class SendAsync
     [Fact]
     public async Task ReturnsSuccessForOkResponses()
     {
-        // Arrange
         var handler = new StubHttpMessageHandler((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
         {
             ReasonPhrase = "OK",
@@ -31,10 +27,8 @@ public class SendAsync
             ["Content-Type"] = "application/json"
         };
 
-        // Act
         var result = await service.SendAsync(new Uri("https://example.test"), "PUT", headers, CancellationToken.None);
 
-        // Assert
         result.Success.ShouldBeTrue();
         result.StatusCode.ShouldBe(200);
         result.Body.ShouldBe("pong");
@@ -42,7 +36,9 @@ public class SendAsync
 
         var request = handler.Requests.ShouldHaveSingleItem();
         request.Method.ShouldBe(HttpMethod.Put);
-        request.Headers.Contains("X-Test").ShouldBeTrue();
+        request.Headers
+               .Contains("X-Test")
+               .ShouldBeTrue();
 
         IEnumerable<string>? values = null;
         if (request.Headers.TryGetValues("Content-Type", out var requestValues))
@@ -61,7 +57,6 @@ public class SendAsync
     [Fact]
     public async Task WhenMethodMissing_UsesPost()
     {
-        // Arrange
         var handler = new StubHttpMessageHandler((request, _) =>
         {
             request.Method.ShouldBe(HttpMethod.Post);
@@ -72,10 +67,8 @@ public class SendAsync
         var factory = new TestHttpClientFactory(client);
         var service = new EndpointPingService(factory, A.Fake<ILogger<EndpointPingService>>());
 
-        // Act
         var result = await service.SendAsync(new Uri("https://example.test"), " ", null, CancellationToken.None);
 
-        // Assert
         result.Success.ShouldBeTrue();
         result.StatusCode.ShouldBe(202);
     }
@@ -83,16 +76,13 @@ public class SendAsync
     [Fact]
     public async Task WhenRequestFails_ReturnsFailure()
     {
-        // Arrange
         var handler = new StubHttpMessageHandler((_, _) => throw new HttpRequestException("boom"));
         var client = new HttpClient(handler);
         var factory = new TestHttpClientFactory(client);
         var service = new EndpointPingService(factory, A.Fake<ILogger<EndpointPingService>>());
 
-        // Act
         var result = await service.SendAsync(new Uri("https://example.test"), "POST", null, CancellationToken.None);
 
-        // Assert
         result.Success.ShouldBeFalse();
         result.StatusCode.ShouldBeNull();
         result.Message.ShouldBe("boom");

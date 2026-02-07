@@ -1,5 +1,6 @@
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
+using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.Paissa.Api.Contracts;
 using Tomeshelf.Paissa.Api.Controllers;
@@ -13,7 +14,6 @@ public class GetWorld
     [Fact]
     public async Task MapsResponse()
     {
-        // Arrange
         var handler = A.Fake<IQueryHandler<GetAcceptingEntriesQuery, PaissaWorldSummaryDto>>();
         var retrievedAt = new DateTimeOffset(2025, 01, 01, 12, 00, 00, TimeSpan.Zero);
         var plots = new List<PaissaPlotSummaryDto> { new PaissaPlotSummaryDto(1, 2, 12345, 4, retrievedAt, true, false, false) };
@@ -26,24 +26,32 @@ public class GetWorld
 
         var controller = new PaissaController(handler);
 
-        // Act
         var result = await controller.GetWorld(CancellationToken.None);
 
-        // Assert
         var ok = result.Result.ShouldBeOfType<OkObjectResult>();
         var response = ok.Value.ShouldBeOfType<PaissaWorldResponse>();
         response.WorldId.ShouldBe(33);
         response.WorldName.ShouldBe("TestWorld");
         response.Districts.ShouldHaveSingleItem();
-        response.Districts[0].Name.ShouldBe("Mist");
-        response.Districts[0].Tabs.ShouldHaveSingleItem();
         response.Districts[0]
-                              .Tabs[0].Plots.ShouldHaveSingleItem();
+                .Name
+                .ShouldBe("Mist");
         response.Districts[0]
-                                .Tabs[0]
-                                .Plots[0].Ward.ShouldBe(1);
+                .Tabs
+                .ShouldHaveSingleItem();
         response.Districts[0]
-                                .Tabs[0]
-                                .Plots[0].Plot.ShouldBe(2);
+                .Tabs[0]
+                .Plots
+                .ShouldHaveSingleItem();
+        response.Districts[0]
+                .Tabs[0]
+                .Plots[0]
+                .Ward
+                .ShouldBe(1);
+        response.Districts[0]
+                .Tabs[0]
+                .Plots[0]
+                .Plot
+                .ShouldBe(2);
     }
 }

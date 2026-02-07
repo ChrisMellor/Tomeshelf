@@ -1,5 +1,6 @@
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
+using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.HumbleBundle.Api.Controllers;
 using Tomeshelf.HumbleBundle.Api.Tests.TestUtilities;
@@ -15,7 +16,6 @@ public class GetBundles
     [Fact]
     public async Task ReturnsOk_WithMappedResponses()
     {
-        // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetBundlesQuery, IReadOnlyList<BundleDto>>>();
         var refreshHandler = A.Fake<ICommandHandler<RefreshBundlesCommand, BundleIngestResult>>();
         var controller = BundlesControllerTestHarness.CreateController(queryHandler, refreshHandler);
@@ -25,10 +25,8 @@ public class GetBundles
         A.CallTo(() => queryHandler.Handle(A<GetBundlesQuery>._, A<CancellationToken>._))
          .Returns(Task.FromResult<IReadOnlyList<BundleDto>>(new List<BundleDto> { dto }));
 
-        // Act
         var result = await controller.GetBundles(true, CancellationToken.None);
 
-        // Assert
         var ok = result.Result.ShouldBeOfType<OkObjectResult>();
         var responses = ok.Value.ShouldBeAssignableTo<IReadOnlyList<BundlesController.BundleResponse>>();
         var response = responses.ShouldHaveSingleItem();

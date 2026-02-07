@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +5,9 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Tomeshelf.ServiceDefaults;
 
@@ -92,7 +92,6 @@ public static class ExecutorDiscoveryExtensions
     {
         if ((description.HttpMethod?.Equals("GET", StringComparison.OrdinalIgnoreCase) == true) || (description.HttpMethod?.Equals("DELETE", StringComparison.OrdinalIgnoreCase) == true) || (description.HttpMethod?.Equals("HEAD", StringComparison.OrdinalIgnoreCase) == true))
         {
-            // Commonly body-less verbs.
             if (!description.ParameterDescriptions.Any(static p => (p.Source == BindingSource.Body) || (p.Source == BindingSource.Form)))
             {
                 return false;
@@ -135,7 +134,6 @@ public static class ExecutorDiscoveryExtensions
         var id = description.ActionDescriptor?.AttributeRouteInfo?.Name;
         if (string.IsNullOrWhiteSpace(id))
         {
-            // Fallback to method:path token.
             id = $"{method}:{relativePath}";
         }
 

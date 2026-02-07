@@ -1,6 +1,7 @@
+using Microsoft.Extensions.Logging.Abstractions;
+using Shouldly;
 using System.Net;
 using System.Text;
-using Microsoft.Extensions.Logging.Abstractions;
 using Tomeshelf.Paissa.Domain.ValueObjects;
 using Tomeshelf.Paissa.Infrastructure.Services.External;
 
@@ -11,7 +12,6 @@ public class GetWorldAsync
     [Fact]
     public async Task ReturnsMappedWorld()
     {
-        // Arrange
         var json = """
                    {
                      "id": 33,
@@ -39,18 +39,13 @@ public class GetWorldAsync
                    }
                    """;
 
-        var handler = new StubHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(json, Encoding.UTF8, "application/json")
-        });
+        var handler = new StubHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, Encoding.UTF8, "application/json") });
         var client = new HttpClient(handler) { BaseAddress = new Uri("https://paissa.test/") };
         var factory = new StubHttpClientFactory(client);
         var subject = new PaissaClient(factory, NullLogger<PaissaClient>.Instance);
 
-        // Act
         var world = await subject.GetWorldAsync(33, CancellationToken.None);
 
-        // Assert
         world.Id.ShouldBe(33);
         world.Name.ShouldBe("TestWorld");
         world.Districts.ShouldHaveSingleItem();
@@ -67,42 +62,37 @@ public class GetWorldAsync
         plot.Price.ShouldBe(123456);
         plot.LotteryEntries.ShouldBe(2);
         plot.LotteryPhase.ShouldBe(LotteryPhase.ResultsProcessing);
-        plot.PurchaseSystem.HasFlag(PurchaseSystem.FreeCompany).ShouldBeTrue();
-        plot.PurchaseSystem.HasFlag(PurchaseSystem.Personal).ShouldBeTrue();
+        plot.PurchaseSystem
+            .HasFlag(PurchaseSystem.FreeCompany)
+            .ShouldBeTrue();
+        plot.PurchaseSystem
+            .HasFlag(PurchaseSystem.Personal)
+            .ShouldBeTrue();
         plot.LastUpdatedUtc.ShouldBe(DateTimeOffset.FromUnixTimeSeconds(1700000000));
-    }
-
-    [Fact]
-    public async Task Throws_WhenPayloadIsNull()
-    {
-        // Arrange
-        var handler = new StubHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent("null", Encoding.UTF8, "application/json")
-        });
-        var client = new HttpClient(handler) { BaseAddress = new Uri("https://paissa.test/") };
-        var subject = new PaissaClient(new StubHttpClientFactory(client), NullLogger<PaissaClient>.Instance);
-
-        // Act
-        var exception = await Should.ThrowAsync<InvalidOperationException>(() => subject.GetWorldAsync(1, CancellationToken.None));
-
-        // Assert
-        exception.Message.ShouldBe("PaissaDB returned an empty payload.");
     }
 
     [Fact]
     public async Task Throws_WhenNotFound()
     {
-        // Arrange
         var handler = new StubHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.NotFound));
         var client = new HttpClient(handler) { BaseAddress = new Uri("https://paissa.test/") };
         var subject = new PaissaClient(new StubHttpClientFactory(client), NullLogger<PaissaClient>.Instance);
 
-        // Act
         var exception = await Should.ThrowAsync<HttpRequestException>(() => subject.GetWorldAsync(404, CancellationToken.None));
 
-        // Assert
         exception.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Throws_WhenPayloadIsNull()
+    {
+        var handler = new StubHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("null", Encoding.UTF8, "application/json") });
+        var client = new HttpClient(handler) { BaseAddress = new Uri("https://paissa.test/") };
+        var subject = new PaissaClient(new StubHttpClientFactory(client), NullLogger<PaissaClient>.Instance);
+
+        var exception = await Should.ThrowAsync<InvalidOperationException>(() => subject.GetWorldAsync(1, CancellationToken.None));
+
+        exception.Message.ShouldBe("PaissaDB returned an empty payload.");
     }
 
     private sealed class StubHttpClientFactory : IHttpClientFactory

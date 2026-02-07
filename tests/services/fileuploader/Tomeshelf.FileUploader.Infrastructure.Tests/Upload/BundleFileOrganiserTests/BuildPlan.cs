@@ -1,3 +1,4 @@
+using Shouldly;
 using Tomeshelf.FileUploader.Infrastructure.Upload;
 
 namespace Tomeshelf.FileUploader.Infrastructure.Tests.Upload.BundleFileOrganiserTests;
@@ -7,7 +8,6 @@ public class BuildPlan
     [Fact]
     public void FallsBackToRootDirectoryName_WhenNoBundleFolderPresent()
     {
-        // Arrange
         var root = CreateTempDirectory();
         try
         {
@@ -15,12 +15,12 @@ public class BuildPlan
 
             var organiser = new BundleFileOrganiser();
 
-            // Act
             var plans = organiser.BuildPlan(root);
 
-            // Assert
             plans.ShouldHaveSingleItem();
-            plans[0].BundleName.ShouldBe(new DirectoryInfo(root).Name);
+            plans[0]
+               .BundleName
+               .ShouldBe(new DirectoryInfo(root).Name);
         }
         finally
         {
@@ -31,7 +31,6 @@ public class BuildPlan
     [Fact]
     public void UsesBundleDirectoryAndSupplementNaming()
     {
-        // Arrange
         var root = CreateTempDirectory();
         try
         {
@@ -42,15 +41,15 @@ public class BuildPlan
 
             var organiser = new BundleFileOrganiser();
 
-            // Act
             var plans = organiser.BuildPlan(root);
 
-            // Assert
             plans.ShouldHaveSingleItem();
             var plan = plans[0];
             plan.BundleName.ShouldBe("Great Bundle by Authors");
             plan.BookTitle.ShouldBe("Unknown Title");
-            plan.Files.Select(file => file.TargetFileName).ShouldBe(new[] { "Unknown Title.pdf", "Unknown Title - Supplement.zip" });
+            plan.Files
+                .Select(file => file.TargetFileName)
+                .ShouldBe(new[] { "Unknown Title.pdf", "Unknown Title - Supplement.zip" });
         }
         finally
         {
@@ -60,7 +59,8 @@ public class BuildPlan
 
     private static string CreateTempDirectory()
     {
-        var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid()
+                                                                           .ToString("N"));
         Directory.CreateDirectory(path);
 
         return path;

@@ -1,7 +1,7 @@
 using FakeItEasy;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
-using Tomeshelf.SHiFT.Application;
 using Tomeshelf.SHiFT.Application.Abstractions.Common;
 using Tomeshelf.SHiFT.Application.Abstractions.External;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
@@ -21,7 +21,6 @@ public class AddApplicationServices
     [Fact]
     public void RegistersHandlers()
     {
-        // Arrange
         var services = new ServiceCollection();
 
         services.AddSingleton(A.Fake<IShiftSettingsRepository>());
@@ -30,12 +29,10 @@ public class AddApplicationServices
         services.AddSingleton(A.Fake<IGearboxClient>());
         services.AddSingleton(A.Fake<IShiftKeySource>());
 
-        // Act
         services.AddApplicationServices();
 
         using var provider = services.BuildServiceProvider();
 
-        // Assert
         provider.GetRequiredService<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>()
                 .ShouldBeOfType<GetShiftSettingsQueryHandler>();
         provider.GetRequiredService<ICommandHandler<CreateShiftSettingsCommand, int>>()

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.Configuration;
+using Shouldly;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models.DriveAuth;
 using Tomeshelf.Web.Tests.TestUtilities;
@@ -22,7 +23,6 @@ public class Result
     [Fact]
     public void WhenErrorInSession_ReturnsErrorViewAndClearsSession()
     {
-        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>())
                                                .Build();
         var session = new TestSession();
@@ -32,22 +32,21 @@ public class Result
 
         var controller = new DriveAuthController(config) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
-        // Act
         var result = controller.Result();
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         view.ViewName.ShouldBe("OAuthResult");
         var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
         model.Success.ShouldBeFalse();
         model.Message.ShouldBe("boom");
-        httpContext.Session.GetString(ErrorKey).ShouldBeNull();
+        httpContext.Session
+                   .GetString(ErrorKey)
+                   .ShouldBeNull();
     }
 
     [Fact]
     public void WhenReturnUrlProvided_OverridesSessionReturnUrl()
     {
-        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>())
                                                .Build();
         var session = new TestSession();
@@ -61,20 +60,19 @@ public class Result
 
         var controller = new DriveAuthController(config) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
-        // Act
         var result = controller.Result("https://example.test/from-query");
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
         model.RedirectUrl.ShouldBe("https://example.test/from-query");
-        httpContext.Session.GetString(ReturnUrlKey).ShouldBeNull();
+        httpContext.Session
+                   .GetString(ReturnUrlKey)
+                   .ShouldBeNull();
     }
 
     [Fact]
     public void WhenTokensMissing_ReturnsFailureView()
     {
-        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>())
                                                .Build();
         var session = new TestSession();
@@ -83,10 +81,8 @@ public class Result
 
         var controller = new DriveAuthController(config) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
-        // Act
         var result = controller.Result();
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
         model.Success.ShouldBeFalse();
@@ -96,7 +92,6 @@ public class Result
     [Fact]
     public void WhenTokensPresent_ReturnsSuccessViewAndUsesReturnUrl()
     {
-        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>())
                                                .Build();
         var session = new TestSession();
@@ -111,15 +106,15 @@ public class Result
 
         var controller = new DriveAuthController(config) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
-        // Act
         var result = controller.Result();
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
         model.Success.ShouldBeTrue();
         model.UserEmail.ShouldBe("user@example.com");
         model.RedirectUrl.ShouldBe("https://example.test/return");
-        httpContext.Session.GetString(ReturnUrlKey).ShouldBeNull();
+        httpContext.Session
+                   .GetString(ReturnUrlKey)
+                   .ShouldBeNull();
     }
 }

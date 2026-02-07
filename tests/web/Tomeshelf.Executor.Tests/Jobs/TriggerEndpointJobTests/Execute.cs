@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Quartz;
@@ -16,13 +13,12 @@ public class Execute
     [Fact]
     public async Task WhenEndpointDisabled_DoesNotPing()
     {
-        // Arrange
         var pingService = A.Fake<IEndpointPingService>();
         var options = new ExecutorOptions
         {
             Endpoints = new List<EndpointScheduleOptions>
             {
-                new EndpointScheduleOptions
+                new()
                 {
                     Name = "Ping",
                     Url = "https://example.test",
@@ -34,10 +30,8 @@ public class Execute
         var job = new TriggerEndpointJob(pingService, new TestOptionsMonitor<ExecutorOptions>(options), A.Fake<ILogger<TriggerEndpointJob>>());
         var context = CreateContext("Ping");
 
-        // Act
         await job.Execute(context);
 
-        // Assert
         A.CallTo(() => pingService.SendAsync(A<Uri>._, A<string>._, A<Dictionary<string, string>?>._, A<CancellationToken>._))
          .MustNotHaveHappened();
     }
@@ -45,13 +39,12 @@ public class Execute
     [Fact]
     public async Task WhenEndpointNameMissing_DoesNotPing()
     {
-        // Arrange
         var pingService = A.Fake<IEndpointPingService>();
         var options = new ExecutorOptions
         {
             Endpoints = new List<EndpointScheduleOptions>
             {
-                new EndpointScheduleOptions
+                new()
                 {
                     Name = "Ping",
                     Url = "https://example.test",
@@ -62,10 +55,8 @@ public class Execute
         var job = new TriggerEndpointJob(pingService, new TestOptionsMonitor<ExecutorOptions>(options), A.Fake<ILogger<TriggerEndpointJob>>());
         var context = CreateContext(string.Empty);
 
-        // Act
         await job.Execute(context);
 
-        // Assert
         A.CallTo(() => pingService.SendAsync(A<Uri>._, A<string>._, A<Dictionary<string, string>?>._, A<CancellationToken>._))
          .MustNotHaveHappened();
     }
@@ -73,7 +64,6 @@ public class Execute
     [Fact]
     public async Task WhenEndpointValid_PingsConfiguredTarget()
     {
-        // Arrange
         var pingService = A.Fake<IEndpointPingService>();
         A.CallTo(() => pingService.SendAsync(A<Uri>._, A<string>._, A<Dictionary<string, string>?>._, A<CancellationToken>._))
          .Returns(new EndpointPingResult(true, 200, "OK", "body", TimeSpan.FromMilliseconds(10)));
@@ -83,7 +73,7 @@ public class Execute
         {
             Endpoints = new List<EndpointScheduleOptions>
             {
-                new EndpointScheduleOptions
+                new()
                 {
                     Name = "Ping",
                     Url = "https://example.test",
@@ -96,10 +86,8 @@ public class Execute
         var job = new TriggerEndpointJob(pingService, new TestOptionsMonitor<ExecutorOptions>(options), A.Fake<ILogger<TriggerEndpointJob>>());
         var context = CreateContext("Ping");
 
-        // Act
         await job.Execute(context);
 
-        // Assert
         A.CallTo(() => pingService.SendAsync(A<Uri>.That.Matches(uri => uri.ToString() == "https://example.test/"), "PUT", headers, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }
@@ -107,13 +95,12 @@ public class Execute
     [Fact]
     public async Task WhenUrlInvalid_DoesNotPing()
     {
-        // Arrange
         var pingService = A.Fake<IEndpointPingService>();
         var options = new ExecutorOptions
         {
             Endpoints = new List<EndpointScheduleOptions>
             {
-                new EndpointScheduleOptions
+                new()
                 {
                     Name = "Ping",
                     Url = "not-a-url",
@@ -124,10 +111,8 @@ public class Execute
         var job = new TriggerEndpointJob(pingService, new TestOptionsMonitor<ExecutorOptions>(options), A.Fake<ILogger<TriggerEndpointJob>>());
         var context = CreateContext("Ping");
 
-        // Act
         await job.Execute(context);
 
-        // Assert
         A.CallTo(() => pingService.SendAsync(A<Uri>._, A<string>._, A<Dictionary<string, string>?>._, A<CancellationToken>._))
          .MustNotHaveHappened();
     }

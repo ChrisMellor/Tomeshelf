@@ -1,3 +1,6 @@
+using FakeItEasy;
+using Microsoft.Extensions.Logging;
+using Shouldly;
 using System;
 using System.Net.Http;
 using System.Text;
@@ -5,8 +8,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using FakeItEasy;
-using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models.Shift;
 using Tomeshelf.Web.Services;
 using Tomeshelf.Web.Tests.TestUtilities;
@@ -18,7 +19,6 @@ public class RedeemCodeAsync
     [Fact]
     public async Task PostsCodeAndDeserializesResponse()
     {
-        // Arrange
         string? requestBody = null;
         var responsePayload = new RedeemResponseModel(new RedeemSummaryModel(1, 1, 0), new[] { new RedeemResultModel(1, "user@example.com", "steam", true, null, null) });
 
@@ -39,10 +39,8 @@ public class RedeemCodeAsync
         using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
         var api = new ShiftApi(new TestHttpClientFactory(client), A.Fake<ILogger<ShiftApi>>());
 
-        // Act
         var result = await api.RedeemCodeAsync("ABC", CancellationToken.None);
 
-        // Assert
         result.Summary.Total.ShouldBe(1);
         var request = handler.Requests.ShouldHaveSingleItem();
         request.RequestUri!.PathAndQuery.ShouldBe("/gearbox/redeem");
@@ -52,7 +50,6 @@ public class RedeemCodeAsync
     [Fact]
     public async Task WhenPayloadEmpty_Throws()
     {
-        // Arrange
         var handler = new StubHttpMessageHandler((_, _) =>
         {
             var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("null", Encoding.UTF8, "application/json") };
@@ -63,11 +60,8 @@ public class RedeemCodeAsync
         using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
         var api = new ShiftApi(new TestHttpClientFactory(client), A.Fake<ILogger<ShiftApi>>());
 
-        // Act
-        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(() => api.RedeemCodeAsync("ABC", CancellationToken.None));
 
-        // Assert
         exception.Message.ShouldBe("Empty SHiFT payload");
     }
 }

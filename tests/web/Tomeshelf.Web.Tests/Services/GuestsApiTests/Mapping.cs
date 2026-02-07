@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Shouldly;
 using Tomeshelf.Web.Models.Mcm;
 using Tomeshelf.Web.Services;
 using Tomeshelf.Web.Tests.TestUtilities;
@@ -18,7 +19,6 @@ public class Mapping
     [Fact]
     public async Task MapsGuestFieldsAndImages()
     {
-        // Arrange
         var payload = new
         {
             total = 1,
@@ -52,10 +52,8 @@ public class Mapping
         var cache = new MemoryCache(new MemoryCacheOptions());
         var api = new GuestsApi(new TestHttpClientFactory(client), A.Fake<ILogger<GuestsApi>>(), cache);
 
-        // Act
         var result = await api.GetComicConGuestsByEventResultAsync("mcm-2026", CancellationToken.None);
 
-        // Assert
         var person = result.Groups[0]
                            .Items[0];
         person.FirstName.ShouldBe("Jane");

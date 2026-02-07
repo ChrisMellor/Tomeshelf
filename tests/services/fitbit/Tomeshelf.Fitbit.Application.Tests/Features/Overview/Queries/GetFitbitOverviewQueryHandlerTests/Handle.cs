@@ -1,5 +1,6 @@
 using Bogus;
 using FakeItEasy;
+using Shouldly;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Application.Features.Overview.Models;
 using Tomeshelf.Fitbit.Application.Features.Overview.Queries;
@@ -11,7 +12,6 @@ public class Handle
     [Fact]
     public async Task ValidQuery_CallsOverviewServiceAndReturnsResult()
     {
-        // Arrange
         var faker = new Faker();
         var overviewService = A.Fake<IFitbitOverviewService>();
         var handler = new GetFitbitOverviewQueryHandler(overviewService);
@@ -44,10 +44,8 @@ public class Handle
 
         var query = new GetFitbitOverviewQuery(date, true);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         result.ShouldBeSameAs(expected);
         A.CallTo(() => overviewService.GetOverviewAsync(date, true, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();

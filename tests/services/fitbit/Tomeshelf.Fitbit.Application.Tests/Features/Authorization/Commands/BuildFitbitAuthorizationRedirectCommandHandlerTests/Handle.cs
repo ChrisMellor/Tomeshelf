@@ -1,5 +1,6 @@
 using Bogus;
 using FakeItEasy;
+using Shouldly;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Commands;
 
@@ -10,7 +11,6 @@ public class Handle
     [Fact]
     public async Task BuildAuthorizationUriThrows_ExceptionIsPropagated()
     {
-        // Arrange
         var faker = new Faker();
         var authorizationService = A.Fake<IFitbitAuthorizationService>();
         var handler = new BuildFitbitAuthorizationRedirectCommandHandler(authorizationService);
@@ -23,10 +23,8 @@ public class Handle
 
         var command = new BuildFitbitAuthorizationRedirectCommand(returnUrl);
 
-        // Act
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var exception = await Should.ThrowAsync<InvalidOperationException>(act);
         exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => authorizationService.BuildAuthorizationUri(returnUrl, out outState))
@@ -36,7 +34,6 @@ public class Handle
     [Fact]
     public async Task ValidCommand_ReturnsAuthorizationRedirect()
     {
-        // Arrange
         var faker = new Faker();
         var authorizationService = A.Fake<IFitbitAuthorizationService>();
         var handler = new BuildFitbitAuthorizationRedirectCommandHandler(authorizationService);
@@ -51,10 +48,8 @@ public class Handle
 
         var command = new BuildFitbitAuthorizationRedirectCommand(returnUrl);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.ShouldNotBeNull();
         result!.AuthorizationUri.ShouldBe(expectedUri);
         result.State.ShouldBe(expectedState);

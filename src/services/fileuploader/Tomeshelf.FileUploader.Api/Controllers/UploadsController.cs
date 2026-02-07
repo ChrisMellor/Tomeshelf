@@ -1,12 +1,12 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.FileUploader.Application;
 using Tomeshelf.FileUploader.Application.Features.Uploads.Commands;
@@ -36,7 +36,7 @@ public sealed class UploadsController : ControllerBase
     /// <param name="cancellationToken">Request cancellation token.</param>
     [HttpPost]
     [Consumes("multipart/form-data")]
-    [RequestSizeLimit(1_073_741_824)] // ~1GB
+    [RequestSizeLimit(1_073_741_824)]
     [ProducesResponseType(typeof(BundleUploadResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<BundleUploadResponse>> Upload([FromForm] IFormFile archive, [FromForm] OAuthCredentials? credentials, CancellationToken cancellationToken = default)

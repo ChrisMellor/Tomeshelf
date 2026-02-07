@@ -85,7 +85,7 @@ public sealed record PersonDto
     public decimal? PhotoOpTableAmount { get; init; }
 
     [JsonPropertyName("people_categories")]
-    public List<object> PeopleCategories { get; init; } = []; // Initialized to empty list
+    public List<object> PeopleCategories { get; init; } = [];
 
     [JsonPropertyName("global_categories")]
     public List<CategoryDto> GlobalCategories { get; init; } = [];

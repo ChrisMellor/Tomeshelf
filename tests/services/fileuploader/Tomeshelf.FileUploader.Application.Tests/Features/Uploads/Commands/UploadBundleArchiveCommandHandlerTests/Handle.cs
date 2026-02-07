@@ -1,5 +1,6 @@
 using Bogus;
 using FakeItEasy;
+using Shouldly;
 using Tomeshelf.FileUploader.Application.Abstractions.Upload;
 using Tomeshelf.FileUploader.Application.Features.Uploads.Commands;
 using Tomeshelf.FileUploader.Application.Features.Uploads.Models;
@@ -11,7 +12,6 @@ public class Handle
     [Fact]
     public async Task UploadServiceThrows_ExceptionIsPropagated()
     {
-        // Arrange
         var faker = new Faker();
         var uploadService = A.Fake<IHumbleBundleUploadService>();
         var handler = new UploadBundleArchiveCommandHandler(uploadService);
@@ -24,10 +24,8 @@ public class Handle
         A.CallTo(() => uploadService.UploadAsync(archiveStream, fileName, overrideOptions, A<CancellationToken>._))
          .ThrowsAsync(expectedException);
 
-        // Act
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var exception = await Should.ThrowAsync<InvalidOperationException>(act);
         exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => uploadService.UploadAsync(archiveStream, fileName, overrideOptions, A<CancellationToken>._))
@@ -37,7 +35,6 @@ public class Handle
     [Fact]
     public async Task ValidCommand_CallsUploadServiceAndReturnsResult()
     {
-        // Arrange
         var faker = new Faker();
         var uploadService = A.Fake<IHumbleBundleUploadService>();
         var handler = new UploadBundleArchiveCommandHandler(uploadService);
@@ -50,10 +47,8 @@ public class Handle
         A.CallTo(() => uploadService.UploadAsync(archiveStream, fileName, overrideOptions, A<CancellationToken>._))
          .Returns(Task.FromResult(expectedResult));
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.ShouldBeSameAs(expectedResult);
         A.CallTo(() => uploadService.UploadAsync(archiveStream, fileName, overrideOptions, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();

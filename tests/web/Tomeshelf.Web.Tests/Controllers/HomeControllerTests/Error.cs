@@ -3,6 +3,7 @@ using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Shouldly;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models;
 using Tomeshelf.Web.Services;
@@ -14,7 +15,6 @@ public class Error
     [Fact]
     public void UsesTraceIdentifierWhenNoActivity()
     {
-        // Arrange
         var bundlesApi = A.Fake<IBundlesApi>();
         var fitbitApi = A.Fake<IFitbitApi>();
         var guestsApi = A.Fake<IGuestsApi>();
@@ -29,10 +29,8 @@ public class Error
 
         try
         {
-            // Act
             var result = controller.Error();
 
-            // Assert
             var view = result.ShouldBeOfType<ViewResult>();
             var model = view.Model.ShouldBeOfType<ErrorViewModel>();
             model.RequestId.ShouldBe("trace-123");

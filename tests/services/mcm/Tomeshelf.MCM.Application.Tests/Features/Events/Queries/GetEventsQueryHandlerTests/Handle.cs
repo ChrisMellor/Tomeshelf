@@ -1,5 +1,6 @@
 using Bogus;
 using FakeItEasy;
+using Shouldly;
 using Tomeshelf.MCM.Application.Features.Events.Queries;
 using Tomeshelf.MCM.Application.Models;
 using Tomeshelf.MCM.Application.Services;
@@ -11,18 +12,17 @@ public class Handle
     [Fact]
     public async Task ValidQuery_CallsGetAllAsyncAndReturnsResult()
     {
-        // Arrange
         var faker = new Faker();
         var service = A.Fake<IEventService>();
         var handler = new GetEventsQueryHandler(service);
         IReadOnlyList<EventConfigModel> expectedEvents = new List<EventConfigModel>
         {
-            new EventConfigModel
+            new()
             {
                 Id = faker.Random.AlphaNumeric(8),
                 Name = faker.Company.CompanyName()
             },
-            new EventConfigModel
+            new()
             {
                 Id = faker.Random.AlphaNumeric(8),
                 Name = faker.Company.CompanyName()
@@ -32,16 +32,19 @@ public class Handle
         A.CallTo(() => service.GetAllAsync(A<CancellationToken>._))
          .Returns(Task.FromResult(expectedEvents));
 
-        // Act
         var result = await handler.Handle(new GetEventsQuery(), CancellationToken.None);
 
-        // Assert
         result.Count.ShouldBe(expectedEvents.Count);
         for (var index = 0; index < expectedEvents.Count; index++)
         {
-            result[index].Id.ShouldBe(expectedEvents[index].Id);
-            result[index].Name.ShouldBe(expectedEvents[index].Name);
+            result[index]
+               .Id
+               .ShouldBe(expectedEvents[index].Id);
+            result[index]
+               .Name
+               .ShouldBe(expectedEvents[index].Name);
         }
+
         A.CallTo(() => service.GetAllAsync(A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

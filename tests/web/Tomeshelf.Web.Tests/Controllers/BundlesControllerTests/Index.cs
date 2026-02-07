@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Shouldly;
 using Tomeshelf.Web.Controllers;
 using Tomeshelf.Web.Models.Bundles;
 using Tomeshelf.Web.Services;
@@ -19,13 +20,12 @@ public class Index
     [Fact]
     public async Task BuildsGroupedBundlesAndSetsCookie()
     {
-        // Arrange
         var now = DateTimeOffset.UtcNow;
         var lastViewed = now.AddDays(-2);
 
         var bundles = new List<BundleModel>
         {
-            new BundleModel
+            new()
             {
                 MachineName = "bundle-one",
                 Category = null,
@@ -45,7 +45,7 @@ public class Index
                 SecondsRemaining = 123,
                 GeneratedUtc = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero)
             },
-            new BundleModel
+            new()
             {
                 MachineName = "bundle-two",
                 Category = "books",
@@ -65,7 +65,7 @@ public class Index
                 SecondsRemaining = 456,
                 GeneratedUtc = new DateTimeOffset(2020, 1, 2, 0, 0, 0, TimeSpan.Zero)
             },
-            new BundleModel
+            new()
             {
                 MachineName = "bundle-expired",
                 Category = string.Empty,
@@ -96,10 +96,8 @@ public class Index
 
         var controller = new BundlesController(api, A.Fake<IFileUploadsApi>()) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
-        // Act
         var result = await controller.Index(false, CancellationToken.None);
 
-        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<BundlesIndexViewModel>();
 
@@ -126,6 +124,9 @@ public class Index
         expired.IsExpired.ShouldBeTrue();
         expired.TimeRemaining.ShouldBeNull();
 
-        httpContext.Response.Headers["Set-Cookie"].ToString().ShouldContain(LastViewedCookieName);
+        httpContext.Response
+                   .Headers["Set-Cookie"]
+                   .ToString()
+                   .ShouldContain(LastViewedCookieName);
     }
 }

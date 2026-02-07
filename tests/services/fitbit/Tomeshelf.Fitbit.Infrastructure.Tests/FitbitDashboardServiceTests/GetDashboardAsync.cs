@@ -2,6 +2,7 @@ using FakeItEasy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
+using Shouldly;
 using Tomeshelf.Fitbit.Infrastructure.Models;
 
 namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitDashboardServiceTests;
@@ -11,7 +12,6 @@ public sealed class GetDashboardAsync
     [Fact]
     public async Task ForceRefreshBypassesCacheAndRefetches()
     {
-        // Arrange
         var client = A.Fake<IFitbitApiClient>();
         var cache = new MemoryCache(new MemoryCacheOptions());
         var options = new DbContextOptionsBuilder<TomeshelfFitbitDbContext>().UseInMemoryDatabase(Guid.NewGuid()
@@ -52,12 +52,10 @@ public sealed class GetDashboardAsync
 
         var service = new FitbitDashboardService(client, cache, dbContext, NullLogger<FitbitDashboardService>.Instance);
 
-        // Act
         var first = await service.GetDashboardAsync(date, true, CancellationToken.None);
         var second = await service.GetDashboardAsync(date, false, CancellationToken.None);
         var third = await service.GetDashboardAsync(date, true, CancellationToken.None);
 
-        // Assert
         first.ShouldNotBeNull();
         first!.Activity.Steps.ShouldBe(1);
         second.ShouldNotBeNull();
@@ -69,7 +67,6 @@ public sealed class GetDashboardAsync
     [Fact]
     public async Task PopulatesBedtimeAndWakeTime_WhenSleepTimesContainFullTimestamps()
     {
-        // Arrange
         var client = A.Fake<IFitbitApiClient>();
         var cache = new MemoryCache(new MemoryCacheOptions());
         var options = new DbContextOptionsBuilder<TomeshelfFitbitDbContext>().UseInMemoryDatabase(Guid.NewGuid()
@@ -91,7 +88,7 @@ public sealed class GetDashboardAsync
                   Floors = 10,
                   Distances = new List<ActivitiesResponse.ActivityDistance>
                   {
-                      new ActivitiesResponse.ActivityDistance
+                      new()
                       {
                           Activity = "total",
                           Distance = 3.5
@@ -111,7 +108,7 @@ public sealed class GetDashboardAsync
           {
               Entries = new List<SleepResponse.SleepEntry>
               {
-                  new SleepResponse.SleepEntry
+                  new()
                   {
                       DateOfSleep = "2025-10-16",
                       StartTime = "2025-10-16T22:15:00.000",
@@ -135,10 +132,8 @@ public sealed class GetDashboardAsync
 
         var service = new FitbitDashboardService(client, cache, dbContext, NullLogger<FitbitDashboardService>.Instance);
 
-        // Act
         var dashboard = await service.GetDashboardAsync(date, true, CancellationToken.None);
 
-        // Assert
         dashboard.ShouldNotBeNull();
         dashboard!.Sleep.Bedtime.ShouldBe("22:15");
         dashboard.Sleep.WakeTime.ShouldBe("06:45");

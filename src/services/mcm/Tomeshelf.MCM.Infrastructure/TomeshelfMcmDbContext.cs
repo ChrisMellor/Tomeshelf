@@ -30,11 +30,10 @@ public sealed class TomeshelfMcmDbContext : DbContext
             e.Property(x => x.UpdatedAt)
              .IsRequired();
 
-            // Configure one-to-many relationship with cascade delete
             e.HasMany(e => e.Guests)
              .WithOne(g => g.Event)
              .HasForeignKey(g => g.EventId)
-             .OnDelete(DeleteBehavior.Cascade); // Cascade delete guests when an event is deleted
+             .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<GuestEntity>(g =>
@@ -47,12 +46,10 @@ public sealed class TomeshelfMcmDbContext : DbContext
 
             g.Property(x => x.RemovedAt);
 
-            // Configure one-to-one relationship with GuestInfoEntity
-            // Change to cascade delete for testing purposes, assuming GuestInfo is not shared in this context
             g.HasOne(g => g.Information)
              .WithOne(gi => gi.Guest)
              .HasForeignKey<GuestInfoEntity>(gi => gi.GuestId)
-             .OnDelete(DeleteBehavior.Cascade); // Cascade delete GuestInfo when a Guest is deleted
+             .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<GuestInfoEntity>(g =>

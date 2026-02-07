@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Shouldly;
 using Tomeshelf.Web.Models.Bundles;
 
 namespace Tomeshelf.Web.Tests.Models.Bundles.BundlesIndexViewModelTests;
@@ -9,62 +10,56 @@ public class TotalBundles
     [Fact]
     public void WhenIncludeExpiredFalse_OnlyCountsActiveBundles()
     {
-        // Arrange
         var model = new BundlesIndexViewModel
         {
             ActiveBundles = new List<BundlesCategoryGroup>
             {
-                new BundlesCategoryGroup("Games", new List<BundleViewModel>
+                new("Games", new List<BundleViewModel>
                 {
-                    new BundleViewModel(),
-                    new BundleViewModel()
+                    new(),
+                    new()
                 }),
-                new BundlesCategoryGroup("Books", new List<BundleViewModel> { new BundleViewModel() })
+                new("Books", new List<BundleViewModel> { new() })
             },
             ExpiredBundles = new List<BundleViewModel>
             {
-                new BundleViewModel(),
-                new BundleViewModel()
+                new(),
+                new()
             },
             IncludeExpired = false,
             DataTimestampUtc = DateTimeOffset.UtcNow
         };
 
-        // Act
         var total = model.TotalBundles;
 
-        // Assert
         total.ShouldBe(3);
     }
 
     [Fact]
     public void WhenIncludeExpiredTrue_CountsActiveAndExpiredBundles()
     {
-        // Arrange
         var model = new BundlesIndexViewModel
         {
             ActiveBundles = new List<BundlesCategoryGroup>
             {
-                new BundlesCategoryGroup("Games", new List<BundleViewModel>
+                new("Games", new List<BundleViewModel>
                 {
-                    new BundleViewModel(),
-                    new BundleViewModel()
+                    new(),
+                    new()
                 })
             },
             ExpiredBundles = new List<BundleViewModel>
             {
-                new BundleViewModel(),
-                new BundleViewModel(),
-                new BundleViewModel()
+                new(),
+                new(),
+                new()
             },
             IncludeExpired = true,
             DataTimestampUtc = DateTimeOffset.UtcNow
         };
 
-        // Act
         var total = model.TotalBundles;
 
-        // Assert
         total.ShouldBe(5);
     }
 }

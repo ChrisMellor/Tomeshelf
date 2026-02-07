@@ -1,5 +1,6 @@
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
+using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.MCM.Api.Controllers;
 using Tomeshelf.MCM.Application.Features.Events.Commands;
@@ -13,7 +14,6 @@ public class Update
     [Fact]
     public async Task ReturnsOk_WhenUpsertSucceeds()
     {
-        // Arrange
         var getHandler = A.Fake<IQueryHandler<GetEventsQuery, IReadOnlyList<EventConfigModel>>>();
         var upsertHandler = A.Fake<ICommandHandler<UpsertEventCommand, bool>>();
         var deleteHandler = A.Fake<ICommandHandler<DeleteEventCommand, bool>>();
@@ -27,10 +27,8 @@ public class Update
         A.CallTo(() => upsertHandler.Handle(A<UpsertEventCommand>._, A<CancellationToken>._))
          .Returns(Task.FromResult(true));
 
-        // Act
         var result = await controller.Update(model, CancellationToken.None);
 
-        // Assert
         result.ShouldBeOfType<OkResult>();
         A.CallTo(() => upsertHandler.Handle(A<UpsertEventCommand>.That.Matches(command => command.Model == model), A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();

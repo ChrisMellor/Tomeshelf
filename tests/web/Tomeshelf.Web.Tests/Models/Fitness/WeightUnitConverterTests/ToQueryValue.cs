@@ -1,3 +1,4 @@
+using Shouldly;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.WeightUnitConverterTests;
@@ -10,10 +11,8 @@ public class ToQueryValue
     [InlineData(WeightUnit.Kilograms, "kg")]
     public void ReturnsExpectedToken(WeightUnit unit, string expected)
     {
-        // Act
         var result = WeightUnitConverter.ToQueryValue(unit);
 
-        // Assert
         result.ShouldBe(expected);
     }
 }

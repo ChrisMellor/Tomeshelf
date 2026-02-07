@@ -1,6 +1,7 @@
 using FakeItEasy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Shouldly;
 using Tomeshelf.Fitbit.Application;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 using Tomeshelf.Fitbit.Domain;
@@ -12,7 +13,6 @@ public class GetOverviewAsync
     [Fact]
     public async Task ReturnsNull_WhenDashboardMissing()
     {
-        // Arrange
         var dashboardService = A.Fake<IFitbitDashboardService>();
         A.CallTo(() => dashboardService.GetDashboardAsync(A<DateOnly>._, A<bool>._, A<CancellationToken>._))
          .Returns(Task.FromResult<FitbitDashboardDto>(null));
@@ -20,17 +20,14 @@ public class GetOverviewAsync
         await using var dbContext = CreateContext();
         var service = new FitbitOverviewService(dashboardService, dbContext, NullLogger<FitbitOverviewService>.Instance);
 
-        // Act
         var result = await service.GetOverviewAsync(new DateOnly(2025, 1, 10), true, CancellationToken.None);
 
-        // Assert
         result.ShouldBeNull();
     }
 
     [Fact]
     public async Task UsesLastKnownWeightAcrossRange()
     {
-        // Arrange
         var dashboardService = A.Fake<IFitbitDashboardService>();
         var dailySnapshot = CreateSnapshot("2025-01-10");
         A.CallTo(() => dashboardService.GetDashboardAsync(new DateOnly(2025, 1, 10), true, A<CancellationToken>._))
@@ -39,34 +36,29 @@ public class GetOverviewAsync
         await using var dbContext = CreateContext();
         var generated = DateTimeOffset.UtcNow;
 
-        dbContext.DailySnapshots.AddRange(
-            new FitbitDailySnapshot
-            {
-                Date = new DateOnly(2025, 1, 3),
-                StartingWeightKg = 80,
-                GeneratedUtc = generated
-            },
-            new FitbitDailySnapshot
-            {
-                Date = new DateOnly(2025, 1, 6),
-                CurrentWeightKg = 82,
-                GeneratedUtc = generated
-            },
-            new FitbitDailySnapshot
-            {
-                Date = new DateOnly(2025, 1, 10),
-                Steps = 5000,
-                GeneratedUtc = generated
-            });
+        dbContext.DailySnapshots.AddRange(new FitbitDailySnapshot
+        {
+            Date = new DateOnly(2025, 1, 3),
+            StartingWeightKg = 80,
+            GeneratedUtc = generated
+        }, new FitbitDailySnapshot
+        {
+            Date = new DateOnly(2025, 1, 6),
+            CurrentWeightKg = 82,
+            GeneratedUtc = generated
+        }, new FitbitDailySnapshot
+        {
+            Date = new DateOnly(2025, 1, 10),
+            Steps = 5000,
+            GeneratedUtc = generated
+        });
 
         await dbContext.SaveChangesAsync();
 
         var service = new FitbitOverviewService(dashboardService, dbContext, NullLogger<FitbitOverviewService>.Instance);
 
-        // Act
         var result = await service.GetOverviewAsync(new DateOnly(2025, 1, 10), true, CancellationToken.None);
 
-        // Assert
         result.ShouldNotBeNull();
         result!.Daily.ShouldBeSameAs(dailySnapshot);
         result.Last7Days.Items.Count.ShouldBe(7);
@@ -80,9 +72,9 @@ public class GetOverviewAsync
 
     private static TomeshelfFitbitDbContext CreateContext()
     {
-        var options = new DbContextOptionsBuilder<TomeshelfFitbitDbContext>()
-                      .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
-                      .Options;
+        var options = new DbContextOptionsBuilder<TomeshelfFitbitDbContext>().UseInMemoryDatabase(Guid.NewGuid()
+                                                                                                      .ToString("N"))
+                                                                             .Options;
 
         var context = new TomeshelfFitbitDbContext(options);
         context.Database.EnsureCreated();

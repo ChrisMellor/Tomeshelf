@@ -1,8 +1,6 @@
-using System.IO;
-using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
-using Tomeshelf.Executor.Configuration;
+using Shouldly;
 using Tomeshelf.Executor.Services;
 using Tomeshelf.Executor.Tests.TestUtilities;
 
@@ -13,7 +11,6 @@ public class GetAsync
     [Fact]
     public async Task WhenEnvironmentFileExists_UsesEnvironmentFile()
     {
-        // Arrange
         var (directory, restore) = ExecutorConfigurationStoreTestHarness.PrepareSettingsDirectory();
         try
         {
@@ -30,10 +27,8 @@ public class GetAsync
 
             var store = new ExecutorConfigurationStore(environment, A.Fake<ILogger<ExecutorConfigurationStore>>());
 
-            // Act
             var options = await store.GetAsync();
 
-            // Assert
             var endpoint = options.Endpoints.ShouldHaveSingleItem();
             endpoint.Name.ShouldBe("Environment");
         }
@@ -46,7 +41,6 @@ public class GetAsync
     [Fact]
     public async Task WhenMissingFiles_ReturnsDefaults()
     {
-        // Arrange
         var (directory, restore) = ExecutorConfigurationStoreTestHarness.PrepareSettingsDirectory();
         try
         {
@@ -57,10 +51,8 @@ public class GetAsync
             };
             var store = new ExecutorConfigurationStore(environment, A.Fake<ILogger<ExecutorConfigurationStore>>());
 
-            // Act
             var options = await store.GetAsync();
 
-            // Assert
             options.Enabled.ShouldBeTrue();
             options.Endpoints.ShouldBeEmpty();
         }

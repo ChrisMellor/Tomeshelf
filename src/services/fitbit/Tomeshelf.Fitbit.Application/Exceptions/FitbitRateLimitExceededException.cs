@@ -35,10 +35,7 @@ public sealed class FitbitRateLimitExceededException : Exception
                     }
                 }
             }
-            catch (JsonException)
-            {
-                // ignore malformed json
-            }
+            catch (JsonException) { }
         }
 
         if (trimmed.StartsWith("\"", StringComparison.Ordinal) && trimmed.EndsWith("\"", StringComparison.Ordinal))
@@ -51,10 +48,7 @@ public sealed class FitbitRateLimitExceededException : Exception
                     return deserialised.Trim();
                 }
             }
-            catch (JsonException)
-            {
-                // ignore malformed json
-            }
+            catch (JsonException) { }
         }
 
         if (trimmed.StartsWith("<", StringComparison.Ordinal))
