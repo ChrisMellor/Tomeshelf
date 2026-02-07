@@ -1,5 +1,0 @@
-<Project>
-  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
-    <Using Include="Shouldly" />
-  </ItemGroup>
-</Project>
