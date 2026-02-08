@@ -1,0 +1,30 @@
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Net.Http;
+using Tomeshelf.Executor.Validation;
+
+namespace Tomeshelf.Executor.Configuration;
+
+public class EndpointScheduleOptions
+{
+    [Required]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [AbsoluteUrl]
+    public string Url { get; set; } = string.Empty;
+
+    [Required]
+    public string Cron { get; set; } = string.Empty;
+
+    public bool Enabled { get; set; } = true;
+
+    public string Method { get; set; } = HttpMethod.Post.Method;
+
+    /// <summary>
+    ///     Optional TimeZone identifier understood by Quartz (defaults to UTC).
+    /// </summary>
+    public string? TimeZone { get; set; }
+
+    public Dictionary<string, string>? Headers { get; set; }
+}

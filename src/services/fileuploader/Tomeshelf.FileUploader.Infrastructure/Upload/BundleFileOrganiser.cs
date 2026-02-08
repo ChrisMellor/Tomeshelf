@@ -123,7 +123,3 @@ public sealed class BundleFileOrganiser
         return null;
     }
 }
-
-public sealed record BookPlan(string BundleName, string BookTitle, IReadOnlyList<BookFile> Files);
-
-public sealed record BookFile(string FullPath, string TargetFileName, long Length);

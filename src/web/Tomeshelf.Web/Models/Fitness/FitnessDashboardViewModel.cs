@@ -52,18 +52,3 @@ public sealed class FitnessDashboardViewModel
         };
     }
 }
-
-public sealed class DaySummaryViewModel
-{
-    public DateOnly Date { get; init; } = DateOnly.FromDateTime(DateTime.Today);
-
-    public DateTimeOffset GeneratedUtc { get; init; } = DateTimeOffset.UtcNow;
-
-    public FitbitWeightModel Weight { get; init; } = new FitbitWeightModel();
-
-    public FitbitCaloriesModel Calories { get; init; } = new FitbitCaloriesModel();
-
-    public FitbitSleepModel Sleep { get; init; } = new FitbitSleepModel();
-
-    public FitbitActivityModel Activity { get; init; } = new FitbitActivityModel();
-}

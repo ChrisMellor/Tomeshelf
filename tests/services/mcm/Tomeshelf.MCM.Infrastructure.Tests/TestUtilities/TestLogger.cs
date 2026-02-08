@@ -4,7 +4,7 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.TestUtilities;
 
 public class TestLogger<T> : ILogger<T>
 {
-    public List<LogEntry> LogEntries { get; } = new List<LogEntry>();
+    public List<LogEntry> LogEntries { get; } = new();
 
     IDisposable ILogger.BeginScope<TState>(TState state)
     {
@@ -30,16 +30,8 @@ public class TestLogger<T> : ILogger<T>
 
     private sealed class NullScope : IDisposable
     {
-        public static NullScope Instance { get; } = new NullScope();
+        public static NullScope Instance { get; } = new();
+
         public void Dispose() { }
     }
-}
-
-public class LogEntry
-{
-    public LogLevel LogLevel { get; set; }
-    public EventId EventId { get; set; }
-    public object? State { get; set; }
-    public Exception? Exception { get; set; }
-    public string? Message { get; set; }
 }
