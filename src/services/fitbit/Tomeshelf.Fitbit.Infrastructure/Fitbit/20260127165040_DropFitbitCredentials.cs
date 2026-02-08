@@ -1,7 +1,7 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+using System;
 
-namespace Tomeshelf.Infrastructure.Persistence.Fitbit.Migrations;
+namespace Tomeshelf.Fitbit.Infrastructure.Fitbit;
 
 /// <inheritdoc />
 public partial class DropFitbitCredentials : Migration
