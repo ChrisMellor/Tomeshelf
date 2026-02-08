@@ -10,11 +10,6 @@ public class GetMetadata
     public void FallsBackToPdbTitleWhenNoExth()
     {
         // Arrange
-
-        // Act
-
-        // Assert
-
         var tempDir = CreateTempDirectory();
         var path = Path.Combine(tempDir, "book.mobi");
 
@@ -27,8 +22,10 @@ public class GetMetadata
 
             File.WriteAllBytes(path, data);
 
+            // Act
             var metadata = MobiMetadataReader.GetMetadata(path);
 
+            // Assert
             metadata.Title.ShouldBe("Fallback Title");
         }
         finally
@@ -41,11 +38,6 @@ public class GetMetadata
     public void UsesExthTitleWhenPresent()
     {
         // Arrange
-
-        // Act
-
-        // Assert
-
         var tempDir = CreateTempDirectory();
         var path = Path.Combine(tempDir, "book.mobi");
 
@@ -69,8 +61,10 @@ public class GetMetadata
 
             File.WriteAllBytes(path, data);
 
+            // Act
             var metadata = MobiMetadataReader.GetMetadata(path);
 
+            // Assert
             metadata.Title.ShouldBe("Mobi Title");
         }
         finally

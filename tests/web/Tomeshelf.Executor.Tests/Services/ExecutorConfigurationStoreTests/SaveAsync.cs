@@ -13,11 +13,6 @@ public class SaveAsync
     public async Task WritesAndReadsBack()
     {
         // Arrange
-
-        // Act
-
-        // Assert
-
         var (directory, restore) = ExecutorConfigurationStoreTestHarness.PrepareSettingsDirectory();
         try
         {
@@ -42,12 +37,14 @@ public class SaveAsync
                         Enabled = true,
                         Headers = new Dictionary<string, string> { ["X-Test"] = "value" }
                     }
-                }
-            };
+                 }
+             };
 
+            // Act
             await store.SaveAsync(options);
             var loaded = await store.GetAsync();
 
+            // Assert
             loaded.Enabled.ShouldBeFalse();
             var endpoint = loaded.Endpoints.ShouldHaveSingleItem();
             endpoint.Name.ShouldBe("Ping");

@@ -10,11 +10,6 @@ public class GetMetadata
     public void ReadsTitleFromEpub()
     {
         // Arrange
-
-        // Act
-
-        // Assert
-
         var tempDir = CreateTempDirectory();
         var epubPath = Path.Combine(tempDir, "book.epub");
 
@@ -35,8 +30,10 @@ public class GetMetadata
                 }
             }
 
+            // Act
             var metadata = EpubMetadataReader.GetMetadata(epubPath);
 
+            // Assert
             metadata.Title.ShouldBe("Test Title");
         }
         finally

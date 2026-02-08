@@ -16,11 +16,6 @@ public class Error
     public void UsesTraceIdentifierWhenNoActivity()
     {
         // Arrange
-
-        // Act
-
-        // Assert
-
         var bundlesApi = A.Fake<IBundlesApi>();
         var fitbitApi = A.Fake<IFitbitApi>();
         var guestsApi = A.Fake<IGuestsApi>();
@@ -35,8 +30,10 @@ public class Error
 
         try
         {
+            // Act
             var result = controller.Error();
 
+            // Assert
             var view = result.ShouldBeOfType<ViewResult>();
             var model = view.Model.ShouldBeOfType<ErrorViewModel>();
             model.RequestId.ShouldBe("trace-123");
