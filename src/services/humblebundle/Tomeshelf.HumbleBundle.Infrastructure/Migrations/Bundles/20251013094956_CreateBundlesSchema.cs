@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Tomeshelf.HumbleBundle.Infrastructure.NewFolder.Bundles;
+namespace Tomeshelf.HumbleBundle.Infrastructure.Migrations.Bundles;
 
 /// <inheritdoc />
 public partial class CreateBundlesSchema : Migration

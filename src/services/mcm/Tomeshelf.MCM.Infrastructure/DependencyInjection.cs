@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Diagnostics;
 using Tomeshelf.MCM.Application.Abstractions.Clients;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
 using Tomeshelf.MCM.Infrastructure.Clients;
@@ -16,16 +15,7 @@ public static class DependencyInjection
 
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
     {
-        Debug.WriteLine("--- Configuration Sources before connection string check ---");
-        foreach (var source in builder.Configuration.Sources)
-        {
-            Debug.WriteLine($"- Source: {source.GetType().Name}");
-        }
-
-        Debug.WriteLine("----------------------------------------------------------");
-
         var connectionString = builder.Configuration[$"ConnectionStrings:{ConnectionName}"];
-        Debug.WriteLine($"Connection string for {ConnectionName}: {connectionString}");
 
         if (string.IsNullOrWhiteSpace(connectionString))
         {

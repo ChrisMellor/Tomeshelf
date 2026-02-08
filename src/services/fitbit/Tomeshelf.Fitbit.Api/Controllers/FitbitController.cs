@@ -1,12 +1,12 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.Fitbit.Application;
 using Tomeshelf.Fitbit.Application.Exceptions;
@@ -236,7 +236,7 @@ public sealed class FitbitController : ControllerBase
             var relative = Url.Action("Authorize", "FitbitAuthorization", new { returnUrl = target });
             if (!string.IsNullOrWhiteSpace(relative))
             {
-                if (Uri.TryCreate(relative, UriKind.Absolute, out var absolute))
+                if (Uri.TryCreate(relative, UriKind.Absolute, out var absolute) && (string.Equals(absolute.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) || string.Equals(absolute.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)))
                 {
                     return absolute.ToString();
                 }

@@ -1,10 +1,10 @@
+using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Shouldly;
 
 namespace Tomeshelf.AppHost.Tests.ProgramTests;
 
@@ -14,16 +14,15 @@ public class BuildApp
     public async Task AddsExpectedResources()
     {
         // Arrange
+
         await using var scope = new AppScope();
         var model = scope.App.Services.GetRequiredService<DistributedApplicationModel>();
         var expected = new[] { "sql", "mcmdb", "humblebundledb", "fitbitdb", "shiftdb", "mcmapi", "humblebundleapi", "fitbitapi", "paissaapi", "fileuploaderapi", "shiftapi", "executor", "web" };
 
-        // Act
         var names = model.Resources
                          .Select(resource => resource.Name)
                          .ToArray();
 
-        // Assert
         foreach (var name in expected)
         {
             names.ShouldContain(name);

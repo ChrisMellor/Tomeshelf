@@ -70,12 +70,12 @@ public class AddInfrastructureServices
         // Arrange
         var builder = new HostApplicationBuilder();
         builder.Configuration.Sources.Clear();
-        // Act
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>());
 
-        // Assert
+        // Act
         var action = () => builder.AddInfrastructureServices();
 
+        // Assert
         Should.Throw<MissingConnectionStringException>(action);
     }
 }

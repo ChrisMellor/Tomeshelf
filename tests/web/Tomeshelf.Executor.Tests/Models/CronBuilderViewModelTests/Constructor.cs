@@ -11,13 +11,13 @@ public class Constructor
     {
         // Arrange
         var faker = new Faker();
-        // Act
         var inputId = faker.Random.Word();
         var inputName = faker.Random.Word();
 
-        // Assert
+        // Act
         var model = new CronBuilderViewModel(inputId, inputName, null);
 
+        // Assert
         model.InitialValue.ShouldBe(string.Empty);
         model.InputId.ShouldBe(inputId);
         model.InputName.ShouldBe(inputName);

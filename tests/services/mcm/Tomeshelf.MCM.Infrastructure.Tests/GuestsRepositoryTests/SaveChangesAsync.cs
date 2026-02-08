@@ -20,11 +20,11 @@ public class SaveChangesAsync
         };
         repository.AddGuest(guest);
 
+        // Act
         await repository.SaveChangesAsync(CancellationToken.None);
 
-        // Act
-        var savedGuest = await context.Guests.FindAsync(guest.Id);
         // Assert
+        var savedGuest = await context.Guests.FindAsync(guest.Id);
         savedGuest.ShouldNotBeNull();
         savedGuest.ShouldBe(guest);
     }

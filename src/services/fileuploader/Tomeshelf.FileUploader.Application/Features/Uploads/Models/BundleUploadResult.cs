@@ -19,5 +19,3 @@ public sealed record BundleUploadResult(DateTimeOffset UploadedAtUtc, int Bundle
         return new BundleUploadResult(uploadedAtUtc, bundles, resultList.Count, filesUploaded, filesSkipped, resultList);
     }
 }
-
-public sealed record BookUploadResult(string BundleName, string BookTitle, int FilesUploaded, int FilesSkipped);

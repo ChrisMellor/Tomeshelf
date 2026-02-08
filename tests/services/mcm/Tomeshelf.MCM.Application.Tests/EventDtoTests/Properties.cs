@@ -43,10 +43,10 @@ public class Properties
         // Arrange
         var dto = new EventDto();
 
+        // Act
         var eventId = dto.EventId;
         var eventName = dto.EventName;
         var eventSlug = dto.EventSlug;
-        // Act
         var people = dto.People;
 
         // Assert

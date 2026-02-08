@@ -11,8 +11,8 @@ public class Defaults
         // Arrange
         var model = new EndpointEditorModel();
 
-        var method = model.Method;
         // Act
+        var method = model.Method;
         var enabled = model.Enabled;
 
         // Assert

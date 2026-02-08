@@ -9,17 +9,17 @@ public class BuildPlan
     public void FallsBackToRootDirectoryName_WhenNoBundleFolderPresent()
     {
         // Arrange
-        // Act
         var root = CreateTempDirectory();
-        // Assert
         try
         {
             File.WriteAllText(Path.Combine(root, "PlainBook.txt"), "data");
 
             var organiser = new BundleFileOrganiser();
 
+            // Act
             var plans = organiser.BuildPlan(root);
 
+            // Assert
             plans.ShouldHaveSingleItem();
             plans[0]
                .BundleName
@@ -35,9 +35,7 @@ public class BuildPlan
     public void UsesBundleDirectoryAndSupplementNaming()
     {
         // Arrange
-        // Act
         var root = CreateTempDirectory();
-        // Assert
         try
         {
             var bundleDir = Path.Combine(root, "Great Bundle by Authors");
@@ -47,8 +45,10 @@ public class BuildPlan
 
             var organiser = new BundleFileOrganiser();
 
+            // Act
             var plans = organiser.BuildPlan(root);
 
+            // Assert
             plans.ShouldHaveSingleItem();
             var plan = plans[0];
             plan.BundleName.ShouldBe("Great Bundle by Authors");

@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -5,41 +7,8 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Tomeshelf.ServiceDefaults;
-
-/// <summary>
-///     Constants for executor discovery endpoints.
-/// </summary>
-public static class ExecutorDiscoveryConstants
-{
-    /// <summary>
-    ///     Default discovery route path.
-    /// </summary>
-    public const string DefaultPath = "/.well-known/executor-endpoints";
-}
-
-/// <summary>
-///     Response payload describing the endpoints available within a service.
-/// </summary>
-/// <param name="Service">Logical service name.</param>
-/// <param name="Endpoints">Collection of discovered endpoints.</param>
-public sealed record ExecutorDiscoveryDocument(string Service, IReadOnlyList<ExecutorDiscoveredEndpoint> Endpoints);
-
-/// <summary>
-///     Represents a single discovered endpoint.
-/// </summary>
-/// <param name="Id">Stable identifier for the endpoint.</param>
-/// <param name="Method">HTTP method.</param>
-/// <param name="RelativePath">Relative path (leading slash).</param>
-/// <param name="DisplayName">Optional human-friendly name.</param>
-/// <param name="Description">Optional description snippet.</param>
-/// <param name="AllowBody">Indicates whether the endpoint supports a request body.</param>
-/// <param name="GroupName">Optional group/category name.</param>
-public sealed record ExecutorDiscoveredEndpoint(string Id, string Method, string RelativePath, string? DisplayName, string? Description, bool AllowBody, string? GroupName);
 
 /// <summary>
 ///     Extension methods for mapping Executor discovery endpoints.

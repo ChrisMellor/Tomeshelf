@@ -52,13 +52,13 @@ public class Properties
         // Arrange
         var dto = new ScheduleDto();
 
+        // Act
         var id = dto.Id;
         var title = dto.Title;
         var description = dto.Description;
         var startTime = dto.StartTime;
         var endTime = dto.EndTime;
         var location = dto.Location;
-        // Act
         var venueLocation = dto.VenueLocation;
 
         // Assert

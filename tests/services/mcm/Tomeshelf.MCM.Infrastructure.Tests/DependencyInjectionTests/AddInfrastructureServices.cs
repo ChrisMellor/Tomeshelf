@@ -18,11 +18,11 @@ public class AddInfrastructureServices
         var builder = new HostApplicationBuilder();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["ConnectionStrings:mcmdb"] = @"Server=(localdb)\mssqllocaldb;Database=McmTest;Trusted_Connection=True;" });
 
+        // Act
         builder.AddInfrastructureServices();
 
-        // Act
-        using var provider = builder.Services.BuildServiceProvider();
         // Assert
+        using var provider = builder.Services.BuildServiceProvider();
         provider.GetRequiredService<TomeshelfMcmDbContext>()
                 .ShouldNotBeNull();
         provider.GetRequiredService<IEventRepository>()

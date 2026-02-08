@@ -13,9 +13,7 @@ public class AccessToken
     {
         // Arrange
         var faker = new Faker();
-        // Act
         var token = faker.Random.AlphaNumeric(16);
-        // Assert
         var bytes = Encoding.UTF8.GetBytes(token);
         var (cache, session) = CreateCache();
 
@@ -24,8 +22,10 @@ public class AccessToken
          .Returns(true)
          .AssignsOutAndRefParameters(bytes);
 
+        // Act
         var result = cache.AccessToken;
 
+        // Assert
         result.ShouldBe(token);
     }
 

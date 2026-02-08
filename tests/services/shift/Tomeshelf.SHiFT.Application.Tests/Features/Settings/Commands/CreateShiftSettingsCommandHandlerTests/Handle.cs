@@ -25,12 +25,12 @@ public class Handle
         A.CallTo(() => repository.EmailExistsAsync(email, null, A<CancellationToken>._))
          .Returns(Task.FromResult(true));
 
-        // Act
         var command = new CreateShiftSettingsCommand(email, faker.Random.AlphaNumeric(8), "psn");
 
-        // Assert
+        // Act
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
+        // Assert
         await Should.ThrowAsync<InvalidOperationException>(act);
     }
 

@@ -24,11 +24,11 @@ public class UpdateAsync
             EncryptedPassword = "enc"
         };
 
+        // Act
         await repository.UpdateAsync(999, update, CancellationToken.None);
 
-        // Act
-        var count = await context.ShiftSettings.CountAsync();
         // Assert
+        var count = await context.ShiftSettings.CountAsync();
         count.ShouldBe(0);
     }
 
@@ -52,10 +52,8 @@ public class UpdateAsync
             DefaultService = "steam",
             EncryptedPassword = "enc"
         });
-        // Act
         await context.SaveChangesAsync();
 
-        // Assert
         var repository = new ShiftSettingsRepository(context, protector);
         var update = new SettingsEntity
         {
@@ -64,8 +62,10 @@ public class UpdateAsync
             EncryptedPassword = "enc"
         };
 
+        // Act
         var action = () => repository.UpdateAsync(1, update, CancellationToken.None);
 
+        // Assert
         await Should.ThrowAsync<InvalidOperationException>(action);
     }
 
@@ -85,11 +85,11 @@ public class UpdateAsync
             EncryptedPassword = "enc"
         };
 
+        // Act
         var action = () => repository.UpdateAsync(1, update, CancellationToken.None);
 
-        // Act
-        var exception = await Should.ThrowAsync<ArgumentNullException>(action);
         // Assert
+        var exception = await Should.ThrowAsync<ArgumentNullException>(action);
         exception.ParamName.ShouldBe(expectedParam);
         exception.Message.ShouldContain(expectedMessage);
     }
@@ -118,11 +118,11 @@ public class UpdateAsync
             EncryptedPassword = "new-enc"
         };
 
+        // Act
         await repository.UpdateAsync(1, update, CancellationToken.None);
 
-        // Act
-        var stored = await context.ShiftSettings.SingleAsync(entity => entity.Id == 1);
         // Assert
+        var stored = await context.ShiftSettings.SingleAsync(entity => entity.Id == 1);
         stored.Email.ShouldBe("updated@example.com");
         stored.DefaultService.ShouldBe("steam");
         stored.EncryptedPassword.ShouldBe("new-enc");

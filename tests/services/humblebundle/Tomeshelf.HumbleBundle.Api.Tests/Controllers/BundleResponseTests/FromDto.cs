@@ -11,12 +11,12 @@ public class FromDto
     {
         // Arrange
         var now = DateTimeOffset.UtcNow;
-        // Act
         var dto = BundlesControllerTestHarness.CreateDto(now.AddMinutes(-5));
 
-        // Assert
+        // Act
         var response = BundlesController.BundleResponse.FromDto(dto, now);
 
+        // Assert
         response.SecondsRemaining.ShouldBeNull();
     }
 

@@ -25,15 +25,15 @@ public class Error
         var httpContext = new DefaultHttpContext { TraceIdentifier = "trace-123" };
         var controller = new HomeController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
-        // Act
         var previous = Activity.Current;
-        // Assert
         Activity.Current = null;
 
         try
         {
+            // Act
             var result = controller.Error();
 
+            // Assert
             var view = result.ShouldBeOfType<ViewResult>();
             var model = view.Model.ShouldBeOfType<ErrorViewModel>();
             model.RequestId.ShouldBe("trace-123");

@@ -28,11 +28,11 @@ public class GetCsrfFromRewardsAsync
         handler.Responses["/rewards"] = "<html><head></head><body>No token</body></html>";
         await using var session = ShiftWebSessionTestHarness.CreateSession(handler);
 
+        // Act
         var action = () => session.GetCsrfFromRewardsAsync("csrf", "user@example.com", "password", CancellationToken.None);
 
-        // Act
-        var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         // Assert
+        var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         exception.Message.ShouldBe("CSRF token not found on /rewards.");
     }
 }

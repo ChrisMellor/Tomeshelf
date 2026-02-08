@@ -20,11 +20,11 @@ public class AddApplicationServices
         services.AddSingleton(A.Fake<IPaissaWorldSettings>());
         services.AddSingleton(A.Fake<IClock>());
 
+        // Act
         services.AddApplicationServices();
 
-        // Act
-        using var provider = services.BuildServiceProvider();
         // Assert
+        using var provider = services.BuildServiceProvider();
         provider.GetRequiredService<IQueryHandler<GetAcceptingEntriesQuery, PaissaWorldSummaryDto>>()
                 .ShouldBeOfType<GetAcceptingEntriesQueryHandler>();
     }

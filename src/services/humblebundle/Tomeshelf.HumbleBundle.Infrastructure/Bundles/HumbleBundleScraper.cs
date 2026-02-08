@@ -89,7 +89,9 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
             return SiteBaseUri.ToString();
         }
 
-        if (Uri.TryCreate(relative, UriKind.Absolute, out var absolute))
+        if (Uri.TryCreate(relative, UriKind.Absolute, out var absolute) &&
+            (string.Equals(absolute.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(absolute.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)))
         {
             return absolute.ToString();
         }

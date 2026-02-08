@@ -11,33 +11,32 @@ namespace Tomeshelf.SHiFT.Infrastructure.Tests.Persistence.Repositories.ShiftSet
 public class CreateAsync
 {
     [Fact]
-    public async Task PersistsTrimmedValues_AndProtectsPassword()
+    public async Task PersistsTrimmedValues_AndStoresEncryptedPassword()
     {
         // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
-        A.CallTo(() => protector.Protect("secret"))
-         .Returns("encrypted");
 
+        // Act
         var repository = new ShiftSettingsRepository(context, protector);
         var request = new SettingsEntity
         {
             Email = "  user@example.com ",
             DefaultService = " steam ",
-            EncryptedPassword = " secret "
+            EncryptedPassword = " encrypted "
         };
 
+        // Assert
         var before = DateTimeOffset.UtcNow;
         var id = await repository.CreateAsync(request, CancellationToken.None);
         var after = DateTimeOffset.UtcNow;
-
-        // Act
         var stored = await context.ShiftSettings.SingleAsync(entity => entity.Id == id);
-        // Assert
         stored.Email.ShouldBe("user@example.com");
         stored.DefaultService.ShouldBe("steam");
         stored.EncryptedPassword.ShouldBe("encrypted");
         stored.UpdatedUtc.ShouldBeInRange(before, after);
+        A.CallTo(() => protector.Protect(A<string>._))
+         .MustNotHaveHappened();
     }
 
     [Fact]
@@ -63,11 +62,11 @@ public class CreateAsync
             EncryptedPassword = "secret"
         };
 
+        // Act
         var action = () => repository.CreateAsync(request, CancellationToken.None);
 
-        // Act
-        var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         // Assert
+        var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         exception.Message.ShouldBe("SHiFT email already exists");
     }
 
@@ -89,11 +88,11 @@ public class CreateAsync
             EncryptedPassword = password
         };
 
+        // Act
         var action = () => repository.CreateAsync(request, CancellationToken.None);
 
-        // Act
-        var exception = await Should.ThrowAsync<ArgumentNullException>(action);
         // Assert
+        var exception = await Should.ThrowAsync<ArgumentNullException>(action);
         exception.ParamName.ShouldBe(paramName);
         exception.Message.ShouldContain(expectedMessage);
     }

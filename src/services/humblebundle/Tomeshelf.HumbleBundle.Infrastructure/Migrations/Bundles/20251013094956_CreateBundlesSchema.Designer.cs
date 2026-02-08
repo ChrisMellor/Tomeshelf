@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Tomeshelf.HumbleBundle.Infrastructure.NewFolder.Bundles
+namespace Tomeshelf.HumbleBundle.Infrastructure.Migrations.Bundles
 {
     [DbContext(typeof(TomeshelfBundlesDbContext))]
     [Migration("20251013094956_CreateBundlesSchema")]

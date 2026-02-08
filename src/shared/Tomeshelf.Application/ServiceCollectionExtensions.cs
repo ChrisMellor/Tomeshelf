@@ -15,10 +15,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddTransient<IDummyService, DummyService>();
+
         return services;
     }
 }
-
-public interface IDummyService {}
-
-public class DummyService : IDummyService {}

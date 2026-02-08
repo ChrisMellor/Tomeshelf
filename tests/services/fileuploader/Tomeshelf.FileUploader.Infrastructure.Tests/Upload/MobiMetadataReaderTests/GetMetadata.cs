@@ -11,10 +11,8 @@ public class GetMetadata
     {
         // Arrange
         var tempDir = CreateTempDirectory();
-        // Act
         var path = Path.Combine(tempDir, "book.mobi");
 
-        // Assert
         try
         {
             var data = new byte[64];
@@ -24,8 +22,10 @@ public class GetMetadata
 
             File.WriteAllBytes(path, data);
 
+            // Act
             var metadata = MobiMetadataReader.GetMetadata(path);
 
+            // Assert
             metadata.Title.ShouldBe("Fallback Title");
         }
         finally
@@ -39,10 +39,8 @@ public class GetMetadata
     {
         // Arrange
         var tempDir = CreateTempDirectory();
-        // Act
         var path = Path.Combine(tempDir, "book.mobi");
 
-        // Assert
         try
         {
             var data = new byte[128];
@@ -63,8 +61,10 @@ public class GetMetadata
 
             File.WriteAllBytes(path, data);
 
+            // Act
             var metadata = MobiMetadataReader.GetMetadata(path);
 
+            // Assert
             metadata.Title.ShouldBe("Mobi Title");
         }
         finally

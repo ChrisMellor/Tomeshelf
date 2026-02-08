@@ -25,11 +25,11 @@ public class UploadAsync
         });
         var service = new BundleUploadService(organiser, factory, options, NullLogger<BundleUploadService>.Instance);
 
+        // Act
         var action = async () => await service.UploadAsync(archive, "bundle.zip", null, CancellationToken.None);
 
-        // Act
-        var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         // Assert
+        var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         exception.Message.ShouldContain("No files were found in the uploaded bundle.");
         factory.CreateCalls.ShouldBe(0);
     }

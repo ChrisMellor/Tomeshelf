@@ -24,11 +24,11 @@ public class Handle
 
         var command = new BuildFitbitAuthorizationRedirectCommand(returnUrl);
 
+        // Act
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
-        // Act
-        var exception = await Should.ThrowAsync<InvalidOperationException>(act);
         // Assert
+        var exception = await Should.ThrowAsync<InvalidOperationException>(act);
         exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => authorizationService.BuildAuthorizationUri(returnUrl, out outState))
          .MustHaveHappenedOnceExactly();

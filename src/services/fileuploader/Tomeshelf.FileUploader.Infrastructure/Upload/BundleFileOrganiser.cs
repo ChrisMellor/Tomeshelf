@@ -11,9 +11,10 @@ public sealed class BundleFileOrganiser
     public IReadOnlyList<BookPlan> BuildPlan(string rootDirectory)
     {
         var files = Directory.EnumerateFiles(rootDirectory, "*.*", SearchOption.AllDirectories)
-                             .Select(fileName => new FileInfo(fileName))
-                             .GroupBy(f => Path.GetFileNameWithoutExtension(f.Name.Replace("_supplement", string.Empty, StringComparison.OrdinalIgnoreCase)), StringComparer.OrdinalIgnoreCase)
-                             .ToList();
+                              .Select(fileName => new FileInfo(fileName))
+                              .GroupBy(f => Path.GetFileNameWithoutExtension(f.Name.Replace("_supplement", string.Empty, StringComparison.OrdinalIgnoreCase)), StringComparer.OrdinalIgnoreCase)
+                              .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
+                              .ToList();
 
         var plans = new List<BookPlan>(files.Count);
 
@@ -29,9 +30,9 @@ public sealed class BundleFileOrganiser
 
             var bookFiles = new List<BookFile>();
 
-            foreach (var file in fileGroup)
+            foreach (var file in OrderBookFiles(fileGroup))
             {
-                var isSupplement = file.Extension.Equals(".zip", StringComparison.OrdinalIgnoreCase) && file.Name.Contains("supplement", StringComparison.OrdinalIgnoreCase);
+                var isSupplement = IsSupplementFile(file);
                 var targetBase = isSupplement
                     ? $"{bookTitle} - Supplement"
                     : bookTitle;
@@ -44,6 +45,19 @@ public sealed class BundleFileOrganiser
         }
 
         return plans;
+    }
+
+    private static bool IsSupplementFile(FileInfo file)
+    {
+        return file.Extension.Equals(".zip", StringComparison.OrdinalIgnoreCase) &&
+               file.Name.Contains("supplement", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static IEnumerable<FileInfo> OrderBookFiles(IEnumerable<FileInfo> files)
+    {
+        return files.OrderBy(file => IsSupplementFile(file) ? 1 : 0)
+                    .ThenBy(file => file.Extension, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(file => file.Name, StringComparer.OrdinalIgnoreCase);
     }
 
     private static string? GetBundleName(FileInfo file)
@@ -123,7 +137,3 @@ public sealed class BundleFileOrganiser
         return null;
     }
 }
-
-public sealed record BookPlan(string BundleName, string BookTitle, IReadOnlyList<BookFile> Files);
-
-public sealed record BookFile(string FullPath, string TargetFileName, long Length);

@@ -13,7 +13,6 @@ public class FromBooks
         var faker = new Faker();
         var uploadedAt = faker.Date.RecentOffset();
         var bundleName = faker.Commerce.ProductName();
-        // Act
         var books = new List<BookUploadResult>
         {
             new BookUploadResult(bundleName, faker.Commerce.ProductName(), 2, 1),
@@ -21,9 +20,10 @@ public class FromBooks
             new BookUploadResult(faker.Commerce.ProductName(), faker.Commerce.ProductName(), 3, 2)
         };
 
-        // Assert
+        // Act
         var result = BundleUploadResult.FromBooks(books, uploadedAt);
 
+        // Assert
         result.BundlesProcessed.ShouldBe(2);
         result.BooksProcessed.ShouldBe(3);
         result.FilesUploaded.ShouldBe(6);
@@ -35,12 +35,12 @@ public class FromBooks
     {
         // Arrange
         var faker = new Faker();
-        // Act
         var uploadedAt = faker.Date.RecentOffset();
 
-        // Assert
+        // Act
         var result = BundleUploadResult.FromBooks(Array.Empty<BookUploadResult>(), uploadedAt);
 
+        // Assert
         result.UploadedAtUtc.ShouldBe(uploadedAt);
         result.BundlesProcessed.ShouldBe(0);
         result.BooksProcessed.ShouldBe(0);

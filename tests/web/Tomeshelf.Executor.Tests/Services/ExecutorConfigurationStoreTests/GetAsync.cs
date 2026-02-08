@@ -12,9 +12,7 @@ public class GetAsync
     public async Task WhenEnvironmentFileExists_UsesEnvironmentFile()
     {
         // Arrange
-        // Act
         var (directory, restore) = ExecutorConfigurationStoreTestHarness.PrepareSettingsDirectory();
-        // Assert
         try
         {
             var environment = new TestHostEnvironment
@@ -30,8 +28,10 @@ public class GetAsync
 
             var store = new ExecutorConfigurationStore(environment, A.Fake<ILogger<ExecutorConfigurationStore>>());
 
+            // Act
             var options = await store.GetAsync();
 
+            // Assert
             var endpoint = options.Endpoints.ShouldHaveSingleItem();
             endpoint.Name.ShouldBe("Environment");
         }
@@ -45,9 +45,7 @@ public class GetAsync
     public async Task WhenMissingFiles_ReturnsDefaults()
     {
         // Arrange
-        // Act
         var (directory, restore) = ExecutorConfigurationStoreTestHarness.PrepareSettingsDirectory();
-        // Assert
         try
         {
             var environment = new TestHostEnvironment
@@ -57,8 +55,10 @@ public class GetAsync
             };
             var store = new ExecutorConfigurationStore(environment, A.Fake<ILogger<ExecutorConfigurationStore>>());
 
+            // Act
             var options = await store.GetAsync();
 
+            // Assert
             options.Enabled.ShouldBeTrue();
             options.Endpoints.ShouldBeEmpty();
         }

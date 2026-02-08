@@ -159,7 +159,8 @@ namespace Tomeshelf.Infrastructure.Persistence.Migrations.Mcm
                 {
                     b.HasOne("Tomeshelf.MCM.Domain.Mcm.EventEntity", "Event")
                         .WithMany("Guests")
-                        .HasForeignKey("EventId");
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Event");
                 });

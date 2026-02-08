@@ -25,11 +25,11 @@ public class Handle
         A.CallTo(() => uploadService.UploadAsync(archiveStream, fileName, overrideOptions, A<CancellationToken>._))
          .ThrowsAsync(expectedException);
 
+        // Act
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
-        // Act
-        var exception = await Should.ThrowAsync<InvalidOperationException>(act);
         // Assert
+        var exception = await Should.ThrowAsync<InvalidOperationException>(act);
         exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => uploadService.UploadAsync(archiveStream, fileName, overrideOptions, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();

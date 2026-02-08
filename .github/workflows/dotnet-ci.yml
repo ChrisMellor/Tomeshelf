@@ -37,7 +37,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            9.0.x
+            10.0.x
 
       - name: Install SonarScanner
         run: |
@@ -47,32 +47,24 @@ jobs:
         run: dotnet restore Tomeshelf.sln
 
       - name: Begin SonarCloud analysis
+        id: sonar_begin
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        if: env.SONAR_TOKEN != ''
+        if: env.SONAR_TOKEN != '' && env.SONAR_ORG != '' && env.SONAR_PROJECT_KEY != ''
         run: |
-          dotnet sonarscanner begin /k:"${SONAR_PROJECT_KEY}" /o:"${SONAR_ORG}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${SONAR_TOKEN}" /d:sonar.cs.opencover.reportsPaths=TestResults/**/coverage.opencover.xml /d:sonar.cs.vstest.reportsPaths=TestResults/**/*.trx
+          dotnet sonarscanner begin /k:"${SONAR_PROJECT_KEY}" /o:"${SONAR_ORG}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.token="${SONAR_TOKEN}" /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" /d:sonar.cs.vstest.reportsPaths="TestResults/**/*.trx"
 
       - name: Build
         run: dotnet build --no-restore -c Release Tomeshelf.sln
 
       - name: Test with coverage
         run: |
-          dotnet test --no-build -c Release \
-            --collect:"XPlat Code Coverage" \
-            --settings coverlet.runsettings \
-            --logger:"trx;LogFileName=test-results.trx" \
-            --results-directory TestResults \
-            Tomeshelf.sln
+          dotnet test --no-build -c Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings --logger:"trx;LogFileName=test-results.trx" --results-directory TestResults Tomeshelf.sln
 
       - name: End SonarCloud analysis
-        if: always()
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        if: always() && steps.sonar_begin.outcome == 'success'
         run: |
-          if [ -n "$SONAR_TOKEN" ]; then
-            dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
-          fi
+          dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4

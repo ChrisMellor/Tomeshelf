@@ -24,8 +24,8 @@ public class UpdateSettings
         var newEncryptedPassword = faker.Random.AlphaNumeric(12);
         var newDefaultService = faker.Random.Word();
 
-        var beforeUpdate = DateTimeOffset.UtcNow;
         // Act
+        var beforeUpdate = DateTimeOffset.UtcNow;
         settings.UpdateSettings(newEmail, newEncryptedPassword, newDefaultService);
 
         // Assert
@@ -53,8 +53,8 @@ public class UpdateSettings
             UpdatedUtc = initialUpdatedUtc
         };
 
-        var beforeUpdate = DateTimeOffset.UtcNow;
         // Act
+        var beforeUpdate = DateTimeOffset.UtcNow;
         settings.UpdateSettings(email, encryptedPassword, defaultService);
 
         // Assert

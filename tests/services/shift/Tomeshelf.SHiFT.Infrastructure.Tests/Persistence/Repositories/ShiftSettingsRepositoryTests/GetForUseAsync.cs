@@ -52,6 +52,42 @@ public class GetForUseAsync
     }
 
     [Fact]
+    public async Task UnprotectsTwice_WhenPasswordWasProtectedTwice()
+    {
+        // Arrange
+        await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
+        var protector = A.Fake<ISecretProtector>();
+        var inner = "CfDJ8" + new string('A', 80);
+
+        A.CallTo(() => protector.Unprotect("enc-outer"))
+         .Returns(inner);
+        A.CallTo(() => protector.Unprotect(inner))
+         .Returns("password");
+
+        context.ShiftSettings.Add(new SettingsEntity
+        {
+            Id = 1,
+            Email = "user@example.com",
+            DefaultService = "psn",
+            EncryptedPassword = "enc-outer"
+        });
+        await context.SaveChangesAsync();
+
+        var repository = new ShiftSettingsRepository(context, protector);
+
+        // Act
+        var results = await repository.GetForUseAsync(CancellationToken.None);
+
+        // Assert
+        results.Count.ShouldBe(1);
+        results[0].Password.ShouldBe("password");
+        A.CallTo(() => protector.Unprotect("enc-outer"))
+         .MustHaveHappenedOnceExactly();
+        A.CallTo(() => protector.Unprotect(inner))
+         .MustHaveHappenedOnceExactly();
+    }
+
+    [Fact]
     public async Task ReturnsEmpty_WhenNoRows()
     {
         // Arrange

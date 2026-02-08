@@ -28,10 +28,3 @@ public sealed class BundlesIndexViewModel
                                    ? ExpiredBundles?.Count ?? 0
                                    : 0);
 }
-
-/// <summary>
-///     Represents a grouped collection of bundles by category/stamp.
-/// </summary>
-/// <param name="Category">Display category label.</param>
-/// <param name="Bundles">Bundles belonging to the category.</param>
-public sealed record BundlesCategoryGroup(string Category, IReadOnlyList<BundleViewModel> Bundles);

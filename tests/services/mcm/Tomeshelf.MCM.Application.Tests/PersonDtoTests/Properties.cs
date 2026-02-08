@@ -132,10 +132,10 @@ public class Properties
         // Arrange
         var dto = new PersonDto();
 
+        // Act
         var peopleCategories = dto.PeopleCategories;
         var globalCategories = dto.GlobalCategories;
         var images = dto.Images;
-        // Act
         var schedules = dto.Schedules;
 
         // Assert
