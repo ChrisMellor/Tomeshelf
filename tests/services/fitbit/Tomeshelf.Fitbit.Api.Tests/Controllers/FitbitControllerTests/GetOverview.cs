@@ -15,6 +15,7 @@ public class GetOverview
     [Fact]
     public async Task ReturnsNotFound_WhenOverviewMissing()
     {
+        // Arrange
         var handler = A.Fake<IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto>>();
         var overviewHandler = A.Fake<IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto>>();
 
@@ -23,14 +24,17 @@ public class GetOverview
 
         var controller = FitbitControllerTestHarness.CreateController(handler, overviewHandler);
 
+        // Act
         var result = await controller.GetOverview("2025-01-02", false, null, CancellationToken.None);
 
+        // Assert
         result.Result.ShouldBeOfType<NotFoundResult>();
     }
 
     [Fact]
     public async Task ReturnsOk_WhenOverviewFound()
     {
+        // Arrange
         var handler = A.Fake<IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto>>();
         var overviewHandler = A.Fake<IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto>>();
         var overview = new FitbitOverviewDto
@@ -53,8 +57,10 @@ public class GetOverview
 
         var controller = FitbitControllerTestHarness.CreateController(handler, overviewHandler);
 
+        // Act
         var result = await controller.GetOverview("2025-01-02", false, null, CancellationToken.None);
 
+        // Assert
         var ok = result.Result.ShouldBeOfType<OkObjectResult>();
         ok.Value.ShouldBeSameAs(overview);
     }

@@ -13,6 +13,7 @@ public class GetForUseAsync
     [Fact]
     public async Task HandlesCryptographicFailure()
     {
+        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
         A.CallTo(() => protector.Unprotect("enc-ok"))
@@ -37,8 +38,10 @@ public class GetForUseAsync
 
         var repository = new ShiftSettingsRepository(context, protector);
 
+        // Act
         var results = await repository.GetForUseAsync(CancellationToken.None);
 
+        // Assert
         results.Count.ShouldBe(2);
         results.First(result => result.Id == 1)
                .Password
@@ -51,12 +54,15 @@ public class GetForUseAsync
     [Fact]
     public async Task ReturnsEmpty_WhenNoRows()
     {
+        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
         var repository = new ShiftSettingsRepository(context, protector);
 
+        // Act
         var results = await repository.GetForUseAsync(CancellationToken.None);
 
+        // Assert
         results.ShouldBeEmpty();
     }
 }

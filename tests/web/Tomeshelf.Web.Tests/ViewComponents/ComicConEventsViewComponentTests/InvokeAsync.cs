@@ -19,6 +19,7 @@ public class InvokeAsync
     [Fact]
     public async Task WhenApiReturnsEvents_RendersThem()
     {
+        // Arrange
         var api = A.Fake<IGuestsApi>();
         var logger = A.Fake<ILogger<ComicConEventsViewComponent>>();
         var events = new List<McmEventConfigModel>
@@ -34,8 +35,10 @@ public class InvokeAsync
 
         var component = new ComicConEventsViewComponent(api, logger) { ViewComponentContext = CreateViewComponentContext() };
 
+        // Act
         var result = await component.InvokeAsync();
 
+        // Assert
         var view = result.ShouldBeOfType<ViewViewComponentResult>();
         var model = view.ViewData.Model.ShouldBeAssignableTo<IEnumerable<McmEventConfigModel>>();
         var item = model.ShouldHaveSingleItem();
@@ -46,6 +49,7 @@ public class InvokeAsync
     [Fact]
     public async Task WhenApiThrows_ReturnsEmptyList()
     {
+        // Arrange
         var api = A.Fake<IGuestsApi>();
         var logger = A.Fake<ILogger<ComicConEventsViewComponent>>();
         A.CallTo(() => api.GetComicConEventsAsync(A<CancellationToken>._))
@@ -53,8 +57,10 @@ public class InvokeAsync
 
         var component = new ComicConEventsViewComponent(api, logger) { ViewComponentContext = CreateViewComponentContext() };
 
+        // Act
         var result = await component.InvokeAsync();
 
+        // Assert
         var view = result.ShouldBeOfType<ViewViewComponentResult>();
         var model = view.ViewData.Model.ShouldBeAssignableTo<IEnumerable<McmEventConfigModel>>();
         model.ShouldBeEmpty();

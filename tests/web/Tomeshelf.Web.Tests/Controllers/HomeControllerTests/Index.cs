@@ -25,6 +25,7 @@ public class Index
     [Fact]
     public async Task BuildsSummaryStrings()
     {
+        // Arrange
         var bundlesApi = A.Fake<IBundlesApi>();
         var fitbitApi = A.Fake<IFitbitApi>();
         var guestsApi = A.Fake<IGuestsApi>();
@@ -60,8 +61,10 @@ public class Index
 
         var controller = CreateController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger);
 
+        // Act
         var result = await controller.Index(CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<HomeIndexViewModel>();
         model.EventsSummary.ShouldBe("1 event configured");
@@ -73,6 +76,7 @@ public class Index
     [Fact]
     public async Task WhenBundlesApiFails_ShowsUnavailableSummary()
     {
+        // Arrange
         var bundlesApi = A.Fake<IBundlesApi>();
         var fitbitApi = A.Fake<IFitbitApi>();
         var guestsApi = A.Fake<IGuestsApi>();
@@ -90,8 +94,10 @@ public class Index
 
         var controller = CreateController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger);
 
+        // Act
         var result = await controller.Index(CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<HomeIndexViewModel>();
         model.EducationSummary.ShouldBe("Bundles unavailable");
@@ -100,6 +106,7 @@ public class Index
     [Fact]
     public async Task WhenFitbitAuthorizationRequired_ShowsConnectMessage()
     {
+        // Arrange
         var bundlesApi = A.Fake<IBundlesApi>();
         var fitbitApi = A.Fake<IFitbitApi>();
         var guestsApi = A.Fake<IGuestsApi>();
@@ -117,8 +124,10 @@ public class Index
 
         var controller = CreateController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger);
 
+        // Act
         var result = await controller.Index(CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<HomeIndexViewModel>();
         model.HealthSummary.ShouldBe("Connect Fitbit to sync");

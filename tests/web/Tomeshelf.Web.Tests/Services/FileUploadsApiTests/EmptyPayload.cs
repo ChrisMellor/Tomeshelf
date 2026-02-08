@@ -17,6 +17,7 @@ public class EmptyPayload
     [Fact]
     public async Task WhenResponseEmpty_Throws()
     {
+        // Arrange
         var handler = new StubHttpMessageHandler((_, _) =>
         {
             var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("null", Encoding.UTF8, "application/json") };
@@ -27,8 +28,10 @@ public class EmptyPayload
         using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
         var api = new FileUploadsApi(new TestHttpClientFactory(client), A.Fake<ILogger<FileUploadsApi>>());
 
+        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(() => api.UploadBundleAsync(new MemoryStream(new byte[] { 1 }), "bundle.zip", null, CancellationToken.None));
 
+        // Assert
         exception.Message.ShouldBe("Empty upload response payload");
     }
 }

@@ -10,6 +10,7 @@ public class GetBundlesAsync
     [Fact]
     public async Task ExcludesExpiredAndOrdersByEndDateThenTitle()
     {
+        // Arrange
         await using var context = CreateContext();
         var now = DateTimeOffset.UtcNow;
         var past = now.AddHours(-2);
@@ -31,8 +32,10 @@ public class GetBundlesAsync
         var queries = new BundleQueries(context);
         var before = DateTimeOffset.UtcNow;
 
+        // Act
         var result = await queries.GetBundlesAsync(false, CancellationToken.None);
 
+        // Assert
         var after = DateTimeOffset.UtcNow;
         result.Select(r => r.MachineName)
               .ShouldBe(new[] { "b2", "b1", "b4", "b3" });
@@ -48,6 +51,7 @@ public class GetBundlesAsync
     [Fact]
     public async Task IncludesExpiredAndOrdersByEndDateThenTitle()
     {
+        // Arrange
         await using var context = CreateContext();
         var now = DateTimeOffset.UtcNow;
         var past = now.AddHours(-2);
@@ -69,8 +73,10 @@ public class GetBundlesAsync
         var queries = new BundleQueries(context);
         var before = DateTimeOffset.UtcNow;
 
+        // Act
         var result = await queries.GetBundlesAsync(true, CancellationToken.None);
 
+        // Assert
         var after = DateTimeOffset.UtcNow;
         result.Select(r => r.MachineName)
               .ShouldBe(new[] { "b5", "b2", "b1", "b4", "b3" });

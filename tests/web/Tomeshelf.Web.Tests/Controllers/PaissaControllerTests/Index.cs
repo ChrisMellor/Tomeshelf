@@ -16,6 +16,7 @@ public class Index
     [Fact]
     public async Task AggregatesPlotTotals()
     {
+        // Arrange
         var api = A.Fake<IPaissaApi>();
         var world = new PaissaWorldModel(7, "Cerberus", DateTimeOffset.UtcNow, new List<PaissaDistrictModel>
         {
@@ -35,8 +36,10 @@ public class Index
 
         var controller = new PaissaController(api);
 
+        // Act
         var result = await controller.Index(CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<PaissaIndexViewModel>();
         model.TotalPlotCount.ShouldBe(3);

@@ -14,6 +14,7 @@ public class GetWorld
     [Fact]
     public async Task MapsResponse()
     {
+        // Arrange
         var handler = A.Fake<IQueryHandler<GetAcceptingEntriesQuery, PaissaWorldSummaryDto>>();
         var retrievedAt = new DateTimeOffset(2025, 01, 01, 12, 00, 00, TimeSpan.Zero);
         var plots = new List<PaissaPlotSummaryDto> { new PaissaPlotSummaryDto(1, 2, 12345, 4, retrievedAt, true, false, false) };
@@ -26,8 +27,10 @@ public class GetWorld
 
         var controller = new PaissaController(handler);
 
+        // Act
         var result = await controller.GetWorld(CancellationToken.None);
 
+        // Assert
         var ok = result.Result.ShouldBeOfType<OkObjectResult>();
         var response = ok.Value.ShouldBeOfType<PaissaWorldResponse>();
         response.WorldId.ShouldBe(33);

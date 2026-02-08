@@ -11,8 +11,11 @@ public class GetUnitLabel
     [InlineData(WeightUnit.Kilograms, "kg")]
     public void ReturnsExpectedLabel(WeightUnit unit, string expected)
     {
+        // Arrange
+        // Act
         var result = WeightUnitConverter.GetUnitLabel(unit);
 
+        // Assert
         result.ShouldBe(expected);
     }
 }

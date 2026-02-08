@@ -10,14 +10,17 @@ public class Update
     [Fact]
     public void SetsValuesInSession()
     {
+        // Arrange
         var faker = new Faker();
         var accessToken = faker.Random.AlphaNumeric(16);
         var refreshToken = faker.Random.AlphaNumeric(16);
         var expiresAt = faker.Date.SoonOffset();
         var (cache, session) = CreateCache();
 
+        // Act
         cache.Update(accessToken, refreshToken, expiresAt);
 
+        // Assert
         A.CallTo(() => session.Set("fitbit_access_token", A<byte[]>.That.Matches(b => Encoding.UTF8.GetString(b) == accessToken)))
          .MustHaveHappenedOnceExactly();
         A.CallTo(() => session.Set("fitbit_refresh_token", A<byte[]>.That.Matches(b => Encoding.UTF8.GetString(b) == refreshToken)))

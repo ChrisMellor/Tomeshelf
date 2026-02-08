@@ -14,12 +14,15 @@ public class AddInfrastructureServices
     [Fact]
     public void RegistersExpectedServices()
     {
+        // Arrange
         var builder = new HostApplicationBuilder();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["ConnectionStrings:mcmdb"] = @"Server=(localdb)\mssqllocaldb;Database=McmTest;Trusted_Connection=True;" });
 
         builder.AddInfrastructureServices();
 
+        // Act
         using var provider = builder.Services.BuildServiceProvider();
+        // Assert
         provider.GetRequiredService<TomeshelfMcmDbContext>()
                 .ShouldNotBeNull();
         provider.GetRequiredService<IEventRepository>()
@@ -42,12 +45,15 @@ public class AddInfrastructureServices
     [Fact]
     public void ThrowsWhenConnectionStringMissing()
     {
+        // Arrange
         var builder = new HostApplicationBuilder();
         builder.Configuration.Sources.Clear();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>());
 
+        // Act
         var exception = Should.Throw<InvalidOperationException>(() => builder.AddInfrastructureServices());
 
+        // Assert
         exception.Message.ShouldBe("Connection string 'mcmdb' is missing.");
     }
 }

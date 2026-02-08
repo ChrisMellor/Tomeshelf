@@ -10,6 +10,7 @@ public class AddGuest
     [Fact]
     public void AddsGuestToContext()
     {
+        // Arrange
         using var context = CreateContext();
         var repository = new GuestsRepository(context);
         var guest = new GuestEntity
@@ -20,9 +21,11 @@ public class AddGuest
 
         repository.AddGuest(guest);
 
+        // Act
         var entry = context.ChangeTracker
                            .Entries<GuestEntity>()
                            .Single();
+        // Assert
         entry.Entity.ShouldBe(guest);
     }
 

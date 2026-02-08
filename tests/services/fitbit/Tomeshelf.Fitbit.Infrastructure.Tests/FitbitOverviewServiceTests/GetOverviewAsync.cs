@@ -13,6 +13,7 @@ public class GetOverviewAsync
     [Fact]
     public async Task ReturnsNull_WhenDashboardMissing()
     {
+        // Arrange
         var dashboardService = A.Fake<IFitbitDashboardService>();
         A.CallTo(() => dashboardService.GetDashboardAsync(A<DateOnly>._, A<bool>._, A<CancellationToken>._))
          .Returns(Task.FromResult<FitbitDashboardDto>(null));
@@ -20,14 +21,17 @@ public class GetOverviewAsync
         await using var dbContext = CreateContext();
         var service = new FitbitOverviewService(dashboardService, dbContext, NullLogger<FitbitOverviewService>.Instance);
 
+        // Act
         var result = await service.GetOverviewAsync(new DateOnly(2025, 1, 10), true, CancellationToken.None);
 
+        // Assert
         result.ShouldBeNull();
     }
 
     [Fact]
     public async Task UsesLastKnownWeightAcrossRange()
     {
+        // Arrange
         var dashboardService = A.Fake<IFitbitDashboardService>();
         var dailySnapshot = CreateSnapshot("2025-01-10");
         A.CallTo(() => dashboardService.GetDashboardAsync(new DateOnly(2025, 1, 10), true, A<CancellationToken>._))
@@ -57,8 +61,10 @@ public class GetOverviewAsync
 
         var service = new FitbitOverviewService(dashboardService, dbContext, NullLogger<FitbitOverviewService>.Instance);
 
+        // Act
         var result = await service.GetOverviewAsync(new DateOnly(2025, 1, 10), true, CancellationToken.None);
 
+        // Assert
         result.ShouldNotBeNull();
         result!.Daily.ShouldBeSameAs(dailySnapshot);
         result.Last7Days.Items.Count.ShouldBe(7);

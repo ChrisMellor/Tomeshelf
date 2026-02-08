@@ -11,6 +11,7 @@ public class UpsertAsync
     [Fact]
     public async Task CallsRepository()
     {
+        // Arrange
         var faker = new Faker();
         var repository = A.Fake<IEventRepository>();
         var service = new EventService(repository);
@@ -20,8 +21,10 @@ public class UpsertAsync
             Name = faker.Company.CompanyName()
         };
 
+        // Act
         await service.UpsertAsync(model, CancellationToken.None);
 
+        // Assert
         A.CallTo(() => repository.UpsertAsync(model, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

@@ -15,12 +15,15 @@ public class AddInfrastructureServices
     [Fact]
     public void RegistersExpectedServices()
     {
+        // Arrange
         var builder = new HostApplicationBuilder();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["Paissa:WorldId"] = "99" });
 
         builder.AddInfrastructureServices();
 
+        // Act
         using var provider = builder.Services.BuildServiceProvider();
+        // Assert
         provider.GetRequiredService<IPaissaClient>()
                 .ShouldBeOfType<PaissaClient>();
 

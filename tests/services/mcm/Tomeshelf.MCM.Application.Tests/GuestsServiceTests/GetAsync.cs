@@ -11,6 +11,7 @@ public class GetAsync
     [Fact]
     public async Task ReturnsPagedResult()
     {
+        // Arrange
         var (service, _, _, repository) = GuestsServiceTestHarness.CreateService();
         var model = new EventConfigModel { Id = "test-event" };
         var snapshot = new GuestSnapshot(1, new List<GuestListItem> { new(Guid.NewGuid(), "Test Guest", "Test Description", "http://example.com/profile", "http://example.com/image.jpg", DateTimeOffset.UtcNow, null, false) });
@@ -18,8 +19,10 @@ public class GetAsync
         A.CallTo(() => repository.GetPageAsync(model.Id, 0, 10, false, CancellationToken.None))
          .Returns(Task.FromResult(snapshot));
 
+        // Act
         var result = await service.GetAsync(model, 0, 10, false, CancellationToken.None);
 
+        // Assert
         result.ShouldNotBeNull();
         result.Total.ShouldBe(1);
         result.Items.ShouldHaveSingleItem();

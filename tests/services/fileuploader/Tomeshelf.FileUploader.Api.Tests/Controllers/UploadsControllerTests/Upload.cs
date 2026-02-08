@@ -17,12 +17,15 @@ public class Upload
     [Fact]
     public async Task ReturnsBadRequest_WhenArchiveIsEmpty()
     {
+        // Arrange
         var handler = A.Fake<ICommandHandler<UploadBundleArchiveCommand, BundleUploadResult>>();
         var controller = CreateController(handler, new GoogleDriveOptions());
         var emptyFile = CreateFormFile(Array.Empty<byte>(), "bundle.zip");
 
+        // Act
         var result = await controller.Upload(emptyFile, null, CancellationToken.None);
 
+        // Assert
         var badRequest = result.Result.ShouldBeOfType<BadRequestObjectResult>();
         badRequest.Value.ShouldBe("A bundle archive (.zip) file is required.");
     }
@@ -30,11 +33,14 @@ public class Upload
     [Fact]
     public async Task ReturnsBadRequest_WhenArchiveIsMissing()
     {
+        // Arrange
         var handler = A.Fake<ICommandHandler<UploadBundleArchiveCommand, BundleUploadResult>>();
         var controller = CreateController(handler, new GoogleDriveOptions());
 
+        // Act
         var result = await controller.Upload(null!, null, CancellationToken.None);
 
+        // Assert
         var badRequest = result.Result.ShouldBeOfType<BadRequestObjectResult>();
         badRequest.Value.ShouldBe("A bundle archive (.zip) file is required.");
     }
@@ -42,12 +48,15 @@ public class Upload
     [Fact]
     public async Task ReturnsBadRequest_WhenCredentialsMissingAndDefaultsUnset()
     {
+        // Arrange
         var handler = A.Fake<ICommandHandler<UploadBundleArchiveCommand, BundleUploadResult>>();
         var controller = CreateController(handler, new GoogleDriveOptions());
         var file = CreateFormFile(new byte[] { 1, 2, 3 }, "bundle.zip");
 
+        // Act
         var result = await controller.Upload(file, null, CancellationToken.None);
 
+        // Assert
         var badRequest = result.Result.ShouldBeOfType<BadRequestObjectResult>();
         badRequest.Value.ShouldBe("Google Drive OAuth credentials are missing. Authorise via the web app and try again.");
     }
@@ -55,6 +64,7 @@ public class Upload
     [Fact]
     public async Task UsesCredentialOverrides_WhenProvided()
     {
+        // Arrange
         var defaults = new GoogleDriveOptions
         {
             RootFolderPath = "Root",
@@ -84,8 +94,10 @@ public class Upload
             RefreshToken = "override-refresh"
         };
 
+        // Act
         var result = await controller.Upload(file, credentials, CancellationToken.None);
 
+        // Assert
         result.Result.ShouldBeOfType<OkObjectResult>();
         captured.ShouldNotBeNull();
         captured!.OverrideOptions.ShouldNotBeNull();
@@ -102,6 +114,7 @@ public class Upload
     [Fact]
     public async Task UsesDefaultOptions_WhenCredentialsMissing()
     {
+        // Arrange
         var defaults = new GoogleDriveOptions
         {
             RootFolderPath = "Root",
@@ -122,8 +135,10 @@ public class Upload
         var controller = CreateController(handler, defaults);
         var file = CreateFormFile(new byte[] { 1, 2, 3 }, "bundle.zip");
 
+        // Act
         var result = await controller.Upload(file, null, CancellationToken.None);
 
+        // Assert
         var ok = result.Result.ShouldBeOfType<OkObjectResult>();
         ok.Value.ShouldBeOfType<UploadsController.BundleUploadResponse>();
         captured.ShouldNotBeNull();

@@ -8,10 +8,13 @@ public class Message
     [Fact]
     public void IncludesConnectionString()
     {
+        // Arrange
         var exception = new MissingConnectionStringException("missing-conn");
 
+        // Act
         var message = exception.Message;
 
+        // Assert
         message.ShouldBe("The connection string: missing-conn is invalid");
     }
 }

@@ -21,6 +21,7 @@ public class AddApplicationServices
     [Fact]
     public void RegistersHandlers()
     {
+        // Arrange
         var services = new ServiceCollection();
 
         services.AddSingleton(A.Fake<IShiftSettingsRepository>());
@@ -31,8 +32,10 @@ public class AddApplicationServices
 
         services.AddApplicationServices();
 
+        // Act
         using var provider = services.BuildServiceProvider();
 
+        // Assert
         provider.GetRequiredService<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>()
                 .ShouldBeOfType<GetShiftSettingsQueryHandler>();
         provider.GetRequiredService<ICommandHandler<CreateShiftSettingsCommand, int>>()

@@ -11,6 +11,7 @@ public class AddInfrastructureServices
     [Fact]
     public async Task RegistersExpectedServices()
     {
+        // Arrange
         var builder = new HostApplicationBuilder();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
@@ -20,8 +21,10 @@ public class AddInfrastructureServices
 
         builder.AddInfrastructureServices();
 
+        // Act
         await using var provider = builder.Services.BuildServiceProvider();
 
+        // Assert
         provider.GetRequiredService<IFitbitAuthorizationService>()
                 .ShouldBeOfType<FitbitAuthorizationService>();
         provider.GetRequiredService<IFitbitDashboardService>()

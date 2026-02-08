@@ -9,6 +9,7 @@ public class MapGuests
     [Fact]
     public void MapsGuestsCorrectly()
     {
+        // Arrange
         var people = new[]
         {
             new McmEventResponse.Person
@@ -31,8 +32,10 @@ public class MapGuests
             }
         };
 
+        // Act
         var result = McmGuestsClient.MapGuests(people);
 
+        // Assert
         result.Count.ShouldBe(2);
         result[0]
            .Name
@@ -48,10 +51,13 @@ public class MapGuests
     [Fact]
     public void ReturnsEmptyList_WhenPeopleEmpty()
     {
+        // Arrange
         var people = Array.Empty<McmEventResponse.Person?>();
 
+        // Act
         var result = McmGuestsClient.MapGuests(people);
 
+        // Assert
         result.ShouldBeEmpty();
     }
 }

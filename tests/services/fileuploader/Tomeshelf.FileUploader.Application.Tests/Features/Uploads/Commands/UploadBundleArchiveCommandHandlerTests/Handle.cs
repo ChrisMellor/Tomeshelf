@@ -12,6 +12,7 @@ public class Handle
     [Fact]
     public async Task UploadServiceThrows_ExceptionIsPropagated()
     {
+        // Arrange
         var faker = new Faker();
         var uploadService = A.Fake<IHumbleBundleUploadService>();
         var handler = new UploadBundleArchiveCommandHandler(uploadService);
@@ -26,7 +27,9 @@ public class Handle
 
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
+        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(act);
+        // Assert
         exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => uploadService.UploadAsync(archiveStream, fileName, overrideOptions, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
@@ -35,6 +38,7 @@ public class Handle
     [Fact]
     public async Task ValidCommand_CallsUploadServiceAndReturnsResult()
     {
+        // Arrange
         var faker = new Faker();
         var uploadService = A.Fake<IHumbleBundleUploadService>();
         var handler = new UploadBundleArchiveCommandHandler(uploadService);
@@ -47,8 +51,10 @@ public class Handle
         A.CallTo(() => uploadService.UploadAsync(archiveStream, fileName, overrideOptions, A<CancellationToken>._))
          .Returns(Task.FromResult(expectedResult));
 
+        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
+        // Assert
         result.ShouldBeSameAs(expectedResult);
         A.CallTo(() => uploadService.UploadAsync(archiveStream, fileName, overrideOptions, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();

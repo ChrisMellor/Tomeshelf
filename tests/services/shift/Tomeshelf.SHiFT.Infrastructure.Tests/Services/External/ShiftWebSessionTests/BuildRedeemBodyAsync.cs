@@ -8,6 +8,7 @@ public class BuildRedeemBodyAsync
     [Fact]
     public async Task ReturnsMatchingOptions()
     {
+        // Arrange
         var handler = new ShiftWebSessionTestHarness.RoutingHandler();
         handler.Responses["/entitlement_offer_codes"] = """
                                                         <form>
@@ -22,8 +23,10 @@ public class BuildRedeemBodyAsync
                                                         """;
         await using var session = ShiftWebSessionTestHarness.CreateSession(handler);
 
+        // Act
         var options = await session.BuildRedeemBodyAsync("CODE-123", "csrf", "psn", CancellationToken.None);
 
+        // Assert
         options.ShouldHaveSingleItem();
         options[0]
            .Service
@@ -51,6 +54,7 @@ public class BuildRedeemBodyAsync
     [Fact]
     public async Task ReturnsNullDisplayName_WhenMissingButton()
     {
+        // Arrange
         var handler = new ShiftWebSessionTestHarness.RoutingHandler();
         handler.Responses["/entitlement_offer_codes"] = """
                                                         <form>
@@ -61,8 +65,10 @@ public class BuildRedeemBodyAsync
                                                         """;
         await using var session = ShiftWebSessionTestHarness.CreateSession(handler);
 
+        // Act
         var options = await session.BuildRedeemBodyAsync("CODE-123", "csrf", "psn", CancellationToken.None);
 
+        // Assert
         options.ShouldHaveSingleItem();
         options[0]
            .DisplayName
@@ -72,13 +78,16 @@ public class BuildRedeemBodyAsync
     [Fact]
     public async Task ThrowsWhenNoMatchingForm()
     {
+        // Arrange
         var handler = new ShiftWebSessionTestHarness.RoutingHandler();
         handler.Responses["/entitlement_offer_codes"] = "<form></form>";
         await using var session = ShiftWebSessionTestHarness.CreateSession(handler);
 
         var action = () => session.BuildRedeemBodyAsync("CODE-123", "csrf", "xbox", CancellationToken.None);
 
+        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(action);
+        // Assert
         exception.Message.ShouldBe("No redemption form found for service 'xbox'.");
     }
 }

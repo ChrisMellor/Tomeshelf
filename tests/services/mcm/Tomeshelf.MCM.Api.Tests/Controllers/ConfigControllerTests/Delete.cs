@@ -14,6 +14,7 @@ public class Delete
     [Fact]
     public async Task ReturnsNoContent_WhenDeleted()
     {
+        // Arrange
         var getHandler = A.Fake<IQueryHandler<GetEventsQuery, IReadOnlyList<EventConfigModel>>>();
         var upsertHandler = A.Fake<ICommandHandler<UpsertEventCommand, bool>>();
         var deleteHandler = A.Fake<ICommandHandler<DeleteEventCommand, bool>>();
@@ -23,8 +24,10 @@ public class Delete
         A.CallTo(() => deleteHandler.Handle(A<DeleteEventCommand>._, A<CancellationToken>._))
          .Returns(Task.FromResult(true));
 
+        // Act
         var result = await controller.Delete(eventId, CancellationToken.None);
 
+        // Assert
         result.ShouldBeOfType<NoContentResult>();
         A.CallTo(() => deleteHandler.Handle(A<DeleteEventCommand>.That.Matches(command => command.EventId == eventId), A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
@@ -33,6 +36,7 @@ public class Delete
     [Fact]
     public async Task ReturnsNotFound_WhenMissing()
     {
+        // Arrange
         var getHandler = A.Fake<IQueryHandler<GetEventsQuery, IReadOnlyList<EventConfigModel>>>();
         var upsertHandler = A.Fake<ICommandHandler<UpsertEventCommand, bool>>();
         var deleteHandler = A.Fake<ICommandHandler<DeleteEventCommand, bool>>();
@@ -42,8 +46,10 @@ public class Delete
         A.CallTo(() => deleteHandler.Handle(A<DeleteEventCommand>._, A<CancellationToken>._))
          .Returns(Task.FromResult(false));
 
+        // Act
         var result = await controller.Delete(eventId, CancellationToken.None);
 
+        // Assert
         var notFound = result.ShouldBeOfType<NotFoundObjectResult>();
         notFound.Value.ShouldBe(eventId);
         A.CallTo(() => deleteHandler.Handle(A<DeleteEventCommand>.That.Matches(command => command.EventId == eventId), A<CancellationToken>._))

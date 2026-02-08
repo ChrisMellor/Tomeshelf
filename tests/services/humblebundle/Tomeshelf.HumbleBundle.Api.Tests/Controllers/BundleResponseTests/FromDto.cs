@@ -9,9 +9,12 @@ public class FromDto
     [Fact]
     public void ReturnsNullSeconds_WhenAlreadyExpired()
     {
+        // Arrange
         var now = DateTimeOffset.UtcNow;
+        // Act
         var dto = BundlesControllerTestHarness.CreateDto(now.AddMinutes(-5));
 
+        // Assert
         var response = BundlesController.BundleResponse.FromDto(dto, now);
 
         response.SecondsRemaining.ShouldBeNull();
@@ -20,10 +23,13 @@ public class FromDto
     [Fact]
     public void ReturnsNullSeconds_WhenNoEndDate()
     {
+        // Arrange
         var dto = BundlesControllerTestHarness.CreateDto(null);
 
+        // Act
         var response = BundlesController.BundleResponse.FromDto(dto, DateTimeOffset.UtcNow);
 
+        // Assert
         response.SecondsRemaining.ShouldBeNull();
     }
 }

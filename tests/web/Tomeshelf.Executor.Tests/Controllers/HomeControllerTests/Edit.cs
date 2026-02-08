@@ -13,16 +13,20 @@ public class Edit
     [Fact]
     public async Task Get_MissingEndpoint_Redirects()
     {
+        // Arrange
         var controller = HomeControllerTestHarness.CreateController(new ExecutorOptions(), new List<ApiServiceDescriptor>(), out _, out _, out _, out _);
 
+        // Act
         var result = await controller.Edit("missing", CancellationToken.None);
 
+        // Assert
         result.ShouldBeOfType<RedirectToActionResult>();
     }
 
     [Fact]
     public async Task Post_Valid_UpdatesEndpoint()
     {
+        // Arrange
         var options = new ExecutorOptions
         {
             Endpoints = new List<EndpointScheduleOptions>
@@ -51,8 +55,10 @@ public class Edit
             Enabled = true
         };
 
+        // Act
         var result = await controller.Edit("Existing", "Existing", model, CancellationToken.None);
 
+        // Assert
         result.ShouldBeOfType<RedirectToActionResult>();
         controller.TempData["StatusMessage"]
                   .ShouldBe("Updated endpoint 'Updated'.");

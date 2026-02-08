@@ -8,6 +8,7 @@ public class Properties
     [Fact]
     public void CanSetAndGetValues()
     {
+        // Arrange
         var id = "person-id-1";
         var uid = "person-uid-1";
         var publiclyVisible = true;
@@ -57,6 +58,7 @@ public class Properties
         };
         var removedAt = "2025-01-01";
 
+        // Act
         var dto = new PersonDto
         {
             Id = id,
@@ -91,6 +93,7 @@ public class Properties
             RemovedAt = removedAt
         };
 
+        // Assert
         dto.Id.ShouldBe(id);
         dto.Uid.ShouldBe(uid);
         dto.PubliclyVisible.ShouldBe(publiclyVisible);
@@ -126,13 +129,16 @@ public class Properties
     [Fact]
     public void DefaultsAreExpected()
     {
+        // Arrange
         var dto = new PersonDto();
 
         var peopleCategories = dto.PeopleCategories;
         var globalCategories = dto.GlobalCategories;
         var images = dto.Images;
+        // Act
         var schedules = dto.Schedules;
 
+        // Assert
         dto.Id.ShouldBeNull();
         dto.Uid.ShouldBeNull();
         dto.PubliclyVisible.ShouldBeFalse();

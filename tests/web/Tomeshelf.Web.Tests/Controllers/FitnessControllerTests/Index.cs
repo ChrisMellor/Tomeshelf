@@ -20,6 +20,7 @@ public class Index
     [Fact]
     public async Task WhenOverviewHasSummary_ReturnsPopulatedModel()
     {
+        // Arrange
         var api = A.Fake<IFitbitApi>();
         var logger = A.Fake<ILogger<FitnessController>>();
         var date = "2020-01-02";
@@ -40,8 +41,10 @@ public class Index
 
         var controller = CreateController(api, logger);
 
+        // Act
         var result = await controller.Index(date, false, "kg", CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<FitnessDashboardViewModel>();
         model.Summary.ShouldNotBeNull();
@@ -55,6 +58,7 @@ public class Index
     [Fact]
     public async Task WhenOverviewMissing_ReturnsEmptyModel()
     {
+        // Arrange
         var api = A.Fake<IFitbitApi>();
         var logger = A.Fake<ILogger<FitnessController>>();
         var date = "2020-01-01";
@@ -64,8 +68,10 @@ public class Index
 
         var controller = CreateController(api, logger);
 
+        // Act
         var result = await controller.Index(date, false, "lb", CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<FitnessDashboardViewModel>();
         model.SelectedDate.ShouldBe(date);
@@ -82,6 +88,7 @@ public class Index
     [Fact]
     public async Task WhenRangeDataPresent_BuildsMetrics()
     {
+        // Arrange
         var api = A.Fake<IFitbitApi>();
         var logger = A.Fake<ILogger<FitnessController>>();
         var date = "2020-01-04";
@@ -123,8 +130,10 @@ public class Index
 
         var controller = CreateController(api, logger);
 
+        // Act
         var result = await controller.Index(date, false, "lb", CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<FitnessDashboardViewModel>();
         model.Last7Days.HasData.ShouldBeTrue();
@@ -141,6 +150,7 @@ public class Index
     [Fact]
     public async Task WhenTrendDataPresentButDailyMissing_ShowsDailyMissingMessage()
     {
+        // Arrange
         var api = A.Fake<IFitbitApi>();
         var logger = A.Fake<ILogger<FitnessController>>();
         var date = "2020-01-03";
@@ -167,8 +177,10 @@ public class Index
 
         var controller = CreateController(api, logger);
 
+        // Act
         var result = await controller.Index(date, false, "kg", CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<FitnessDashboardViewModel>();
         model.Summary.ShouldBeNull();

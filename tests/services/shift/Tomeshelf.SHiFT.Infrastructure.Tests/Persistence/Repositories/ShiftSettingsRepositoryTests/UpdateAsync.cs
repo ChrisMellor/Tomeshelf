@@ -13,6 +13,7 @@ public class UpdateAsync
     [Fact]
     public async Task Returns_WhenRowMissing()
     {
+        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
         var repository = new ShiftSettingsRepository(context, protector);
@@ -25,13 +26,16 @@ public class UpdateAsync
 
         await repository.UpdateAsync(999, update, CancellationToken.None);
 
+        // Act
         var count = await context.ShiftSettings.CountAsync();
+        // Assert
         count.ShouldBe(0);
     }
 
     [Fact]
     public async Task Throws_WhenDuplicateEmailExists()
     {
+        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
 
@@ -48,8 +52,10 @@ public class UpdateAsync
             DefaultService = "steam",
             EncryptedPassword = "enc"
         });
+        // Act
         await context.SaveChangesAsync();
 
+        // Assert
         var repository = new ShiftSettingsRepository(context, protector);
         var update = new SettingsEntity
         {
@@ -68,6 +74,7 @@ public class UpdateAsync
     [InlineData("user@example.com", " ", "DefaultService", "Missing service")]
     public async Task Throws_WhenRequiredValuesMissing(string email, string service, string expectedParam, string expectedMessage)
     {
+        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
         var repository = new ShiftSettingsRepository(context, protector);
@@ -80,7 +87,9 @@ public class UpdateAsync
 
         var action = () => repository.UpdateAsync(1, update, CancellationToken.None);
 
+        // Act
         var exception = await Should.ThrowAsync<ArgumentNullException>(action);
+        // Assert
         exception.ParamName.ShouldBe(expectedParam);
         exception.Message.ShouldContain(expectedMessage);
     }
@@ -88,6 +97,7 @@ public class UpdateAsync
     [Fact]
     public async Task UpdatesRow_WhenValid()
     {
+        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
 
@@ -110,7 +120,9 @@ public class UpdateAsync
 
         await repository.UpdateAsync(1, update, CancellationToken.None);
 
+        // Act
         var stored = await context.ShiftSettings.SingleAsync(entity => entity.Id == 1);
+        // Assert
         stored.Email.ShouldBe("updated@example.com");
         stored.DefaultService.ShouldBe("steam");
         stored.EncryptedPassword.ShouldBe("new-enc");

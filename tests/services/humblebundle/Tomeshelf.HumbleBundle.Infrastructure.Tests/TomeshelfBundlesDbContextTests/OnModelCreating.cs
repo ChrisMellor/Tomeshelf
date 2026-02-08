@@ -9,13 +9,16 @@ public class OnModelCreating
     [Fact]
     public void BundleEntity_IsConfiguredWithExpectedMetadata()
     {
+        // Arrange
         var options = new DbContextOptionsBuilder<TomeshelfBundlesDbContext>().UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=HumbleBundleModelTest;Trusted_Connection=True;")
                                                                               .Options;
 
         using var context = new TomeshelfBundlesDbContext(options);
 
+        // Act
         var entityType = context.Model.FindEntityType(typeof(Bundle));
 
+        // Assert
         entityType.ShouldNotBeNull();
         entityType!.GetTableName()
                    .ShouldBe("Bundles");

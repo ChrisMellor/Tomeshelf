@@ -10,6 +10,7 @@ public class UpdateGuest
     [Fact]
     public void WhenDeleted_ReactivatesAndUpdatesInformation()
     {
+        // Arrange
         var faker = new Faker();
         var mapper = new GuestMapper();
         var target = new GuestEntity
@@ -32,8 +33,10 @@ public class UpdateGuest
             }
         };
 
+        // Act
         var changed = mapper.UpdateGuest(target, source);
 
+        // Assert
         changed.ShouldBeTrue();
         target.IsDeleted.ShouldBeFalse();
         target.RemovedAt.ShouldBeNull();
@@ -49,6 +52,7 @@ public class UpdateGuest
     [Fact]
     public void WhenSourceInfoMissing_ReturnsFalse()
     {
+        // Arrange
         var faker = new Faker();
         var mapper = new GuestMapper();
         var target = new GuestEntity
@@ -59,8 +63,10 @@ public class UpdateGuest
         var originalFirstName = target.Information.FirstName;
         var source = new GuestEntity { Information = null };
 
+        // Act
         var changed = mapper.UpdateGuest(target, source);
 
+        // Assert
         changed.ShouldBeFalse();
         target.Information!.FirstName.ShouldBe(originalFirstName);
     }

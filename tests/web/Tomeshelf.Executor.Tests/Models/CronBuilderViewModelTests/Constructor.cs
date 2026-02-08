@@ -9,10 +9,13 @@ public class Constructor
     [Fact]
     public void WhenInitialValueNull_UsesEmptyString()
     {
+        // Arrange
         var faker = new Faker();
+        // Act
         var inputId = faker.Random.Word();
         var inputName = faker.Random.Word();
 
+        // Assert
         var model = new CronBuilderViewModel(inputId, inputName, null);
 
         model.InitialValue.ShouldBe(string.Empty);
@@ -23,20 +26,26 @@ public class Constructor
     [Fact]
     public void WhenNullInputId_Throws()
     {
+        // Arrange
         var faker = new Faker();
 
+        // Act
         Action act = () => new CronBuilderViewModel(null!, faker.Random.Word(), "* * * * *");
 
+        // Assert
         Should.Throw<ArgumentNullException>(act);
     }
 
     [Fact]
     public void WhenNullInputName_Throws()
     {
+        // Arrange
         var faker = new Faker();
 
+        // Act
         Action act = () => new CronBuilderViewModel(faker.Random.Word(), null!, "* * * * *");
 
+        // Assert
         Should.Throw<ArgumentNullException>(act);
     }
 }

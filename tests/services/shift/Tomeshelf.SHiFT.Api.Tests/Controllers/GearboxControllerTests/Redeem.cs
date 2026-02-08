@@ -19,13 +19,16 @@ public class Redeem
     [Fact]
     public async Task ReturnsBadRequest_WhenCodeMissing()
     {
+        // Arrange
         var redeemHandler = A.Fake<ICommandHandler<RedeemShiftCodeCommand, IReadOnlyList<RedeemResult>>>();
         var sweepHandler = A.Fake<ICommandHandler<SweepShiftKeysCommand, ShiftKeySweepResult>>();
         var options = new TestOptionsMonitor<ShiftKeyScannerOptions>(new ShiftKeyScannerOptions());
         var controller = new GearboxController(redeemHandler, sweepHandler, options);
 
+        // Act
         var result = await controller.Redeem(new RedeemRequestDto("   "), CancellationToken.None);
 
+        // Assert
         var badRequest = result.ShouldBeOfType<BadRequestObjectResult>();
         badRequest.Value.ShouldBe("Code is required.");
         A.CallTo(() => redeemHandler.Handle(A<RedeemShiftCodeCommand>._, A<CancellationToken>._))
@@ -35,6 +38,7 @@ public class Redeem
     [Fact]
     public async Task ReturnsSummaryAndResults()
     {
+        // Arrange
         var redeemHandler = A.Fake<ICommandHandler<RedeemShiftCodeCommand, IReadOnlyList<RedeemResult>>>();
         var sweepHandler = A.Fake<ICommandHandler<SweepShiftKeysCommand, ShiftKeySweepResult>>();
         var options = new TestOptionsMonitor<ShiftKeyScannerOptions>(new ShiftKeyScannerOptions());
@@ -48,8 +52,10 @@ public class Redeem
         A.CallTo(() => redeemHandler.Handle(A<RedeemShiftCodeCommand>._, A<CancellationToken>._))
          .Returns(Task.FromResult<IReadOnlyList<RedeemResult>>(results));
 
+        // Act
         var result = await controller.Redeem(new RedeemRequestDto("CODE-123"), CancellationToken.None);
 
+        // Assert
         var ok = result.ShouldBeOfType<OkObjectResult>();
         var payload = ok.Value.ShouldBeOfType<RedeemResponseDto>();
         payload.Summary.Total.ShouldBe(2);

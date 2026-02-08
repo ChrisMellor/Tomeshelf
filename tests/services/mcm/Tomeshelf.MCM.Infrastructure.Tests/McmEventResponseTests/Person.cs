@@ -8,6 +8,7 @@ public class Person
     [Fact]
     public void CanSetAndGetValues()
     {
+        // Arrange
         var id = "person-id-1";
         var uid = "person-uid-1";
         var publiclyVisible = true;
@@ -54,6 +55,7 @@ public class Person
             Order = "asc"
         };
 
+        // Act
         var person = new McmEventResponse.Person
         {
             Id = id,
@@ -92,6 +94,7 @@ public class Person
             Sort = sort
         };
 
+        // Assert
         person.Id.ShouldBe(id);
         person.Uid.ShouldBe(uid);
         person.PubliclyVisible.ShouldBe(publiclyVisible);

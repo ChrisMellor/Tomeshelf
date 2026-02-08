@@ -16,8 +16,11 @@ public class Parse
     [InlineData("unknown", WeightUnit.Stones)]
     public void ReturnsExpectedUnit(string value, WeightUnit expected)
     {
+        // Arrange
+        // Act
         var result = WeightUnitConverter.Parse(value);
 
+        // Assert
         result.ShouldBe(expected);
     }
 }

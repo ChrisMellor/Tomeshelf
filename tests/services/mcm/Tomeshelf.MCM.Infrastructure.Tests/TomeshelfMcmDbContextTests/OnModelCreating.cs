@@ -9,13 +9,16 @@ public class OnModelCreating
     [Fact]
     public void Entities_AreConfiguredWithExpectedMetadata()
     {
+        // Arrange
         var options = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=McmModelTest;Trusted_Connection=True;")
                                                                           .Options;
 
         using var context = new TomeshelfMcmDbContext(options);
 
+        // Act
         var eventEntity = context.Model.FindEntityType(typeof(EventEntity));
 
+        // Assert
         eventEntity.ShouldNotBeNull();
         eventEntity!.GetTableName()
                     .ShouldBe("Events");

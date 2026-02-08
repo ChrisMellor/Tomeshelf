@@ -11,6 +11,7 @@ public class UpsertAsync
     [Fact]
     public async Task AddsEvent_WhenMissing()
     {
+        // Arrange
         using var context = CreateContext();
         var repository = new EventRepository(context);
         var model = new EventConfigModel
@@ -19,8 +20,10 @@ public class UpsertAsync
             Name = "New Event"
         };
 
+        // Act
         var result = await repository.UpsertAsync(model, CancellationToken.None);
 
+        // Assert
         result.ShouldBe(1);
         context.Events.ShouldHaveSingleItem();
         context.Events
@@ -32,6 +35,7 @@ public class UpsertAsync
     [Fact]
     public async Task UpdatesEvent_WhenExists()
     {
+        // Arrange
         using var context = CreateContext();
         var repository = new EventRepository(context);
         var eventId = "existing-id";
@@ -49,8 +53,10 @@ public class UpsertAsync
             Name = "Updated Name"
         };
 
+        // Act
         var result = await repository.UpsertAsync(model, CancellationToken.None);
 
+        // Assert
         result.ShouldBe(1);
         context.Events.ShouldHaveSingleItem();
         context.Events

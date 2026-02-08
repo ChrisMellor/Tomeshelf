@@ -10,6 +10,7 @@ public class DeleteAsync
     [Fact]
     public async Task DeletesEventWithGuests_WhenFound()
     {
+        // Arrange
         using var context = CreateContext();
         var repository = new EventRepository(context);
         var eventId = "event-id-1";
@@ -39,8 +40,10 @@ public class DeleteAsync
         context.Events.Add(eventEntity);
         await context.SaveChangesAsync();
 
+        // Act
         var result = await repository.DeleteAsync(eventId, CancellationToken.None);
 
+        // Assert
         result.ShouldBeTrue();
         context.Events.ShouldBeEmpty();
         context.Guests.ShouldBeEmpty();
@@ -50,6 +53,7 @@ public class DeleteAsync
     [Fact]
     public async Task DeletesEventWithoutGuests_WhenFound()
     {
+        // Arrange
         using var context = CreateContext();
         var repository = new EventRepository(context);
         var eventId = "event-id-1";
@@ -61,8 +65,10 @@ public class DeleteAsync
         context.Events.Add(eventEntity);
         await context.SaveChangesAsync();
 
+        // Act
         var result = await repository.DeleteAsync(eventId, CancellationToken.None);
 
+        // Assert
         result.ShouldBeTrue();
         context.Events.ShouldBeEmpty();
     }
@@ -70,12 +76,15 @@ public class DeleteAsync
     [Fact]
     public async Task ReturnsFalse_WhenEventNotFound()
     {
+        // Arrange
         using var context = CreateContext();
         var repository = new EventRepository(context);
         var eventId = "non-existent-id";
 
+        // Act
         var result = await repository.DeleteAsync(eventId, CancellationToken.None);
 
+        // Assert
         result.ShouldBeFalse();
     }
 

@@ -10,7 +10,9 @@ public class HasData
     [Fact]
     public void WhenAllValuesNull_ReturnsFalse()
     {
+        // Arrange
         var faker = new Faker();
+        // Act
         var model = new FitnessMetricSeriesViewModel
         {
             Key = faker.Random.Word(),
@@ -23,6 +25,7 @@ public class HasData
             }
         };
 
+        // Assert
         var hasData = model.HasData;
 
         hasData.ShouldBeFalse();
@@ -31,7 +34,9 @@ public class HasData
     [Fact]
     public void WhenAnyValuePresent_ReturnsTrue()
     {
+        // Arrange
         var faker = new Faker();
+        // Act
         var model = new FitnessMetricSeriesViewModel
         {
             Key = faker.Random.Word(),
@@ -45,6 +50,7 @@ public class HasData
             }
         };
 
+        // Assert
         var hasData = model.HasData;
 
         hasData.ShouldBeTrue();
@@ -53,7 +59,9 @@ public class HasData
     [Fact]
     public void WhenValuesNull_ReturnsFalse()
     {
+        // Arrange
         var faker = new Faker();
+        // Act
         var model = new FitnessMetricSeriesViewModel
         {
             Key = faker.Random.Word(),
@@ -62,6 +70,7 @@ public class HasData
             Values = null
         };
 
+        // Assert
         var hasData = model.HasData;
 
         hasData.ShouldBeFalse();

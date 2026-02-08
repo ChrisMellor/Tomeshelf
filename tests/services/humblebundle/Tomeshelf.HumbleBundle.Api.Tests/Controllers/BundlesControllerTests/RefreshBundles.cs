@@ -16,6 +16,7 @@ public class RefreshBundles
     [Fact]
     public async Task ReturnsOk_WithIngestSummary()
     {
+        // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetBundlesQuery, IReadOnlyList<BundleDto>>>();
         var refreshHandler = A.Fake<ICommandHandler<RefreshBundlesCommand, BundleIngestResult>>();
         var controller = BundlesControllerTestHarness.CreateController(queryHandler, refreshHandler);
@@ -25,8 +26,10 @@ public class RefreshBundles
         A.CallTo(() => refreshHandler.Handle(A<RefreshBundlesCommand>._, A<CancellationToken>._))
          .Returns(Task.FromResult(ingestResult));
 
+        // Act
         var result = await controller.RefreshBundles(CancellationToken.None);
 
+        // Assert
         var ok = result.Result.ShouldBeOfType<OkObjectResult>();
         var response = ok.Value.ShouldBeOfType<BundlesController.RefreshBundlesResponse>();
 

@@ -23,12 +23,15 @@ public class CreateDbContext : IDisposable
     [Fact]
     public void UsesColonConnectionString_WhenSet()
     {
+        // Arrange
         Environment.SetEnvironmentVariable("ConnectionStrings__mcmdb", null);
         Environment.SetEnvironmentVariable("ConnectionStrings:mcmdb", "Server=colon_server;Database=colon_db;");
         var factory = new TomeshelfMcmDbContextFactory();
 
+        // Act
         var context = factory.CreateDbContext(Array.Empty<string>());
 
+        // Assert
         context.ShouldNotBeNull();
         context.Database
                .IsSqlServer()
@@ -41,12 +44,15 @@ public class CreateDbContext : IDisposable
     [Fact]
     public void UsesDefaultConnectionString_WhenEnvironmentMissing()
     {
+        // Arrange
         Environment.SetEnvironmentVariable("ConnectionStrings__mcmdb", null);
         Environment.SetEnvironmentVariable("ConnectionStrings:mcmdb", null);
         var factory = new TomeshelfMcmDbContextFactory();
 
+        // Act
         var context = factory.CreateDbContext(Array.Empty<string>());
 
+        // Assert
         context.ShouldNotBeNull();
         context.Database
                .IsSqlServer()
@@ -59,12 +65,15 @@ public class CreateDbContext : IDisposable
     [Fact]
     public void UsesUnderscoreConnectionString_WhenSet()
     {
+        // Arrange
         Environment.SetEnvironmentVariable("ConnectionStrings__mcmdb", "Server=underscore_server;Database=underscore_db;");
         Environment.SetEnvironmentVariable("ConnectionStrings:mcmdb", null);
         var factory = new TomeshelfMcmDbContextFactory();
 
+        // Act
         var context = factory.CreateDbContext(Array.Empty<string>());
 
+        // Assert
         context.ShouldNotBeNull();
         context.Database
                .IsSqlServer()

@@ -8,6 +8,7 @@ public class GetUniqueGuestCount
     [Fact]
     public void ExcludesDeletedGuests()
     {
+        // Arrange
         var eventEntity = new EventEntity
         {
             Guests = new List<GuestEntity>
@@ -43,14 +44,17 @@ public class GetUniqueGuestCount
             }
         };
 
+        // Act
         var result = eventEntity.GetUniqueGuestCount();
 
+        // Assert
         result.ShouldBe(2);
     }
 
     [Fact]
     public void ReturnsCorrectCount()
     {
+        // Arrange
         var eventEntity = new EventEntity
         {
             Guests = new List<GuestEntity>
@@ -85,18 +89,23 @@ public class GetUniqueGuestCount
             }
         };
 
+        // Act
         var result = eventEntity.GetUniqueGuestCount();
 
+        // Assert
         result.ShouldBe(2);
     }
 
     [Fact]
     public void ReturnsZero_WhenNoGuests()
     {
+        // Arrange
         var eventEntity = new EventEntity { Guests = new List<GuestEntity>() };
 
+        // Act
         var result = eventEntity.GetUniqueGuestCount();
 
+        // Assert
         result.ShouldBe(0);
     }
 }

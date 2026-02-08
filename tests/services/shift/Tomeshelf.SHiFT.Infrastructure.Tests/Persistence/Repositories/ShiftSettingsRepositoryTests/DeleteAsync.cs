@@ -13,6 +13,7 @@ public class DeleteAsync
     [Fact]
     public async Task RemovesMatchingRow()
     {
+        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateSqliteContextAsync();
         var protector = A.Fake<ISecretProtector>();
         context.ShiftSettings.AddRange(new SettingsEntity
@@ -34,7 +35,9 @@ public class DeleteAsync
 
         await repository.DeleteAsync(1, CancellationToken.None);
 
+        // Act
         var remaining = await context.ShiftSettings.ToListAsync();
+        // Assert
         remaining.ShouldHaveSingleItem();
         remaining[0]
            .Id

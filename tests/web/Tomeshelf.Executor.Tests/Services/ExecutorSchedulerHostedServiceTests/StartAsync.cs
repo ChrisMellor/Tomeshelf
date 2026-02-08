@@ -11,14 +11,17 @@ public class StartAsync
     [Fact]
     public async Task OptionsChange_TriggersRefresh()
     {
+        // Arrange
         var orchestrator = A.Fake<IExecutorSchedulerOrchestrator>();
         A.CallTo(() => orchestrator.RefreshAsync(A<ExecutorOptions?>._, A<CancellationToken>._))
          .Returns(Task.CompletedTask);
 
         var monitor = new TestOptionsMonitor<ExecutorOptions>(new ExecutorOptions());
         var service = new ExecutorSchedulerHostedService(orchestrator, monitor, A.Fake<ILogger<ExecutorSchedulerHostedService>>());
+        // Act
         await service.StartAsync(CancellationToken.None);
 
+        // Assert
         var tcs = new TaskCompletionSource<bool>();
         A.CallTo(() => orchestrator.RefreshAsync(A<ExecutorOptions>._, A<CancellationToken>._))
          .Invokes(() => tcs.TrySetResult(true))
@@ -34,6 +37,7 @@ public class StartAsync
     [Fact]
     public async Task RefreshesSchedulerAndRegistersChangeHandler()
     {
+        // Arrange
         var orchestrator = A.Fake<IExecutorSchedulerOrchestrator>();
         A.CallTo(() => orchestrator.RefreshAsync(A<ExecutorOptions?>._, A<CancellationToken>._))
          .Returns(Task.CompletedTask);
@@ -42,8 +46,10 @@ public class StartAsync
         var monitor = new TestOptionsMonitor<ExecutorOptions>(options);
         var service = new ExecutorSchedulerHostedService(orchestrator, monitor, A.Fake<ILogger<ExecutorSchedulerHostedService>>());
 
+        // Act
         await service.StartAsync(CancellationToken.None);
 
+        // Assert
         A.CallTo(() => orchestrator.RefreshAsync(null, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

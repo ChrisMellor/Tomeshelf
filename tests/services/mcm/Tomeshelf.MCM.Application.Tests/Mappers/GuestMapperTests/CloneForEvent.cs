@@ -10,6 +10,7 @@ public class CloneForEvent
     [Fact]
     public void CopiesIdentifiersAndSocials()
     {
+        // Arrange
         var faker = new Faker();
         var mapper = new GuestMapper();
         var guestId = Guid.NewGuid();
@@ -34,8 +35,10 @@ public class CloneForEvent
             }
         };
 
+        // Act
         var cloned = mapper.CloneForEvent(eventId, source);
 
+        // Assert
         cloned.EventId.ShouldBe(eventId);
         cloned.Id.ShouldBe(guestId);
         cloned.GuestInfoId.ShouldBe(infoId);

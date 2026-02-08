@@ -16,6 +16,7 @@ public class IncludeExpired
     [Fact]
     public async Task UsesLowercaseBoolean()
     {
+        // Arrange
         var handler = new StubHttpMessageHandler((request, _) =>
         {
             var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("[]", Encoding.UTF8, "application/json") };
@@ -26,8 +27,10 @@ public class IncludeExpired
         using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
         var api = new BundlesApi(new TestHttpClientFactory(client), A.Fake<ILogger<BundlesApi>>());
 
+        // Act
         await api.GetBundlesAsync(false, CancellationToken.None);
 
+        // Assert
         var request = handler.Requests.ShouldHaveSingleItem();
         request.RequestUri!.PathAndQuery.ShouldBe("/bundles?includeExpired=false");
     }

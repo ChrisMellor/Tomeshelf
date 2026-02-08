@@ -9,10 +9,13 @@ public class MapRecordToGuest
     [Fact]
     public void MapsNullSocials_WhenProfileUrlEmpty()
     {
+        // Arrange
         var guestRecord = new GuestRecord("Test Guest", "Test Description", "", "http://example.com/image.jpg");
 
+        // Act
         var result = GuestsService.MapRecordToGuest(guestRecord);
 
+        // Assert
         result.ShouldNotBeNull();
         result.Information.ShouldNotBeNull();
         result.Information!.Socials.ShouldBeNull();
@@ -21,10 +24,13 @@ public class MapRecordToGuest
     [Fact]
     public void MapsRecordCorrectly()
     {
+        // Arrange
         var guestRecord = new GuestRecord("Test Guest", "Test Description", "http://example.com/profile", "http://example.com/image.jpg");
 
+        // Act
         var result = GuestsService.MapRecordToGuest(guestRecord);
 
+        // Assert
         result.ShouldNotBeNull();
         result.Information.ShouldNotBeNull();
         result.Information!.FirstName.ShouldBe("Test");

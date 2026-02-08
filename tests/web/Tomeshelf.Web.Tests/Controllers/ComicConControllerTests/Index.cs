@@ -16,6 +16,7 @@ public class Index
     [Fact]
     public async Task ReturnsGroupedGuestsAndViewBagStats()
     {
+        // Arrange
         var api = A.Fake<IGuestsApi>();
         var groups = new List<GuestsGroupModel> { new() { Items = new List<PersonModel>() } };
         var resultModel = new GuestsByEventResult(groups, 42);
@@ -24,8 +25,10 @@ public class Index
 
         var controller = new ComicConController(api);
 
+        // Act
         var result = await controller.Index("mcm-2026", null, CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         view.ViewName.ShouldBe("Index");
         view.Model.ShouldBeSameAs(groups);

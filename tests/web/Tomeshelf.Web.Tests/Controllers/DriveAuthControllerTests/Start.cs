@@ -20,12 +20,15 @@ public class Start
     [Fact]
     public void WhenConfigMissing_ReturnsOAuthResultView()
     {
+        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>())
                                                .Build();
         var controller = new DriveAuthController(config) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
 
+        // Act
         var result = controller.Start();
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         view.ViewName.ShouldBe("OAuthResult");
         var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
@@ -36,6 +39,7 @@ public class Start
     [Fact]
     public void WhenConfigPresent_SetsReturnUrlAndChallenges()
     {
+        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
                                                 {
                                                     ["GoogleDrive:ClientId"] = "client",
@@ -58,8 +62,10 @@ public class Start
             Url = urlHelper
         };
 
+        // Act
         var result = controller.Start("https://example.test/return");
 
+        // Assert
         var challenge = result.ShouldBeOfType<ChallengeResult>();
         var scheme = challenge.AuthenticationSchemes.ShouldHaveSingleItem();
         scheme.ShouldBe(DriveAuthController.AuthenticationScheme);

@@ -8,7 +8,10 @@ public class BuildPlan
     [Fact]
     public void FallsBackToRootDirectoryName_WhenNoBundleFolderPresent()
     {
+        // Arrange
+        // Act
         var root = CreateTempDirectory();
+        // Assert
         try
         {
             File.WriteAllText(Path.Combine(root, "PlainBook.txt"), "data");
@@ -31,7 +34,10 @@ public class BuildPlan
     [Fact]
     public void UsesBundleDirectoryAndSupplementNaming()
     {
+        // Arrange
+        // Act
         var root = CreateTempDirectory();
+        // Assert
         try
         {
             var bundleDir = Path.Combine(root, "Great Bundle by Authors");

@@ -20,13 +20,16 @@ public class AddInfrastructureServices
     [Fact]
     public async Task RegistersExpectedServices()
     {
+        // Arrange
         var builder = new HostApplicationBuilder();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["ConnectionStrings:shiftdb"] = @"Server=(localdb)\mssqllocaldb;Database=ShiftTest;Trusted_Connection=True;" });
 
         builder.AddInfrastructureServices();
 
+        // Act
         await using var provider = builder.Services.BuildServiceProvider();
 
+        // Assert
         provider.GetRequiredService<TomeshelfShiftDbContext>()
                 .ShouldNotBeNull();
         provider.GetRequiredService<IShiftSettingsRepository>()
@@ -64,10 +67,13 @@ public class AddInfrastructureServices
     [Fact]
     public void ThrowsWhenConnectionStringMissing()
     {
+        // Arrange
         var builder = new HostApplicationBuilder();
         builder.Configuration.Sources.Clear();
+        // Act
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>());
 
+        // Assert
         var action = () => builder.AddInfrastructureServices();
 
         Should.Throw<MissingConnectionStringException>(action);

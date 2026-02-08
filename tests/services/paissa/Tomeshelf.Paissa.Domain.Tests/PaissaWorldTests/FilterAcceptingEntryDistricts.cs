@@ -9,6 +9,7 @@ public class FilterAcceptingEntryDistricts
     [Fact]
     public void ReturnsWorldWithFilteredDistricts()
     {
+        // Arrange
         var now = DateTimeOffset.UtcNow;
         var acceptingPlot = PaissaPlot.Create(1, 1, HousingPlotSize.Small, 100, now, PurchaseSystem.Personal, 1, LotteryPhase.AcceptingEntries);
         var closedPlot = PaissaPlot.Create(1, 2, HousingPlotSize.Small, 100, now, PurchaseSystem.Personal, 1, LotteryPhase.WinnersAnnounced);
@@ -20,8 +21,10 @@ public class FilterAcceptingEntryDistricts
             closedDistrict
         });
 
+        // Act
         var result = world.FilterAcceptingEntryDistricts(true);
 
+        // Assert
         result.Id.ShouldBe(10);
         result.Name.ShouldBe("Alpha");
         result.Districts.ShouldHaveSingleItem();

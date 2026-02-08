@@ -13,6 +13,7 @@ public class FetchGuestsAsync
     [Fact]
     public async Task LogsWarning_WhenEventIdContainsSpecialCharacters()
     {
+        // Arrange
         var handler = new StubHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.InternalServerError));
         var client = new HttpClient(handler) { BaseAddress = new Uri("http://localhost") };
         var factory = new StubHttpClientFactory(client);
@@ -21,14 +22,17 @@ public class FetchGuestsAsync
         var eventIdWithSpecialChars = "test-event\r\nwith\rchars";
         var cleanedEventId = "test-eventwithchars";
 
+        // Act
         await Should.ThrowAsync<HttpRequestException>(() => subject.FetchGuestsAsync(eventIdWithSpecialChars, CancellationToken.None));
 
+        // Assert
         logger.LogEntries.ShouldContain(entry => (entry.LogLevel == LogLevel.Warning) && (entry.EventId.Id == 0) && (entry.Message == $"MCM API returned {HttpStatusCode.InternalServerError} for event {cleanedEventId}."));
     }
 
     [Fact]
     public async Task ReturnsMappedGuests()
     {
+        // Arrange
         var payload = """
                       {
                         "event_id":"event-1",
@@ -66,8 +70,10 @@ public class FetchGuestsAsync
         var factory = new StubHttpClientFactory(client);
         var subject = new McmGuestsClient(factory, NullLogger<McmGuestsClient>.Instance);
 
+        // Act
         var guests = await subject.FetchGuestsAsync("mcm spring", CancellationToken.None);
 
+        // Assert
         factory.LastName.ShouldBe(McmGuestsClient.HttpClientName);
         handler.RequestMessage.ShouldNotBeNull();
         handler.RequestMessage!.Method.ShouldBe(HttpMethod.Post);
@@ -106,30 +112,37 @@ public class FetchGuestsAsync
     [Fact]
     public async Task Throws_WhenApiReturnsError()
     {
+        // Arrange
         var handler = new StubHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.InternalServerError));
         var client = new HttpClient(handler) { BaseAddress = new Uri("http://localhost") };
         var subject = new McmGuestsClient(new StubHttpClientFactory(client), NullLogger<McmGuestsClient>.Instance);
 
+        // Act
         await Should.ThrowAsync<HttpRequestException>(() => subject.FetchGuestsAsync("test-event", CancellationToken.None));
 
+        // Assert
         handler.RequestMessage.ShouldNotBeNull();
     }
 
     [Fact]
     public async Task Throws_WhenPayloadIsEmpty()
     {
+        // Arrange
         var handler = new StubHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(string.Empty, Encoding.UTF8, "application/json") });
         var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
         var subject = new McmGuestsClient(new StubHttpClientFactory(client), NullLogger<McmGuestsClient>.Instance);
 
+        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(() => subject.FetchGuestsAsync("event-1", CancellationToken.None));
 
+        // Assert
         exception.Message.ShouldBe("MCM API returned an empty payload.");
     }
 
     [Fact]
     public async Task Throws_WhenPeopleMissing()
     {
+        // Arrange
         var payload = """
                       {
                         "event_id":"event-1",
@@ -140,8 +153,10 @@ public class FetchGuestsAsync
         var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
         var subject = new McmGuestsClient(new StubHttpClientFactory(client), NullLogger<McmGuestsClient>.Instance);
 
+        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(() => subject.FetchGuestsAsync("event-1", CancellationToken.None));
 
+        // Assert
         exception.Message.ShouldBe("MCM API payload did not include people.");
     }
 

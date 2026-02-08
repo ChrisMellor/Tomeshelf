@@ -16,6 +16,7 @@ public class AddApplicationServices
     [Fact]
     public void RegistersHandlers()
     {
+        // Arrange
         var services = new ServiceCollection();
         services.AddSingleton(A.Fake<IBundleQueries>());
         services.AddSingleton(A.Fake<IHumbleBundleScraper>());
@@ -23,7 +24,9 @@ public class AddApplicationServices
 
         services.AddApplicationServices();
 
+        // Act
         using var provider = services.BuildServiceProvider();
+        // Assert
         provider.GetRequiredService<IQueryHandler<GetBundlesQuery, IReadOnlyList<BundleDto>>>()
                 .ShouldBeOfType<GetBundlesQueryHandler>();
         provider.GetRequiredService<ICommandHandler<RefreshBundlesCommand, BundleIngestResult>>()

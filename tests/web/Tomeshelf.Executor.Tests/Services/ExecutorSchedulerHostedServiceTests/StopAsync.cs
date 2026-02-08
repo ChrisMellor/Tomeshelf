@@ -11,6 +11,7 @@ public class StopAsync
     [Fact]
     public async Task DisposesSubscription()
     {
+        // Arrange
         var orchestrator = A.Fake<IExecutorSchedulerOrchestrator>();
         A.CallTo(() => orchestrator.RefreshAsync(A<ExecutorOptions?>._, A<CancellationToken>._))
          .Returns(Task.CompletedTask);
@@ -19,7 +20,9 @@ public class StopAsync
         var service = new ExecutorSchedulerHostedService(orchestrator, monitor, A.Fake<ILogger<ExecutorSchedulerHostedService>>());
         await service.StartAsync(CancellationToken.None);
 
+        // Act
         await service.StopAsync(CancellationToken.None);
+        // Assert
         monitor.Set(new ExecutorOptions());
         await Task.Delay(50);
 

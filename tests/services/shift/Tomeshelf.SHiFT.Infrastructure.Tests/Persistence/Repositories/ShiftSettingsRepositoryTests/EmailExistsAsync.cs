@@ -12,6 +12,7 @@ public class EmailExistsAsync
     [Fact]
     public async Task RespectsExcludingId()
     {
+        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
         var repository = new ShiftSettingsRepository(context, protector);
@@ -25,9 +26,11 @@ public class EmailExistsAsync
         });
         await context.SaveChangesAsync();
 
+        // Act
         var excluded = await repository.EmailExistsAsync("user@example.com", 5, CancellationToken.None);
         var included = await repository.EmailExistsAsync("user@example.com", 6, CancellationToken.None);
 
+        // Assert
         excluded.ShouldBeFalse();
         included.ShouldBeTrue();
     }

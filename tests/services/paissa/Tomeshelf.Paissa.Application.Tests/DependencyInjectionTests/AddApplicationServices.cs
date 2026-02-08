@@ -14,6 +14,7 @@ public class AddApplicationServices
     [Fact]
     public void RegistersHandlers()
     {
+        // Arrange
         var services = new ServiceCollection();
         services.AddSingleton(A.Fake<IPaissaClient>());
         services.AddSingleton(A.Fake<IPaissaWorldSettings>());
@@ -21,7 +22,9 @@ public class AddApplicationServices
 
         services.AddApplicationServices();
 
+        // Act
         using var provider = services.BuildServiceProvider();
+        // Assert
         provider.GetRequiredService<IQueryHandler<GetAcceptingEntriesQuery, PaissaWorldSummaryDto>>()
                 .ShouldBeOfType<GetAcceptingEntriesQueryHandler>();
     }

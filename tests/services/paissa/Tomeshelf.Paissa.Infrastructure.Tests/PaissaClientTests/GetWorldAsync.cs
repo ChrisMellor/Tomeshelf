@@ -12,6 +12,7 @@ public class GetWorldAsync
     [Fact]
     public async Task ReturnsMappedWorld()
     {
+        // Arrange
         var json = """
                    {
                      "id": 33,
@@ -44,8 +45,10 @@ public class GetWorldAsync
         var factory = new StubHttpClientFactory(client);
         var subject = new PaissaClient(factory, NullLogger<PaissaClient>.Instance);
 
+        // Act
         var world = await subject.GetWorldAsync(33, CancellationToken.None);
 
+        // Assert
         world.Id.ShouldBe(33);
         world.Name.ShouldBe("TestWorld");
         world.Districts.ShouldHaveSingleItem();
@@ -74,24 +77,30 @@ public class GetWorldAsync
     [Fact]
     public async Task Throws_WhenNotFound()
     {
+        // Arrange
         var handler = new StubHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.NotFound));
         var client = new HttpClient(handler) { BaseAddress = new Uri("https://paissa.test/") };
         var subject = new PaissaClient(new StubHttpClientFactory(client), NullLogger<PaissaClient>.Instance);
 
+        // Act
         var exception = await Should.ThrowAsync<HttpRequestException>(() => subject.GetWorldAsync(404, CancellationToken.None));
 
+        // Assert
         exception.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task Throws_WhenPayloadIsNull()
     {
+        // Arrange
         var handler = new StubHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("null", Encoding.UTF8, "application/json") });
         var client = new HttpClient(handler) { BaseAddress = new Uri("https://paissa.test/") };
         var subject = new PaissaClient(new StubHttpClientFactory(client), NullLogger<PaissaClient>.Instance);
 
+        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(() => subject.GetWorldAsync(1, CancellationToken.None));
 
+        // Assert
         exception.Message.ShouldBe("PaissaDB returned an empty payload.");
     }
 

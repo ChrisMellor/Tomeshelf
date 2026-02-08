@@ -10,6 +10,7 @@ public class BuildAuthorizationUri
     [Fact]
     public void StoresStateAndDefaultReturnUrl()
     {
+        // Arrange
         var options = new FitbitOptions
         {
             ClientId = "client",
@@ -22,8 +23,10 @@ public class BuildAuthorizationUri
         var cache = new MemoryCache(new MemoryCacheOptions());
         var service = FitbitAuthorizationServiceTestHarness.CreateService(options, httpContext, cache);
 
+        // Act
         var uri = service.BuildAuthorizationUri(null, out var state);
 
+        // Assert
         string.IsNullOrWhiteSpace(state)
               .ShouldBeFalse();
         var uriString = uri.ToString();

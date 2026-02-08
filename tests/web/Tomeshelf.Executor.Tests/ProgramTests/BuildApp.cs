@@ -12,13 +12,16 @@ public class BuildApp
     [Fact]
     public void RegistersExecutorServices()
     {
+        // Arrange
         using var app = Program.BuildApp(Array.Empty<string>(), builder =>
         {
             builder.Logging.ClearProviders();
         });
 
+        // Act
         var services = app.Services;
 
+        // Assert
         services.GetRequiredService<IExecutorConfigurationStore>()
                 .ShouldNotBeNull();
         services.GetRequiredService<IExecutorSchedulerOrchestrator>()

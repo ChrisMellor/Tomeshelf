@@ -10,6 +10,7 @@ public class TotalBundles
     [Fact]
     public void WhenIncludeExpiredFalse_OnlyCountsActiveBundles()
     {
+        // Arrange
         var model = new BundlesIndexViewModel
         {
             ActiveBundles = new List<BundlesCategoryGroup>
@@ -30,14 +31,17 @@ public class TotalBundles
             DataTimestampUtc = DateTimeOffset.UtcNow
         };
 
+        // Act
         var total = model.TotalBundles;
 
+        // Assert
         total.ShouldBe(3);
     }
 
     [Fact]
     public void WhenIncludeExpiredTrue_CountsActiveAndExpiredBundles()
     {
+        // Arrange
         var model = new BundlesIndexViewModel
         {
             ActiveBundles = new List<BundlesCategoryGroup>
@@ -58,8 +62,10 @@ public class TotalBundles
             DataTimestampUtc = DateTimeOffset.UtcNow
         };
 
+        // Act
         var total = model.TotalBundles;
 
+        // Assert
         total.ShouldBe(5);
     }
 }

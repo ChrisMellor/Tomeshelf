@@ -19,6 +19,7 @@ public class GetComicConGuestsByEventResultAsync
     [Fact]
     public async Task PaginatesAndGroupsGuests()
     {
+        // Arrange
         var page1 = new
         {
             total = 3,
@@ -73,8 +74,10 @@ public class GetComicConGuestsByEventResultAsync
         var cache = new MemoryCache(new MemoryCacheOptions());
         var api = new GuestsApi(new TestHttpClientFactory(client), A.Fake<ILogger<GuestsApi>>(), cache);
 
+        // Act
         var result = await api.GetComicConGuestsByEventResultAsync("mcm-2026", CancellationToken.None);
 
+        // Assert
         result.Total.ShouldBe(3);
         result.Groups.Count.ShouldBe(2);
         result.Groups[0]

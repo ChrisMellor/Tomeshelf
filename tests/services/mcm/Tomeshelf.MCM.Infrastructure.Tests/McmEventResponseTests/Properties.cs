@@ -8,6 +8,7 @@ public class Properties
     [Fact]
     public void CanSetAndGetValues()
     {
+        // Arrange
         var eventId = "event-id-1";
         var eventName = "Event Name";
         var eventSlug = "event-slug";
@@ -20,6 +21,7 @@ public class Properties
             }
         };
 
+        // Act
         var response = new McmEventResponse
         {
             EventId = eventId,
@@ -28,6 +30,7 @@ public class Properties
             People = people
         };
 
+        // Assert
         response.EventId.ShouldBe(eventId);
         response.EventName.ShouldBe(eventName);
         response.EventSlug.ShouldBe(eventSlug);

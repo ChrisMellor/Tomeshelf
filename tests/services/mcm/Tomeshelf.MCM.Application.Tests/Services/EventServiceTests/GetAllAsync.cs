@@ -13,6 +13,7 @@ public class GetAllAsync
     [Fact]
     public async Task MapsEntitiesToModels()
     {
+        // Arrange
         var faker = new Faker();
         var repository = A.Fake<IEventRepository>();
         var service = new EventService(repository);
@@ -40,8 +41,10 @@ public class GetAllAsync
         A.CallTo(() => repository.GetAllAsync(A<CancellationToken>._))
          .Returns(Task.FromResult<IReadOnlyList<EventEntity>>(entities));
 
+        // Act
         var result = await service.GetAllAsync(CancellationToken.None);
 
+        // Assert
         result.Count.ShouldBe(expected.Count);
         for (var index = 0; index < expected.Count; index++)
         {

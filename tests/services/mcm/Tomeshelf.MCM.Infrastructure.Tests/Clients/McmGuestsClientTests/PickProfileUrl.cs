@@ -9,6 +9,7 @@ public class PickProfileUrl
     [Fact]
     public void ReturnsFirstAvailableProfileUrl()
     {
+        // Arrange
         var person = new McmEventResponse.Person
         {
             ProfileUrl = " ",
@@ -16,22 +17,27 @@ public class PickProfileUrl
             Twitter = "https://twitter.example/guest"
         };
 
+        // Act
         var url = McmGuestsClient.PickProfileUrl(person);
 
+        // Assert
         url.ShouldBe("https://imdb.example/guest");
     }
 
     [Fact]
     public void ReturnsTrimmedProfileUrl_WhenPresent()
     {
+        // Arrange
         var person = new McmEventResponse.Person
         {
             ProfileUrl = "  https://profile.example/guest  ",
             Imdb = "https://imdb.example/guest"
         };
 
+        // Act
         var url = McmGuestsClient.PickProfileUrl(person);
 
+        // Assert
         url.ShouldBe("https://profile.example/guest");
     }
 }

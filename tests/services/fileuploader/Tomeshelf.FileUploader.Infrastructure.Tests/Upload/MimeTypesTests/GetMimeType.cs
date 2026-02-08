@@ -16,10 +16,13 @@ public class GetMimeType
     [InlineData("book", "application/octet-stream")]
     public void ReturnsExpectedResult(string fileName, string expected)
     {
+        // Arrange
         var input = fileName;
 
+        // Act
         var mimeType = MimeTypes.GetMimeType(input);
 
+        // Assert
         mimeType.ShouldBe(expected);
     }
 }

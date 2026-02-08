@@ -10,6 +10,7 @@ public class GetAllAsync
     [Fact]
     public async Task ReturnsEventsOrderedByName()
     {
+        // Arrange
         using var context = CreateContext();
         var repository = new EventRepository(context);
         var event1 = new EventEntity
@@ -25,8 +26,10 @@ public class GetAllAsync
         context.Events.AddRange(event1, event2);
         await context.SaveChangesAsync();
 
+        // Act
         var result = await repository.GetAllAsync(CancellationToken.None);
 
+        // Assert
         result.Count.ShouldBe(2);
         result.First()
               .Name

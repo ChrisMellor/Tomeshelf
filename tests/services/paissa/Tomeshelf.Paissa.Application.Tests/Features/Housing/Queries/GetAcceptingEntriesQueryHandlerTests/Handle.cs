@@ -14,6 +14,7 @@ public class Handle
     [Fact]
     public async Task FiltersUnknownSizes_WhenRequireKnownSize()
     {
+        // Arrange
         var client = A.Fake<IPaissaClient>();
         var settings = A.Fake<IPaissaWorldSettings>();
         var clock = A.Fake<IClock>();
@@ -39,8 +40,10 @@ public class Handle
         A.CallTo(() => client.GetWorldAsync(3, A<CancellationToken>._))
          .Returns(Task.FromResult(world));
 
+        // Act
         var result = await handler.Handle(new GetAcceptingEntriesQuery(), CancellationToken.None);
 
+        // Assert
         result.Districts.ShouldHaveSingleItem();
         result.Districts[0]
               .Name
@@ -50,6 +53,7 @@ public class Handle
     [Fact]
     public async Task OrdersDistrictsAndGroupsBySize()
     {
+        // Arrange
         var client = A.Fake<IPaissaClient>();
         var settings = A.Fake<IPaissaWorldSettings>();
         var clock = A.Fake<IClock>();
@@ -80,8 +84,10 @@ public class Handle
         A.CallTo(() => client.GetWorldAsync(7, A<CancellationToken>._))
          .Returns(Task.FromResult(world));
 
+        // Act
         var result = await handler.Handle(new GetAcceptingEntriesQuery(), CancellationToken.None);
 
+        // Assert
         result.Districts.Count.ShouldBe(2);
         result.Districts[0]
               .Name
@@ -127,6 +133,7 @@ public class Handle
     [Fact]
     public async Task ValidQuery_ReturnsPaissaWorldSummary()
     {
+        // Arrange
         var faker = new Faker();
         var client = A.Fake<IPaissaClient>();
         var settings = A.Fake<IPaissaWorldSettings>();
@@ -149,8 +156,10 @@ public class Handle
         A.CallTo(() => client.GetWorldAsync(worldId, A<CancellationToken>._))
          .Returns(Task.FromResult(world));
 
+        // Act
         var result = await handler.Handle(new GetAcceptingEntriesQuery(), CancellationToken.None);
 
+        // Assert
         result.ShouldNotBeNull();
         result.WorldId.ShouldBe(worldId);
         result.WorldName.ShouldBe(worldName);

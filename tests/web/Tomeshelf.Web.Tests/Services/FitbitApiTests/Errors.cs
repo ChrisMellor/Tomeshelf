@@ -16,6 +16,7 @@ public class Errors
     [Fact]
     public async Task WhenServiceUnavailable_ReturnsMessage()
     {
+        // Arrange
         var handler = new StubHttpMessageHandler((_, _) =>
         {
             var response = new HttpResponseMessage(HttpStatusCode.ServiceUnavailable) { Content = new StringContent("service down", Encoding.UTF8, "text/plain") };
@@ -26,8 +27,10 @@ public class Errors
         using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
         var api = new FitbitApi(new TestHttpClientFactory(client), A.Fake<ILogger<FitbitApi>>());
 
+        // Act
         var exception = await Should.ThrowAsync<FitbitBackendUnavailableException>(() => api.GetOverviewAsync("2020-01-01", false, "https://return", CancellationToken.None));
 
+        // Assert
         exception.Message.ShouldBe("service down");
     }
 }

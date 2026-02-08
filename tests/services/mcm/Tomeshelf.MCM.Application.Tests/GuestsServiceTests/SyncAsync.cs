@@ -12,6 +12,7 @@ public class SyncAsync
     [Fact]
     public async Task AddsNewGuest()
     {
+        // Arrange
         var (service, client, mapper, repository) = GuestsServiceTestHarness.CreateService();
         var model = new EventConfigModel { Id = "test-event" };
         var eventEntity = new EventEntity
@@ -39,8 +40,10 @@ public class SyncAsync
         A.CallTo(() => mapper.CloneForEvent(model.Id, A<GuestEntity>._))
          .Returns(guestEntity);
 
+        // Act
         var result = await service.SyncAsync(model, CancellationToken.None);
 
+        // Assert
         result.ShouldNotBeNull();
         result!.Added.ShouldBe(1);
         A.CallTo(() => repository.AddGuest(guestEntity))
@@ -52,6 +55,7 @@ public class SyncAsync
     [Fact]
     public async Task RemovesGuest()
     {
+        // Arrange
         var (service, client, mapper, repository) = GuestsServiceTestHarness.CreateService();
         var model = new EventConfigModel { Id = "test-event" };
         var guestEntity = new GuestEntity
@@ -78,8 +82,10 @@ public class SyncAsync
 
         var before = DateTimeOffset.UtcNow;
 
+        // Act
         var result = await service.SyncAsync(model, CancellationToken.None);
 
+        // Assert
         var after = DateTimeOffset.UtcNow;
         result.ShouldNotBeNull();
         result!.Removed.ShouldBe(1);
@@ -93,19 +99,23 @@ public class SyncAsync
     [Fact]
     public async Task ReturnsNull_WhenEventDoesNotExist()
     {
+        // Arrange
         var (service, _, _, repository) = GuestsServiceTestHarness.CreateService();
         var model = new EventConfigModel { Id = "test-event" };
         A.CallTo(() => repository.GetEventWithGuestsAsync(model.Id, CancellationToken.None))
          .Returns(Task.FromResult<EventEntity?>(null));
 
+        // Act
         var result = await service.SyncAsync(model, CancellationToken.None);
 
+        // Assert
         result.ShouldBeNull();
     }
 
     [Fact]
     public async Task SavesChanges_WhenNoUpdates()
     {
+        // Arrange
         var (service, client, mapper, repository) = GuestsServiceTestHarness.CreateService();
         var model = new EventConfigModel { Id = "test-event" };
         var guestEntity = new GuestEntity
@@ -133,8 +143,10 @@ public class SyncAsync
         A.CallTo(() => mapper.UpdateGuest(guestEntity, A<GuestEntity>._))
          .Returns(false);
 
+        // Act
         var result = await service.SyncAsync(model, CancellationToken.None);
 
+        // Assert
         result.ShouldNotBeNull();
         result!.Added.ShouldBe(0);
         result.Updated.ShouldBe(0);
@@ -146,6 +158,7 @@ public class SyncAsync
     [Fact]
     public async Task UpdatesGuest()
     {
+        // Arrange
         var (service, client, mapper, repository) = GuestsServiceTestHarness.CreateService();
         var model = new EventConfigModel { Id = "test-event" };
         var guestEntity = new GuestEntity
@@ -173,8 +186,10 @@ public class SyncAsync
         A.CallTo(() => mapper.UpdateGuest(guestEntity, A<GuestEntity>._))
          .Returns(true);
 
+        // Act
         var result = await service.SyncAsync(model, CancellationToken.None);
 
+        // Assert
         result.ShouldNotBeNull();
         result!.Updated.ShouldBe(1);
         A.CallTo(() => repository.SaveChangesAsync(CancellationToken.None))

@@ -8,10 +8,13 @@ public class Clear
     [Fact]
     public void RemovesValuesFromSession()
     {
+        // Arrange
         var (cache, session) = CreateCache();
 
+        // Act
         cache.Clear();
 
+        // Assert
         A.CallTo(() => session.Remove("fitbit_access_token"))
          .MustHaveHappenedOnceExactly();
         A.CallTo(() => session.Remove("fitbit_refresh_token"))

@@ -11,8 +11,11 @@ public class ToQueryValue
     [InlineData(WeightUnit.Kilograms, "kg")]
     public void ReturnsExpectedToken(WeightUnit unit, string expected)
     {
+        // Arrange
+        // Act
         var result = WeightUnitConverter.ToQueryValue(unit);
 
+        // Assert
         result.ShouldBe(expected);
     }
 }

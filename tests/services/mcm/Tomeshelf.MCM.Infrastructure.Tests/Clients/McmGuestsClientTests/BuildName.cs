@@ -14,6 +14,7 @@ public class BuildName
     [InlineData(" ", " ", "Johnny")]
     public void BuildsNameCorrectly(string? firstName, string? lastName, string expectedName)
     {
+        // Arrange
         var person = new McmEventResponse.Person
         {
             FirstName = firstName,
@@ -21,8 +22,10 @@ public class BuildName
             AltName = "Johnny"
         };
 
+        // Act
         var result = McmGuestsClient.BuildName(person);
 
+        // Assert
         result.ShouldBe(expectedName);
     }
 }

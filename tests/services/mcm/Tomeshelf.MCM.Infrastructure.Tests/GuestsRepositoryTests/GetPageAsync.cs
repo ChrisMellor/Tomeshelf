@@ -10,6 +10,7 @@ public class GetPageAsync
     [Fact]
     public async Task ReturnsPagedGuests_ExcludingDeleted()
     {
+        // Arrange
         using var context = CreateContext();
         var repository = new GuestsRepository(context);
         var eventId = "test-event";
@@ -38,8 +39,10 @@ public class GetPageAsync
         context.Guests.AddRange(guests);
         await context.SaveChangesAsync();
 
+        // Act
         var result = await repository.GetPageAsync(eventId, 1, 2, false, CancellationToken.None);
 
+        // Assert
         result.ShouldNotBeNull();
         result.Total.ShouldBe(2);
         result.Items.Count.ShouldBe(2);
@@ -53,6 +56,7 @@ public class GetPageAsync
     [Fact]
     public async Task ReturnsPagedGuests_IncludingDeleted()
     {
+        // Arrange
         using var context = CreateContext();
         var repository = new GuestsRepository(context);
         var eventId = "test-event";
@@ -81,8 +85,10 @@ public class GetPageAsync
         context.Guests.AddRange(guests);
         await context.SaveChangesAsync();
 
+        // Act
         var result = await repository.GetPageAsync(eventId, 1, 3, true, CancellationToken.None);
 
+        // Assert
         result.ShouldNotBeNull();
         result.Total.ShouldBe(3);
         result.Items.Count.ShouldBe(3);

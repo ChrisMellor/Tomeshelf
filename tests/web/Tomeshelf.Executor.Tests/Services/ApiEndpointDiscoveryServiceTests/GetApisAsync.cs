@@ -11,6 +11,7 @@ public class GetApisAsync
     [Fact]
     public async Task ReturnsDistinctOrderedServices()
     {
+        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
                                                 {
                                                     ["services:alpha:http:0"] = "https://alpha.test/",
@@ -23,8 +24,10 @@ public class GetApisAsync
 
         var service = new ApiEndpointDiscoveryService(config, A.Fake<IHttpClientFactory>(), A.Fake<ILogger<ApiEndpointDiscoveryService>>());
 
+        // Act
         var results = await service.GetApisAsync(CancellationToken.None);
 
+        // Assert
         results.Count.ShouldBe(3);
         results[0]
            .ServiceName
@@ -49,11 +52,14 @@ public class GetApisAsync
     [Fact]
     public async Task WhenNoServicesSection_ReturnsEmpty()
     {
+        // Arrange
         var config = new ConfigurationBuilder().Build();
         var service = new ApiEndpointDiscoveryService(config, A.Fake<IHttpClientFactory>(), A.Fake<ILogger<ApiEndpointDiscoveryService>>());
 
+        // Act
         var results = await service.GetApisAsync(CancellationToken.None);
 
+        // Assert
         results.ShouldBeEmpty();
     }
 }

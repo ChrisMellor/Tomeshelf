@@ -15,6 +15,7 @@ public class Redeem
     [Fact]
     public async Task WhenApiThrows_ReturnsErrorMessage()
     {
+        // Arrange
         var api = A.Fake<IShiftApi>();
         A.CallTo(() => api.RedeemCodeAsync("ABC", A<CancellationToken>._))
          .Throws(new Exception("boom"));
@@ -22,8 +23,10 @@ public class Redeem
         var controller = new ShiftController(api);
         var model = new ShiftIndexViewModel { Code = "ABC" };
 
+        // Act
         var result = await controller.Redeem(model, CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         view.ViewName.ShouldBe("Index");
         var viewModel = view.Model.ShouldBeOfType<ShiftIndexViewModel>();
@@ -33,12 +36,15 @@ public class Redeem
     [Fact]
     public async Task WhenCodeMissing_ReturnsValidationError()
     {
+        // Arrange
         var api = A.Fake<IShiftApi>();
         var controller = new ShiftController(api);
         var model = new ShiftIndexViewModel { Code = "  " };
 
+        // Act
         var result = await controller.Redeem(model, CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         view.ViewName.ShouldBe("Index");
         var viewModel = view.Model.ShouldBeOfType<ShiftIndexViewModel>();
@@ -56,6 +62,7 @@ public class Redeem
     [Fact]
     public async Task WhenCodeValid_ReturnsResponse()
     {
+        // Arrange
         var api = A.Fake<IShiftApi>();
         var response = new RedeemResponseModel(new RedeemSummaryModel(1, 1, 0), new[] { new RedeemResultModel(1, "user@example.com", "steam", true, null, null) });
         A.CallTo(() => api.RedeemCodeAsync("ABC", A<CancellationToken>._))
@@ -64,8 +71,10 @@ public class Redeem
         var controller = new ShiftController(api);
         var model = new ShiftIndexViewModel { Code = "  ABC  " };
 
+        // Act
         var result = await controller.Redeem(model, CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         view.ViewName.ShouldBe("Index");
         var viewModel = view.Model.ShouldBeOfType<ShiftIndexViewModel>();

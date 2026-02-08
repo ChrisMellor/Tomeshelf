@@ -19,6 +19,7 @@ public class GetBundlesAsync
     [Fact]
     public async Task DeserializesResponse()
     {
+        // Arrange
         var payload = new List<BundleModel>
         {
             new()
@@ -39,8 +40,10 @@ public class GetBundlesAsync
         using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
         var api = new BundlesApi(new TestHttpClientFactory(client), A.Fake<ILogger<BundlesApi>>());
 
+        // Act
         var result = await api.GetBundlesAsync(true, CancellationToken.None);
 
+        // Assert
         var bundle = result.ShouldHaveSingleItem();
         bundle.MachineName.ShouldBe("bundle-one");
         var request = handler.Requests.ShouldHaveSingleItem();
@@ -50,6 +53,7 @@ public class GetBundlesAsync
     [Fact]
     public async Task WhenPayloadEmpty_Throws()
     {
+        // Arrange
         var handler = new StubHttpMessageHandler((_, _) =>
         {
             var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("null", Encoding.UTF8, "application/json") };
@@ -60,8 +64,10 @@ public class GetBundlesAsync
         using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
         var api = new BundlesApi(new TestHttpClientFactory(client), A.Fake<ILogger<BundlesApi>>());
 
+        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(() => api.GetBundlesAsync(false, CancellationToken.None));
 
+        // Assert
         exception.Message.ShouldBe("Empty bundle payload");
     }
 }

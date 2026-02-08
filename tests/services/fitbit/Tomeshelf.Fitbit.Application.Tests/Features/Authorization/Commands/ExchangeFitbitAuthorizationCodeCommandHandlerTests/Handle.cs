@@ -11,6 +11,7 @@ public class Handle
     [Fact]
     public async Task ExchangeAuthorizationCodeThrows_ExceptionIsPropagated()
     {
+        // Arrange
         var faker = new Faker();
         var authorizationService = A.Fake<IFitbitAuthorizationService>();
         var handler = new ExchangeFitbitAuthorizationCodeCommandHandler(authorizationService);
@@ -30,7 +31,9 @@ public class Handle
 
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
+        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(act);
+        // Assert
         exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => authorizationService.TryConsumeState(command.State!, out outCodeVerifier, out outReturnUrl))
          .MustHaveHappenedOnceExactly();
@@ -41,6 +44,7 @@ public class Handle
     [Fact]
     public async Task TryConsumeStateReturnsFalse_ReturnsErrorResult()
     {
+        // Arrange
         var faker = new Faker();
         var authorizationService = A.Fake<IFitbitAuthorizationService>();
         var handler = new ExchangeFitbitAuthorizationCodeCommandHandler(authorizationService);
@@ -51,8 +55,10 @@ public class Handle
         A.CallTo(() => authorizationService.TryConsumeState(command.State!, out outCodeVerifier, out outReturnUrl))
          .Returns(false);
 
+        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
+        // Assert
         result.IsInvalidState.ShouldBeTrue();
         result.ReturnUrl.ShouldBe("/fitness");
         A.CallTo(() => authorizationService.TryConsumeState(command.State!, out outCodeVerifier, out outReturnUrl))
@@ -64,6 +70,7 @@ public class Handle
     [Fact]
     public async Task TryConsumeStateReturnsTrue_CallsExchangeAndReturnsSuccessResult()
     {
+        // Arrange
         var faker = new Faker();
         var authorizationService = A.Fake<IFitbitAuthorizationService>();
         var handler = new ExchangeFitbitAuthorizationCodeCommandHandler(authorizationService);
@@ -80,8 +87,10 @@ public class Handle
         A.CallTo(() => authorizationService.ExchangeAuthorizationCodeAsync(command.Code, codeVerifier, A<CancellationToken>._))
          .Returns(Task.CompletedTask);
 
+        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
+        // Assert
         result.IsInvalidState.ShouldBeFalse();
         result.ReturnUrl.ShouldBe(returnUrl);
         A.CallTo(() => authorizationService.TryConsumeState(command.State!, out outCodeVerifier, out outReturnUrl))

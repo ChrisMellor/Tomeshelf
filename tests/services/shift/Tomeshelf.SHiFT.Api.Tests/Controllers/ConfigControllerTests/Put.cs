@@ -15,6 +15,7 @@ public class Put
     [Fact]
     public async Task ReturnsConflict_WhenDuplicateEmail()
     {
+        // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>();
         var createHandler = A.Fake<ICommandHandler<CreateShiftSettingsCommand, int>>();
         var updateHandler = A.Fake<ICommandHandler<UpdateShiftSettingsCommand, bool>>();
@@ -25,8 +26,10 @@ public class Put
         A.CallTo(() => updateHandler.Handle(A<UpdateShiftSettingsCommand>._, A<CancellationToken>._))
          .Throws<InvalidOperationException>();
 
+        // Act
         var result = await controller.Put(7, request, CancellationToken.None);
 
+        // Assert
         var conflict = result.ShouldBeOfType<ConflictObjectResult>();
         conflict.Value.ShouldBe("SHiFT email already exists.");
     }
@@ -34,6 +37,7 @@ public class Put
     [Fact]
     public async Task ReturnsNoContent_WhenUpdated()
     {
+        // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>();
         var createHandler = A.Fake<ICommandHandler<CreateShiftSettingsCommand, int>>();
         var updateHandler = A.Fake<ICommandHandler<UpdateShiftSettingsCommand, bool>>();
@@ -46,8 +50,10 @@ public class Put
          .Invokes(call => captured = call.GetArgument<UpdateShiftSettingsCommand>(0))
          .Returns(Task.FromResult(true));
 
+        // Act
         var result = await controller.Put(7, request, CancellationToken.None);
 
+        // Assert
         result.ShouldBeOfType<NoContentResult>();
         captured.ShouldNotBeNull();
         captured!.Id.ShouldBe(7);
@@ -59,6 +65,7 @@ public class Put
     [Fact]
     public async Task ReturnsNotFound_WhenMissing()
     {
+        // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>();
         var createHandler = A.Fake<ICommandHandler<CreateShiftSettingsCommand, int>>();
         var updateHandler = A.Fake<ICommandHandler<UpdateShiftSettingsCommand, bool>>();
@@ -69,8 +76,10 @@ public class Put
         A.CallTo(() => updateHandler.Handle(A<UpdateShiftSettingsCommand>._, A<CancellationToken>._))
          .Returns(Task.FromResult(false));
 
+        // Act
         var result = await controller.Put(7, request, CancellationToken.None);
 
+        // Assert
         result.ShouldBeOfType<NotFoundResult>();
     }
 }

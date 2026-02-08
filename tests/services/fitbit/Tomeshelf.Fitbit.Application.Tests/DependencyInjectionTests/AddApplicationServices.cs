@@ -17,6 +17,7 @@ public class AddApplicationServices
     [Fact]
     public void RegistersHandlers()
     {
+        // Arrange
         var services = new ServiceCollection();
         services.AddSingleton(A.Fake<IFitbitDashboardService>());
         services.AddSingleton(A.Fake<IFitbitOverviewService>());
@@ -25,8 +26,10 @@ public class AddApplicationServices
 
         services.AddApplicationServices();
 
+        // Act
         using var provider = services.BuildServiceProvider();
 
+        // Assert
         provider.GetRequiredService<IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto>>()
                 .ShouldBeOfType<GetFitbitDashboardQueryHandler>();
         provider.GetRequiredService<IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto>>()

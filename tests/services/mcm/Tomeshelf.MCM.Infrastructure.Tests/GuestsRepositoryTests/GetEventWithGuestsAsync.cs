@@ -10,6 +10,7 @@ public class GetEventWithGuestsAsync
     [Fact]
     public async Task ReturnsEventWithGuests()
     {
+        // Arrange
         using var context = CreateContext();
         var repository = new GuestsRepository(context);
         var eventId = "test-event";
@@ -36,8 +37,10 @@ public class GetEventWithGuestsAsync
         context.Events.Add(eventEntity);
         await context.SaveChangesAsync();
 
+        // Act
         var result = await repository.GetEventWithGuestsAsync(eventId, CancellationToken.None);
 
+        // Assert
         result.ShouldNotBeNull();
         result!.Id.ShouldBe(eventId);
         result.Guests.Count.ShouldBe(2);

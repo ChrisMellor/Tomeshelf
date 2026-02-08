@@ -21,6 +21,7 @@ public class GetComicConEventsAsync
     [Fact]
     public async Task FiltersAndCachesEvents()
     {
+        // Arrange
         var payload = new List<McmEventConfigModel>
         {
             new()
@@ -54,9 +55,11 @@ public class GetComicConEventsAsync
         var cache = new MemoryCache(new MemoryCacheOptions());
         var api = new GuestsApi(new TestHttpClientFactory(client), A.Fake<ILogger<GuestsApi>>(), cache);
 
+        // Act
         var first = await api.GetComicConEventsAsync(CancellationToken.None);
         var second = await api.GetComicConEventsAsync(CancellationToken.None);
 
+        // Assert
         callCount.ShouldBe(1);
         first.Count.ShouldBe(2);
         first[0]

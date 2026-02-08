@@ -12,6 +12,7 @@ public class Handle
     [Fact]
     public async Task ValidQuery_CallsGetAllAsyncAndReturnsResult()
     {
+        // Arrange
         var faker = new Faker();
         var service = A.Fake<IEventService>();
         var handler = new GetEventsQueryHandler(service);
@@ -32,8 +33,10 @@ public class Handle
         A.CallTo(() => service.GetAllAsync(A<CancellationToken>._))
          .Returns(Task.FromResult(expectedEvents));
 
+        // Act
         var result = await handler.Handle(new GetEventsQuery(), CancellationToken.None);
 
+        // Assert
         result.Count.ShouldBe(expectedEvents.Count);
         for (var index = 0; index < expectedEvents.Count; index++)
         {

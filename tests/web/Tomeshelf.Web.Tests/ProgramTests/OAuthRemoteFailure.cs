@@ -12,13 +12,16 @@ public class OAuthRemoteFailure
     [Fact]
     public async Task WritesSessionAndRedirects()
     {
+        // Arrange
         using var app = ProgramTestHarness.BuildApp(Environments.Development, ProgramTestHarness.GoogleDriveConfig("config@example.test"));
         var options = ProgramTestHarness.GetOAuthOptions(app);
         var (httpContext, _) = ProgramTestHarness.CreateSessionContext();
         var context = ProgramTestHarness.CreateRemoteFailureContext(httpContext, options, new InvalidOperationException("boom"));
 
+        // Act
         await options.Events.RemoteFailure(context);
 
+        // Assert
         httpContext.Session
                    .GetString(ProgramTestHarness.ErrorKey)
                    .ShouldBe("boom");

@@ -14,6 +14,7 @@ public class Get
     [Fact]
     public async Task ReturnsOk_WithConfigs()
     {
+        // Arrange
         var getHandler = A.Fake<IQueryHandler<GetEventsQuery, IReadOnlyList<EventConfigModel>>>();
         var upsertHandler = A.Fake<ICommandHandler<UpsertEventCommand, bool>>();
         var deleteHandler = A.Fake<ICommandHandler<DeleteEventCommand, bool>>();
@@ -35,8 +36,10 @@ public class Get
         A.CallTo(() => getHandler.Handle(A<GetEventsQuery>._, A<CancellationToken>._))
          .Returns(Task.FromResult<IReadOnlyList<EventConfigModel>>(configs));
 
+        // Act
         var result = await controller.Get(CancellationToken.None);
 
+        // Assert
         var ok = result.ShouldBeOfType<OkObjectResult>();
         var payload = ok.Value.ShouldBeAssignableTo<IReadOnlyList<EventConfigModel>>();
         payload.ShouldBe(configs);

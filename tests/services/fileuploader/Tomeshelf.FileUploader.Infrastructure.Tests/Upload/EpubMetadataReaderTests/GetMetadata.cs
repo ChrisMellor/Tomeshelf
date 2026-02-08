@@ -9,9 +9,12 @@ public class GetMetadata
     [Fact]
     public void ReadsTitleFromEpub()
     {
+        // Arrange
         var tempDir = CreateTempDirectory();
+        // Act
         var epubPath = Path.Combine(tempDir, "book.epub");
 
+        // Assert
         try
         {
             using (var zip = ZipFile.Open(epubPath, ZipArchiveMode.Create))

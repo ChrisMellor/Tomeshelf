@@ -8,6 +8,7 @@ public class Properties
     [Fact]
     public void CanSetAndGetValues()
     {
+        // Arrange
         var eventId = "event-id-1";
         var eventName = "Event Name";
         var eventSlug = "event-slug";
@@ -20,6 +21,7 @@ public class Properties
             }
         };
 
+        // Act
         var dto = new EventDto
         {
             EventId = eventId,
@@ -28,6 +30,7 @@ public class Properties
             People = people
         };
 
+        // Assert
         dto.EventId.ShouldBe(eventId);
         dto.EventName.ShouldBe(eventName);
         dto.EventSlug.ShouldBe(eventSlug);
@@ -37,13 +40,16 @@ public class Properties
     [Fact]
     public void DefaultsAreEmptyOrNull()
     {
+        // Arrange
         var dto = new EventDto();
 
         var eventId = dto.EventId;
         var eventName = dto.EventName;
         var eventSlug = dto.EventSlug;
+        // Act
         var people = dto.People;
 
+        // Assert
         eventId.ShouldBeNull();
         eventName.ShouldBeNull();
         eventSlug.ShouldBeNull();

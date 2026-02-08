@@ -15,6 +15,7 @@ public class RefreshAsync
     [Fact]
     public async Task WhenDisabled_RemovesJobsAndStandby()
     {
+        // Arrange
         var scheduler = A.Fake<IScheduler>();
         var staleJob = new JobKey("old-endpoint", "ExecutorEndpoints");
         A.CallTo(() => scheduler.GetJobKeys(A<GroupMatcher<JobKey>>._, A<CancellationToken>._))
@@ -43,8 +44,10 @@ public class RefreshAsync
             }
         };
 
+        // Act
         await orchestrator.RefreshAsync(options, CancellationToken.None);
 
+        // Assert
         A.CallTo(() => scheduler.DeleteJob(staleJob, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
         A.CallTo(() => scheduler.ScheduleJob(A<IJobDetail>._, A<IReadOnlyCollection<ITrigger>>._, true, A<CancellationToken>._))
@@ -56,6 +59,7 @@ public class RefreshAsync
     [Fact]
     public async Task WhenEnabled_SchedulesEndpointsAndStarts()
     {
+        // Arrange
         var scheduled = new List<(IJobDetail Job, ITrigger Trigger)>();
         var scheduler = A.Fake<IScheduler>();
         A.CallTo(() => scheduler.GetJobKeys(A<GroupMatcher<JobKey>>._, A<CancellationToken>._))
@@ -109,8 +113,10 @@ public class RefreshAsync
 
         var orchestrator = new ExecutorSchedulerOrchestrator(factory, new TestOptionsMonitor<ExecutorOptions>(options), A.Fake<ILogger<ExecutorSchedulerOrchestrator>>());
 
+        // Act
         await orchestrator.RefreshAsync(options, CancellationToken.None);
 
+        // Assert
         scheduled.Count.ShouldBe(2);
         scheduled.ShouldContain(item => (item.Job.Key.Name == "Alpha") && (item.Job.Key.Group == "ExecutorEndpoints"));
         scheduled.ShouldContain(item => (item.Job.Key.Name == "Beta") && (item.Job.Key.Group == "ExecutorEndpoints"));

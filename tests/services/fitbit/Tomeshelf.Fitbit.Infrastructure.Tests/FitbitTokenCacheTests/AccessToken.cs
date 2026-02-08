@@ -11,8 +11,11 @@ public class AccessToken
     [Fact]
     public void WhenInSession_ReturnsValue()
     {
+        // Arrange
         var faker = new Faker();
+        // Act
         var token = faker.Random.AlphaNumeric(16);
+        // Assert
         var bytes = Encoding.UTF8.GetBytes(token);
         var (cache, session) = CreateCache();
 
@@ -29,14 +32,17 @@ public class AccessToken
     [Fact]
     public void WhenNotInSession_ReturnsNull()
     {
+        // Arrange
         var (cache, session) = CreateCache();
 
         byte[]? stored = null;
         A.CallTo(() => session.TryGetValue("fitbit_access_token", out stored))
          .Returns(false);
 
+        // Act
         var result = cache.AccessToken;
 
+        // Assert
         result.ShouldBeNull();
     }
 

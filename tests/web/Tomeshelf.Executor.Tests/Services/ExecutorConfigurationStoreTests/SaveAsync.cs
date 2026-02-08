@@ -12,7 +12,10 @@ public class SaveAsync
     [Fact]
     public async Task WritesAndReadsBack()
     {
+        // Arrange
+        // Act
         var (directory, restore) = ExecutorConfigurationStoreTestHarness.PrepareSettingsDirectory();
+        // Assert
         try
         {
             var environment = new TestHostEnvironment

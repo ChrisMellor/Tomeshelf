@@ -17,6 +17,7 @@ public class EnumParsing
     [Fact]
     public async Task ParsesErrorCodeEnumFromString()
     {
+        // Arrange
         var json = "{\"summary\":{\"total\":1,\"succeeded\":0,\"failed\":1},\"results\":[{\"accountId\":1,\"email\":\"user@example.com\",\"service\":\"steam\",\"success\":false,\"errorCode\":\"NetworkError\",\"message\":\"oops\"}]}";
 
         var handler = new StubHttpMessageHandler((_, _) =>
@@ -29,8 +30,10 @@ public class EnumParsing
         using var client = new HttpClient(handler) { BaseAddress = new Uri("https://example.test/") };
         var api = new ShiftApi(new TestHttpClientFactory(client), A.Fake<ILogger<ShiftApi>>());
 
+        // Act
         var result = await api.RedeemCodeAsync("ABC", CancellationToken.None);
 
+        // Assert
         result.Results[0]
               .ErrorCode
               .ShouldBe(RedeemErrorCode.NetworkError);

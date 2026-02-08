@@ -13,6 +13,7 @@ public class CreateAsync
     [Fact]
     public async Task PersistsTrimmedValues_AndProtectsPassword()
     {
+        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
         A.CallTo(() => protector.Protect("secret"))
@@ -30,7 +31,9 @@ public class CreateAsync
         var id = await repository.CreateAsync(request, CancellationToken.None);
         var after = DateTimeOffset.UtcNow;
 
+        // Act
         var stored = await context.ShiftSettings.SingleAsync(entity => entity.Id == id);
+        // Assert
         stored.Email.ShouldBe("user@example.com");
         stored.DefaultService.ShouldBe("steam");
         stored.EncryptedPassword.ShouldBe("encrypted");
@@ -40,6 +43,7 @@ public class CreateAsync
     [Fact]
     public async Task Throws_WhenEmailAlreadyExists()
     {
+        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
         var repository = new ShiftSettingsRepository(context, protector);
@@ -61,7 +65,9 @@ public class CreateAsync
 
         var action = () => repository.CreateAsync(request, CancellationToken.None);
 
+        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(action);
+        // Assert
         exception.Message.ShouldBe("SHiFT email already exists");
     }
 
@@ -71,6 +77,7 @@ public class CreateAsync
     [InlineData("user@example.com", "psn", " ", "password", "Missing password")]
     public async Task ThrowsWhenRequiredValuesMissing(string email, string service, string password, string paramName, string expectedMessage)
     {
+        // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
         var repository = new ShiftSettingsRepository(context, protector);
@@ -84,7 +91,9 @@ public class CreateAsync
 
         var action = () => repository.CreateAsync(request, CancellationToken.None);
 
+        // Act
         var exception = await Should.ThrowAsync<ArgumentNullException>(action);
+        // Assert
         exception.ParamName.ShouldBe(paramName);
         exception.Message.ShouldContain(expectedMessage);
     }

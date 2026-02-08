@@ -13,6 +13,7 @@ public class Handle
     [Fact]
     public async Task CallsServiceWithEventModel()
     {
+        // Arrange
         var faker = new Faker();
         var service = A.Fake<IGuestsService>();
         var handler = new SyncGuestsCommandHandler(service);
@@ -23,8 +24,10 @@ public class Handle
         A.CallTo(() => service.SyncAsync(A<EventConfigModel>.That.Matches(model => (model.Id == eventId) && (model.Name == string.Empty)), A<CancellationToken>._))
          .Returns(Task.FromResult(expected));
 
+        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
+        // Assert
         result.ShouldBeSameAs(expected);
         A.CallTo(() => service.SyncAsync(A<EventConfigModel>.That.Matches(model => (model.Id == eventId) && (model.Name == string.Empty)), A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();

@@ -13,6 +13,7 @@ public class Handle
     [Fact]
     public async Task ScraperThrowsException_ExceptionIsPropagated()
     {
+        // Arrange
         var faker = new Faker();
         var scraper = A.Fake<IHumbleBundleScraper>();
         var ingestService = A.Fake<IBundleIngestService>();
@@ -24,7 +25,9 @@ public class Handle
 
         Func<Task> act = () => handler.Handle(new RefreshBundlesCommand(), CancellationToken.None);
 
+        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(act);
+        // Assert
         exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => ingestService.UpsertAsync(A<IReadOnlyList<ScrapedBundle>>._, A<CancellationToken>._))
          .MustNotHaveHappened();
@@ -33,6 +36,7 @@ public class Handle
     [Fact]
     public async Task ValidCommand_CallsScraperAndIngestService()
     {
+        // Arrange
         var faker = new Faker();
         var scraper = A.Fake<IHumbleBundleScraper>();
         var ingestService = A.Fake<IBundleIngestService>();
@@ -48,8 +52,10 @@ public class Handle
         A.CallTo(() => ingestService.UpsertAsync(scrapedBundles, A<CancellationToken>._))
          .Returns(Task.FromResult(expectedResult));
 
+        // Act
         var result = await handler.Handle(new RefreshBundlesCommand(), CancellationToken.None);
 
+        // Assert
         result.ShouldBe(expectedResult);
         A.CallTo(() => scraper.ScrapeAsync(A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();

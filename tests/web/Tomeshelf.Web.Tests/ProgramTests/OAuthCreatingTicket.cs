@@ -13,6 +13,7 @@ public class OAuthCreatingTicket
     [Fact]
     public async Task SetsSessionValuesFromLoginHint()
     {
+        // Arrange
         using var app = ProgramTestHarness.BuildApp(Environments.Development, ProgramTestHarness.GoogleDriveConfig("config@example.test"));
         var options = ProgramTestHarness.GetOAuthOptions(app);
         var (httpContext, _) = ProgramTestHarness.CreateSessionContext();
@@ -23,8 +24,10 @@ public class OAuthCreatingTicket
         using var userDoc = JsonDocument.Parse("{}");
         var context = ProgramTestHarness.CreateOAuthContext(httpContext, options, properties, tokenDoc, userDoc);
 
+        // Act
         await options.Events.CreatingTicket(context);
 
+        // Assert
         httpContext.Session
                    .GetString(ProgramTestHarness.ClientIdKey)
                    .ShouldBe("client-id");
@@ -42,6 +45,7 @@ public class OAuthCreatingTicket
     [Fact]
     public async Task UsesConfiguredEmailWhenNoLoginHint()
     {
+        // Arrange
         using var app = ProgramTestHarness.BuildApp(Environments.Development, ProgramTestHarness.GoogleDriveConfig("config@example.test"));
         var options = ProgramTestHarness.GetOAuthOptions(app);
         var (httpContext, _) = ProgramTestHarness.CreateSessionContext();
@@ -50,8 +54,10 @@ public class OAuthCreatingTicket
         using var userDoc = JsonDocument.Parse("{}");
         var context = ProgramTestHarness.CreateOAuthContext(httpContext, options, null, tokenDoc, userDoc);
 
+        // Act
         await options.Events.CreatingTicket(context);
 
+        // Assert
         httpContext.Session
                    .GetString(ProgramTestHarness.UserEmailKey)
                    .ShouldBe("config@example.test");
@@ -60,6 +66,7 @@ public class OAuthCreatingTicket
     [Fact]
     public async Task WhenRefreshTokenMissing_SetsError()
     {
+        // Arrange
         using var app = ProgramTestHarness.BuildApp(Environments.Development, ProgramTestHarness.GoogleDriveConfig("config@example.test"));
         var options = ProgramTestHarness.GetOAuthOptions(app);
         var (httpContext, _) = ProgramTestHarness.CreateSessionContext();
@@ -68,8 +75,10 @@ public class OAuthCreatingTicket
         using var userDoc = JsonDocument.Parse("{}");
         var context = ProgramTestHarness.CreateOAuthContext(httpContext, options, null, tokenDoc, userDoc);
 
+        // Act
         await options.Events.CreatingTicket(context);
 
+        // Assert
         httpContext.Session
                    .GetString(ProgramTestHarness.ErrorKey)
                    .ShouldBe("Google did not return a refresh token. Re-run the flow and accept offline access.");

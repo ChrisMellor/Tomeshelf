@@ -13,8 +13,11 @@ public class IsValid
     [InlineData("::::")]
     public void InvalidInputs_ReturnsError(string value)
     {
+        // Arrange
+        // Act
         var result = _attribute.GetValidationResult(value, new ValidationContext(new object()) { DisplayName = "Url" });
 
+        // Assert
         result.ShouldNotBe(ValidationResult.Success);
         result.ShouldNotBeNull();
         result!.ErrorMessage.ShouldContain("must be a fully-qualified http, https, or ftp URL");
@@ -30,8 +33,11 @@ public class IsValid
     [InlineData("  ")]
     public void ValidInputs_ReturnsSuccess(string? value)
     {
+        // Arrange
+        // Act
         var result = _attribute.GetValidationResult(value, new ValidationContext(new object()));
 
+        // Assert
         result.ShouldBe(ValidationResult.Success);
     }
 }

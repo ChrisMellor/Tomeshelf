@@ -13,13 +13,16 @@ public class AddApplicationServices
     [Fact]
     public void RegistersHandlers()
     {
+        // Arrange
         var services = new ServiceCollection();
         services.AddSingleton(A.Fake<IHumbleBundleUploadService>());
 
         services.AddApplicationServices();
 
+        // Act
         using var provider = services.BuildServiceProvider();
 
+        // Assert
         provider.GetRequiredService<ICommandHandler<UploadBundleArchiveCommand, BundleUploadResult>>()
                 .ShouldBeOfType<UploadBundleArchiveCommandHandler>();
     }

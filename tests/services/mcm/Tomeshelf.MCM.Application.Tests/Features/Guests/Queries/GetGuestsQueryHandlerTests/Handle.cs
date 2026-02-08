@@ -13,6 +13,7 @@ public class Handle
     [Fact]
     public async Task BuildsEventConfigModelAndCallsService()
     {
+        // Arrange
         var faker = new Faker();
         var service = A.Fake<IGuestsService>();
         var handler = new GetGuestsQueryHandler(service);
@@ -24,8 +25,10 @@ public class Handle
         A.CallTo(() => service.GetAsync(A<EventConfigModel>.That.Matches(model => (model.Id == eventId) && (model.Name == eventName)), 2, 25, true, A<CancellationToken>._))
          .Returns(Task.FromResult(expected));
 
+        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
+        // Assert
         result.ShouldBeSameAs(expected);
         A.CallTo(() => service.GetAsync(A<EventConfigModel>.That.Matches(model => (model.Id == eventId) && (model.Name == eventName)), 2, 25, true, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
@@ -34,6 +37,7 @@ public class Handle
     [Fact]
     public async Task UsesEmptyNameWhenMissing()
     {
+        // Arrange
         var faker = new Faker();
         var service = A.Fake<IGuestsService>();
         var handler = new GetGuestsQueryHandler(service);
@@ -44,8 +48,10 @@ public class Handle
         A.CallTo(() => service.GetAsync(A<EventConfigModel>.That.Matches(model => (model.Id == eventId) && (model.Name == string.Empty)), 0, 10, false, A<CancellationToken>._))
          .Returns(Task.FromResult(expected));
 
+        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
+        // Assert
         result.ShouldBeSameAs(expected);
         A.CallTo(() => service.GetAsync(A<EventConfigModel>.That.Matches(model => (model.Id == eventId) && (model.Name == string.Empty)), 0, 10, false, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();

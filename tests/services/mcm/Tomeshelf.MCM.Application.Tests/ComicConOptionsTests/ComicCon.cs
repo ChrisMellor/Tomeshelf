@@ -7,7 +7,9 @@ public class ComicCon
     [Fact]
     public void CanSetAndGetList()
     {
+        // Arrange
         var options = new ComicConOptions();
+        // Act
         var locations = new List<Location>
         {
             new Location
@@ -22,6 +24,7 @@ public class ComicCon
             }
         };
 
+        // Assert
         options.ComicCon = locations;
 
         options.ComicCon.ShouldBeSameAs(locations);
@@ -30,10 +33,13 @@ public class ComicCon
     [Fact]
     public void DefaultsToEmptyList()
     {
+        // Arrange
         var options = new ComicConOptions();
 
+        // Act
         var comicCon = options.ComicCon;
 
+        // Assert
         comicCon.ShouldNotBeNull();
         comicCon.ShouldBeEmpty();
     }

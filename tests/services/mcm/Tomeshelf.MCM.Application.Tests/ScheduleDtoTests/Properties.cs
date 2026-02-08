@@ -8,6 +8,7 @@ public class Properties
     [Fact]
     public void CanSetAndGetValues()
     {
+        // Arrange
         var id = "schedule-id-1";
         var title = "Panel Discussion";
         var description = "A panel discussion on various topics.";
@@ -21,6 +22,7 @@ public class Properties
             Name = "Convention Center"
         };
 
+        // Act
         var dto = new ScheduleDto
         {
             Id = id,
@@ -33,6 +35,7 @@ public class Properties
             VenueLocation = venueLocation
         };
 
+        // Assert
         dto.Id.ShouldBe(id);
         dto.Title.ShouldBe(title);
         dto.Description.ShouldBe(description);
@@ -46,6 +49,7 @@ public class Properties
     [Fact]
     public void DefaultsAreExpected()
     {
+        // Arrange
         var dto = new ScheduleDto();
 
         var id = dto.Id;
@@ -54,8 +58,10 @@ public class Properties
         var startTime = dto.StartTime;
         var endTime = dto.EndTime;
         var location = dto.Location;
+        // Act
         var venueLocation = dto.VenueLocation;
 
+        // Assert
         id.ShouldBeNull();
         title.ShouldBeNull();
         description.ShouldBeNull();

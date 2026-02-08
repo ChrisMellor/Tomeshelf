@@ -14,6 +14,7 @@ public class Handle
     [Fact]
     public async Task EmailAlreadyExists_ThrowsInvalidOperationException()
     {
+        // Arrange
         var faker = new Faker();
         var repository = A.Fake<IShiftSettingsRepository>();
         var protector = A.Fake<ISecretProtector>();
@@ -27,8 +28,10 @@ public class Handle
         A.CallTo(() => repository.EmailExistsAsync(email, 1, A<CancellationToken>._))
          .Returns(Task.FromResult(true));
 
+        // Act
         var command = new UpdateShiftSettingsCommand(1, email, faker.Internet.Password(), "psn");
 
+        // Assert
         Func<Task> act = () => handler.Handle(command, CancellationToken.None);
 
         await Should.ThrowAsync<InvalidOperationException>(act);
@@ -37,6 +40,7 @@ public class Handle
     [Fact]
     public async Task EmptyPassword_SetsEncryptedPasswordToNull()
     {
+        // Arrange
         var faker = new Faker();
         var repository = A.Fake<IShiftSettingsRepository>();
         var protector = A.Fake<ISecretProtector>();
@@ -60,8 +64,10 @@ public class Handle
 
         var command = new UpdateShiftSettingsCommand(9, faker.Internet.Email(), string.Empty, "steam");
 
+        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
+        // Assert
         result.ShouldBeTrue();
         entity.EncryptedPassword.ShouldBeNull();
         A.CallTo(() => protector.Protect(A<string>._))
@@ -71,6 +77,7 @@ public class Handle
     [Fact]
     public async Task EntityNotFound_ReturnsFalse()
     {
+        // Arrange
         var faker = new Faker();
         var repository = A.Fake<IShiftSettingsRepository>();
         var protector = A.Fake<ISecretProtector>();
@@ -82,14 +89,17 @@ public class Handle
 
         var command = new UpdateShiftSettingsCommand(1, faker.Internet.Email(), faker.Internet.Password(), "psn");
 
+        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
+        // Assert
         result.ShouldBeFalse();
     }
 
     [Fact]
     public async Task PasswordNull_DoesNotChangeEncryptedPassword()
     {
+        // Arrange
         var faker = new Faker();
         var repository = A.Fake<IShiftSettingsRepository>();
         var protector = A.Fake<ISecretProtector>();
@@ -113,8 +123,10 @@ public class Handle
 
         var command = new UpdateShiftSettingsCommand(4, faker.Internet.Email(), null, "steam");
 
+        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
+        // Assert
         result.ShouldBeTrue();
         entity.EncryptedPassword.ShouldBe("existing");
         A.CallTo(() => protector.Protect(A<string>._))
@@ -124,6 +136,7 @@ public class Handle
     [Fact]
     public async Task ValidCommandWithPassword_UpdatesEntityAndReturnsTrue()
     {
+        // Arrange
         var faker = new Faker();
         var repository = A.Fake<IShiftSettingsRepository>();
         var protector = A.Fake<ISecretProtector>();
@@ -150,8 +163,10 @@ public class Handle
 
         var command = new UpdateShiftSettingsCommand(1, newEmail, password, "xbox");
 
+        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
+        // Assert
         result.ShouldBeTrue();
         entity.Email.ShouldBe(newEmail);
         entity.DefaultService.ShouldBe("xbox");

@@ -7,11 +7,14 @@ public class Defaults
     [Fact]
     public void Defaults_AreExpected()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions();
 
         var lookback = options.LookbackHours;
+        // Act
         var x = options.X;
 
+        // Assert
         lookback.ShouldBe(24);
         x.Enabled.ShouldBeTrue();
         x.ApiBaseV2.ShouldBe("https://api.x.com/2/");

@@ -20,6 +20,7 @@ public class Index
     [Fact]
     public async Task BuildsGroupedBundlesAndSetsCookie()
     {
+        // Arrange
         var now = DateTimeOffset.UtcNow;
         var lastViewed = now.AddDays(-2);
 
@@ -96,8 +97,10 @@ public class Index
 
         var controller = new BundlesController(api, A.Fake<IFileUploadsApi>()) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
+        // Act
         var result = await controller.Index(false, CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<BundlesIndexViewModel>();
 

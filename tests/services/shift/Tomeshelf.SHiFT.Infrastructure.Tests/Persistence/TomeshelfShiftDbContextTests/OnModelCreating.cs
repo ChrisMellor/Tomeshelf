@@ -10,13 +10,16 @@ public class OnModelCreating
     [Fact]
     public void SettingsEntity_IsConfiguredWithExpectedMetadata()
     {
+        // Arrange
         var options = new DbContextOptionsBuilder<TomeshelfShiftDbContext>().UseInMemoryDatabase($"ShiftSettingsTest-{Guid.NewGuid():N}")
                                                                             .Options;
 
         using var context = new TomeshelfShiftDbContext(options);
 
+        // Act
         var entityType = context.Model.FindEntityType(typeof(SettingsEntity));
 
+        // Assert
         entityType.ShouldNotBeNull();
         entityType!.GetTableName()
                    .ShouldBe("ShiftSettings");

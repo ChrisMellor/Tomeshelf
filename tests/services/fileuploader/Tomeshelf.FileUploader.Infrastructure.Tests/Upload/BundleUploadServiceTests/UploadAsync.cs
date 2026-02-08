@@ -12,6 +12,7 @@ public class UploadAsync
     [Fact]
     public async Task ThrowsWhenNoFilesFound()
     {
+        // Arrange
         using var archive = CreateZipStream();
         var organiser = new BundleFileOrganiser();
         var factory = new RecordingDriveFactory();
@@ -26,7 +27,9 @@ public class UploadAsync
 
         var action = async () => await service.UploadAsync(archive, "bundle.zip", null, CancellationToken.None);
 
+        // Act
         var exception = await Should.ThrowAsync<InvalidOperationException>(action);
+        // Assert
         exception.Message.ShouldContain("No files were found in the uploaded bundle.");
         factory.CreateCalls.ShouldBe(0);
     }
@@ -34,6 +37,7 @@ public class UploadAsync
     [Fact]
     public async Task UploadsFilesAndUsesOverrideOptions()
     {
+        // Arrange
         using var archive = CreateZipStream(("My Bundle by Author/BookOne.txt", "content"), ("My Bundle by Author/BookOne_supplement.zip", "supplement"));
 
         var organiser = new BundleFileOrganiser();
@@ -61,8 +65,10 @@ public class UploadAsync
 
         var service = new BundleUploadService(organiser, factory, options, NullLogger<BundleUploadService>.Instance);
 
+        // Act
         var result = await service.UploadAsync(archive, "bundle.zip", overrideOptions, CancellationToken.None);
 
+        // Assert
         result.ShouldNotBeNull();
         result.BundlesProcessed.ShouldBe(1);
         result.BooksProcessed.ShouldBe(1);

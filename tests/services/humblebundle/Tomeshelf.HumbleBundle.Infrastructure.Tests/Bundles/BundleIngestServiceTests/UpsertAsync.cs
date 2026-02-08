@@ -12,6 +12,7 @@ public class UpsertAsync
     [Fact]
     public async Task CreatesNewBundles_AndPopulatesTimestamps()
     {
+        // Arrange
         await using var context = CreateContext();
         var service = new BundleIngestService(context, NullLogger<BundleIngestService>.Instance);
 
@@ -20,12 +21,14 @@ public class UpsertAsync
         var first = CreateScrapedBundle("bundle-one", observedFirst);
         var second = CreateScrapedBundle("bundle-two", observedSecond, title: "Bundle Two", url: "https://example.com/bundle-two");
 
+        // Act
         var result = await service.UpsertAsync(new List<ScrapedBundle>
         {
             first,
             second
         }, CancellationToken.None);
 
+        // Assert
         result.Created.ShouldBe(2);
         result.Updated.ShouldBe(0);
         result.Unchanged.ShouldBe(0);
@@ -55,6 +58,7 @@ public class UpsertAsync
     [Fact]
     public async Task LeavesBundleUnchanged_WhenNoFieldsChange()
     {
+        // Arrange
         await using var context = CreateContext();
         var existingFirstSeen = DateTimeOffset.UtcNow.AddDays(-5);
         var existingUpdated = DateTimeOffset.UtcNow.AddDays(-3);
@@ -83,8 +87,10 @@ public class UpsertAsync
         var observed = DateTimeOffset.UtcNow;
         var scraped = CreateScrapedBundle("bundle-one", observed, title: "Bundle One", shortName: "Bundle", url: "https://example.com/bundle-one", shortDescription: "desc", tileImageUrl: "tile", tileLogoUrl: "logo", heroImageUrl: "hero", startsAt: existingFirstSeen, endsAt: existingFirstSeen.AddDays(1));
 
+        // Act
         var result = await service.UpsertAsync(new List<ScrapedBundle> { scraped }, CancellationToken.None);
 
+        // Assert
         result.Created.ShouldBe(0);
         result.Updated.ShouldBe(0);
         result.Unchanged.ShouldBe(1);
@@ -98,6 +104,7 @@ public class UpsertAsync
     [Fact]
     public async Task ReturnsZeros_WhenNoBundlesSupplied()
     {
+        // Arrange
         await using var context = CreateContext();
         context.Bundles.Add(new Bundle
         {
@@ -109,8 +116,10 @@ public class UpsertAsync
         var service = new BundleIngestService(context, NullLogger<BundleIngestService>.Instance);
         var before = DateTimeOffset.UtcNow;
 
+        // Act
         var result = await service.UpsertAsync(Array.Empty<ScrapedBundle>(), CancellationToken.None);
 
+        // Assert
         var after = DateTimeOffset.UtcNow;
         result.Created.ShouldBe(0);
         result.Updated.ShouldBe(0);
@@ -123,6 +132,7 @@ public class UpsertAsync
     [Fact]
     public async Task ReusesEntity_WhenDuplicateMachineNamesScraped()
     {
+        // Arrange
         await using var context = CreateContext();
         var service = new BundleIngestService(context, NullLogger<BundleIngestService>.Instance);
 
@@ -131,12 +141,14 @@ public class UpsertAsync
         var first = CreateScrapedBundle("bundle-one", firstObserved, title: "First Title");
         var second = CreateScrapedBundle("bundle-one", secondObserved, title: "Second Title");
 
+        // Act
         var result = await service.UpsertAsync(new List<ScrapedBundle>
         {
             first,
             second
         }, CancellationToken.None);
 
+        // Assert
         result.Created.ShouldBe(1);
         result.Updated.ShouldBe(1);
         result.Unchanged.ShouldBe(0);
@@ -151,6 +163,7 @@ public class UpsertAsync
     [Fact]
     public async Task UpdatesExistingBundle_WhenFieldsChange()
     {
+        // Arrange
         await using var context = CreateContext();
         var existingFirstSeen = DateTimeOffset.UtcNow.AddDays(-3);
         var existingUpdated = DateTimeOffset.UtcNow.AddDays(-2);
@@ -179,8 +192,10 @@ public class UpsertAsync
         var observed = DateTimeOffset.UtcNow;
         var scraped = CreateScrapedBundle("bundle-one", observed, title: "New Title", shortDescription: "new desc");
 
+        // Act
         var result = await service.UpsertAsync(new List<ScrapedBundle> { scraped }, CancellationToken.None);
 
+        // Assert
         result.Created.ShouldBe(0);
         result.Updated.ShouldBe(1);
         result.Unchanged.ShouldBe(0);

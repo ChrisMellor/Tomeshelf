@@ -11,6 +11,7 @@ public class Handle
     [Fact]
     public async Task ValidQuery_CallsDashboardServiceAndReturnsResult()
     {
+        // Arrange
         var faker = new Faker();
         var dashboardService = A.Fake<IFitbitDashboardService>();
         var handler = new GetFitbitDashboardQueryHandler(dashboardService);
@@ -30,8 +31,10 @@ public class Handle
 
         var query = new GetFitbitDashboardQuery(date, false);
 
+        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
+        // Assert
         result.ShouldBeSameAs(expected);
         A.CallTo(() => dashboardService.GetDashboardAsync(date, false, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();

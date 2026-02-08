@@ -13,10 +13,13 @@ public class Create
     [Fact]
     public async Task Get_ReturnsEditorDefaults()
     {
+        // Arrange
         var controller = HomeControllerTestHarness.CreateController(new ExecutorOptions(), new List<ApiServiceDescriptor>(), out _, out _, out _, out _);
 
+        // Act
         var result = await controller.Create(CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<ExecutorConfigurationViewModel>();
         model.Editor.Enabled.ShouldBeTrue();
@@ -26,6 +29,7 @@ public class Create
     [Fact]
     public async Task Post_DuplicateName_ReturnsViewWithError()
     {
+        // Arrange
         var options = new ExecutorOptions
         {
             Endpoints = new List<EndpointScheduleOptions>
@@ -48,8 +52,10 @@ public class Create
             Method = "POST"
         };
 
+        // Act
         var result = await controller.Create(model, CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         view.ViewName.ShouldBe("Create");
         controller.ModelState[nameof(EndpointEditorModel.Name)]!.Errors.ShouldNotBeEmpty();
@@ -60,14 +66,17 @@ public class Create
     [Fact]
     public async Task Post_InvalidModel_ReturnsView()
     {
+        // Arrange
         var options = new ExecutorOptions();
         var controller = HomeControllerTestHarness.CreateController(options, new List<ApiServiceDescriptor>(), out var store, out _, out _, out _);
         controller.ModelState.AddModelError("Name", "Required");
 
         var model = new EndpointEditorModel { Name = "Endpoint" };
 
+        // Act
         var result = await controller.Create(model, CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         view.ViewName.ShouldBe("Create");
         A.CallTo(() => store.SaveAsync(A<ExecutorOptions>._, A<CancellationToken>._))
@@ -77,6 +86,7 @@ public class Create
     [Fact]
     public async Task Post_Valid_AddsEndpointAndRedirects()
     {
+        // Arrange
         var options = new ExecutorOptions();
         var controller = HomeControllerTestHarness.CreateController(options, new List<ApiServiceDescriptor>(), out var store, out var scheduler, out _, out _);
         A.CallTo(() => scheduler.RefreshAsync(A<ExecutorOptions>._, A<CancellationToken>._))
@@ -96,8 +106,10 @@ public class Create
             Headers = "X-Test: value" + Environment.NewLine + "X-Other: two"
         };
 
+        // Act
         var result = await controller.Create(model, CancellationToken.None);
 
+        // Assert
         result.ShouldBeOfType<RedirectToActionResult>();
         controller.TempData["StatusMessage"]
                   .ShouldBe("Added endpoint 'Ping'.");

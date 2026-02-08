@@ -8,10 +8,12 @@ public class GlobalCategory
     [Fact]
     public void CanSetAndGetValues()
     {
+        // Arrange
         var id = "cat-id-1";
         var name = "Category A";
         var colour = "#FF0000";
 
+        // Act
         var globalCategory = new McmEventResponse.GlobalCategory
         {
             Id = id,
@@ -19,6 +21,7 @@ public class GlobalCategory
             Colour = colour
         };
 
+        // Assert
         globalCategory.Id.ShouldBe(id);
         globalCategory.Name.ShouldBe(name);
         globalCategory.Colour.ShouldBe(colour);

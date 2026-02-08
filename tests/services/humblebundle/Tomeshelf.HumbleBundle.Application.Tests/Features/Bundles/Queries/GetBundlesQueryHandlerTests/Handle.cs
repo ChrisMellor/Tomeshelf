@@ -14,6 +14,7 @@ public class Handle
     [InlineData(false)]
     public async Task ValidQuery_CallsIBundleQueriesAndReturnsResult(bool includeExpired)
     {
+        // Arrange
         var faker = new Faker();
         var queries = A.Fake<IBundleQueries>();
         var handler = new GetBundlesQueryHandler(queries);
@@ -27,8 +28,10 @@ public class Handle
 
         var query = new GetBundlesQuery(includeExpired);
 
+        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
+        // Assert
         result.ShouldBe(expectedBundles);
         A.CallTo(() => queries.GetBundlesAsync(includeExpired, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();

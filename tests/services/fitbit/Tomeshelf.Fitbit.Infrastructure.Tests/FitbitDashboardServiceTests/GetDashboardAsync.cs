@@ -12,6 +12,7 @@ public sealed class GetDashboardAsync
     [Fact]
     public async Task ForceRefreshBypassesCacheAndRefetches()
     {
+        // Arrange
         var client = A.Fake<IFitbitApiClient>();
         var cache = new MemoryCache(new MemoryCacheOptions());
         var options = new DbContextOptionsBuilder<TomeshelfFitbitDbContext>().UseInMemoryDatabase(Guid.NewGuid()
@@ -52,10 +53,12 @@ public sealed class GetDashboardAsync
 
         var service = new FitbitDashboardService(client, cache, dbContext, NullLogger<FitbitDashboardService>.Instance);
 
+        // Act
         var first = await service.GetDashboardAsync(date, true, CancellationToken.None);
         var second = await service.GetDashboardAsync(date, false, CancellationToken.None);
         var third = await service.GetDashboardAsync(date, true, CancellationToken.None);
 
+        // Assert
         first.ShouldNotBeNull();
         first!.Activity.Steps.ShouldBe(1);
         second.ShouldNotBeNull();
@@ -67,6 +70,7 @@ public sealed class GetDashboardAsync
     [Fact]
     public async Task PopulatesBedtimeAndWakeTime_WhenSleepTimesContainFullTimestamps()
     {
+        // Arrange
         var client = A.Fake<IFitbitApiClient>();
         var cache = new MemoryCache(new MemoryCacheOptions());
         var options = new DbContextOptionsBuilder<TomeshelfFitbitDbContext>().UseInMemoryDatabase(Guid.NewGuid()
@@ -132,8 +136,10 @@ public sealed class GetDashboardAsync
 
         var service = new FitbitDashboardService(client, cache, dbContext, NullLogger<FitbitDashboardService>.Instance);
 
+        // Act
         var dashboard = await service.GetDashboardAsync(date, true, CancellationToken.None);
 
+        // Assert
         dashboard.ShouldNotBeNull();
         dashboard!.Sleep.Bedtime.ShouldBe("22:15");
         dashboard.Sleep.WakeTime.ShouldBe("06:45");

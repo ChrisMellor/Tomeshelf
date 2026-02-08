@@ -12,10 +12,13 @@ public class SplitName
     [InlineData(" ", "", "")]
     public void SplitsNameCorrectly(string name, string expectedFirstName, string expectedLastName)
     {
+        // Arrange
         var input = name;
 
+        // Act
         var (firstName, lastName) = GuestsService.SplitName(input);
 
+        // Assert
         firstName.ShouldBe(expectedFirstName);
         lastName.ShouldBe(expectedLastName);
     }

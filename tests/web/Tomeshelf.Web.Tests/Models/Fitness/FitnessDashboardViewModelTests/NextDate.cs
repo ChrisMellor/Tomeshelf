@@ -9,11 +9,14 @@ public class NextDate
     [Fact]
     public void WhenSelectedDateIsToday_NextDateIsNull()
     {
+        // Arrange
         var today = DateOnly.FromDateTime(DateTime.Today)
                             .ToString("yyyy-MM-dd");
 
+        // Act
         var model = FitnessDashboardViewModel.Empty(today, WeightUnit.Stones);
 
+        // Assert
         model.NextDate.ShouldBeNull();
         model.PreviousDate.ShouldBe(DateOnly.FromDateTime(DateTime.Today)
                                             .AddDays(-1)

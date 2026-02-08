@@ -10,6 +10,7 @@ public class SaveChangesAsync
     [Fact]
     public async Task PersistsChanges()
     {
+        // Arrange
         using var context = CreateContext();
         var repository = new GuestsRepository(context);
         var guest = new GuestEntity
@@ -21,7 +22,9 @@ public class SaveChangesAsync
 
         await repository.SaveChangesAsync(CancellationToken.None);
 
+        // Act
         var savedGuest = await context.Guests.FindAsync(guest.Id);
+        // Assert
         savedGuest.ShouldNotBeNull();
         savedGuest.ShouldBe(guest);
     }

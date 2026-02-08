@@ -9,11 +9,14 @@ public class Create
     [Fact]
     public void UsesNamedHttpClient()
     {
+        // Arrange
         var httpClientFactory = new CapturingClientFactory();
         var factory = new ShiftWebSessionFactory(httpClientFactory);
 
+        // Act
         var session = factory.Create();
 
+        // Assert
         session.ShouldBeOfType<ShiftWebSession>();
         httpClientFactory.LastName.ShouldBe(ShiftWebSession.HttpClientName);
     }

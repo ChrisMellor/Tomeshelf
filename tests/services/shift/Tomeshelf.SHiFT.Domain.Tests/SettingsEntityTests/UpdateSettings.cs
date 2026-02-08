@@ -9,6 +9,7 @@ public class UpdateSettings
     [Fact]
     public void UpdatesAllFieldsAndTimestamp()
     {
+        // Arrange
         var faker = new Faker();
         var settings = new SettingsEntity
         {
@@ -24,8 +25,10 @@ public class UpdateSettings
         var newDefaultService = faker.Random.Word();
 
         var beforeUpdate = DateTimeOffset.UtcNow;
+        // Act
         settings.UpdateSettings(newEmail, newEncryptedPassword, newDefaultService);
 
+        // Assert
         settings.Email.ShouldBe(newEmail);
         settings.EncryptedPassword.ShouldBe(newEncryptedPassword);
         settings.DefaultService.ShouldBe(newDefaultService);
@@ -35,6 +38,7 @@ public class UpdateSettings
     [Fact]
     public void WithSameValues_StillUpdatesTimestamp()
     {
+        // Arrange
         var faker = new Faker();
         var initialUpdatedUtc = DateTimeOffset.UtcNow.AddDays(-1);
         var email = faker.Internet.Email();
@@ -50,8 +54,10 @@ public class UpdateSettings
         };
 
         var beforeUpdate = DateTimeOffset.UtcNow;
+        // Act
         settings.UpdateSettings(email, encryptedPassword, defaultService);
 
+        // Assert
         settings.Email.ShouldBe(email);
         settings.EncryptedPassword.ShouldBe(encryptedPassword);
         settings.DefaultService.ShouldBe(defaultService);

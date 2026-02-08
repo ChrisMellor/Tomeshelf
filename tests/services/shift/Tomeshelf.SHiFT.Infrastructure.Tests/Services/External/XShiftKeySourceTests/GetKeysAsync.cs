@@ -13,6 +13,7 @@ public class GetKeysAsync
     [Fact]
     public async Task ExtractsCodes_FromTweets()
     {
+        // Arrange
         var sinceUtc = new DateTimeOffset(2025, 01, 01, 00, 00, 00, TimeSpan.Zero);
         var options = new ShiftKeyScannerOptions
         {
@@ -44,8 +45,10 @@ public class GetKeysAsync
         var tokenProvider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
         var source = new XShiftKeySource(factory, monitor, tokenProvider, NullLogger<XShiftKeySource>.Instance);
 
+        // Act
         var results = await source.GetKeysAsync(sinceUtc, CancellationToken.None);
 
+        // Assert
         results.ShouldHaveSingleItem();
         results[0]
            .Code
@@ -67,6 +70,7 @@ public class GetKeysAsync
     [Fact]
     public async Task Paginates_WhenNextTokenProvided()
     {
+        // Arrange
         var sinceUtc = new DateTimeOffset(2025, 01, 01, 00, 00, 00, TimeSpan.Zero);
         var options = new ShiftKeyScannerOptions
         {
@@ -102,8 +106,10 @@ public class GetKeysAsync
         var tokenProvider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
         var source = new XShiftKeySource(factory, monitor, tokenProvider, NullLogger<XShiftKeySource>.Instance);
 
+        // Act
         var results = await source.GetKeysAsync(sinceUtc, CancellationToken.None);
 
+        // Assert
         results.Count.ShouldBe(2);
         results[0]
            .Code
@@ -125,6 +131,7 @@ public class GetKeysAsync
     [Fact]
     public async Task ReturnsEmpty_WhenBearerTokenUnavailable()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions
         {
             X = new ShiftKeyScannerOptions.XSourceOptions
@@ -143,8 +150,10 @@ public class GetKeysAsync
         var tokenProvider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
         var source = new XShiftKeySource(factory, monitor, tokenProvider, NullLogger<XShiftKeySource>.Instance);
 
+        // Act
         var results = await source.GetKeysAsync(DateTimeOffset.UtcNow, CancellationToken.None);
 
+        // Assert
         results.ShouldBeEmpty();
         handler.Requests.ShouldBeEmpty();
     }
@@ -152,6 +161,7 @@ public class GetKeysAsync
     [Fact]
     public async Task ReturnsEmpty_WhenDisabled()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions { X = new ShiftKeyScannerOptions.XSourceOptions { Enabled = false } };
         var monitor = new TestOptionsMonitor<ShiftKeyScannerOptions>(options);
         var handler = new RoutingHandler();
@@ -159,8 +169,10 @@ public class GetKeysAsync
         var tokenProvider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
         var source = new XShiftKeySource(factory, monitor, tokenProvider, NullLogger<XShiftKeySource>.Instance);
 
+        // Act
         var results = await source.GetKeysAsync(DateTimeOffset.UtcNow, CancellationToken.None);
 
+        // Assert
         results.ShouldBeEmpty();
         handler.Requests.ShouldBeEmpty();
     }
@@ -168,6 +180,7 @@ public class GetKeysAsync
     [Fact]
     public async Task ReturnsEmpty_WhenTweetFetchFails()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions
         {
             X = new ShiftKeyScannerOptions.XSourceOptions
@@ -183,8 +196,10 @@ public class GetKeysAsync
         var tokenProvider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
         var source = new XShiftKeySource(factory, monitor, tokenProvider, NullLogger<XShiftKeySource>.Instance);
 
+        // Act
         var results = await source.GetKeysAsync(DateTimeOffset.UtcNow, CancellationToken.None);
 
+        // Assert
         results.ShouldBeEmpty();
         handler.Requests.Count.ShouldBe(2);
         handler.Requests
@@ -195,6 +210,7 @@ public class GetKeysAsync
     [Fact]
     public async Task ReturnsEmpty_WhenUserLookupFails()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions
         {
             X = new ShiftKeyScannerOptions.XSourceOptions
@@ -210,8 +226,10 @@ public class GetKeysAsync
         var tokenProvider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
         var source = new XShiftKeySource(factory, monitor, tokenProvider, NullLogger<XShiftKeySource>.Instance);
 
+        // Act
         var results = await source.GetKeysAsync(DateTimeOffset.UtcNow, CancellationToken.None);
 
+        // Assert
         results.ShouldBeEmpty();
         handler.Requests.ShouldHaveSingleItem();
     }
@@ -219,6 +237,7 @@ public class GetKeysAsync
     [Fact]
     public async Task ReturnsEmpty_WhenUserLookupReturnsNoId()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions
         {
             X = new ShiftKeyScannerOptions.XSourceOptions
@@ -234,8 +253,10 @@ public class GetKeysAsync
         var tokenProvider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
         var source = new XShiftKeySource(factory, monitor, tokenProvider, NullLogger<XShiftKeySource>.Instance);
 
+        // Act
         var results = await source.GetKeysAsync(DateTimeOffset.UtcNow, CancellationToken.None);
 
+        // Assert
         results.ShouldBeEmpty();
         handler.Requests.Count.ShouldBe(1);
         handler.Requests[0].RequestUri!.AbsolutePath.ShouldContain("/users/by/username/");
@@ -244,6 +265,7 @@ public class GetKeysAsync
     [Fact]
     public async Task ReturnsEmpty_WhenUsernamesMissing()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions
         {
             X = new ShiftKeyScannerOptions.XSourceOptions
@@ -259,8 +281,10 @@ public class GetKeysAsync
         var tokenProvider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
         var source = new XShiftKeySource(factory, monitor, tokenProvider, NullLogger<XShiftKeySource>.Instance);
 
+        // Act
         var results = await source.GetKeysAsync(DateTimeOffset.UtcNow, CancellationToken.None);
 
+        // Assert
         results.ShouldBeEmpty();
         handler.Requests.ShouldBeEmpty();
     }

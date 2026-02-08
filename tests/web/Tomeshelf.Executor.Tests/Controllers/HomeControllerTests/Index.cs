@@ -12,6 +12,7 @@ public class Index
     [Fact]
     public async Task ReturnsSortedEndpointsAndApis()
     {
+        // Arrange
         var options = new ExecutorOptions
         {
             Enabled = true,
@@ -41,8 +42,10 @@ public class Index
 
         var controller = HomeControllerTestHarness.CreateController(options, apis, out _, out _, out _, out _);
 
+        // Act
         var result = await controller.Index(CancellationToken.None);
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<ExecutorConfigurationViewModel>();
         model.Endpoints.Count.ShouldBe(2);

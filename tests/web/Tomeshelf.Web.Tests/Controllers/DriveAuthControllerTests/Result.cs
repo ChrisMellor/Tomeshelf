@@ -23,6 +23,7 @@ public class Result
     [Fact]
     public void WhenErrorInSession_ReturnsErrorViewAndClearsSession()
     {
+        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>())
                                                .Build();
         var session = new TestSession();
@@ -32,8 +33,10 @@ public class Result
 
         var controller = new DriveAuthController(config) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
+        // Act
         var result = controller.Result();
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         view.ViewName.ShouldBe("OAuthResult");
         var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
@@ -47,6 +50,7 @@ public class Result
     [Fact]
     public void WhenReturnUrlProvided_OverridesSessionReturnUrl()
     {
+        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>())
                                                .Build();
         var session = new TestSession();
@@ -60,8 +64,10 @@ public class Result
 
         var controller = new DriveAuthController(config) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
+        // Act
         var result = controller.Result("https://example.test/from-query");
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
         model.RedirectUrl.ShouldBe("https://example.test/from-query");
@@ -73,6 +79,7 @@ public class Result
     [Fact]
     public void WhenTokensMissing_ReturnsFailureView()
     {
+        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>())
                                                .Build();
         var session = new TestSession();
@@ -81,8 +88,10 @@ public class Result
 
         var controller = new DriveAuthController(config) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
+        // Act
         var result = controller.Result();
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
         model.Success.ShouldBeFalse();
@@ -92,6 +101,7 @@ public class Result
     [Fact]
     public void WhenTokensPresent_ReturnsSuccessViewAndUsesReturnUrl()
     {
+        // Arrange
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>())
                                                .Build();
         var session = new TestSession();
@@ -106,8 +116,10 @@ public class Result
 
         var controller = new DriveAuthController(config) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
+        // Act
         var result = controller.Result();
 
+        // Assert
         var view = result.ShouldBeOfType<ViewResult>();
         var model = view.Model.ShouldBeOfType<OAuthResultViewModel>();
         model.Success.ShouldBeTrue();

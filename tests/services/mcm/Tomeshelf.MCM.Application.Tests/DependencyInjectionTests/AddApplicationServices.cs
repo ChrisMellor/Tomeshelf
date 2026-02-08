@@ -21,6 +21,7 @@ public class AddApplicationServices
     [Fact]
     public void RegistersExpectedServices()
     {
+        // Arrange
         var services = new ServiceCollection();
         services.AddSingleton(A.Fake<IMcmGuestsClient>());
         services.AddSingleton(A.Fake<IGuestsRepository>());
@@ -28,7 +29,9 @@ public class AddApplicationServices
 
         services.AddApplicationServices();
 
+        // Act
         using var provider = services.BuildServiceProvider();
+        // Assert
         provider.GetRequiredService<IGuestMapper>()
                 .ShouldBeOfType<GuestMapper>();
         provider.GetRequiredService<IGuestsService>()

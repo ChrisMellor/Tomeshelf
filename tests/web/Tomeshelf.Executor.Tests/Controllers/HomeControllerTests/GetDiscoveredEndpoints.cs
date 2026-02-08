@@ -13,13 +13,16 @@ public class GetDiscoveredEndpoints
     [Fact]
     public async Task ReturnsMappedPayload()
     {
+        // Arrange
         var controller = HomeControllerTestHarness.CreateController(new ExecutorOptions(), new List<ApiServiceDescriptor>(), out _, out _, out var discovery, out _);
         var endpoints = new List<ExecutorDiscoveredEndpoint> { new("id", "POST", "/path", "Display", "Desc", true, "Group") };
         A.CallTo(() => discovery.GetEndpointsAsync("https://api.test", A<CancellationToken>._))
          .Returns(endpoints);
 
+        // Act
         var result = await controller.GetDiscoveredEndpoints("https://api.test", CancellationToken.None);
 
+        // Assert
         var ok = result.ShouldBeOfType<OkObjectResult>();
         var payload = ok.Value.ShouldBeAssignableTo<IEnumerable<object>>();
         var item = payload.ShouldHaveSingleItem();
@@ -33,10 +36,13 @@ public class GetDiscoveredEndpoints
     [Fact]
     public async Task WithEmptyBase_ReturnsBadRequest()
     {
+        // Arrange
         var controller = HomeControllerTestHarness.CreateController(new ExecutorOptions(), new List<ApiServiceDescriptor>(), out _, out _, out _, out _);
 
+        // Act
         var result = await controller.GetDiscoveredEndpoints(" ", CancellationToken.None);
 
+        // Assert
         result.ShouldBeOfType<BadRequestObjectResult>();
     }
 }

@@ -19,6 +19,7 @@ public class Sweep
     [Fact]
     public async Task ClampsHours_ToMinimum()
     {
+        // Arrange
         var redeemHandler = A.Fake<ICommandHandler<RedeemShiftCodeCommand, IReadOnlyList<RedeemResult>>>();
         var sweepHandler = A.Fake<ICommandHandler<SweepShiftKeysCommand, ShiftKeySweepResult>>();
         var options = new TestOptionsMonitor<ShiftKeyScannerOptions>(new ShiftKeyScannerOptions { LookbackHours = 24 });
@@ -31,8 +32,10 @@ public class Sweep
          .Invokes(call => captured = call.GetArgument<SweepShiftKeysCommand>(0))
          .Returns(Task.FromResult(resultPayload));
 
+        // Act
         var result = await controller.Sweep(0, CancellationToken.None);
 
+        // Assert
         captured.ShouldNotBeNull();
         captured!.Lookback.ShouldBe(TimeSpan.FromHours(1));
         result.ShouldBeOfType<OkObjectResult>();
@@ -41,6 +44,7 @@ public class Sweep
     [Fact]
     public async Task ClampsHoursAndMapsResponse()
     {
+        // Arrange
         var redeemHandler = A.Fake<ICommandHandler<RedeemShiftCodeCommand, IReadOnlyList<RedeemResult>>>();
         var sweepHandler = A.Fake<ICommandHandler<SweepShiftKeysCommand, ShiftKeySweepResult>>();
         var options = new TestOptionsMonitor<ShiftKeyScannerOptions>(new ShiftKeyScannerOptions { LookbackHours = 6 });
@@ -60,8 +64,10 @@ public class Sweep
          .Invokes(call => captured = call.GetArgument<SweepShiftKeysCommand>(0))
          .Returns(Task.FromResult(resultPayload));
 
+        // Act
         var result = await controller.Sweep(200, CancellationToken.None);
 
+        // Assert
         captured.ShouldNotBeNull();
         captured!.Lookback.ShouldBe(TimeSpan.FromHours(168));
 
@@ -92,6 +98,7 @@ public class Sweep
     [Fact]
     public async Task UsesDefaultLookback_WhenHoursNull()
     {
+        // Arrange
         var redeemHandler = A.Fake<ICommandHandler<RedeemShiftCodeCommand, IReadOnlyList<RedeemResult>>>();
         var sweepHandler = A.Fake<ICommandHandler<SweepShiftKeysCommand, ShiftKeySweepResult>>();
         var options = new TestOptionsMonitor<ShiftKeyScannerOptions>(new ShiftKeyScannerOptions { LookbackHours = 12 });
@@ -104,8 +111,10 @@ public class Sweep
          .Invokes(call => captured = call.GetArgument<SweepShiftKeysCommand>(0))
          .Returns(Task.FromResult(resultPayload));
 
+        // Act
         var result = await controller.Sweep(null, CancellationToken.None);
 
+        // Assert
         captured.ShouldNotBeNull();
         captured!.Lookback.ShouldBe(TimeSpan.FromHours(12));
         result.ShouldBeOfType<OkObjectResult>();

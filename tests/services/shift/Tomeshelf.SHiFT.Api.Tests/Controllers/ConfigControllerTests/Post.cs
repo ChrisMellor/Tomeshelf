@@ -15,6 +15,7 @@ public class Post
     [Fact]
     public async Task ReturnsConflict_WhenDuplicateEmail()
     {
+        // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>();
         var createHandler = A.Fake<ICommandHandler<CreateShiftSettingsCommand, int>>();
         var updateHandler = A.Fake<ICommandHandler<UpdateShiftSettingsCommand, bool>>();
@@ -25,8 +26,10 @@ public class Post
         A.CallTo(() => createHandler.Handle(A<CreateShiftSettingsCommand>._, A<CancellationToken>._))
          .Throws<InvalidOperationException>();
 
+        // Act
         var result = await controller.Post(request, CancellationToken.None);
 
+        // Assert
         var conflict = result.ShouldBeOfType<ConflictObjectResult>();
         conflict.Value.ShouldBe("SHiFT email already exists.");
     }
@@ -34,6 +37,7 @@ public class Post
     [Fact]
     public async Task ReturnsCreatedAtAction_WhenCreated()
     {
+        // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>();
         var createHandler = A.Fake<ICommandHandler<CreateShiftSettingsCommand, int>>();
         var updateHandler = A.Fake<ICommandHandler<UpdateShiftSettingsCommand, bool>>();
@@ -46,8 +50,10 @@ public class Post
          .Invokes(call => captured = call.GetArgument<CreateShiftSettingsCommand>(0))
          .Returns(Task.FromResult(42));
 
+        // Act
         var result = await controller.Post(request, CancellationToken.None);
 
+        // Assert
         var created = result.ShouldBeOfType<CreatedAtActionResult>();
         created.ActionName.ShouldBe(nameof(ConfigController.Get));
         created.RouteValues.ShouldNotBeNull();

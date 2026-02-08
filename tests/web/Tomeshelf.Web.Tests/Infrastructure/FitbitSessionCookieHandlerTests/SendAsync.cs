@@ -12,14 +12,17 @@ public class SendAsync
     [Fact]
     public async Task WhenCookieMissing_DoesNotAddCookieHeader()
     {
+        // Arrange
         var context = new DefaultHttpContext();
         var accessor = new HttpContextAccessor { HttpContext = context };
         var inner = new CapturingHandler();
         var handler = new FitbitSessionCookieHandler(accessor) { InnerHandler = inner };
         using var client = new HttpClient(handler);
 
+        // Act
         await client.GetAsync("https://example.test/");
 
+        // Assert
         inner.LastRequest.ShouldNotBeNull();
         inner.LastRequest!.Headers
              .Contains("Cookie")
@@ -29,6 +32,7 @@ public class SendAsync
     [Fact]
     public async Task WhenCookiePresent_AddsCookieHeader()
     {
+        // Arrange
         var context = new DefaultHttpContext();
         context.Request.Headers.Cookie = $"{FitbitSessionCookieHandler.FitbitSessionCookieName}=abc";
         var accessor = new HttpContextAccessor { HttpContext = context };
@@ -36,8 +40,10 @@ public class SendAsync
         var handler = new FitbitSessionCookieHandler(accessor) { InnerHandler = inner };
         using var client = new HttpClient(handler);
 
+        // Act
         await client.GetAsync("https://example.test/");
 
+        // Assert
         inner.LastRequest.ShouldNotBeNull();
         inner.LastRequest!.Headers
              .TryGetValues("Cookie", out var values)

@@ -22,6 +22,7 @@ public class RedeemCodeAsync
     [MemberData(nameof(KnownFailures))]
     public async Task MapsKnownErrors(Exception exception, RedeemErrorCode expectedCode, string expectedMessage)
     {
+        // Arrange
         var repository = A.Fake<IShiftSettingsRepository>();
         var sessionFactory = A.Fake<IShiftWebSessionFactory>();
         var session = A.Fake<IShiftWebSession>();
@@ -36,8 +37,10 @@ public class RedeemCodeAsync
         A.CallTo(() => session.GetCsrfFromHomeAsync(A<CancellationToken>._))
          .ThrowsAsync(exception);
 
+        // Act
         var results = await client.RedeemCodeAsync("CODE-123", CancellationToken.None);
 
+        // Assert
         results.ShouldHaveSingleItem();
         results[0]
            .Success
@@ -53,6 +56,7 @@ public class RedeemCodeAsync
     [Fact]
     public async Task RedeemsAllOptions_AndReturnsSuccess()
     {
+        // Arrange
         var repository = A.Fake<IShiftSettingsRepository>();
         var sessionFactory = A.Fake<IShiftWebSessionFactory>();
         var session = A.Fake<IShiftWebSession>();
@@ -82,8 +86,10 @@ public class RedeemCodeAsync
         A.CallTo(() => session.RedeemAsync(A<string>._, A<CancellationToken>._))
          .Returns(Task.CompletedTask);
 
+        // Act
         var results = await client.RedeemCodeAsync("  CODE-123 ", CancellationToken.None);
 
+        // Assert
         results.ShouldHaveSingleItem();
         results[0]
            .Success
@@ -99,6 +105,7 @@ public class RedeemCodeAsync
     [Fact]
     public async Task ReturnsAccountMisconfigured_WhenUserMissingFields()
     {
+        // Arrange
         var repository = A.Fake<IShiftSettingsRepository>();
         var sessionFactory = A.Fake<IShiftWebSessionFactory>();
         var client = new GearboxClient(repository, sessionFactory);
@@ -108,8 +115,10 @@ public class RedeemCodeAsync
         A.CallTo(() => repository.GetForUseAsync(A<CancellationToken>._))
          .Returns(Task.FromResult<IReadOnlyList<(int Id, string Email, string Password, string Service)>>(users));
 
+        // Act
         var results = await client.RedeemCodeAsync("CODE-12345", CancellationToken.None);
 
+        // Assert
         results.ShouldHaveSingleItem();
         results[0]
            .Success
@@ -127,6 +136,7 @@ public class RedeemCodeAsync
     [Fact]
     public async Task ReturnsEmpty_WhenNoUsersConfigured()
     {
+        // Arrange
         var repository = A.Fake<IShiftSettingsRepository>();
         var sessionFactory = A.Fake<IShiftWebSessionFactory>();
         var client = new GearboxClient(repository, sessionFactory);
@@ -134,8 +144,10 @@ public class RedeemCodeAsync
         A.CallTo(() => repository.GetForUseAsync(A<CancellationToken>._))
          .Returns(Task.FromResult<IReadOnlyList<(int Id, string Email, string Password, string Service)>>(new List<(int, string, string, string)>()));
 
+        // Act
         var results = await client.RedeemCodeAsync("CODE-123", CancellationToken.None);
 
+        // Assert
         results.ShouldBeEmpty();
         A.CallTo(() => sessionFactory.Create())
          .MustNotHaveHappened();
@@ -144,12 +156,15 @@ public class RedeemCodeAsync
     [Fact]
     public async Task Throws_WhenCodeMissing()
     {
+        // Arrange
         var repository = A.Fake<IShiftSettingsRepository>();
         var sessionFactory = A.Fake<IShiftWebSessionFactory>();
         var client = new GearboxClient(repository, sessionFactory);
 
+        // Act
         var action = () => client.RedeemCodeAsync("   ", CancellationToken.None);
 
+        // Assert
         await Should.ThrowAsync<ArgumentException>(action);
     }
 }

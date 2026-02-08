@@ -9,6 +9,7 @@ public class PickImageUrl
     [Fact]
     public void ReturnsCorrectUrl()
     {
+        // Arrange
         var images = new[]
         {
             new McmEventResponse.Image
@@ -21,6 +22,7 @@ public class PickImageUrl
             new McmEventResponse.Image { Med = "med2" }, new McmEventResponse.Image { Small = "small3" }, new McmEventResponse.Image { Thumb = "thumb4" }, new McmEventResponse.Image(), null
         };
 
+        // Act
         var big = McmGuestsClient.PickImageUrl(new[] { images[0] });
         var med = McmGuestsClient.PickImageUrl(new[] { images[1] });
         var small = McmGuestsClient.PickImageUrl(new[] { images[2] });
@@ -30,6 +32,7 @@ public class PickImageUrl
         var none = McmGuestsClient.PickImageUrl(Array.Empty<McmEventResponse.Image>());
         var nullInput = McmGuestsClient.PickImageUrl(null);
 
+        // Assert
         big.ShouldBe("big");
         med.ShouldBe("med2");
         small.ShouldBe("small3");

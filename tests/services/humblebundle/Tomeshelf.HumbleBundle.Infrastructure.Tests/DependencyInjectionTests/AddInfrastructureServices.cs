@@ -13,12 +13,15 @@ public class AddInfrastructureServices
     [Fact]
     public void RegistersExpectedServices()
     {
+        // Arrange
         var builder = new HostApplicationBuilder();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["ConnectionStrings:humblebundledb"] = "Server=(localdb)\\mssqllocaldb;Database=HumbleBundleTest;Trusted_Connection=True;" });
 
         builder.AddInfrastructureServices();
 
+        // Act
         using var provider = builder.Services.BuildServiceProvider();
+        // Assert
         provider.GetRequiredService<TomeshelfBundlesDbContext>()
                 .ShouldNotBeNull();
         provider.GetRequiredService<IHumbleBundleScraper>()
@@ -40,10 +43,13 @@ public class AddInfrastructureServices
     [Fact]
     public void ThrowsWhenConnectionStringMissing()
     {
+        // Arrange
         var builder = new HostApplicationBuilder();
 
+        // Act
         var exception = Should.Throw<InvalidOperationException>(() => builder.AddInfrastructureServices());
 
+        // Assert
         exception.Message.ShouldBe("Connection string 'humblebundledb' is missing.");
     }
 }

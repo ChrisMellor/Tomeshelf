@@ -11,6 +11,7 @@ public class RemoveWhere
     [Fact]
     public void RemovesMatchingItems()
     {
+        // Arrange
         var items = new List<int>
         {
             1,
@@ -22,14 +23,17 @@ public class RemoveWhere
         var method = GetRemoveWhereMethod(typeof(int));
         var predicate = new Func<int, bool>(value => (value % 2) == 0);
 
+        // Act
         method.Invoke(null, new object[] { items, predicate });
 
+        // Assert
         items.ShouldBe(new[] { 1, 3, 5 });
     }
 
     [Fact]
     public void WhenNoMatches_LeavesCollectionUnchanged()
     {
+        // Arrange
         var items = new List<string>
         {
             "alpha",
@@ -38,8 +42,10 @@ public class RemoveWhere
         var method = GetRemoveWhereMethod(typeof(string));
         var predicate = new Func<string, bool>(value => value == "charlie");
 
+        // Act
         method.Invoke(null, new object[] { items, predicate });
 
+        // Assert
         items.ShouldBe(new[] { "alpha", "bravo" });
     }
 

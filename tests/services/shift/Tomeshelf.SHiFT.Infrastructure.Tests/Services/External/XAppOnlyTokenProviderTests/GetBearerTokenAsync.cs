@@ -13,6 +13,7 @@ public class GetBearerTokenAsync
     [Fact]
     public async Task CachesToken_UntilInvalidated()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions
         {
             X = new ShiftKeyScannerOptions.XSourceOptions
@@ -30,9 +31,11 @@ public class GetBearerTokenAsync
         var factory = new SpyHttpClientFactory(new HttpClient(handler));
         var provider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
 
+        // Act
         var first = await provider.GetBearerTokenAsync(CancellationToken.None);
         var second = await provider.GetBearerTokenAsync(CancellationToken.None);
 
+        // Assert
         first.ShouldBe("token-1");
         second.ShouldBe("token-1");
         handler.CallCount.ShouldBe(1);
@@ -48,6 +51,7 @@ public class GetBearerTokenAsync
     [Fact]
     public async Task ReturnsBearerToken_WhenConfigured()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions
         {
             X = new ShiftKeyScannerOptions.XSourceOptions
@@ -61,8 +65,10 @@ public class GetBearerTokenAsync
         var factory = new SpyHttpClientFactory(new HttpClient(handler));
         var provider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
 
+        // Act
         var token = await provider.GetBearerTokenAsync(CancellationToken.None);
 
+        // Assert
         token.ShouldBe("token-123");
         factory.CallCount.ShouldBe(0);
     }
@@ -70,6 +76,7 @@ public class GetBearerTokenAsync
     [Fact]
     public async Task ReturnsNull_WhenCredentialsMissing()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions
         {
             X = new ShiftKeyScannerOptions.XSourceOptions
@@ -86,8 +93,10 @@ public class GetBearerTokenAsync
         var factory = new SpyHttpClientFactory(new HttpClient(handler));
         var provider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
 
+        // Act
         var token = await provider.GetBearerTokenAsync(CancellationToken.None);
 
+        // Assert
         token.ShouldBeNull();
         factory.CallCount.ShouldBe(0);
     }
@@ -95,6 +104,7 @@ public class GetBearerTokenAsync
     [Fact]
     public async Task ReturnsNull_WhenOAuthEndpointMissing()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions
         {
             X = new ShiftKeyScannerOptions.XSourceOptions
@@ -110,8 +120,10 @@ public class GetBearerTokenAsync
         var factory = new SpyHttpClientFactory(new HttpClient(handler));
         var provider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
 
+        // Act
         var token = await provider.GetBearerTokenAsync(CancellationToken.None);
 
+        // Assert
         token.ShouldBeNull();
         factory.CallCount.ShouldBe(0);
     }
@@ -119,6 +131,7 @@ public class GetBearerTokenAsync
     [Fact]
     public async Task ReturnsNull_WhenResponseFails()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions
         {
             X = new ShiftKeyScannerOptions.XSourceOptions
@@ -134,8 +147,10 @@ public class GetBearerTokenAsync
         var factory = new SpyHttpClientFactory(new HttpClient(handler));
         var provider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
 
+        // Act
         var token = await provider.GetBearerTokenAsync(CancellationToken.None);
 
+        // Assert
         token.ShouldBeNull();
         handler.CallCount.ShouldBe(1);
     }
@@ -143,6 +158,7 @@ public class GetBearerTokenAsync
     [Fact]
     public async Task ReturnsNull_WhenTokenMissingFromPayload()
     {
+        // Arrange
         var options = new ShiftKeyScannerOptions
         {
             X = new ShiftKeyScannerOptions.XSourceOptions
@@ -158,8 +174,10 @@ public class GetBearerTokenAsync
         var factory = new SpyHttpClientFactory(new HttpClient(handler));
         var provider = new XAppOnlyTokenProvider(factory, monitor, NullLogger<XAppOnlyTokenProvider>.Instance);
 
+        // Act
         var token = await provider.GetBearerTokenAsync(CancellationToken.None);
 
+        // Assert
         token.ShouldBeNull();
         handler.CallCount.ShouldBe(1);
     }

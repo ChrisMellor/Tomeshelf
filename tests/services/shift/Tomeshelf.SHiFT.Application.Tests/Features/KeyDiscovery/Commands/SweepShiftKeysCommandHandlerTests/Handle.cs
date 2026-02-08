@@ -17,6 +17,7 @@ public class Handle
     [InlineData(200, 168)]
     public async Task ClampLookback_Works(double requestedHours, int expectedHours)
     {
+        // Arrange
         var clock = A.Fake<IClock>();
         var gearbox = A.Fake<IGearboxClient>();
         var source = A.Fake<IShiftKeySource>();
@@ -29,14 +30,17 @@ public class Handle
 
         var handler = new SweepShiftKeysCommandHandler(new[] { source }, gearbox, clock);
 
+        // Act
         var result = await handler.Handle(new SweepShiftKeysCommand(TimeSpan.FromHours(requestedHours)), CancellationToken.None);
 
+        // Assert
         result.SinceUtc.ShouldBe(now - TimeSpan.FromHours(expectedHours));
     }
 
     [Fact]
     public async Task DeduplicatesSources_AndSortsCaseInsensitive()
     {
+        // Arrange
         var clock = A.Fake<IClock>();
         var gearbox = A.Fake<IGearboxClient>();
         var source = A.Fake<IShiftKeySource>();
@@ -56,8 +60,10 @@ public class Handle
 
         var handler = new SweepShiftKeysCommandHandler(new[] { source }, gearbox, clock);
 
+        // Act
         var result = await handler.Handle(new SweepShiftKeysCommand(TimeSpan.FromHours(2)), CancellationToken.None);
 
+        // Assert
         result.Items.ShouldHaveSingleItem();
         result.Items[0]
               .Sources
@@ -67,6 +73,7 @@ public class Handle
     [Fact]
     public async Task GroupsCodesAndBuildsSummary()
     {
+        // Arrange
         var faker = new Faker();
         var clock = A.Fake<IClock>();
         var gearbox = A.Fake<IGearboxClient>();
@@ -99,8 +106,10 @@ public class Handle
 
         var handler = new SweepShiftKeysCommandHandler(new[] { sourceA, sourceB }, gearbox, clock);
 
+        // Act
         var result = await handler.Handle(new SweepShiftKeysCommand(TimeSpan.FromMinutes(5)), CancellationToken.None);
 
+        // Assert
         result.SinceUtc.ShouldBe(now - TimeSpan.FromHours(1));
         result.Items.Count.ShouldBe(2);
 
@@ -117,6 +126,7 @@ public class Handle
     [Fact]
     public async Task IgnoresEmptyCodes_AndReturnsEmptySummary()
     {
+        // Arrange
         var clock = A.Fake<IClock>();
         var gearbox = A.Fake<IGearboxClient>();
         var source = A.Fake<IShiftKeySource>();
@@ -133,8 +143,10 @@ public class Handle
 
         var handler = new SweepShiftKeysCommandHandler(new[] { source }, gearbox, clock);
 
+        // Act
         var result = await handler.Handle(new SweepShiftKeysCommand(TimeSpan.FromHours(2)), CancellationToken.None);
 
+        // Assert
         result.Items.ShouldBeEmpty();
         result.Summary.TotalKeys.ShouldBe(0);
         A.CallTo(() => gearbox.RedeemCodeAsync(A<string>._, A<CancellationToken>._))

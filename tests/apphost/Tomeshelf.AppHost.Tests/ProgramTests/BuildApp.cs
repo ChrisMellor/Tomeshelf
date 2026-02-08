@@ -13,14 +13,17 @@ public class BuildApp
     [Fact]
     public async Task AddsExpectedResources()
     {
+        // Arrange
         await using var scope = new AppScope();
         var model = scope.App.Services.GetRequiredService<DistributedApplicationModel>();
         var expected = new[] { "sql", "mcmdb", "humblebundledb", "fitbitdb", "shiftdb", "mcmapi", "humblebundleapi", "fitbitapi", "paissaapi", "fileuploaderapi", "shiftapi", "executor", "web" };
 
+        // Act
         var names = model.Resources
                          .Select(resource => resource.Name)
                          .ToArray();
 
+        // Assert
         foreach (var name in expected)
         {
             names.ShouldContain(name);
@@ -30,6 +33,7 @@ public class BuildApp
     [Fact]
     public async Task AppliesFitbitValues()
     {
+        // Arrange
         await using var scope = new AppScope(new Dictionary<string, string?>
         {
             ["Fitbit:ApiBase"] = "https://fitbit.example/",
@@ -40,8 +44,10 @@ public class BuildApp
             ["Fitbit:ClientSecret"] = "secret-123"
         });
 
+        // Act
         var env = await GetEnvironmentAsync(scope.App, "fitbitapi");
 
+        // Assert
         env.TryGetValue("Fitbit__ApiBase", out var apiBase)
            .ShouldBeTrue();
         apiBase.ShouldBe("https://fitbit.example/");
@@ -65,6 +71,7 @@ public class BuildApp
     [Fact]
     public async Task AppliesShiftScannerSettingsAndUsernames()
     {
+        // Arrange
         await using var scope = new AppScope(new Dictionary<string, string?>
         {
             ["ShiftKeyScanner:LookbackHours"] = "24",
@@ -84,8 +91,10 @@ public class BuildApp
             ["ShiftKeyScanner:X:Usernames:2"] = "second"
         });
 
+        // Act
         var env = await GetEnvironmentAsync(scope.App, "shiftapi");
 
+        // Assert
         env.TryGetValue("ShiftKeyScanner__LookbackHours", out var lookbackHours)
            .ShouldBeTrue();
         lookbackHours.ShouldBe("24");
@@ -135,6 +144,7 @@ public class BuildApp
     [Fact]
     public async Task FlowsGoogleDriveSettings()
     {
+        // Arrange
         await using var scope = new AppScope(new Dictionary<string, string?>
         {
             ["GoogleDrive:ClientId"] = "client-id",
@@ -145,9 +155,11 @@ public class BuildApp
             ["GoogleDrive:SharedDriveId"] = "shared-drive"
         });
 
+        // Act
         var webEnv = await GetEnvironmentAsync(scope.App, "web");
         var uploaderEnv = await GetEnvironmentAsync(scope.App, "fileuploaderapi");
 
+        // Assert
         webEnv.TryGetValue("GoogleDrive__ClientId", out var webClientId)
               .ShouldBeTrue();
         webClientId.ShouldBe("client-id");
@@ -188,10 +200,13 @@ public class BuildApp
     [Fact]
     public async Task SetsExecutorSettingsDirectory()
     {
+        // Arrange
         await using var scope = new AppScope();
 
+        // Act
         var env = await GetEnvironmentAsync(scope.App, "executor");
 
+        // Assert
         env.TryGetValue("EXECUTOR_SETTINGS_DIR", out var settingsDir)
            .ShouldBeTrue();
         string.IsNullOrWhiteSpace(settingsDir)
@@ -202,10 +217,13 @@ public class BuildApp
     [Fact]
     public async Task SetsSqlServerAcceptEula()
     {
+        // Arrange
         await using var scope = new AppScope();
 
+        // Act
         var env = await GetEnvironmentAsync(scope.App, "sql");
 
+        // Assert
         env.TryGetValue("ACCEPT_EULA", out var acceptEula)
            .ShouldBeTrue();
         acceptEula.ShouldBe("Y");

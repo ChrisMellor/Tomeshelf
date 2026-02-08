@@ -14,6 +14,7 @@ public class Sync
     [Fact]
     public async Task ReturnsNotFound_WhenSyncResultIsNull()
     {
+        // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetGuestsQuery, PagedResult<GuestDto>>>();
         var syncHandler = A.Fake<ICommandHandler<SyncGuestsCommand, GuestSyncResultDto?>>();
         var controller = new GuestsController(queryHandler, syncHandler);
@@ -21,8 +22,10 @@ public class Sync
         A.CallTo(() => syncHandler.Handle(A<SyncGuestsCommand>._, A<CancellationToken>._))
          .Returns(Task.FromResult<GuestSyncResultDto?>(null));
 
+        // Act
         var result = await controller.Sync("event-1", CancellationToken.None);
 
+        // Assert
         var notFound = result.Result.ShouldBeOfType<NotFoundObjectResult>();
         notFound.Value.ShouldBe("event-1");
         A.CallTo(() => syncHandler.Handle(A<SyncGuestsCommand>.That.Matches(command => command.EventId == "event-1"), A<CancellationToken>._))
@@ -32,6 +35,7 @@ public class Sync
     [Fact]
     public async Task ReturnsOk_WithSyncResult()
     {
+        // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetGuestsQuery, PagedResult<GuestDto>>>();
         var syncHandler = A.Fake<ICommandHandler<SyncGuestsCommand, GuestSyncResultDto?>>();
         var controller = new GuestsController(queryHandler, syncHandler);
@@ -40,8 +44,10 @@ public class Sync
         A.CallTo(() => syncHandler.Handle(A<SyncGuestsCommand>._, A<CancellationToken>._))
          .Returns(Task.FromResult<GuestSyncResultDto?>(syncResult));
 
+        // Act
         var result = await controller.Sync("event-1", CancellationToken.None);
 
+        // Assert
         var ok = result.Result.ShouldBeOfType<OkObjectResult>();
         ok.Value.ShouldBe(syncResult);
         A.CallTo(() => syncHandler.Handle(A<SyncGuestsCommand>.That.Matches(command => command.EventId == "event-1"), A<CancellationToken>._))

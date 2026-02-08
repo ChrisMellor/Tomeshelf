@@ -11,12 +11,15 @@ public class AddInfrastructureServices
     [Fact]
     public void RegistersExpectedServices()
     {
+        // Arrange
         var builder = new HostApplicationBuilder();
 
         builder.AddInfrastructureServices();
 
+        // Act
         using var provider = builder.Services.BuildServiceProvider();
 
+        // Assert
         provider.GetRequiredService<BundleFileOrganiser>()
                 .ShouldNotBeNull();
         provider.GetRequiredService<IGoogleDriveClientFactory>()
