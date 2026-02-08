@@ -3,13 +3,13 @@
     ViewData["Title"] = "Upload Humble Bundle";
 }
 
-<section class="mb-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+<section class="mb-4 page-header">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 w-100">
         <div>
-            <h1 class="mb-1">Upload Humble Bundle</h1>
+            <h1 class="page-title mb-1">Upload Humble Bundle</h1>
             <p class="text-muted mb-0">Send a downloaded bundle (zip) to the API and push the organised books to Google Drive under <code>Bundles &gt; Coding &gt; Humble Bundle</code>.</p>
         </div>
-        <div>
+        <div class="page-actions">
             <a class="btn btn-outline-secondary" asp-action="Index"><i class="bi bi-arrow-left me-1"></i>Back to bundles</a>
         </div>
     </div>
@@ -30,8 +30,12 @@
             <div>
                 <h2 class="h5 mb-1">Upload complete</h2>
                 <p class="mb-1">
-                    Processed <strong>@Model.Result.BooksProcessed</strong> book@(Model.Result.BooksProcessed == 1 ? string.Empty : "s")
-                    across <strong>@Model.Result.BundlesProcessed</strong> bundle@(Model.Result.BundlesProcessed == 1 ? string.Empty : "s").
+                    Processed <strong>@Model.Result.BooksProcessed</strong> book@(Model.Result.BooksProcessed == 1
+                                                                                    ? string.Empty
+                                                                                    : "s")
+                    across <strong>@Model.Result.BundlesProcessed</strong> bundle@(Model.Result.BundlesProcessed == 1
+                                                                                     ? string.Empty
+                                                                                     : "s").
                 </p>
                 <p class="mb-0 text-muted small">Files uploaded: <strong>@Model.Result.FilesUploaded</strong>, skipped (already present): <strong>@Model.Result.FilesSkipped</strong>. Completed at @Model.Result.UploadedAtUtc.ToLocalTime().ToString("f").</p>
             </div>
@@ -78,7 +82,7 @@
             @Html.AntiForgeryToken()
             <div class="mb-3">
                 <label for="archive" class="form-label">Bundle archive (.zip)</label>
-                <input type="file" class="form-control" id="archive" name="archive" accept=".zip,application/zip" required />
+                <input type="file" class="form-control" id="archive" name="archive" accept=".zip,application/zip" required/>
                 <div class="form-text">We do not store the archive; it's processed and uploaded directly to your Drive.</div>
                 <div class="invalid-feedback">Please choose a zip file exported from Humble Bundle.</div>
             </div>

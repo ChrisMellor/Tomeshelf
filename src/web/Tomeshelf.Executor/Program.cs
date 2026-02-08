@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Quartz;
+using System;
 using Tomeshelf.Executor.Configuration;
 using Tomeshelf.Executor.Jobs;
 using Tomeshelf.Executor.Services;
@@ -12,9 +13,11 @@ namespace Tomeshelf.Executor;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static WebApplication BuildApp(string[] args, Action<WebApplicationBuilder>? configureBuilder = null)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        configureBuilder?.Invoke(builder);
 
         ExecutorSettingsPaths.EnsureSeedFiles(builder.Environment);
         builder.Configuration.AddJsonFile(ExecutorSettingsPaths.GetDefaultFilePath(builder.Environment), true, true);
@@ -46,11 +49,9 @@ public class Program
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Home/Error");
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
 
@@ -65,6 +66,12 @@ public class Program
 
         app.MapDefaultEndpoints();
 
+        return app;
+    }
+
+    public static void Main(string[] args)
+    {
+        var app = BuildApp(args);
         app.Run();
     }
 }

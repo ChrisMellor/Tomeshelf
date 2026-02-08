@@ -7,4 +7,6 @@ internal static class GoogleDriveSessionKeys
     public const string RefreshToken = "gd_refreshToken";
     public const string UserEmail = "gd_userEmail";
     public const string OAuthState = "gd_oauth_state";
+    public const string ReturnUrl = "gd_returnUrl";
+    public const string Error = "gd_error";
 }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Tomeshelf.Application;
+using Tomeshelf.Application.Shared;
 
 namespace Tomeshelf.Web.Models.ComicCon;
 

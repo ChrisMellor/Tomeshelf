@@ -1,14 +1,22 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Tomeshelf.ServiceDefaults;
+using Tomeshelf.Web.Controllers;
+using Tomeshelf.Web.Infrastructure;
 using Tomeshelf.Web.Services;
 
 namespace Tomeshelf.Web;
@@ -18,14 +26,11 @@ namespace Tomeshelf.Web;
 /// </summary>
 public class Program
 {
-    /// <summary>
-    ///     Application entry point for the MVC web host.
-    ///     Configures services and starts the web server.
-    /// </summary>
-    /// <param name="args">Command-line arguments.</param>
-    public static void Main(string[] args)
+    public static WebApplication BuildApp(string[] args, Action<WebApplicationBuilder>? configureBuilder = null)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        configureBuilder?.Invoke(builder);
 
         builder.AddServiceDefaults();
 
@@ -40,22 +45,108 @@ public class Program
         }
 
         builder.Services.AddControllersWithViews();
+        builder.Services
+               .AddAuthentication(options =>
+                {
+                    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                })
+               .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+                {
+                    options.Cookie.Name = "tomeshelf.oauth";
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.IsEssential = true;
+                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                    options.SlidingExpiration = false;
+                })
+               .AddOAuth(DriveAuthController.AuthenticationScheme, options =>
+                {
+                    var drive = builder.Configuration.GetSection("GoogleDrive");
+                    options.ClientId = drive["ClientId"] ?? string.Empty;
+                    options.ClientSecret = drive["ClientSecret"] ?? string.Empty;
+                    options.CallbackPath = "/drive-auth/callback";
+                    options.AuthorizationEndpoint = "https://accounts.google.com/o/oauth2/v2/auth";
+                    options.TokenEndpoint = "https://oauth2.googleapis.com/token";
+                    options.Scope.Clear();
+                    options.Scope.Add("https://www.googleapis.com/auth/drive");
+                    options.SaveTokens = false;
+                    options.UsePkce = true;
+                    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.Events = new OAuthEvents
+                    {
+                        OnRedirectToAuthorizationEndpoint = context =>
+                        {
+                            var hint = context.Properties.Items.TryGetValue("login_hint", out var value)
+                                ? value
+                                : drive["UserEmail"];
+                            var parameters = new Dictionary<string, string?>
+                            {
+                                ["access_type"] = "offline",
+                                ["prompt"] = "consent",
+                                ["include_granted_scopes"] = "true",
+                                ["login_hint"] = hint
+                            };
+
+                            var redirectUri = QueryHelpers.AddQueryString(context.RedirectUri, parameters);
+                            context.RedirectUri = redirectUri;
+
+                            return Task.CompletedTask;
+                        },
+                        OnCreatingTicket = context =>
+                        {
+                            if (string.IsNullOrWhiteSpace(context.RefreshToken))
+                            {
+                                context.HttpContext.Session.SetString(GoogleDriveSessionKeys.Error, "Google did not return a refresh token. Re-run the flow and accept offline access.");
+                                context.Fail("Missing refresh token.");
+
+                                return Task.CompletedTask;
+                            }
+
+                            context.HttpContext.Session.SetString(GoogleDriveSessionKeys.ClientId, context.Options.ClientId ?? string.Empty);
+                            context.HttpContext.Session.SetString(GoogleDriveSessionKeys.ClientSecret, context.Options.ClientSecret ?? string.Empty);
+                            context.HttpContext.Session.SetString(GoogleDriveSessionKeys.RefreshToken, context.RefreshToken);
+
+                            if (context.Properties.Items.TryGetValue("login_hint", out var loginHint) && !string.IsNullOrWhiteSpace(loginHint))
+                            {
+                                context.HttpContext.Session.SetString(GoogleDriveSessionKeys.UserEmail, loginHint);
+                            }
+                            else if (!string.IsNullOrWhiteSpace(drive["UserEmail"]))
+                            {
+                                context.HttpContext.Session.SetString(GoogleDriveSessionKeys.UserEmail, drive["UserEmail"]);
+                            }
+
+                            return Task.CompletedTask;
+                        },
+                        OnRemoteFailure = context =>
+                        {
+                            var message = context.Failure?.Message ?? "Google authorisation failed.";
+                            context.HttpContext.Session.SetString(GoogleDriveSessionKeys.Error, message);
+                            context.Response.Redirect("/drive-auth/result");
+                            context.HandleResponse();
+
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
         builder.Services.AddAuthorization();
         builder.Services.AddLocalization();
+        builder.Services.AddHttpContextAccessor();
         builder.Services.AddDistributedMemoryCache();
         builder.Services.AddMemoryCache();
         builder.Services.AddSession(options =>
         {
+            options.Cookie.Name = "tomeshelf.web.session";
             options.Cookie.HttpOnly = true;
             options.Cookie.IsEssential = true;
             options.IdleTimeout = TimeSpan.FromHours(8);
         });
+        builder.Services.AddTransient<FitbitSessionCookieHandler>();
         builder.Services.Configure<FormOptions>(options =>
         {
-            options.MultipartBodyLengthLimit = 1_073_741_824; // ~1GB
+            options.MultipartBodyLengthLimit = 1_073_741_824;
         });
 
-        builder.Services.AddHttpClient<IGuestsApi, GuestsApi>(client =>
+        builder.Services
+               .AddHttpClient(GuestsApi.HttpClientName, client =>
                 {
                     var configured = builder.Configuration["Services:McmApiBase"] ?? builder.Configuration["Services:ApiBase"];
 
@@ -84,8 +175,10 @@ public class Program
                     client.Timeout = TimeSpan.FromSeconds(100);
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
+        builder.Services.AddScoped<IGuestsApi, GuestsApi>();
 
-        builder.Services.AddHttpClient<IBundlesApi, BundlesApi>(client =>
+        builder.Services
+               .AddHttpClient(BundlesApi.HttpClientName, client =>
                 {
                     var configured = builder.Configuration["Services:HumbleBundleApiBase"];
 
@@ -114,8 +207,10 @@ public class Program
                     client.Timeout = TimeSpan.FromSeconds(100);
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
+        builder.Services.AddScoped<IBundlesApi, BundlesApi>();
 
-        builder.Services.AddHttpClient<IFitbitApi, FitbitApi>(client =>
+        builder.Services
+               .AddHttpClient(FitbitApi.HttpClientName, client =>
                 {
                     var configured = builder.Configuration["Services:FitbitApiBase"];
 
@@ -147,9 +242,12 @@ public class Program
                {
                    AutomaticDecompression = DecompressionMethods.None,
                    AllowAutoRedirect = false
-               });
+               })
+               .AddHttpMessageHandler<FitbitSessionCookieHandler>();
+        builder.Services.AddScoped<IFitbitApi, FitbitApi>();
 
-        builder.Services.AddHttpClient<IPaissaApi, PaissaApi>(client =>
+        builder.Services
+               .AddHttpClient(PaissaApi.HttpClientName, client =>
                 {
                     var configured = builder.Configuration["Services:PaissaApiBase"];
 
@@ -178,8 +276,42 @@ public class Program
                     client.Timeout = TimeSpan.FromSeconds(30);
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
+        builder.Services.AddScoped<IPaissaApi, PaissaApi>();
 
-        builder.Services.AddHttpClient<IFileUploadsApi, FileUploadsApi>(client =>
+        builder.Services
+               .AddHttpClient(ShiftApi.HttpClientName, client =>
+                {
+                    var configured = builder.Configuration["Services:ShiftApiBase"];
+
+                    if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+                    {
+                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                        {
+                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:ShiftApiBase'.");
+                        }
+
+                        client.BaseAddress = configuredUri;
+                    }
+                    else
+                    {
+                        var protocol = "https";
+                        if (IsRunningInDocker())
+                        {
+                            protocol = "http";
+                        }
+
+                        client.BaseAddress = new Uri($"{protocol}://shiftapi");
+                    }
+
+                    client.DefaultRequestVersion = HttpVersion.Version11;
+                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                    client.Timeout = TimeSpan.FromSeconds(30);
+                })
+               .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
+        builder.Services.AddScoped<IShiftApi, ShiftApi>();
+
+        builder.Services
+               .AddHttpClient(FileUploadsApi.HttpClientName, client =>
                 {
                     var configured = builder.Configuration["Services:FileUploaderApiBase"];
 
@@ -209,7 +341,8 @@ public class Program
                     client.Timeout = TimeSpan.FromMinutes(30);
                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None })
-               .ConfigureHttpMessageHandlerBuilder(b => b.AdditionalHandlers.Clear()); // disable default/standard resilience timeouts for large uploads
+               .ConfigureHttpMessageHandlerBuilder(b => b.AdditionalHandlers.Clear());
+        builder.Services.AddScoped<IFileUploadsApi, FileUploadsApi>();
 
         var app = builder.Build();
 
@@ -234,14 +367,35 @@ public class Program
         app.UseRouting();
         app.UseSession();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapStaticAssets();
+        var staticAssetsManifestPath = app.Configuration["StaticAssets:ManifestPath"];
+        if (!string.IsNullOrWhiteSpace(staticAssetsManifestPath))
+        {
+            app.MapStaticAssets(staticAssetsManifestPath);
+        }
+        else
+        {
+            app.MapStaticAssets();
+        }
+
         app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}")
            .WithStaticAssets();
 
         app.MapDefaultEndpoints();
 
+        return app;
+    }
+
+    /// <summary>
+    ///     Application entry point for the MVC web host.
+    ///     Configures services and starts the web server.
+    /// </summary>
+    /// <param name="args">Command-line arguments.</param>
+    public static void Main(string[] args)
+    {
+        var app = BuildApp(args);
         app.Run();
     }
 

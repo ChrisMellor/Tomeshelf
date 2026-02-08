@@ -25,8 +25,8 @@ public sealed class BundlesIndexViewModel
 
     public int TotalBundles => (ActiveBundles?.Sum(group => group.Bundles.Count) ?? 0) +
                                (IncludeExpired
-                                       ? ExpiredBundles?.Count ?? 0
-                                       : 0);
+                                   ? ExpiredBundles?.Count ?? 0
+                                   : 0);
 }
 
 /// <summary>

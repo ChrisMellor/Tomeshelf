@@ -1,24 +1,24 @@
 /* Scoped styles for Home/Index */
 
 .home-hero {
-    background: linear-gradient(135deg, #f8f9fa, #eef2f7);
-    border: 1px solid rgba(0, 0, 0, .05);
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
 }
 
 .feature-card {
-    border: 1px solid rgba(0, 0, 0, .08);
-    transition: transform .12s ease, box-shadow .12s ease;
+    border: 1px solid var(--ui-border);
+    transition: none;
 }
 
 .feature-card:hover {
-    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .08);
-    transform: translateY(-2px);
+    box-shadow: none;
+    transform: none;
 }
 
-.quick-link { transition: background-color .1s ease, border-color .1s ease, transform .12s ease; }
+.quick-link { transition: none; }
 
 .quick-link:hover {
-    background-color: #f8f9fa;
-    border-color: rgba(0, 0, 0, .12) !important;
-    transform: translateY(-1px);
+    background-color: var(--ui-accent-weak);
+    border-color: var(--ui-accent) !important;
+    transform: none;
 }

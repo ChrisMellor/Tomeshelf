@@ -1,4 +1,4 @@
-@model ExecutorConfigurationViewModel
+@model Tomeshelf.Executor.Models.ExecutorConfigurationViewModel
 @{
     ViewData["Title"] = "Executor Scheduler";
 }
@@ -14,21 +14,21 @@
     <form asp-action="Toggle" method="post">
         @Html.AntiForgeryToken()
         <input type="hidden" name="enabled" value="@(Model.Enabled
-                                                           ? "false"
-                                                           : "true")"/>
+                                                       ? "false"
+                                                       : "true")"/>
         <button class="btn @(Model.Enabled
-                                   ? "btn-danger"
-                                   : "btn-success")" type="submit">
+                               ? "btn-danger"
+                               : "btn-success")" type="submit">
             @(Model.Enabled
-                    ? "Disable Scheduler"
-                    : "Enable Scheduler")
+                ? "Disable Scheduler"
+                : "Enable Scheduler")
         </button>
         <span class="ms-2 badge @(Model.Enabled
-                                        ? "text-bg-success"
-                                        : "text-bg-secondary")">
+                                    ? "text-bg-success"
+                                    : "text-bg-secondary")">
             @(Model.Enabled
-                    ? "Enabled"
-                    : "Disabled")
+                ? "Enabled"
+                : "Disabled")
         </span>
     </form>
 </div>
@@ -65,11 +65,11 @@
                         <td>@endpoint.HeadersDisplay</td>
                         <td>
                             <span class="badge @(endpoint.Enabled
-                                                       ? "text-bg-success"
-                                                       : "text-bg-secondary")">
+                                                   ? "text-bg-success"
+                                                   : "text-bg-secondary")">
                                 @(endpoint.Enabled
-                                        ? "Enabled"
-                                        : "Disabled")
+                                    ? "Enabled"
+                                    : "Disabled")
                             </span>
                         </td>
                         <td class="text-end">

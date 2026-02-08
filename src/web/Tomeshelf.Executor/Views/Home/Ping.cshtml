@@ -1,4 +1,4 @@
-@model ExecutorConfigurationViewModel
+@model Tomeshelf.Executor.Models.ExecutorConfigurationViewModel
 @{
     ViewData["Title"] = "Ping Endpoint";
 }
@@ -42,12 +42,12 @@
     <div class="row mb-3">
         <div class="col-md-4">
             <label asp-for="Ping.Method" class="form-label"></label>
-            <input asp-for="Ping.Method" class="form-control" />
+            <input asp-for="Ping.Method" class="form-control"/>
             <span asp-validation-for="Ping.Method" class="text-danger"></span>
         </div>
         <div class="col-md-8">
             <label asp-for="Ping.Url" class="form-label"></label>
-            <input asp-for="Ping.Url" class="form-control" />
+            <input asp-for="Ping.Url" class="form-control"/>
             <span asp-validation-for="Ping.Url" class="text-danger"></span>
         </div>
     </div>
@@ -65,15 +65,25 @@
 
 @if (Model.PingResult is not null)
 {
-    var alertClass = Model.PingResult.Success ? "alert-success" : "alert-danger";
+    var alertClass = Model.PingResult.Success
+        ? "alert-success"
+        : "alert-danger";
     <div class="alert @alertClass mt-4">
-        <div><strong>Status:</strong> @(Model.PingResult.StatusCode?.ToString() ?? "n/a")</div>
-        <div><strong>Message:</strong> @Model.PingResult.Message</div>
-        <div><strong>Duration:</strong> @($"{Model.PingResult.Duration.TotalMilliseconds:N0} ms")</div>
+        <div>
+            <strong>Status:</strong> @(Model.PingResult.StatusCode?.ToString() ?? "n/a")
+        </div>
+        <div>
+            <strong>Message:</strong> @Model.PingResult.Message
+        </div>
+        <div>
+            <strong>Duration:</strong> @($"{Model.PingResult.Duration.TotalMilliseconds:N0} ms")
+        </div>
         @if (!string.IsNullOrEmpty(Model.PingResult.ResponseBody))
         {
-            <hr />
-            <div><strong>Body:</strong></div>
+            <hr/>
+            <div>
+                <strong>Body:</strong>
+            </div>
             <pre class="mb-0 small text-break">@Model.PingResult.ResponseBody</pre>
         }
     </div>

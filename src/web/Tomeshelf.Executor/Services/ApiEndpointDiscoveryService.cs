@@ -18,10 +18,7 @@ public sealed class ApiEndpointDiscoveryService : IApiEndpointDiscoveryService
 {
     public const string HttpClientName = "ExecutorDiscovery";
 
-    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true
-    };
+    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
 
     private readonly IConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;

@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,17 +5,19 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Executor.Configuration;
 
 namespace Tomeshelf.Executor.Services;
 
 public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
+    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 
     private readonly string _defaultFilePath;
     private readonly string? _environmentFilePath;
-    private readonly SemaphoreSlim _lock = new(1, 1);
+    private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
     private readonly ILogger<ExecutorConfigurationStore> _logger;
 
     public ExecutorConfigurationStore(IHostEnvironment environment, ILogger<ExecutorConfigurationStore> logger)
@@ -113,7 +113,7 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
             Executor = options.Clone();
         }
 
-        public ExecutorOptions Executor { get; set; } = new();
+        public ExecutorOptions Executor { get; set; } = new ExecutorOptions();
     }
 }
 
@@ -124,8 +124,9 @@ internal static class ExecutorOptionsExtensions
         var clone = new ExecutorOptions
         {
             Enabled = source.Enabled,
-            Endpoints = source.Endpoints.Select(Clone)
-                                  .ToList()
+            Endpoints = source.Endpoints
+                              .Select(Clone)
+                              .ToList()
         };
 
         return clone;
@@ -142,8 +143,8 @@ internal static class ExecutorOptionsExtensions
             Enabled = source.Enabled,
             TimeZone = source.TimeZone,
             Headers = source.Headers is null
-                        ? null
-                        : new Dictionary<string, string>(source.Headers, StringComparer.OrdinalIgnoreCase)
+                ? null
+                : new Dictionary<string, string>(source.Headers, StringComparer.OrdinalIgnoreCase)
         };
     }
 }

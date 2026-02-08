@@ -13,31 +13,60 @@
 <body>
 <header>
     <nav class="navbar navbar-expand-lg bg-body-tertiary rounded">
-        <div class="container-fluid">
+        <div class="site-shell">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse d-lg-flex">
                 <a class="navbar-brand col-lg-3 me-0" asp-area="" asp-controller="Home" asp-action="Index">Tomeshelf</a>
-                <ul class="navbar-nav col-lg-6 justify-content-lg-center">
+                <ul class="navbar-nav col-lg-7 justify-content-lg-center">
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Bundles" asp-action="Index">Humble Bundles</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Fitness" asp-action="Index">Fitbit Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Paissa" asp-action="Index">Paissa Housing</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-dark" href="#" id="eventsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Events
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="eventsDropdown">
+                            <li class="dropdown-submenu">
+                                <a class="dropdown-item dropdown-toggle" href="#" role="button" aria-expanded="false">MCM</a>
+                                <ul class="dropdown-menu">
+                                    @await Component.InvokeAsync("ComicConEvents")
+                                </ul>
+                            </li>
+                        </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="comicConDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Comic Con
+                        <a class="nav-link dropdown-toggle text-dark" href="#" id="educationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Education
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="comicConDropdown">
-                            @await Component.InvokeAsync("ComicConEvents")
+                        <ul class="dropdown-menu" aria-labelledby="educationDropdown">
+                            <li>
+                                <a class="dropdown-item" asp-controller="Bundles" asp-action="Index">Humble Bundles</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-dark" href="#" id="healthDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Health
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="healthDropdown">
+                            <li>
+                                <a class="dropdown-item" asp-controller="Fitness" asp-action="Index">Fitbit Dashboard</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-dark" href="#" id="gamingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Gaming
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="gamingDropdown">
+                            <li>
+                                <a class="dropdown-item" asp-controller="Paissa" asp-action="Index">Paissa Housing</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-controller="Shift" asp-action="Index">SHiFT Codes</a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -45,14 +74,14 @@
         </div>
     </nav>
 </header>
-<div class="container">
+<div class="site-shell">
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
 </div>
 
 <footer class="border-top footer text-muted">
-    <div class="container">
+    <div class="site-shell">
         &copy; @DateTime.Today.Year - Tomeshelf - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
     </div>
 </footer>

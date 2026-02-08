@@ -9,11 +9,6 @@ using Tomeshelf.Executor.Jobs;
 
 namespace Tomeshelf.Executor.Services;
 
-public interface IEndpointPingService
-{
-    Task<EndpointPingResult> SendAsync(Uri target, string method, Dictionary<string, string>? headers, CancellationToken cancellationToken);
-}
-
 public sealed class EndpointPingService : IEndpointPingService
 {
     private readonly IHttpClientFactory _httpClientFactory;
@@ -102,5 +97,3 @@ public sealed class EndpointPingService : IEndpointPingService
         }
     }
 }
-
-public sealed record EndpointPingResult(bool Success, int? StatusCode, string Message, string? Body, TimeSpan Duration);

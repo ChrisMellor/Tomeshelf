@@ -1,4 +1,4 @@
-@model CronBuilderViewModel
+@model Tomeshelf.Executor.Models.CronBuilderViewModel
 @{
     var builderId = $"cron-builder-{Guid.NewGuid():N}";
     var hasInitial = !string.IsNullOrWhiteSpace(Model.InitialValue);
@@ -20,8 +20,8 @@
                placeholder="Select a template to generate an expression"/>
         <div class="form-text text-muted cron-summary">
             @(hasInitial
-                    ? "Existing expression applied."
-                    : "Choose a schedule template to generate a Quartz cron expression (UTC).")
+                ? "Existing expression applied."
+                : "Choose a schedule template to generate a Quartz cron expression (UTC).")
         </div>
     </div>
 

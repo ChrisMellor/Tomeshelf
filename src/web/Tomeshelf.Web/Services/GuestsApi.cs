@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +6,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Web.Models;
 using Tomeshelf.Web.Models.ComicCon;
 using Tomeshelf.Web.Models.Mcm;
@@ -25,13 +25,11 @@ namespace Tomeshelf.Web.Services;
 /// </remarks>
 public sealed class GuestsApi : IGuestsApi
 {
+    public const string HttpClientName = "Web.Guests";
     private const string EventsCacheKey = "comiccon.events";
     private static readonly TimeSpan EventsCacheDuration = TimeSpan.FromHours(3);
 
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
-    {
-        NumberHandling = JsonNumberHandling.AllowReadingFromString
-    };
+    private static readonly JsonSerializerOptions Json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { NumberHandling = JsonNumberHandling.AllowReadingFromString };
 
     private readonly IMemoryCache _cache;
     private readonly HttpClient _http;
@@ -41,12 +39,12 @@ public sealed class GuestsApi : IGuestsApi
     /// <summary>
     ///     Initializes a new instance of the GuestsApi class with the specified HTTP client, logger, and memory cache.
     /// </summary>
-    /// <param name="http">The HttpClient instance used to send HTTP requests to the guests API.</param>
+    /// <param name="httpClientFactory">Factory used to resolve the named HTTP client for the guests API.</param>
     /// <param name="logger">The logger used to record diagnostic and operational information for the GuestsApi.</param>
     /// <param name="cache">The memory cache used to store and retrieve guest-related data for improved performance.</param>
-    public GuestsApi(HttpClient http, ILogger<GuestsApi> logger, IMemoryCache cache)
+    public GuestsApi(IHttpClientFactory httpClientFactory, ILogger<GuestsApi> logger, IMemoryCache cache)
     {
-        _http = http;
+        _http = httpClientFactory.CreateClient(HttpClientName);
         _logger = logger;
         _cache = cache;
     }
@@ -86,10 +84,7 @@ public sealed class GuestsApi : IGuestsApi
                             .OrderBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
                             .ToList();
 
-        _cache.Set(EventsCacheKey, ordered, new MemoryCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = EventsCacheDuration
-        });
+        _cache.Set(EventsCacheKey, ordered, new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = EventsCacheDuration });
 
         return ordered;
     }
@@ -169,13 +164,13 @@ public sealed class GuestsApi : IGuestsApi
         return guests.GroupBy(g => g.AddedAt.UtcDateTime.Date)
                      .OrderByDescending(g => g.Key)
                      .Select(group => new GuestsGroupModel
-                     {
-                         CreatedDate = group.Key,
-                         Items = group.Select(MapGuest)
+                      {
+                          CreatedDate = group.Key,
+                          Items = group.Select(MapGuest)
                                        .OrderBy(p => p.LastName, StringComparer.OrdinalIgnoreCase)
                                        .ThenBy(p => p.FirstName, StringComparer.OrdinalIgnoreCase)
                                        .ToList()
-                     })
+                      })
                      .ToList();
     }
 
@@ -201,7 +196,8 @@ public sealed class GuestsApi : IGuestsApi
         var started = DateTimeOffset.UtcNow;
         using var res = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         var duration = DateTimeOffset.UtcNow - started;
-        var safeUrl = url.Replace("\r", string.Empty).Replace("\n", string.Empty);
+        var safeUrl = url.Replace("\r", string.Empty)
+                         .Replace("\n", string.Empty);
         _logger.LogInformation("HTTP GET {Url} -> {Status} in {Duration}ms", safeUrl, (int)res.StatusCode, (int)duration.TotalMilliseconds);
 
         res.EnsureSuccessStatusCode();
@@ -233,7 +229,7 @@ public sealed class GuestsApi : IGuestsApi
             ? new List<ImageSetModel>()
             : new List<ImageSetModel>
             {
-                new()
+                new ImageSetModel
                 {
                     Big = imageUrl,
                     Med = imageUrl,

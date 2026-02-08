@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Tomeshelf.Executor.Configuration;
 using Tomeshelf.Executor.Models;
 using Tomeshelf.Executor.Services;
@@ -29,48 +29,16 @@ public class HomeController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
-    {
-        _logger.LogDebug("Rendering executor dashboard.");
-        var options = await _store.GetAsync(cancellationToken);
-
-        return View(await CreateViewModelAsync(options, null, null, null, cancellationToken));
-    }
-
-    [HttpGet]
     public async Task<IActionResult> Create(CancellationToken cancellationToken)
     {
         _logger.LogDebug("Rendering endpoint creation view.");
         var options = await _store.GetAsync(cancellationToken);
 
-        return View(await CreateViewModelAsync(options, new EndpointEditorModel { Enabled = true, Method = "POST" }, null, null, cancellationToken));
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Ping(CancellationToken cancellationToken)
-    {
-        _logger.LogDebug("Rendering ping view.");
-        var options = await _store.GetAsync(cancellationToken);
-
-        return View(await CreateViewModelAsync(options, null, new EndpointPingModel { Method = "GET" }, null, cancellationToken));
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Toggle(bool enabled, CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Toggling scheduler {State}.", enabled
-                                       ? "on"
-                                       : "off");
-        var options = await _store.GetAsync(cancellationToken);
-        options.Enabled = enabled;
-        await PersistAsync(options, cancellationToken);
-
-        TempData["StatusMessage"] = enabled
-                ? "Scheduler enabled."
-                : "Scheduler disabled.";
-
-        return RedirectToAction(nameof(Index));
+        return View(await CreateViewModelAsync(options, new EndpointEditorModel
+        {
+            Enabled = true,
+            Method = "POST"
+        }, null, null, cancellationToken));
     }
 
     [HttpPost]
@@ -99,6 +67,22 @@ public class HomeController : Controller
         await PersistAsync(options, cancellationToken);
 
         TempData["StatusMessage"] = $"Added endpoint '{model.Name}'.";
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(string name, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Deleting endpoint {Name}.", name);
+        var options = await _store.GetAsync(cancellationToken);
+        var removed = options.Endpoints.RemoveAll(ep => string.Equals(ep.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (removed > 0)
+        {
+            await PersistAsync(options, cancellationToken);
+            TempData["StatusMessage"] = $"Deleted endpoint '{name}'.";
+        }
 
         return RedirectToAction(nameof(Index));
     }
@@ -164,22 +148,6 @@ public class HomeController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(string name, CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Deleting endpoint {Name}.", name);
-        var options = await _store.GetAsync(cancellationToken);
-        var removed = options.Endpoints.RemoveAll(ep => string.Equals(ep.Name, name, StringComparison.OrdinalIgnoreCase));
-        if (removed > 0)
-        {
-            await PersistAsync(options, cancellationToken);
-            TempData["StatusMessage"] = $"Deleted endpoint '{name}'.";
-        }
-
-        return RedirectToAction(nameof(Index));
-    }
-
     [HttpGet("discovery/endpoints")]
     public async Task<IActionResult> GetDiscoveredEndpoints([FromQuery] string baseUri, CancellationToken cancellationToken)
     {
@@ -202,6 +170,24 @@ public class HomeController : Controller
         });
 
         return Ok(payload);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    {
+        _logger.LogDebug("Rendering executor dashboard.");
+        var options = await _store.GetAsync(cancellationToken);
+
+        return View(await CreateViewModelAsync(options, null, null, null, cancellationToken));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Ping(CancellationToken cancellationToken)
+    {
+        _logger.LogDebug("Rendering ping view.");
+        var options = await _store.GetAsync(cancellationToken);
+
+        return View(await CreateViewModelAsync(options, null, new EndpointPingModel { Method = "GET" }, null, cancellationToken));
     }
 
     [HttpPost]
@@ -227,16 +213,28 @@ public class HomeController : Controller
 
         if (result.Success)
         {
-            TempData["StatusMessage"] = $"Ping succeeded with status {(result.StatusCode?.ToString() ?? "n/a")} ({result.Duration.TotalMilliseconds:N0} ms).";
+            TempData["StatusMessage"] = $"Ping succeeded with status {result.StatusCode?.ToString() ?? "n/a"} ({result.Duration.TotalMilliseconds:N0} ms).";
         }
 
         return View("Ping", viewModel);
     }
 
-    private async Task PersistAsync(ExecutorOptions options, CancellationToken cancellationToken)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Toggle(bool enabled, CancellationToken cancellationToken)
     {
-        await _store.SaveAsync(options, cancellationToken);
-        await _scheduler.RefreshAsync(options, cancellationToken);
+        _logger.LogInformation("Toggling scheduler {State}.", enabled
+                                   ? "on"
+                                   : "off");
+        var options = await _store.GetAsync(cancellationToken);
+        options.Enabled = enabled;
+        await PersistAsync(options, cancellationToken);
+
+        TempData["StatusMessage"] = enabled
+            ? "Scheduler enabled."
+            : "Scheduler disabled.";
+
+        return RedirectToAction(nameof(Index));
     }
 
     private async Task<ExecutorConfigurationViewModel> CreateViewModelAsync(ExecutorOptions options, EndpointEditorModel? editor, EndpointPingModel? ping, EndpointPingResultViewModel? pingResult, CancellationToken cancellationToken)
@@ -246,53 +244,86 @@ public class HomeController : Controller
         return new ExecutorConfigurationViewModel
         {
             Enabled = options.Enabled,
-            Endpoints = options.Endpoints.OrderBy(ep => ep.Name, StringComparer.OrdinalIgnoreCase)
-                                   .Select(ToSummary)
-                                   .ToList(),
+            Endpoints = options.Endpoints
+                               .OrderBy(ep => ep.Name, StringComparer.OrdinalIgnoreCase)
+                               .Select(ToSummary)
+                               .ToList(),
             Editor = editor ??
-                new EndpointEditorModel
-                {
-                    Enabled = true,
-                    Method = "POST"
-                },
-            Ping = ping ??
-                new EndpointPingModel
-                {
-                    Method = "GET"
-                },
+            new EndpointEditorModel
+            {
+                Enabled = true,
+                Method = "POST"
+            },
+            Ping = ping ?? new EndpointPingModel { Method = "GET" },
             PingResult = pingResult,
             ApiServices = apis.Select(api => new ApiServiceOptionViewModel
-            {
-                ServiceName = api.ServiceName,
-                DisplayName = api.DisplayName,
-                BaseAddress = api.BaseAddress
-            })
-                                  .ToList()
+                               {
+                                   ServiceName = api.ServiceName,
+                                   DisplayName = api.DisplayName,
+                                   BaseAddress = api.BaseAddress
+                               })
+                              .ToList()
         };
     }
 
-    private static EndpointSummaryViewModel ToSummary(EndpointScheduleOptions endpoint)
+    private static string NormalizeUrl(string? url)
     {
-        var headersDisplay = endpoint.Headers is null || (endpoint.Headers.Count == 0)
-                ? "None"
-                : string.Join(", ", endpoint.Headers.Select(kvp => $"{kvp.Key}:{kvp.Value}"));
-
-        return new EndpointSummaryViewModel
+        var trimmed = url?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(trimmed))
         {
-            Name = endpoint.Name,
-            Url = endpoint.Url,
-            Method = endpoint.Method,
-            Cron = endpoint.Cron,
-            Enabled = endpoint.Enabled,
-            HeadersDisplay = headersDisplay
-        };
+            return trimmed;
+        }
+
+        var candidate = trimmed.Contains("://", StringComparison.Ordinal)
+            ? trimmed
+            : $"http://{trimmed}";
+
+        return Uri.TryCreate(candidate, UriKind.Absolute, out var uri)
+            ? uri.ToString()
+            : trimmed;
+    }
+
+    private static Dictionary<string, string>? ParseHeaders(string? headers)
+    {
+        if (string.IsNullOrWhiteSpace(headers))
+        {
+            return null;
+        }
+
+        var dictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var lines = headers.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var line in lines)
+        {
+            var separatorIndex = line.IndexOf(':');
+            if (separatorIndex <= 0)
+            {
+                continue;
+            }
+
+            var key = line[..separatorIndex]
+               .Trim();
+            var value = line[(separatorIndex + 1)..]
+               .Trim();
+            if (!string.IsNullOrWhiteSpace(key))
+            {
+                dictionary[key] = value;
+            }
+        }
+
+        return dictionary;
+    }
+
+    private async Task PersistAsync(ExecutorOptions options, CancellationToken cancellationToken)
+    {
+        await _store.SaveAsync(options, cancellationToken);
+        await _scheduler.RefreshAsync(options, cancellationToken);
     }
 
     private static EndpointEditorModel ToEditorModel(EndpointScheduleOptions endpoint)
     {
         var headers = endpoint.Headers is null || (endpoint.Headers.Count == 0)
-                ? null
-                : string.Join(Environment.NewLine, endpoint.Headers.Select(kvp => $"{kvp.Key}:{kvp.Value}"));
+            ? null
+            : string.Join(Environment.NewLine, endpoint.Headers.Select(kvp => $"{kvp.Key}:{kvp.Value}"));
 
         return new EndpointEditorModel
         {
@@ -333,45 +364,21 @@ public class HomeController : Controller
         };
     }
 
-    private static void UpdateEndpoint(EndpointScheduleOptions target, EndpointEditorModel model)
+    private static EndpointSummaryViewModel ToSummary(EndpointScheduleOptions endpoint)
     {
-        target.Name = model.Name;
-        target.Url = NormalizeUrl(model.Url);
-        target.Method = model.Method;
-        target.Cron = model.Cron;
-        target.TimeZone = null;
-        target.Enabled = model.Enabled;
-        target.Headers = ParseHeaders(model.Headers);
-    }
+        var headersDisplay = endpoint.Headers is null || (endpoint.Headers.Count == 0)
+            ? "None"
+            : string.Join(", ", endpoint.Headers.Select(kvp => $"{kvp.Key}:{kvp.Value}"));
 
-    private static Dictionary<string, string>? ParseHeaders(string? headers)
-    {
-        if (string.IsNullOrWhiteSpace(headers))
+        return new EndpointSummaryViewModel
         {
-            return null;
-        }
-
-        var dictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var lines = headers.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-        foreach (var line in lines)
-        {
-            var separatorIndex = line.IndexOf(':');
-            if (separatorIndex <= 0)
-            {
-                continue;
-            }
-
-            var key = line[..separatorIndex]
-                   .Trim();
-            var value = line[(separatorIndex + 1)..]
-                   .Trim();
-            if (!string.IsNullOrWhiteSpace(key))
-            {
-                dictionary[key] = value;
-            }
-        }
-
-        return dictionary;
+            Name = endpoint.Name,
+            Url = endpoint.Url,
+            Method = endpoint.Method,
+            Cron = endpoint.Cron,
+            Enabled = endpoint.Enabled,
+            HeadersDisplay = headersDisplay
+        };
     }
 
     private static string? TrimBody(string? body)
@@ -383,24 +390,18 @@ public class HomeController : Controller
         }
 
         return body.Length <= maxLength
-                ? body
-                : $"{body[..maxLength]}... (truncated)";
+            ? body
+            : $"{body[..maxLength]}... (truncated)";
     }
 
-    private static string NormalizeUrl(string? url)
+    private static void UpdateEndpoint(EndpointScheduleOptions target, EndpointEditorModel model)
     {
-        var trimmed = url?.Trim() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(trimmed))
-        {
-            return trimmed;
-        }
-
-        var candidate = trimmed.Contains("://", StringComparison.Ordinal)
-                ? trimmed
-                : $"http://{trimmed}";
-
-        return Uri.TryCreate(candidate, UriKind.Absolute, out var uri)
-                ? uri.ToString()
-                : trimmed;
+        target.Name = model.Name;
+        target.Url = NormalizeUrl(model.Url);
+        target.Method = model.Method;
+        target.Cron = model.Cron;
+        target.TimeZone = null;
+        target.Enabled = model.Enabled;
+        target.Headers = ParseHeaders(model.Headers);
     }
 }
