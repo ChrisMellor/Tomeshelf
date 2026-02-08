@@ -72,5 +72,5 @@ public interface IShiftWebSession
     /// <param name="redeemBody">The request body containing the code or token to redeem. Cannot be null or empty.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous redeem operation.</returns>
-    Task RedeemAsync(string redeemBody, CancellationToken cancellationToke = default);
+    Task RedeemAsync(string redeemBody, CancellationToken cancellationToken = default);
 }
