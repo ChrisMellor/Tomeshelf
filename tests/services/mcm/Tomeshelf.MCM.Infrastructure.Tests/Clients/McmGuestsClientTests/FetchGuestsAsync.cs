@@ -33,6 +33,7 @@ public class FetchGuestsAsync
     public async Task ReturnsMappedGuests()
     {
         // Arrange
+
         var payload = """
                       {
                         "event_id":"event-1",

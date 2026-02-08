@@ -10,8 +10,8 @@ public class Defaults
         // Arrange
         var options = new ShiftKeyScannerOptions();
 
-        var lookback = options.LookbackHours;
         // Act
+        var lookback = options.LookbackHours;
         var x = options.X;
 
         // Assert

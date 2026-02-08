@@ -19,11 +19,11 @@ public class AddInfrastructureServices
         var builder = new HostApplicationBuilder();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["Paissa:WorldId"] = "99" });
 
+        // Act
         builder.AddInfrastructureServices();
 
-        // Act
-        using var provider = builder.Services.BuildServiceProvider();
         // Assert
+        using var provider = builder.Services.BuildServiceProvider();
         provider.GetRequiredService<IPaissaClient>()
                 .ShouldBeOfType<PaissaClient>();
 

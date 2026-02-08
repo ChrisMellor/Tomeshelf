@@ -22,10 +22,10 @@ public class StopAsync
 
         // Act
         await service.StopAsync(CancellationToken.None);
-        // Assert
         monitor.Set(new ExecutorOptions());
         await Task.Delay(50);
 
+        // Assert
         A.CallTo(() => orchestrator.RefreshAsync(A<ExecutorOptions?>._, A<CancellationToken>._))
          .MustHaveHappenedOnceExactly();
     }

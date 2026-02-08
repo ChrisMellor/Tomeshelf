@@ -12,7 +12,6 @@ public class HasData
     {
         // Arrange
         var faker = new Faker();
-        // Act
         var model = new FitnessMetricSeriesViewModel
         {
             Key = faker.Random.Word(),
@@ -25,9 +24,10 @@ public class HasData
             }
         };
 
-        // Assert
+        // Act
         var hasData = model.HasData;
 
+        // Assert
         hasData.ShouldBeFalse();
     }
 
@@ -36,7 +36,6 @@ public class HasData
     {
         // Arrange
         var faker = new Faker();
-        // Act
         var model = new FitnessMetricSeriesViewModel
         {
             Key = faker.Random.Word(),
@@ -50,9 +49,10 @@ public class HasData
             }
         };
 
-        // Assert
+        // Act
         var hasData = model.HasData;
 
+        // Assert
         hasData.ShouldBeTrue();
     }
 
@@ -61,7 +61,6 @@ public class HasData
     {
         // Arrange
         var faker = new Faker();
-        // Act
         var model = new FitnessMetricSeriesViewModel
         {
             Key = faker.Random.Word(),
@@ -70,9 +69,10 @@ public class HasData
             Values = null
         };
 
-        // Assert
+        // Act
         var hasData = model.HasData;
 
+        // Assert
         hasData.ShouldBeFalse();
     }
 }

@@ -16,9 +16,9 @@ public class Write
         using var writer = new Utf8JsonWriter(stream);
         var converter = new NullableFlexibleDecimalConverter();
 
+        // Act
         converter.Write(writer, null, new JsonSerializerOptions());
         writer.Flush();
-        // Act
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -33,9 +33,9 @@ public class Write
         using var writer = new Utf8JsonWriter(stream);
         var converter = new NullableFlexibleDecimalConverter();
 
+        // Act
         converter.Write(writer, 12.34m, new JsonSerializerOptions());
         writer.Flush();
-        // Act
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert

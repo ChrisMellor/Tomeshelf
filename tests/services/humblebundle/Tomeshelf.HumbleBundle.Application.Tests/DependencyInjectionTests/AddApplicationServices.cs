@@ -22,11 +22,11 @@ public class AddApplicationServices
         services.AddSingleton(A.Fake<IHumbleBundleScraper>());
         services.AddSingleton(A.Fake<IBundleIngestService>());
 
+        // Act
         services.AddApplicationServices();
 
-        // Act
-        using var provider = services.BuildServiceProvider();
         // Assert
+        using var provider = services.BuildServiceProvider();
         provider.GetRequiredService<IQueryHandler<GetBundlesQuery, IReadOnlyList<BundleDto>>>()
                 .ShouldBeOfType<GetBundlesQueryHandler>();
         provider.GetRequiredService<ICommandHandler<RefreshBundlesCommand, BundleIngestResult>>()

@@ -12,12 +12,12 @@ public class UtcNow
         var clock = new SystemClock();
         var before = DateTimeOffset.UtcNow;
 
-        // Act
         var now = clock.UtcNow;
 
-        // Assert
+        // Act
         var after = DateTimeOffset.UtcNow;
 
+        // Assert
         now.ShouldBeInRange(before, after);
     }
 }

@@ -10,11 +10,14 @@ public class GetMetadata
     public void FallsBackToPdbTitleWhenNoExth()
     {
         // Arrange
-        var tempDir = CreateTempDirectory();
+
         // Act
-        var path = Path.Combine(tempDir, "book.mobi");
 
         // Assert
+
+        var tempDir = CreateTempDirectory();
+        var path = Path.Combine(tempDir, "book.mobi");
+
         try
         {
             var data = new byte[64];
@@ -38,11 +41,14 @@ public class GetMetadata
     public void UsesExthTitleWhenPresent()
     {
         // Arrange
-        var tempDir = CreateTempDirectory();
+
         // Act
-        var path = Path.Combine(tempDir, "book.mobi");
 
         // Assert
+
+        var tempDir = CreateTempDirectory();
+        var path = Path.Combine(tempDir, "book.mobi");
+
         try
         {
             var data = new byte[128];

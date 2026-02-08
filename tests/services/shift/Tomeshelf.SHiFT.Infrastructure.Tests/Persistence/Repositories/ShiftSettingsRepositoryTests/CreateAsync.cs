@@ -17,6 +17,7 @@ public class CreateAsync
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
 
+        // Act
         var repository = new ShiftSettingsRepository(context, protector);
         var request = new SettingsEntity
         {
@@ -25,12 +26,11 @@ public class CreateAsync
             EncryptedPassword = " encrypted "
         };
 
+        // Assert
         var before = DateTimeOffset.UtcNow;
-        // Act
         var id = await repository.CreateAsync(request, CancellationToken.None);
         var after = DateTimeOffset.UtcNow;
         var stored = await context.ShiftSettings.SingleAsync(entity => entity.Id == id);
-        // Assert
         stored.Email.ShouldBe("user@example.com");
         stored.DefaultService.ShouldBe("steam");
         stored.EncryptedPassword.ShouldBe("encrypted");
@@ -62,11 +62,11 @@ public class CreateAsync
             EncryptedPassword = "secret"
         };
 
+        // Act
         var action = () => repository.CreateAsync(request, CancellationToken.None);
 
-        // Act
-        var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         // Assert
+        var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         exception.Message.ShouldBe("SHiFT email already exists");
     }
 
@@ -88,11 +88,11 @@ public class CreateAsync
             EncryptedPassword = password
         };
 
+        // Act
         var action = () => repository.CreateAsync(request, CancellationToken.None);
 
-        // Act
-        var exception = await Should.ThrowAsync<ArgumentNullException>(action);
         // Assert
+        var exception = await Should.ThrowAsync<ArgumentNullException>(action);
         exception.ParamName.ShouldBe(paramName);
         exception.Message.ShouldContain(expectedMessage);
     }

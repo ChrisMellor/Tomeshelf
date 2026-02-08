@@ -23,11 +23,11 @@ public class Handle
         A.CallTo(() => scraper.ScrapeAsync(A<CancellationToken>._))
          .ThrowsAsync(expectedException);
 
+        // Act
         Func<Task> act = () => handler.Handle(new RefreshBundlesCommand(), CancellationToken.None);
 
-        // Act
-        var exception = await Should.ThrowAsync<InvalidOperationException>(act);
         // Assert
+        var exception = await Should.ThrowAsync<InvalidOperationException>(act);
         exception.Message.ShouldBe(expectedException.Message);
         A.CallTo(() => ingestService.UpsertAsync(A<IReadOnlyList<ScrapedBundle>>._, A<CancellationToken>._))
          .MustNotHaveHappened();

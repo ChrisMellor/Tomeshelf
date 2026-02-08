@@ -16,6 +16,11 @@ public class Error
     public void UsesTraceIdentifierWhenNoActivity()
     {
         // Arrange
+
+        // Act
+
+        // Assert
+
         var bundlesApi = A.Fake<IBundlesApi>();
         var fitbitApi = A.Fake<IFitbitApi>();
         var guestsApi = A.Fake<IGuestsApi>();
@@ -25,9 +30,7 @@ public class Error
         var httpContext = new DefaultHttpContext { TraceIdentifier = "trace-123" };
         var controller = new HomeController(bundlesApi, fitbitApi, guestsApi, paissaApi, logger) { ControllerContext = new ControllerContext { HttpContext = httpContext } };
 
-        // Act
         var previous = Activity.Current;
-        // Assert
         Activity.Current = null;
 
         try

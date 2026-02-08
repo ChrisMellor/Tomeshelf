@@ -9,7 +9,6 @@ public class ComicCon
     {
         // Arrange
         var options = new ComicConOptions();
-        // Act
         var locations = new List<Location>
         {
             new Location
@@ -24,9 +23,10 @@ public class ComicCon
             }
         };
 
-        // Assert
+        // Act
         options.ComicCon = locations;
 
+        // Assert
         options.ComicCon.ShouldBeSameAs(locations);
     }
 

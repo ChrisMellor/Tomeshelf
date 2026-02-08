@@ -27,11 +27,11 @@ public class AddApplicationServices
         services.AddSingleton(A.Fake<IGuestsRepository>());
         services.AddSingleton(A.Fake<IEventRepository>());
 
+        // Act
         services.AddApplicationServices();
 
-        // Act
-        using var provider = services.BuildServiceProvider();
         // Assert
+        using var provider = services.BuildServiceProvider();
         provider.GetRequiredService<IGuestMapper>()
                 .ShouldBeOfType<GuestMapper>();
         provider.GetRequiredService<IGuestsService>()

@@ -19,13 +19,13 @@ public class AddGuest
             EventId = "test-event"
         };
 
+        // Act
         repository.AddGuest(guest);
 
-        // Act
+        // Assert
         var entry = context.ChangeTracker
                            .Entries<GuestEntity>()
                            .Single();
-        // Assert
         entry.Entity.ShouldBe(guest);
     }
 

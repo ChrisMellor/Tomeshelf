@@ -9,9 +9,12 @@ public class BuildPlan
     public void FallsBackToRootDirectoryName_WhenNoBundleFolderPresent()
     {
         // Arrange
+
         // Act
-        var root = CreateTempDirectory();
+
         // Assert
+
+        var root = CreateTempDirectory();
         try
         {
             File.WriteAllText(Path.Combine(root, "PlainBook.txt"), "data");
@@ -35,9 +38,12 @@ public class BuildPlan
     public void UsesBundleDirectoryAndSupplementNaming()
     {
         // Arrange
+
         // Act
-        var root = CreateTempDirectory();
+
         // Assert
+
+        var root = CreateTempDirectory();
         try
         {
             var bundleDir = Path.Combine(root, "Great Bundle by Authors");

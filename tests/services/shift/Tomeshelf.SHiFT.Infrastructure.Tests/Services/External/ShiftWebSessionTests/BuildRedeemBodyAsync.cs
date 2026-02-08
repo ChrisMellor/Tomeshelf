@@ -83,11 +83,11 @@ public class BuildRedeemBodyAsync
         handler.Responses["/entitlement_offer_codes"] = "<form></form>";
         await using var session = ShiftWebSessionTestHarness.CreateSession(handler);
 
+        // Act
         var action = () => session.BuildRedeemBodyAsync("CODE-123", "csrf", "xbox", CancellationToken.None);
 
-        // Act
-        var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         // Assert
+        var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         exception.Message.ShouldBe("No redemption form found for service 'xbox'.");
     }
 }

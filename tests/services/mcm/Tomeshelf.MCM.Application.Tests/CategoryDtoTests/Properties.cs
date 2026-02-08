@@ -33,9 +33,9 @@ public class Properties
         // Arrange
         var dto = new CategoryDto();
 
+        // Act
         var id = dto.Id;
         var name = dto.Name;
-        // Act
         var color = dto.Color;
 
         // Assert

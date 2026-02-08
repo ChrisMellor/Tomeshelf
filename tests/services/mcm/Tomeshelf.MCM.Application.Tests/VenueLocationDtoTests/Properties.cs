@@ -30,8 +30,8 @@ public class Properties
         // Arrange
         var dto = new VenueLocationDto();
 
-        var id = dto.Id;
         // Act
+        var id = dto.Id;
         var name = dto.Name;
 
         // Assert

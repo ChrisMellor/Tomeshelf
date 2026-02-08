@@ -12,6 +12,7 @@ public class ScrapeAsync
     public async Task ParsesBundlesFromHtmlPayload()
     {
         // Arrange
+
         var json = """
                    {"userOptions":{},"data":{"books":{"mosaic":[{"products":[
                      {"machine_name":"bundle-one","tile_stamp":"Bundle","tile_name":"Bundle One","tile_short_name":"One","short_marketing_blurb":"Deal {with} braces","product_url":"/bundle-one","tile_image":"https://img.test/tile.png","tile_logo":"https://img.test/logo.png","high_res_tile_image":"https://img.test/hero.png","start_date|datetime":"2025-01-01T00:00:00Z","end_date|datetime":"2025-01-10T00:00:00Z"},

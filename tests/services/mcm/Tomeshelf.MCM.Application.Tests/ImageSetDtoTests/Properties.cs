@@ -36,10 +36,10 @@ public class Properties
         // Arrange
         var dto = new ImageSetDto();
 
+        // Act
         var big = dto.Big;
         var med = dto.Med;
         var small = dto.Small;
-        // Act
         var thumb = dto.Thumb;
 
         // Assert

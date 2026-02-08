@@ -61,8 +61,6 @@ public class SendAsync
     public async Task WhenMethodMissing_UsesPost()
     {
         // Arrange
-        // Act
-        // Assert
         var handler = new StubHttpMessageHandler((request, _) =>
         {
             request.Method.ShouldBe(HttpMethod.Post);
@@ -73,8 +71,10 @@ public class SendAsync
         var factory = new TestHttpClientFactory(client);
         var service = new EndpointPingService(factory, A.Fake<ILogger<EndpointPingService>>());
 
+        // Act
         var result = await service.SendAsync(new Uri("https://example.test"), " ", null, CancellationToken.None);
 
+        // Assert
         result.Success.ShouldBeTrue();
         result.StatusCode.ShouldBe(202);
     }

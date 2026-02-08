@@ -33,11 +33,11 @@ public class DeleteAsync
 
         var repository = new ShiftSettingsRepository(context, protector);
 
+        // Act
         await repository.DeleteAsync(1, CancellationToken.None);
 
-        // Act
-        var remaining = await context.ShiftSettings.ToListAsync();
         // Assert
+        var remaining = await context.ShiftSettings.ToListAsync();
         remaining.ShouldHaveSingleItem();
         remaining[0]
            .Id

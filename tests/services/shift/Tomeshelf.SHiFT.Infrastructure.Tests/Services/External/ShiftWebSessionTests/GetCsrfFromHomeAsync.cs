@@ -28,11 +28,11 @@ public class GetCsrfFromHomeAsync
         handler.Responses["/home"] = "<html><head></head><body>No token</body></html>";
         await using var session = ShiftWebSessionTestHarness.CreateSession(handler);
 
+        // Act
         var action = () => session.GetCsrfFromHomeAsync(CancellationToken.None);
 
-        // Act
-        var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         // Assert
+        var exception = await Should.ThrowAsync<InvalidOperationException>(action);
         exception.Message.ShouldBe("CSRF token not found on /home.");
     }
 }
