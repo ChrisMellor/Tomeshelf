@@ -1,10 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
 using Tomeshelf.SHiFT.Application.Abstractions.Security;
 using Tomeshelf.SHiFT.Application.Features.Settings.Dtos;
@@ -15,12 +15,13 @@ namespace Tomeshelf.SHiFT.Infrastructure.Persistence.Repositories;
 /// <summary>
 ///     Provides methods for creating, retrieving, updating, and deleting shift settings, as well as accessing user
 ///     credentials for SHiFT users. This repository ensures that sensitive information, such as passwords, is protected
-///     using a data protection provider.
+///     before being persisted, and can unprotect passwords when needed for use.
 /// </summary>
 /// <remarks>
 ///     This class interacts with the underlying database context to manage shift settings data. It enforces
-///     validation of input parameters and prevents duplicate entries based on email addresses. Passwords are encrypted and
-///     decrypted using the provided data protection provider to maintain security. All operations are asynchronous and
+///     validation of input parameters and prevents duplicate entries based on email addresses. Passwords are unprotected
+///     using the provided data protection provider when they need to be used. Password protection is performed
+///     upstream (for example, in command handlers). All operations are asynchronous and
 ///     support cancellation via cancellation tokens.
 /// </remarks>
 public sealed class ShiftSettingsRepository : IShiftSettingsRepository
@@ -70,26 +71,22 @@ public sealed class ShiftSettingsRepository : IShiftSettingsRepository
             throw new ArgumentNullException("service", "Missing service");
         }
 
-        var password = request.EncryptedPassword.Trim();
-        if (string.IsNullOrEmpty(password))
+        var encryptedPassword = request.EncryptedPassword?.Trim();
+        if (string.IsNullOrEmpty(encryptedPassword))
         {
             throw new ArgumentNullException("password", "Missing password");
         }
 
-        var cleanEmail = request.Email?.Trim();
-
-        if (await _context.ShiftSettings.AnyAsync(x => x.Email == cleanEmail, cancellationToken))
+        if (await _context.ShiftSettings.AnyAsync(x => x.Email == email, cancellationToken))
         {
             throw new InvalidOperationException("SHiFT email already exists");
         }
 
         var data = new SettingsEntity
         {
-            Email = cleanEmail,
-            DefaultService = request.DefaultService?.Trim(),
-            EncryptedPassword = string.IsNullOrWhiteSpace(password)
-                ? null
-                : _protector.Protect(password),
+            Email = email,
+            DefaultService = service,
+            EncryptedPassword = encryptedPassword,
             UpdatedUtc = DateTimeOffset.UtcNow
         };
 
@@ -190,6 +187,15 @@ public sealed class ShiftSettingsRepository : IShiftSettingsRepository
                 try
                 {
                     password = _protector.Unprotect(row.EncryptedPassword);
+
+                    if (LooksLikeProtectedValue(password))
+                    {
+                        try
+                        {
+                            password = _protector.Unprotect(password);
+                        }
+                        catch (CryptographicException) { }
+                    }
                 }
                 catch (CryptographicException)
                 {
@@ -246,5 +252,30 @@ public sealed class ShiftSettingsRepository : IShiftSettingsRepository
         row.UpdatedUtc = DateTimeOffset.UtcNow;
 
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    private static bool LooksLikeProtectedValue(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || (value.Length < 50))
+        {
+            return false;
+        }
+
+        if (!value.StartsWith("CfDJ8", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        foreach (var ch in value)
+        {
+            if (((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')) || ((ch >= '0') && (ch <= '9')) || ch is '-' or '_')
+            {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
     }
 }

@@ -11,33 +11,32 @@ namespace Tomeshelf.SHiFT.Infrastructure.Tests.Persistence.Repositories.ShiftSet
 public class CreateAsync
 {
     [Fact]
-    public async Task PersistsTrimmedValues_AndProtectsPassword()
+    public async Task PersistsTrimmedValues_AndStoresEncryptedPassword()
     {
         // Arrange
         await using var context = await ShiftSettingsRepositoryTestHarness.CreateContextAsync();
         var protector = A.Fake<ISecretProtector>();
-        A.CallTo(() => protector.Protect("secret"))
-         .Returns("encrypted");
 
         var repository = new ShiftSettingsRepository(context, protector);
         var request = new SettingsEntity
         {
             Email = "  user@example.com ",
             DefaultService = " steam ",
-            EncryptedPassword = " secret "
+            EncryptedPassword = " encrypted "
         };
 
         var before = DateTimeOffset.UtcNow;
+        // Act
         var id = await repository.CreateAsync(request, CancellationToken.None);
         var after = DateTimeOffset.UtcNow;
-
-        // Act
         var stored = await context.ShiftSettings.SingleAsync(entity => entity.Id == id);
         // Assert
         stored.Email.ShouldBe("user@example.com");
         stored.DefaultService.ShouldBe("steam");
         stored.EncryptedPassword.ShouldBe("encrypted");
         stored.UpdatedUtc.ShouldBeInRange(before, after);
+        A.CallTo(() => protector.Protect(A<string>._))
+         .MustNotHaveHappened();
     }
 
     [Fact]
