@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -145,99 +146,122 @@ public class Program
             options.MultipartBodyLengthLimit = 1_073_741_824;
         });
 
+        var gatewayBaseUri = TryResolveGatewayBaseUri(builder);
+
         builder.Services
                .AddHttpClient(GuestsApi.HttpClientName, client =>
-                {
-                    var configured = builder.Configuration["Services:McmApiBase"] ?? builder.Configuration["Services:ApiBase"];
+                 {
+                     if (gatewayBaseUri is not null)
+                     {
+                         client.BaseAddress = new Uri(gatewayBaseUri, "api/mcm/");
+                     }
+                     else
+                     {
+                         var configured = builder.Configuration["Services:McmApiBase"] ?? builder.Configuration["Services:ApiBase"];
 
-                    if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
-                    {
-                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
-                        {
-                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:McmApiBase'.");
-                        }
+                         if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+                         {
+                             if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                             {
+                                 throw new InvalidOperationException("Invalid URI in configuration setting 'Services:McmApiBase'.");
+                             }
 
-                        client.BaseAddress = configuredUri;
-                    }
-                    else
-                    {
-                        var protocol = "https";
-                        if (IsRunningInDocker())
-                        {
-                            protocol = "http";
-                        }
+                             client.BaseAddress = configuredUri;
+                         }
+                         else
+                         {
+                             var protocol = "https";
+                             if (IsRunningInDocker())
+                             {
+                                 protocol = "http";
+                             }
 
-                        client.BaseAddress = new Uri($"{protocol}://mcmapi");
-                    }
+                             client.BaseAddress = new Uri($"{protocol}://mcmapi");
+                         }
+                     }
 
-                    client.DefaultRequestVersion = HttpVersion.Version11;
-                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
-                    client.Timeout = TimeSpan.FromSeconds(100);
-                })
+                     client.DefaultRequestVersion = HttpVersion.Version11;
+                     client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                     client.Timeout = TimeSpan.FromSeconds(100);
+                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
         builder.Services.AddScoped<IGuestsApi, GuestsApi>();
 
         builder.Services
                .AddHttpClient(BundlesApi.HttpClientName, client =>
                 {
-                    var configured = builder.Configuration["Services:HumbleBundleApiBase"];
+                     if (gatewayBaseUri is not null)
+                     {
+                         client.BaseAddress = new Uri(gatewayBaseUri, "api/humblebundle/");
+                     }
+                     else
+                     {
+                         var configured = builder.Configuration["Services:HumbleBundleApiBase"];
 
-                    if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
-                    {
-                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
-                        {
-                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:HumbleBundleApiBase'.");
-                        }
+                         if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+                         {
+                             if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                             {
+                                 throw new InvalidOperationException("Invalid URI in configuration setting 'Services:HumbleBundleApiBase'.");
+                             }
 
-                        client.BaseAddress = configuredUri;
-                    }
-                    else
-                    {
-                        var protocol = "https";
-                        if (IsRunningInDocker())
-                        {
-                            protocol = "http";
-                        }
+                             client.BaseAddress = configuredUri;
+                         }
+                         else
+                         {
+                             var protocol = "https";
+                             if (IsRunningInDocker())
+                             {
+                                 protocol = "http";
+                             }
 
-                        client.BaseAddress = new Uri($"{protocol}://humblebundleapi");
-                    }
+                             client.BaseAddress = new Uri($"{protocol}://humblebundleapi");
+                         }
+                     }
 
-                    client.DefaultRequestVersion = HttpVersion.Version11;
-                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
-                    client.Timeout = TimeSpan.FromSeconds(100);
-                })
+                     client.DefaultRequestVersion = HttpVersion.Version11;
+                     client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                     client.Timeout = TimeSpan.FromSeconds(100);
+                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
         builder.Services.AddScoped<IBundlesApi, BundlesApi>();
 
         builder.Services
                .AddHttpClient(FitbitApi.HttpClientName, client =>
-                {
-                    var configured = builder.Configuration["Services:FitbitApiBase"];
+                 {
+                     if (gatewayBaseUri is not null)
+                     {
+                         client.BaseAddress = gatewayBaseUri;
+                     }
+                     else
+                     {
+                         var configured = builder.Configuration["Services:FitbitApiBase"];
 
-                    if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
-                    {
-                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
-                        {
-                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:FitbitApiBase'.");
-                        }
+                         if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+                         {
+                             if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                             {
+                                 throw new InvalidOperationException("Invalid URI in configuration setting 'Services:FitbitApiBase'.");
+                             }
 
-                        client.BaseAddress = configuredUri;
-                    }
-                    else
-                    {
-                        var protocol = "https";
-                        if (IsRunningInDocker())
-                        {
-                            protocol = "http";
-                        }
+                             client.BaseAddress = configuredUri;
+                         }
+                         else
+                         {
+                             var protocol = "https";
+                             if (IsRunningInDocker())
+                             {
+                                 protocol = "http";
+                             }
 
-                        client.BaseAddress = new Uri($"{protocol}://fitbitapi");
-                    }
+                             client.BaseAddress = new Uri($"{protocol}://fitbitapi");
+                         }
+                     }
 
-                    client.DefaultRequestVersion = HttpVersion.Version11;
-                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
-                    client.Timeout = TimeSpan.FromSeconds(100);
-                })
+                     client.DefaultRequestVersion = HttpVersion.Version11;
+                     client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                     client.Timeout = TimeSpan.FromSeconds(100);
+                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
                {
                    AutomaticDecompression = DecompressionMethods.None,
@@ -248,98 +272,119 @@ public class Program
 
         builder.Services
                .AddHttpClient(PaissaApi.HttpClientName, client =>
-                {
-                    var configured = builder.Configuration["Services:PaissaApiBase"];
+                 {
+                      if (gatewayBaseUri is not null)
+                      {
+                          client.BaseAddress = new Uri(gatewayBaseUri, "api/");
+                      }
+                      else
+                      {
+                          var configured = builder.Configuration["Services:PaissaApiBase"];
 
-                    if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
-                    {
-                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
-                        {
-                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:PaissaApiBase'.");
-                        }
+                          if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+                          {
+                              if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                              {
+                                  throw new InvalidOperationException("Invalid URI in configuration setting 'Services:PaissaApiBase'.");
+                              }
 
-                        client.BaseAddress = configuredUri;
-                    }
-                    else
-                    {
-                        var protocol = "https";
-                        if (IsRunningInDocker())
-                        {
-                            protocol = "http";
-                        }
+                              client.BaseAddress = configuredUri;
+                          }
+                          else
+                          {
+                              var protocol = "https";
+                              if (IsRunningInDocker())
+                              {
+                                  protocol = "http";
+                              }
 
-                        client.BaseAddress = new Uri($"{protocol}://paissaapi");
-                    }
+                              client.BaseAddress = new Uri($"{protocol}://paissaapi");
+                          }
+                      }
 
-                    client.DefaultRequestVersion = HttpVersion.Version11;
-                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
-                    client.Timeout = TimeSpan.FromSeconds(30);
-                })
+                     client.DefaultRequestVersion = HttpVersion.Version11;
+                     client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                     client.Timeout = TimeSpan.FromSeconds(30);
+                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
         builder.Services.AddScoped<IPaissaApi, PaissaApi>();
 
         builder.Services
                .AddHttpClient(ShiftApi.HttpClientName, client =>
-                {
-                    var configured = builder.Configuration["Services:ShiftApiBase"];
+                 {
+                     if (gatewayBaseUri is not null)
+                     {
+                         client.BaseAddress = new Uri(gatewayBaseUri, "api/shift/");
+                     }
+                     else
+                     {
+                         var configured = builder.Configuration["Services:ShiftApiBase"];
 
-                    if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
-                    {
-                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
-                        {
-                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:ShiftApiBase'.");
-                        }
+                         if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+                         {
+                             if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                             {
+                                 throw new InvalidOperationException("Invalid URI in configuration setting 'Services:ShiftApiBase'.");
+                             }
 
-                        client.BaseAddress = configuredUri;
-                    }
-                    else
-                    {
-                        var protocol = "https";
-                        if (IsRunningInDocker())
-                        {
-                            protocol = "http";
-                        }
+                             client.BaseAddress = configuredUri;
+                         }
+                         else
+                         {
+                             var protocol = "https";
+                             if (IsRunningInDocker())
+                             {
+                                 protocol = "http";
+                             }
 
-                        client.BaseAddress = new Uri($"{protocol}://shiftapi");
-                    }
+                             client.BaseAddress = new Uri($"{protocol}://shiftapi");
+                         }
+                     }
 
-                    client.DefaultRequestVersion = HttpVersion.Version11;
-                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
-                    client.Timeout = TimeSpan.FromSeconds(30);
-                })
+                     client.DefaultRequestVersion = HttpVersion.Version11;
+                     client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                     client.Timeout = TimeSpan.FromSeconds(30);
+                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None });
         builder.Services.AddScoped<IShiftApi, ShiftApi>();
 
         builder.Services
                .AddHttpClient(FileUploadsApi.HttpClientName, client =>
-                {
-                    var configured = builder.Configuration["Services:FileUploaderApiBase"];
+                 {
+                     if (gatewayBaseUri is not null)
+                     {
+                         client.BaseAddress = new Uri(gatewayBaseUri, "api/fileuploader/");
+                     }
+                     else
+                     {
+                         var configured = builder.Configuration["Services:FileUploaderApiBase"];
 
-                    if (!string.IsNullOrWhiteSpace(configured))
-                    {
-                        if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
-                        {
-                            throw new InvalidOperationException("Invalid URI in configuration setting 'Services:FileUploaderApiBase'.");
-                        }
+                         if (!string.IsNullOrWhiteSpace(configured))
+                         {
+                             if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                             {
+                                 throw new InvalidOperationException("Invalid URI in configuration setting 'Services:FileUploaderApiBase'.");
+                             }
 
-                        client.BaseAddress = configuredUri;
-                    }
-                    else
-                    {
-                        if (IsRunningInDocker())
-                        {
-                            client.BaseAddress = new Uri("http://fileuploaderapi");
-                        }
-                        else
-                        {
-                            client.BaseAddress = new Uri("https://localhost:49960");
-                        }
-                    }
+                             client.BaseAddress = configuredUri;
+                         }
+                         else
+                         {
+                             if (IsRunningInDocker())
+                             {
+                                 client.BaseAddress = new Uri("http://fileuploaderapi");
+                             }
+                             else
+                             {
+                                 client.BaseAddress = new Uri("https://localhost:49960");
+                             }
+                         }
+                     }
 
-                    client.DefaultRequestVersion = HttpVersion.Version11;
-                    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
-                    client.Timeout = TimeSpan.FromMinutes(30);
-                })
+                     client.DefaultRequestVersion = HttpVersion.Version11;
+                     client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                     client.Timeout = TimeSpan.FromMinutes(30);
+                 })
                .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.None })
                .ConfigureHttpMessageHandlerBuilder(b => b.AdditionalHandlers.Clear());
         builder.Services.AddScoped<IFileUploadsApi, FileUploadsApi>();
@@ -402,5 +447,86 @@ public class Program
     private static bool IsRunningInDocker()
     {
         return File.Exists("/.dockerenv");
+    }
+
+    private static Uri? TryResolveGatewayBaseUri(WebApplicationBuilder builder)
+    {
+        var configured = builder.Configuration["Services:GatewayBase"];
+        if (!string.IsNullOrWhiteSpace(configured))
+        {
+            if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+            {
+                throw new InvalidOperationException("Invalid URI in configuration setting 'Services:GatewayBase'.");
+            }
+
+            return EnsureTrailingSlash(configuredUri);
+        }
+
+        var discovered = TryGetAspireServiceEndpointUri(builder.Configuration, "gateway");
+        if (discovered is not null)
+        {
+            return EnsureTrailingSlash(discovered);
+        }
+
+        return null;
+    }
+
+    private static Uri? TryGetAspireServiceEndpointUri(IConfiguration configuration, string serviceName)
+    {
+        var serviceSection = configuration.GetSection("services")
+                                          .GetSection(serviceName);
+        if (!serviceSection.Exists())
+        {
+            return null;
+        }
+
+        // Prioritize well-known transports first ("http" then "https"), followed by any others (e.g. "grpc").
+        var transports = new List<IConfigurationSection>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var transportName in new[] { "http", "https" })
+        {
+            var preferred = serviceSection.GetSection(transportName);
+            if (preferred.Exists())
+            {
+                transports.Add(preferred);
+                seen.Add(transportName);
+            }
+        }
+
+        foreach (var transport in serviceSection.GetChildren())
+        {
+            if (!seen.Contains(transport.Key))
+            {
+                transports.Add(transport);
+            }
+        }
+
+        foreach (var transport in transports)
+        {
+            foreach (var endpointSection in transport.GetChildren())
+            {
+                var rawAddress = endpointSection.Value?.Trim();
+                if (string.IsNullOrWhiteSpace(rawAddress) || !Uri.TryCreate(rawAddress, UriKind.Absolute, out var parsed))
+                {
+                    continue;
+                }
+
+                return parsed;
+            }
+        }
+
+        return null;
+    }
+
+    private static Uri EnsureTrailingSlash(Uri uri)
+    {
+        var left = uri.GetLeftPart(UriPartial.Path);
+        if (!left.EndsWith("/", StringComparison.Ordinal))
+        {
+            left += "/";
+        }
+
+        return new Uri(left, UriKind.Absolute);
     }
 }

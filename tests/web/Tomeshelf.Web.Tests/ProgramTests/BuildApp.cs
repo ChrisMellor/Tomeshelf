@@ -121,6 +121,35 @@ public class BuildApp
         uploads.BaseAddress.ShouldBe(new Uri("https://uploads.example.test/"));
     }
 
+    [Fact]
+    public void WhenGatewayConfigured_UsesGatewayAddresses()
+    {
+        // Arrange
+        var config = new Dictionary<string, string?>
+        {
+            ["Services:GatewayBase"] = "https://gateway.example.test/"
+        };
+
+        using var app = ProgramTestHarness.BuildApp(Environments.Production, config);
+        var factory = app.Services.GetRequiredService<IHttpClientFactory>();
+
+        // Act
+        var guests = factory.CreateClient(GuestsApi.HttpClientName);
+        var bundles = factory.CreateClient(BundlesApi.HttpClientName);
+        var fitbit = factory.CreateClient(FitbitApi.HttpClientName);
+        var paissa = factory.CreateClient(PaissaApi.HttpClientName);
+        var shift = factory.CreateClient(ShiftApi.HttpClientName);
+        var uploads = factory.CreateClient(FileUploadsApi.HttpClientName);
+
+        // Assert
+        guests.BaseAddress.ShouldBe(new Uri("https://gateway.example.test/api/mcm/"));
+        bundles.BaseAddress.ShouldBe(new Uri("https://gateway.example.test/api/humblebundle/"));
+        fitbit.BaseAddress.ShouldBe(new Uri("https://gateway.example.test/"));
+        paissa.BaseAddress.ShouldBe(new Uri("https://gateway.example.test/api/"));
+        shift.BaseAddress.ShouldBe(new Uri("https://gateway.example.test/api/shift/"));
+        uploads.BaseAddress.ShouldBe(new Uri("https://gateway.example.test/api/fileuploader/"));
+    }
+
     [Theory]
     [MemberData(nameof(InvalidServiceUris))]
     public void WhenInvalidUriConfigured_Throws(string key, string clientName, string message)
