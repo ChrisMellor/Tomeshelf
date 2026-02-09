@@ -90,16 +90,16 @@ public static class Extensions
     }
 
     /// <summary>
-    ///     Maps default health endpoints used during development.
+    ///     Maps default health endpoints.
     /// </summary>
     /// <param name="app">The web application.</param>
     /// <returns>The same application instance for chaining.</returns>
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
+        app.MapHealthChecks(HealthEndpointPath);
+
         if (app.Environment.IsDevelopment())
         {
-            app.MapHealthChecks(HealthEndpointPath);
-
             app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions { Predicate = r => r.Tags.Contains("live") });
         }
 

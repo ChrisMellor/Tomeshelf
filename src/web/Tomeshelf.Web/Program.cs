@@ -480,27 +480,29 @@ public class Program
             return null;
         }
 
+        // Prioritize well-known transports first ("http" then "https"), followed by any others (e.g. "grpc").
+        var transports = new List<IConfigurationSection>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         foreach (var transportName in new[] { "http", "https" })
         {
-            var transport = serviceSection.GetSection(transportName);
-            if (!transport.Exists())
+            var preferred = serviceSection.GetSection(transportName);
+            if (preferred.Exists())
             {
-                continue;
-            }
-
-            foreach (var endpointSection in transport.GetChildren())
-            {
-                var rawAddress = endpointSection.Value?.Trim();
-                if (string.IsNullOrWhiteSpace(rawAddress) || !Uri.TryCreate(rawAddress, UriKind.Absolute, out var parsed))
-                {
-                    continue;
-                }
-
-                return parsed;
+                transports.Add(preferred);
+                seen.Add(transportName);
             }
         }
 
         foreach (var transport in serviceSection.GetChildren())
+        {
+            if (!seen.Contains(transport.Key))
+            {
+                transports.Add(transport);
+            }
+        }
+
+        foreach (var transport in transports)
         {
             foreach (var endpointSection in transport.GetChildren())
             {
