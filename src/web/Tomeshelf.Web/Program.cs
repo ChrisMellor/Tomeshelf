@@ -159,7 +159,7 @@ public class Program
                      {
                          var configured = builder.Configuration["Services:McmApiBase"] ?? builder.Configuration["Services:ApiBase"];
 
-                         if (!string.IsNullOrWhiteSpace(configured))
+                         if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
                          {
                              if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
                              {
@@ -198,7 +198,7 @@ public class Program
                      {
                          var configured = builder.Configuration["Services:HumbleBundleApiBase"];
 
-                         if (!string.IsNullOrWhiteSpace(configured))
+                         if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
                          {
                              if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
                              {
@@ -237,7 +237,7 @@ public class Program
                      {
                          var configured = builder.Configuration["Services:FitbitApiBase"];
 
-                         if (!string.IsNullOrWhiteSpace(configured))
+                         if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
                          {
                              if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
                              {
@@ -273,34 +273,34 @@ public class Program
         builder.Services
                .AddHttpClient(PaissaApi.HttpClientName, client =>
                  {
-                     if (gatewayBaseUri is not null)
-                     {
-                         client.BaseAddress = new Uri(gatewayBaseUri, "api/paissa/");
-                     }
-                     else
-                     {
-                         var configured = builder.Configuration["Services:PaissaApiBase"];
+                      if (gatewayBaseUri is not null)
+                      {
+                          client.BaseAddress = new Uri(gatewayBaseUri, "api/");
+                      }
+                      else
+                      {
+                          var configured = builder.Configuration["Services:PaissaApiBase"];
 
-                         if (!string.IsNullOrWhiteSpace(configured))
-                         {
-                             if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
-                             {
-                                 throw new InvalidOperationException("Invalid URI in configuration setting 'Services:PaissaApiBase'.");
-                             }
+                          if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
+                          {
+                              if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
+                              {
+                                  throw new InvalidOperationException("Invalid URI in configuration setting 'Services:PaissaApiBase'.");
+                              }
 
-                             client.BaseAddress = new Uri(EnsureTrailingSlash(configuredUri), "paissa/");
-                         }
-                         else
-                         {
-                             var protocol = "https";
-                             if (IsRunningInDocker())
-                             {
-                                 protocol = "http";
-                             }
+                              client.BaseAddress = configuredUri;
+                          }
+                          else
+                          {
+                              var protocol = "https";
+                              if (IsRunningInDocker())
+                              {
+                                  protocol = "http";
+                              }
 
-                             client.BaseAddress = new Uri($"{protocol}://paissaapi/paissa/");
-                         }
-                     }
+                              client.BaseAddress = new Uri($"{protocol}://paissaapi");
+                          }
+                      }
 
                      client.DefaultRequestVersion = HttpVersion.Version11;
                      client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
@@ -320,7 +320,7 @@ public class Program
                      {
                          var configured = builder.Configuration["Services:ShiftApiBase"];
 
-                         if (!string.IsNullOrWhiteSpace(configured))
+                         if (!string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
                          {
                              if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri))
                              {
