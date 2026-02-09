@@ -23,7 +23,7 @@ public sealed class PaissaApi : IPaissaApi
 
     public async Task<PaissaWorldModel> GetWorldAsync(CancellationToken cancellationToken)
     {
-        const string url = "paissa/world";
+        const string url = "world";
         var started = DateTimeOffset.UtcNow;
 
         using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);

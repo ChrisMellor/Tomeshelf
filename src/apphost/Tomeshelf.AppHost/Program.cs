@@ -1,11 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Docker.Resources.ServiceNodes;
+using Aspire.Hosting.Yarp;
+using Aspire.Hosting.Yarp.Transforms;
 using Microsoft.Extensions.Configuration;
 using Projects;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Tomeshelf.AppHost;
 
@@ -46,9 +48,10 @@ public class Program
         var paissaApi = SetupPaissaApi(builder);
         var fileUploaderApi = SetupFileUploaderApi(builder);
         var shiftApi = SetupShiftApi(builder, database);
+        var gateway = SetupGateway(builder, mcmApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi, shiftApi);
 
         _ = SetupExecutor(builder, mcmApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi, shiftApi);
-        _ = SetupWeb(builder, mcmApi, humbleBundleApi, fitbitApi, paissaApi, fileUploaderApi, shiftApi);
+        _ = SetupWeb(builder, gateway);
 
         builder.AddDockerComposeEnvironment("tomeshelf")
                .ConfigureComposeFile(compose =>
@@ -263,6 +266,61 @@ public class Program
         return api;
     }
 
+    private static IResourceBuilder<YarpResource> SetupGateway(IDistributedApplicationBuilder builder, IResourceBuilder<ProjectResource> mcmApi, IResourceBuilder<ProjectResource> humbleBundleApi, IResourceBuilder<ProjectResource> fitbitApi, IResourceBuilder<ProjectResource> paissaApi, IResourceBuilder<ProjectResource> fileUploaderApi, IResourceBuilder<ProjectResource> shiftApi)
+    {
+        var gateway = builder.AddYarp("gateway")
+                             .WithHostPort(5000)
+                             .WithHttpHealthCheck("/health")
+                             .PublishAsDockerComposeService((resource, service) =>
+                              {
+                                  service.Restart = "unless-stopped";
+                              })
+                             .WithConfiguration(yarp =>
+                              {
+                                  yarp.AddRoute("/health", mcmApi);
+                                  yarp.AddRoute("/", mcmApi)
+                                      .WithTransformPathSet("/health");
+
+                                  yarp.AddRoute("/api/mcm/{**catch-all}", mcmApi)
+                                      .WithTransformPathRemovePrefix("/api/mcm");
+
+                                  yarp.AddRoute("/api/humblebundle/{**catch-all}", humbleBundleApi)
+                                      .WithTransformPathRemovePrefix("/api/humblebundle");
+
+                                  yarp.AddRoute("/api/fileuploader/{**catch-all}", fileUploaderApi)
+                                      .WithTransformPathRemovePrefix("/api/fileuploader");
+
+                                  yarp.AddRoute("/api/shift/{**catch-all}", shiftApi)
+                                      .WithTransformPathRemovePrefix("/api/shift");
+
+                                  yarp.AddRoute("/api/fitbit/{**catch-all}", fitbitApi);
+
+                                  yarp.AddRoute("/api/paissa/{**catch-all}", paissaApi)
+                                      .WithTransformPathRemovePrefix("/api/paissa")
+                                      .WithTransformPathPrefix("/paissa");
+                              });
+
+        gateway.WithReference(mcmApi)
+               .WaitFor(mcmApi);
+
+        gateway.WithReference(humbleBundleApi)
+               .WaitFor(humbleBundleApi);
+
+        gateway.WithReference(fitbitApi)
+               .WaitFor(fitbitApi);
+
+        gateway.WithReference(paissaApi)
+               .WaitFor(paissaApi);
+
+        gateway.WithReference(fileUploaderApi)
+               .WaitFor(fileUploaderApi);
+
+        gateway.WithReference(shiftApi)
+               .WaitFor(shiftApi);
+
+        return gateway;
+    }
+
     private static IResourceBuilder<ProjectResource> SetupHumbleBundleApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
     {
         var db = database.AddDatabase("humblebundledb");
@@ -326,7 +384,7 @@ public class Program
         return api;
     }
 
-    private static IResourceBuilder<ProjectResource> SetupWeb(IDistributedApplicationBuilder builder, params IResourceBuilder<ProjectResource>[] apis)
+    private static IResourceBuilder<ProjectResource> SetupWeb(IDistributedApplicationBuilder builder, IResourceBuilder<YarpResource> gateway)
     {
         var web = builder.AddProject<Tomeshelf_Web>("web")
                          .WithHttpHealthCheck("/health")
@@ -361,11 +419,8 @@ public class Program
             web.WithEnvironment("GoogleDrive__UserEmail", userEmail);
         }
 
-        foreach (var api in apis)
-        {
-            web.WithReference(api)
-               .WaitFor(api);
-        }
+        web.WithReference(gateway)
+           .WaitFor(gateway);
 
         return web;
     }
