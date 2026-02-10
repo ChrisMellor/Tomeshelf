@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.MCM.Application.Contracts;
@@ -10,6 +10,10 @@ namespace Tomeshelf.MCM.Application.Tests.Features.Guests.Commands.SyncGuestsCom
 
 public class Handle
 {
+    /// <summary>
+    ///     Calls the service with event model.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task CallsServiceWithEventModel()
     {

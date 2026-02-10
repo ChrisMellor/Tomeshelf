@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -18,6 +18,10 @@ namespace Tomeshelf.Web.Tests.Services.GuestsApiTests;
 
 public class GetComicConEventsAsync
 {
+    /// <summary>
+    ///     Filters the and caches events.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task FiltersAndCachesEvents()
     {

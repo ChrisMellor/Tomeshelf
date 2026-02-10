@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.Security;
@@ -10,6 +10,10 @@ namespace Tomeshelf.SHiFT.Infrastructure.Tests.Persistence.Repositories.ShiftSet
 
 public class UpdateAsync
 {
+    /// <summary>
+    ///     Returns a result when the row is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Returns_WhenRowMissing()
     {
@@ -32,6 +36,10 @@ public class UpdateAsync
         count.ShouldBe(0);
     }
 
+    /// <summary>
+    ///     Throws when the duplicate email exists.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Throws_WhenDuplicateEmailExists()
     {
@@ -69,6 +77,14 @@ public class UpdateAsync
         await Should.ThrowAsync<InvalidOperationException>(action);
     }
 
+    /// <summary>
+    ///     Throws when the required values are missing.
+    /// </summary>
+    /// <param name="email">The email.</param>
+    /// <param name="service">The service.</param>
+    /// <param name="expectedParam">The expected param.</param>
+    /// <param name="expectedMessage">The expected message.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Theory]
     [InlineData("", "psn", "Email", "Missing email")]
     [InlineData("user@example.com", " ", "DefaultService", "Missing service")]
@@ -94,6 +110,10 @@ public class UpdateAsync
         exception.Message.ShouldContain(expectedMessage);
     }
 
+    /// <summary>
+    ///     Updates row when the value is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UpdatesRow_WhenValid()
     {

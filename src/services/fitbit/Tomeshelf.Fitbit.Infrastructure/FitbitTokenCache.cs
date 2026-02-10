@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.AspNetCore.Http;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
 
@@ -12,6 +12,10 @@ public sealed class FitbitTokenCache : IFitbitTokenCache
 
     private readonly IHttpContextAccessor _httpContextAccessor;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitbitTokenCache" /> class.
+    /// </summary>
+    /// <param name="httpContextAccessor">The http context accessor.</param>
     public FitbitTokenCache(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
@@ -56,16 +60,28 @@ public sealed class FitbitTokenCache : IFitbitTokenCache
         }
     }
 
+    /// <summary>
+    ///     Clears.
+    /// </summary>
     public void Clear()
     {
         ClearSession();
     }
 
+    /// <summary>
+    ///     Updates.
+    /// </summary>
+    /// <param name="accessToken">The access token.</param>
+    /// <param name="refreshToken">The refresh token.</param>
+    /// <param name="expiresAtUtc">The expires at utc.</param>
     public void Update(string accessToken, string refreshToken, DateTimeOffset? expiresAtUtc)
     {
         UpdateSession(accessToken, refreshToken, expiresAtUtc);
     }
 
+    /// <summary>
+    ///     Clears the session.
+    /// </summary>
     private void ClearSession()
     {
         var session = _httpContextAccessor.HttpContext?.Session;
@@ -79,6 +95,12 @@ public sealed class FitbitTokenCache : IFitbitTokenCache
         session.Remove(SessionExpiresAtKey);
     }
 
+    /// <summary>
+    ///     Attempts to get a session value.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="value">The value.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private bool TryGetSessionValue(string key, out string value)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
@@ -102,6 +124,12 @@ public sealed class FitbitTokenCache : IFitbitTokenCache
         return true;
     }
 
+    /// <summary>
+    ///     Updates the session.
+    /// </summary>
+    /// <param name="accessToken">The access token.</param>
+    /// <param name="refreshToken">The refresh token.</param>
+    /// <param name="expiresAtUtc">The expires at utc.</param>
     private void UpdateSession(string accessToken, string refreshToken, DateTimeOffset? expiresAtUtc)
     {
         var session = _httpContextAccessor.HttpContext?.Session;

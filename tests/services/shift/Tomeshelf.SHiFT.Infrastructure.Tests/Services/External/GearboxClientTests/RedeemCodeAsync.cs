@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.External;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
@@ -18,6 +18,13 @@ public class RedeemCodeAsync
         new object[] { new InvalidOperationException("unexpected"), RedeemErrorCode.Unknown, "Unexpected error during redemption." }
     };
 
+    /// <summary>
+    ///     Maps the known errors.
+    /// </summary>
+    /// <param name="exception">The exception.</param>
+    /// <param name="expectedCode">The expected code.</param>
+    /// <param name="expectedMessage">The expected message.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Theory]
     [MemberData(nameof(KnownFailures))]
     public async Task MapsKnownErrors(Exception exception, RedeemErrorCode expectedCode, string expectedMessage)
@@ -53,6 +60,10 @@ public class RedeemCodeAsync
            .ShouldBe(expectedMessage);
     }
 
+    /// <summary>
+    ///     Redeems all options and ands returns success.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task RedeemsAllOptions_AndReturnsSuccess()
     {
@@ -102,6 +113,10 @@ public class RedeemCodeAsync
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Returns account misconfigured when the user missing fields.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsAccountMisconfigured_WhenUserMissingFields()
     {
@@ -133,6 +148,10 @@ public class RedeemCodeAsync
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Returns empty when there is no users configured.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsEmpty_WhenNoUsersConfigured()
     {
@@ -153,6 +172,10 @@ public class RedeemCodeAsync
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Throws when the code is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Throws_WhenCodeMissing()
     {

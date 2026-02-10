@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.MCM.Application.Records;
 
 namespace Tomeshelf.MCM.Application.Tests.SyncDeltaTests;
 
 public class Constructor
 {
+    /// <summary>
+    ///     Assigns the properties.
+    /// </summary>
     [Fact]
     public void AssignsProperties()
     {

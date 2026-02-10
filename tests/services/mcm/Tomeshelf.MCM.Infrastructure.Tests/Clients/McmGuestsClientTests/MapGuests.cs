@@ -1,4 +1,4 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.MCM.Infrastructure.Clients;
 using Tomeshelf.MCM.Infrastructure.Responses;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.Clients.McmGuestsClientTests;
 
 public class MapGuests
 {
+    /// <summary>
+    ///     Maps the guests correctly.
+    /// </summary>
     [Fact]
     public void MapsGuestsCorrectly()
     {
@@ -48,6 +51,9 @@ public class MapGuests
            .ShouldBe("Bio");
     }
 
+    /// <summary>
+    ///     Returns empty list when the people is empty.
+    /// </summary>
     [Fact]
     public void ReturnsEmptyList_WhenPeopleEmpty()
     {

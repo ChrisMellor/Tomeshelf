@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Shouldly;
 using System;
@@ -16,6 +16,10 @@ namespace Tomeshelf.Web.Tests.Services.ShiftApiTests;
 
 public class RedeemCodeAsync
 {
+    /// <summary>
+    ///     Posts the code and deserializes response.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task PostsCodeAndDeserializesResponse()
     {
@@ -50,6 +54,10 @@ public class RedeemCodeAsync
         requestBody.ShouldContain("\"code\":\"ABC\"");
     }
 
+    /// <summary>
+    ///     Throws when the payload is empty.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenPayloadEmpty_Throws()
     {

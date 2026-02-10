@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
 using System.Net;
 using System.Text;
@@ -9,6 +9,10 @@ namespace Tomeshelf.Paissa.Infrastructure.Tests.PaissaClientTests;
 
 public class GetWorldAsync
 {
+    /// <summary>
+    ///     Returns the mapped world.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsMappedWorld()
     {
@@ -74,6 +78,10 @@ public class GetWorldAsync
         plot.LastUpdatedUtc.ShouldBe(DateTimeOffset.FromUnixTimeSeconds(1700000000));
     }
 
+    /// <summary>
+    ///     Throws when not found.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Throws_WhenNotFound()
     {
@@ -89,6 +97,10 @@ public class GetWorldAsync
         exception.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
 
+    /// <summary>
+    ///     Throws when the payload is null.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Throws_WhenPayloadIsNull()
     {
@@ -108,11 +120,20 @@ public class GetWorldAsync
     {
         private readonly HttpClient _client;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="StubHttpClientFactory" /> class.
+        /// </summary>
+        /// <param name="client">The client.</param>
         public StubHttpClientFactory(HttpClient client)
         {
             _client = client;
         }
 
+        /// <summary>
+        ///     Creates the client.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>The result of the operation.</returns>
         public HttpClient CreateClient(string name)
         {
             return _client;
@@ -123,11 +144,21 @@ public class GetWorldAsync
     {
         private readonly HttpResponseMessage _response;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="StubHttpMessageHandler" /> class.
+        /// </summary>
+        /// <param name="response">The response.</param>
         public StubHttpMessageHandler(HttpResponseMessage response)
         {
             _response = response;
         }
 
+        /// <summary>
+        ///     Sends asynchronously.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             return Task.FromResult(_response);

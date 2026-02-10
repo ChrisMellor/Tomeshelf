@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Shouldly;
 using Tomeshelf.Fitbit.Application;
 using Tomeshelf.Fitbit.Infrastructure.Tests.TestUtilities;
@@ -7,6 +7,9 @@ namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitAuthorizationServiceTests;
 
 public class BuildAuthorizationUri
 {
+    /// <summary>
+    ///     Stores the state and default return url.
+    /// </summary>
     [Fact]
     public void StoresStateAndDefaultReturnUrl()
     {

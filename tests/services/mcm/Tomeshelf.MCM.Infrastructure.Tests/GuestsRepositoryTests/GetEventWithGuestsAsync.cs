@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.MCM.Domain.Mcm;
 using Tomeshelf.MCM.Infrastructure.Repositories;
@@ -7,6 +7,10 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.GuestsRepositoryTests;
 
 public class GetEventWithGuestsAsync
 {
+    /// <summary>
+    ///     Returns the event with guests.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsEventWithGuests()
     {
@@ -46,6 +50,10 @@ public class GetEventWithGuestsAsync
         result.Guests.Count.ShouldBe(2);
     }
 
+    /// <summary>
+    ///     Creates the context.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static TomeshelfMcmDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()

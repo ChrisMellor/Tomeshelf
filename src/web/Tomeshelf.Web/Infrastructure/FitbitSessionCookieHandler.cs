@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -11,11 +11,21 @@ public sealed class FitbitSessionCookieHandler : DelegatingHandler
 
     private readonly IHttpContextAccessor _httpContextAccessor;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitbitSessionCookieHandler" /> class.
+    /// </summary>
+    /// <param name="httpContextAccessor">The http context accessor.</param>
     public FitbitSessionCookieHandler(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
     }
 
+    /// <summary>
+    ///     Sends asynchronously.
+    /// </summary>
+    /// <param name="request">The request.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var cookies = _httpContextAccessor.HttpContext?.Request?.Cookies;

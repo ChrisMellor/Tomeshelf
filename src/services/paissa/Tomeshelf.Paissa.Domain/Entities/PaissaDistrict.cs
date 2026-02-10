@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,6 +14,12 @@ namespace Tomeshelf.Paissa.Domain.Entities;
 /// </remarks>
 public sealed record PaissaDistrict
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="PaissaDistrict" /> class.
+    /// </summary>
+    /// <param name="id">The id.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="openPlots">The open plots.</param>
     private PaissaDistrict(int id, string name, IReadOnlyList<PaissaPlot> openPlots)
     {
         Id = id;
@@ -27,6 +33,13 @@ public sealed record PaissaDistrict
 
     public IReadOnlyList<PaissaPlot> OpenPlots { get; }
 
+    /// <summary>
+    ///     Creates.
+    /// </summary>
+    /// <param name="id">The id.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="openPlots">The open plots.</param>
+    /// <returns>The result of the operation.</returns>
     public static PaissaDistrict Create(int id, string name, IReadOnlyList<PaissaPlot> openPlots)
     {
         if (id <= 0)
@@ -54,6 +67,11 @@ public sealed record PaissaDistrict
         return new PaissaDistrict(id, name, plots);
     }
 
+    /// <summary>
+    ///     Filters the accepting entry plots.
+    /// </summary>
+    /// <param name="requireKnownSize">The require known size.</param>
+    /// <returns>The result of the operation.</returns>
     public PaissaDistrict? FilterAcceptingEntryPlots(bool requireKnownSize)
     {
         var plots = OpenPlots.Where(plot => plot.IsAcceptingEntries && (!requireKnownSize || plot.HasKnownSize))

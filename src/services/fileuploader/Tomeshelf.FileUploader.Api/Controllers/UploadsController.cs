@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,6 +22,12 @@ public sealed class UploadsController : ControllerBase
     private readonly ILogger<UploadsController> _logger;
     private readonly ICommandHandler<UploadBundleArchiveCommand, BundleUploadResult> _uploadHandler;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="UploadsController" /> class.
+    /// </summary>
+    /// <param name="uploadHandler">The upload handler.</param>
+    /// <param name="driveOptions">The drive options.</param>
+    /// <param name="logger">The logger.</param>
     public UploadsController(ICommandHandler<UploadBundleArchiveCommand, BundleUploadResult> uploadHandler, IOptions<GoogleDriveOptions> driveOptions, ILogger<UploadsController> logger)
     {
         _uploadHandler = uploadHandler;
@@ -61,6 +67,11 @@ public sealed class UploadsController : ControllerBase
         return Ok(BundleUploadResponse.FromResult(result));
     }
 
+    /// <summary>
+    ///     Tos the options.
+    /// </summary>
+    /// <param name="creds">The creds.</param>
+    /// <returns>The result of the operation.</returns>
     private GoogleDriveOptions? ToOptions(OAuthCredentials? creds)
     {
         if (creds is null || string.IsNullOrWhiteSpace(creds.ClientId) || string.IsNullOrWhiteSpace(creds.ClientSecret) || string.IsNullOrWhiteSpace(creds.RefreshToken))
@@ -87,6 +98,11 @@ public sealed class UploadsController : ControllerBase
 
     public sealed record BundleUploadResponse(DateTimeOffset UploadedAtUtc, int BundlesProcessed, int BooksProcessed, int FilesUploaded, int FilesSkipped, IReadOnlyList<BookUploadResponse> Books)
     {
+        /// <summary>
+        ///     Froms the result.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>The result of the operation.</returns>
         public static BundleUploadResponse FromResult(BundleUploadResult result)
         {
             var books = result.Books
@@ -99,6 +115,11 @@ public sealed class UploadsController : ControllerBase
 
     public sealed record BookUploadResponse(string BundleName, string BookTitle, int FilesUploaded, int FilesSkipped)
     {
+        /// <summary>
+        ///     Froms the result.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>The result of the operation.</returns>
         public static BookUploadResponse FromResult(BookUploadResult result)
         {
             return new BookUploadResponse(result.BundleName, result.BookTitle, result.FilesUploaded, result.FilesSkipped);

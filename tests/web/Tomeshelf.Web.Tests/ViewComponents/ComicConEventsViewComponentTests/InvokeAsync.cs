@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +16,10 @@ namespace Tomeshelf.Web.Tests.ViewComponents.ComicConEventsViewComponentTests;
 
 public class InvokeAsync
 {
+    /// <summary>
+    ///     Renders them when the API returns events.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenApiReturnsEvents_RendersThem()
     {
@@ -46,6 +50,10 @@ public class InvokeAsync
         item.Name.ShouldBe("MCM");
     }
 
+    /// <summary>
+    ///     Returns empty list when apiing throws.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenApiThrows_ReturnsEmptyList()
     {
@@ -66,6 +74,10 @@ public class InvokeAsync
         model.ShouldBeEmpty();
     }
 
+    /// <summary>
+    ///     Creates the view component context.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static ViewComponentContext CreateViewComponentContext()
     {
         var httpContext = new DefaultHttpContext();

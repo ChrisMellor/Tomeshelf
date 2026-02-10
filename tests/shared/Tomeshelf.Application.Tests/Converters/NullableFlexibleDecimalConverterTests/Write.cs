@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Text.Json;
 using Shouldly;
@@ -8,6 +8,9 @@ namespace Tomeshelf.Application.Tests.Converters.NullableFlexibleDecimalConverte
 
 public class Write
 {
+    /// <summary>
+    ///     Writes null when the value is null.
+    /// </summary>
     [Fact]
     public void Null_WritesNull()
     {
@@ -25,6 +28,9 @@ public class Write
         json.ShouldBe("null");
     }
 
+    /// <summary>
+    ///     Writes number when the value is a number.
+    /// </summary>
     [Fact]
     public void Number_WritesNumber()
     {

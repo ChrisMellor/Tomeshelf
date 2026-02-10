@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.Web.Services;
 
 namespace Tomeshelf.Web.Tests.Services.FitbitBackendUnavailableExceptionTests;
 
 public class Message
 {
+    /// <summary>
+    ///     Returns default when the message is empty.
+    /// </summary>
     [Fact]
     public void WhenMessageIsEmpty_ReturnsDefault()
     {
@@ -16,6 +19,9 @@ public class Message
         exception.Message.ShouldBe("Fitbit service is unavailable. Please try again in a moment.");
     }
 
+    /// <summary>
+    ///     Returns default when the message is HTML.
+    /// </summary>
     [Fact]
     public void WhenMessageIsHtml_ReturnsDefault()
     {
@@ -27,6 +33,9 @@ public class Message
         exception.Message.ShouldBe("Fitbit service is unavailable. Please try again in a moment.");
     }
 
+    /// <summary>
+    ///     Extracts message when the message is JSON object.
+    /// </summary>
     [Fact]
     public void WhenMessageIsJsonObject_ExtractsMessage()
     {
@@ -38,6 +47,9 @@ public class Message
         exception.Message.ShouldBe("Oops");
     }
 
+    /// <summary>
+    ///     Parses string when the message is JSON string.
+    /// </summary>
     [Fact]
     public void WhenMessageIsJsonString_ParsesString()
     {

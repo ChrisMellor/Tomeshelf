@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.MCM.Application.Mcm;
 
 namespace Tomeshelf.MCM.Application.Tests.ScheduleDtoTests;
 
 public class Properties
 {
+    /// <summary>
+    ///     Determines whether the current instance can set and get values.
+    /// </summary>
     [Fact]
     public void CanSetAndGetValues()
     {
@@ -46,6 +49,9 @@ public class Properties
         dto.VenueLocation.ShouldBeSameAs(venueLocation);
     }
 
+    /// <summary>
+    ///     Defaults the are expected.
+    /// </summary>
     [Fact]
     public void DefaultsAreExpected()
     {

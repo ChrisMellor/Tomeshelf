@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.MCM.Domain.Mcm;
 using Tomeshelf.MCM.Infrastructure.Repositories;
@@ -7,6 +7,10 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.EventRepositoryTests;
 
 public class GetAllAsync
 {
+    /// <summary>
+    ///     Returns the events ordered by name.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsEventsOrderedByName()
     {
@@ -39,6 +43,10 @@ public class GetAllAsync
               .ShouldBe("Event B");
     }
 
+    /// <summary>
+    ///     Creates the context.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static TomeshelfMcmDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseSqlite($"DataSource={Guid.NewGuid():N};Mode=Memory;Cache=Shared")

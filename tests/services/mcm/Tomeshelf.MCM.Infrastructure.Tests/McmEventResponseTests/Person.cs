@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.MCM.Infrastructure.Responses;
 
 namespace Tomeshelf.MCM.Infrastructure.Tests.McmEventResponseTests;
 
 public class Person
 {
+    /// <summary>
+    ///     Determines whether the current instance can set and get values.
+    /// </summary>
     [Fact]
     public void CanSetAndGetValues()
     {

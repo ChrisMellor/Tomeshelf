@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using Shouldly;
@@ -13,6 +13,10 @@ namespace Tomeshelf.SHiFT.Api.Tests.Controllers.ConfigControllerTests;
 
 public class Post
 {
+    /// <summary>
+    ///     Returns conflict when the duplicate email.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsConflict_WhenDuplicateEmail()
     {
@@ -36,6 +40,10 @@ public class Post
         conflict.Value.ShouldBe("SHiFT email already exists.");
     }
 
+    /// <summary>
+    ///     Returns created at action when the value is a created.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsCreatedAtAction_WhenCreated()
     {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -13,6 +13,10 @@ namespace Tomeshelf.Web.Tests.Services.BundlesApiTests;
 
 public class IncludeExpired
 {
+    /// <summary>
+    ///     Uses the lowercase boolean.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UsesLowercaseBoolean()
     {

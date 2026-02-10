@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.Common;
@@ -11,6 +11,10 @@ namespace Tomeshelf.SHiFT.Application.Tests.Features.Settings.Commands.UpdateShi
 
 public class Handle
 {
+    /// <summary>
+    ///     Throws invalid operation exception when the email already exists.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task EmailAlreadyExists_ThrowsInvalidOperationException()
     {
@@ -37,6 +41,10 @@ public class Handle
         await Should.ThrowAsync<InvalidOperationException>(act);
     }
 
+    /// <summary>
+    ///     Sets encrypted password to to null when the password is empty.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task EmptyPassword_SetsEncryptedPasswordToNull()
     {
@@ -74,6 +82,10 @@ public class Handle
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Returns false when the entity not found.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task EntityNotFound_ReturnsFalse()
     {
@@ -96,6 +108,10 @@ public class Handle
         result.ShouldBeFalse();
     }
 
+    /// <summary>
+    ///     Does not change encrypted password when the password is null.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task PasswordNull_DoesNotChangeEncryptedPassword()
     {
@@ -133,6 +149,10 @@ public class Handle
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Updates entity and returns true when the command with password is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ValidCommandWithPassword_UpdatesEntityAndReturnsTrue()
     {

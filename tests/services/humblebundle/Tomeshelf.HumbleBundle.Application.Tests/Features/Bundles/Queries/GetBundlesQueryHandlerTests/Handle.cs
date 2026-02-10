@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.HumbleBundle.Application.Abstractions.Persistence;
@@ -9,6 +9,11 @@ namespace Tomeshelf.HumbleBundle.Application.Tests.Features.Bundles.Queries.GetB
 
 public class Handle
 {
+    /// <summary>
+    ///     Callsis bundle queries and returns result when the query is valid.
+    /// </summary>
+    /// <param name="includeExpired">The include expired.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

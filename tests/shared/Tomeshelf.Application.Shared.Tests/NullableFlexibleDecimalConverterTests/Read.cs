@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using Tomeshelf.Application.Shared;
 
@@ -11,6 +11,11 @@ public class Read
         Converters = { new NullableFlexibleDecimalConverter() }
     };
 
+    /// <summary>
+    ///     Converts the token to decimal.
+    /// </summary>
+    /// <param name="jsonValue">The json value.</param>
+    /// <param name="expected">The expected.</param>
     [Theory]
     [InlineData("123.45", "123.45")]
     [InlineData("\"123.45\"", "123.45")]
@@ -30,6 +35,9 @@ public class Read
         result.Value.ShouldBe(expectedValue);
     }
 
+    /// <summary>
+    ///     Returns the null when token is invalid.
+    /// </summary>
     [Fact]
     public void ReturnsNullWhenTokenIsInvalid()
     {

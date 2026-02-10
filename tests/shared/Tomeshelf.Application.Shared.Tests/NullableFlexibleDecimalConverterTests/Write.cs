@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using Tomeshelf.Application.Shared;
 
@@ -11,6 +11,11 @@ public class Write
         Converters = { new NullableFlexibleDecimalConverter() }
     };
 
+    /// <summary>
+    ///     Converts the decimal to string.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <param name="expectedJsonValue">The expected json value.</param>
     [Theory]
     [InlineData("123.45", "123.45")]
     [InlineData(null, "null")]

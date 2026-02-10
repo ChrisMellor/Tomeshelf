@@ -1,10 +1,15 @@
-using System;
+﻿using System;
 using System.Text.Json;
 
 namespace Tomeshelf.Fitbit.Application.Exceptions;
 
 public sealed class FitbitRateLimitExceededException : Exception
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitbitRateLimitExceededException" /> class.
+    /// </summary>
+    /// <param name="rawMessage">The raw message.</param>
+    /// <param name="retryAfter">The retry after.</param>
     public FitbitRateLimitExceededException(string rawMessage, TimeSpan? retryAfter) : base(BuildMessage(rawMessage))
     {
         RetryAfter = retryAfter;
@@ -12,6 +17,11 @@ public sealed class FitbitRateLimitExceededException : Exception
 
     public TimeSpan? RetryAfter { get; }
 
+    /// <summary>
+    ///     Builds the message.
+    /// </summary>
+    /// <param name="raw">The raw.</param>
+    /// <returns>The resulting string.</returns>
     private static string BuildMessage(string raw)
     {
         if (string.IsNullOrWhiteSpace(raw))

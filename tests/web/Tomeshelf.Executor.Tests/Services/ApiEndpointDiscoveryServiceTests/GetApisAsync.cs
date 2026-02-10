@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Shouldly;
@@ -8,6 +8,10 @@ namespace Tomeshelf.Executor.Tests.Services.ApiEndpointDiscoveryServiceTests;
 
 public class GetApisAsync
 {
+    /// <summary>
+    ///     Returns the distinct ordered services.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsDistinctOrderedServices()
     {
@@ -49,6 +53,10 @@ public class GetApisAsync
            .ShouldBe("gamma");
     }
 
+    /// <summary>
+    ///     Returns empty when there is no services section.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenNoServicesSection_ReturnsEmpty()
     {

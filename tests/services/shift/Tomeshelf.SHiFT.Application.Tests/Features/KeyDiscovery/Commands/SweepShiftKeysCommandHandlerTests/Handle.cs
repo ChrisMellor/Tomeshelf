@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.Common;
@@ -12,6 +12,12 @@ namespace Tomeshelf.SHiFT.Application.Tests.Features.KeyDiscovery.Commands.Sweep
 
 public class Handle
 {
+    /// <summary>
+    ///     Clamps lookback and works.
+    /// </summary>
+    /// <param name="requestedHours">The requested hours.</param>
+    /// <param name="expectedHours">The expected hours.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Theory]
     [InlineData(0.5, 1)]
     [InlineData(200, 168)]
@@ -37,6 +43,10 @@ public class Handle
         result.SinceUtc.ShouldBe(now - TimeSpan.FromHours(expectedHours));
     }
 
+    /// <summary>
+    ///     Deduplicates sources and ands sorts case insensitive.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task DeduplicatesSources_AndSortsCaseInsensitive()
     {
@@ -70,6 +80,10 @@ public class Handle
               .ShouldBe(new[] { "Blog", "Reddit" });
     }
 
+    /// <summary>
+    ///     Groups the codes and builds summary.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task GroupsCodesAndBuildsSummary()
     {
@@ -123,6 +137,10 @@ public class Handle
         result.Summary.TotalFailed.ShouldBe(1);
     }
 
+    /// <summary>
+    ///     Ignores empty codes and ands returns empty summary.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task IgnoresEmptyCodes_AndReturnsEmptySummary()
     {

@@ -1,10 +1,14 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.SHiFT.Infrastructure.Tests.TestUtilities;
 
 namespace Tomeshelf.SHiFT.Infrastructure.Tests.Services.External.ShiftWebSessionTests;
 
 public class RedeemAsync
 {
+    /// <summary>
+    ///     Posts the to redeem endpoint.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task PostsToRedeemEndpoint()
     {

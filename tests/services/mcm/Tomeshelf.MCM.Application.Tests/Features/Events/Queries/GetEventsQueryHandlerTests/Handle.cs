@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.MCM.Application.Features.Events.Queries;
@@ -9,6 +9,10 @@ namespace Tomeshelf.MCM.Application.Tests.Features.Events.Queries.GetEventsQuery
 
 public class Handle
 {
+    /// <summary>
+    ///     Calls get all async and returns result when the query is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ValidQuery_CallsGetAllAsyncAndReturnsResult()
     {

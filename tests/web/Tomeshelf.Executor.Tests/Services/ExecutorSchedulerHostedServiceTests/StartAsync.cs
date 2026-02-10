@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Executor.Configuration;
 using Tomeshelf.Executor.Services;
@@ -8,6 +8,10 @@ namespace Tomeshelf.Executor.Tests.Services.ExecutorSchedulerHostedServiceTests;
 
 public class StartAsync
 {
+    /// <summary>
+    ///     Triggers refresh when the options change.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task OptionsChange_TriggersRefresh()
     {
@@ -35,6 +39,10 @@ public class StartAsync
          .MustHaveHappened();
     }
 
+    /// <summary>
+    ///     Refreshes the scheduler and registers change handler.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task RefreshesSchedulerAndRegistersChangeHandler()
     {

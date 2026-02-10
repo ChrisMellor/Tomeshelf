@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
@@ -10,6 +10,10 @@ namespace Tomeshelf.MCM.Application.Tests.Services.EventServiceTests;
 
 public class GetAllAsync
 {
+    /// <summary>
+    ///     Maps the entities to models.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task MapsEntitiesToModels()
     {

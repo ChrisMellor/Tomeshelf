@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
@@ -9,6 +9,10 @@ namespace Tomeshelf.SHiFT.Application.Tests.Features.Settings.Queries.GetShiftSe
 
 public class Handle
 {
+    /// <summary>
+    ///     Maps to dto when the entity exists.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenEntityExists_MapsToDto()
     {
@@ -40,6 +44,10 @@ public class Handle
         result.UpdatedUtc.ShouldBe(entity.UpdatedUtc);
     }
 
+    /// <summary>
+    ///     Returns null when missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenMissing_ReturnsNull()
     {
@@ -57,6 +65,10 @@ public class Handle
         result.ShouldBeNull();
     }
 
+    /// <summary>
+    ///     The sets has password false when the password is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenPasswordMissing_SetsHasPasswordFalse()
     {

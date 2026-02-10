@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Shouldly;
 using Tomeshelf.Web.Models.Bundles;
@@ -7,6 +7,9 @@ namespace Tomeshelf.Web.Tests.Models.Bundles.BundlesIndexViewModelTests;
 
 public class TotalBundles
 {
+    /// <summary>
+    ///     Onlys counts active bundles when the include expired false.
+    /// </summary>
     [Fact]
     public void WhenIncludeExpiredFalse_OnlyCountsActiveBundles()
     {
@@ -38,6 +41,9 @@ public class TotalBundles
         total.ShouldBe(3);
     }
 
+    /// <summary>
+    ///     Counts active and expired bundles when the include expired true.
+    /// </summary>
     [Fact]
     public void WhenIncludeExpiredTrue_CountsActiveAndExpiredBundles()
     {

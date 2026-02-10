@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -24,12 +24,22 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
     private readonly HttpClient _httpClient;
     private readonly ILogger<HumbleBundleScraper> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="HumbleBundleScraper" /> class.
+    /// </summary>
+    /// <param name="httpClientFactory">The http client factory.</param>
+    /// <param name="logger">The logger.</param>
     public HumbleBundleScraper(IHttpClientFactory httpClientFactory, ILogger<HumbleBundleScraper> logger)
     {
         _httpClient = httpClientFactory.CreateClient(HttpClientName);
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Scrapes asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<IReadOnlyList<ScrapedBundle>> ScrapeAsync(CancellationToken cancellationToken = default)
     {
         var started = DateTimeOffset.UtcNow;
@@ -82,6 +92,11 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
         return bundles;
     }
 
+    /// <summary>
+    ///     Builds the absolute url.
+    /// </summary>
+    /// <param name="relative">The relative.</param>
+    /// <returns>The resulting string.</returns>
     private static string BuildAbsoluteUrl(string relative)
     {
         if (string.IsNullOrWhiteSpace(relative))
@@ -99,6 +114,11 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
         return new Uri(SiteBaseUri, relative.TrimStart('/')).ToString();
     }
 
+    /// <summary>
+    ///     Extracts the embedded json.
+    /// </summary>
+    /// <param name="html">The html.</param>
+    /// <returns>The resulting string.</returns>
     private static string ExtractEmbeddedJson(string html)
     {
         const string marker = "{\"userOptions\":";
@@ -169,6 +189,12 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
         throw new InvalidOperationException("Malformed Humble Bundle JSON payload.");
     }
 
+    /// <summary>
+    ///     Gets the string.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    /// <param name="propertyName">The property name.</param>
+    /// <returns>The resulting string.</returns>
     private static string GetString(JsonElement element, string propertyName)
     {
         if (element.TryGetProperty(propertyName, out var property) && (property.ValueKind == JsonValueKind.String))
@@ -183,6 +209,12 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
         return null;
     }
 
+    /// <summary>
+    ///     Parses the date time.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    /// <param name="propertyName">The property name.</param>
+    /// <returns>The result of the operation.</returns>
     private static DateTimeOffset? ParseDateTime(JsonElement element, string propertyName)
     {
         var text = GetString(element, propertyName);
@@ -200,6 +232,14 @@ public sealed class HumbleBundleScraper : IHumbleBundleScraper
         return null;
     }
 
+    /// <summary>
+    ///     Attempts to create a bundle.
+    /// </summary>
+    /// <param name="product">The product.</param>
+    /// <param name="category">The category.</param>
+    /// <param name="observedUtc">The observed utc.</param>
+    /// <param name="bundle">The bundle.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool TryCreateBundle(JsonElement product, string category, DateTimeOffset observedUtc, out ScrapedBundle bundle)
     {
         bundle = default!;

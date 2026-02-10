@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 
@@ -6,6 +6,11 @@ namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 
 internal static class MobiMetadataReader
 {
+    /// <summary>
+    ///     Gets the metadata.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <returns>The result of the operation.</returns>
     public static DocumentMetadata GetMetadata(string path)
     {
         var data = File.ReadAllBytes(path);
@@ -52,6 +57,11 @@ internal static class MobiMetadataReader
         return meta;
     }
 
+    /// <summary>
+    ///     Decodes the null terminated.
+    /// </summary>
+    /// <param name="bytes">The bytes.</param>
+    /// <returns>The result of the operation.</returns>
     private static string? DecodeNullTerminated(ReadOnlySpan<byte> bytes)
     {
         var zero = bytes.IndexOf((byte)0);
@@ -69,6 +79,11 @@ internal static class MobiMetadataReader
             : s;
     }
 
+    /// <summary>
+    ///     Decodes the text.
+    /// </summary>
+    /// <param name="bytes">The bytes.</param>
+    /// <returns>The resulting string.</returns>
     private static string DecodeText(ReadOnlySpan<byte> bytes)
     {
         try
@@ -81,6 +96,12 @@ internal static class MobiMetadataReader
         }
     }
 
+    /// <summary>
+    ///     Indexs the of.
+    /// </summary>
+    /// <param name="haystack">The haystack.</param>
+    /// <param name="needle">The needle.</param>
+    /// <returns>The result of the operation.</returns>
     private static int IndexOf(byte[] haystack, byte[] needle)
     {
         for (var i = 0; i <= (haystack.Length - needle.Length); i++)
@@ -103,6 +124,11 @@ internal static class MobiMetadataReader
         return -1;
     }
 
+    /// <summary>
+    ///     Nulls the if white space.
+    /// </summary>
+    /// <param name="s">The s.</param>
+    /// <returns>The result of the operation.</returns>
     private static string? NullIfWhiteSpace(string? s)
     {
         return string.IsNullOrWhiteSpace(s)
@@ -110,6 +136,12 @@ internal static class MobiMetadataReader
             : s.Trim();
     }
 
+    /// <summary>
+    ///     ReadBs the e 32.
+    /// </summary>
+    /// <param name="data">The data.</param>
+    /// <param name="offset">The offset.</param>
+    /// <returns>The result of the operation.</returns>
     private static uint ReadBE32(byte[] data, int offset)
     {
         return (uint)((data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3]);

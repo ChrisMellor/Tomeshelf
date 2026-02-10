@@ -1,4 +1,4 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.Paissa.Domain.Entities;
 using Tomeshelf.Paissa.Domain.ValueObjects;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.Paissa.Domain.Tests.PaissaWorldTests;
 
 public class FilterAcceptingEntryDistricts
 {
+    /// <summary>
+    ///     Returns the world with filtered districts.
+    /// </summary>
     [Fact]
     public void ReturnsWorldWithFilteredDistricts()
     {

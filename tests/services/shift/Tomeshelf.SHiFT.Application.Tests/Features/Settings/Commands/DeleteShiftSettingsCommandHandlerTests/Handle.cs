@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.Persistence;
 using Tomeshelf.SHiFT.Application.Features.Settings.Commands;
@@ -7,6 +7,10 @@ namespace Tomeshelf.SHiFT.Application.Tests.Features.Settings.Commands.DeleteShi
 
 public class Handle
 {
+    /// <summary>
+    ///     Deletes the and returns true.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task DeletesAndReturnsTrue()
     {

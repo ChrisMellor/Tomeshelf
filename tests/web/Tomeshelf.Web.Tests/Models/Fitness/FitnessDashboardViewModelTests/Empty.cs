@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.FitnessDashboardViewModelTests;
 
 public class Empty
 {
+    /// <summary>
+    ///     Sets the dates and flags.
+    /// </summary>
     [Fact]
     public void SetsDatesAndFlags()
     {

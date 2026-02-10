@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +11,11 @@ namespace Tomeshelf.Web.Controllers;
 [Route("shift")]
 public sealed class ShiftController(IShiftApi api) : Controller
 {
+    /// <summary>
+    ///     Indexs.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
     {
@@ -23,6 +28,12 @@ public sealed class ShiftController(IShiftApi api) : Controller
         });
     }
 
+    /// <summary>
+    ///     Redeems.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpPost("redeem")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Redeem([FromForm] ShiftIndexViewModel model, CancellationToken cancellationToken = default)
@@ -66,6 +77,12 @@ public sealed class ShiftController(IShiftApi api) : Controller
         }
     }
 
+    /// <summary>
+    ///     Adds the account.
+    /// </summary>
+    /// <param name="account">The account.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpPost("accounts/add")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddAccount([Bind(Prefix = "Account")] ShiftAccountEditorModel account, CancellationToken cancellationToken = default)
@@ -118,6 +135,12 @@ public sealed class ShiftController(IShiftApi api) : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    ///     Deletes the account.
+    /// </summary>
+    /// <param name="id">The id.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpPost("accounts/delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteAccount([FromForm] int id, CancellationToken cancellationToken = default)
@@ -129,6 +152,11 @@ public sealed class ShiftController(IShiftApi api) : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    ///     Loads the accounts asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<(IReadOnlyList<ShiftAccountModel> Accounts, string? ErrorMessage)> LoadAccountsAsync(CancellationToken cancellationToken)
     {
         try

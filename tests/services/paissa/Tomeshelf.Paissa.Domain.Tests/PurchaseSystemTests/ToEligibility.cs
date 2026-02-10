@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.Paissa.Domain.ValueObjects;
 
 namespace Tomeshelf.Paissa.Domain.Tests.PurchaseSystemTests;
 
 public class ToEligibility
 {
+    /// <summary>
+    ///     Returns unknown when the value is a none.
+    /// </summary>
     [Fact]
     public void None_ReturnsUnknown()
     {
@@ -18,6 +21,12 @@ public class ToEligibility
         eligibility.IsUnknown.ShouldBeTrue();
     }
 
+    /// <summary>
+    ///     Returns the expected flags.
+    /// </summary>
+    /// <param name="system">The system.</param>
+    /// <param name="allowsPersonal">The allows personal.</param>
+    /// <param name="allowsFreeCompany">The allows free company.</param>
     [Theory]
     [InlineData(PurchaseSystem.Personal, true, false)]
     [InlineData(PurchaseSystem.FreeCompany, false, true)]

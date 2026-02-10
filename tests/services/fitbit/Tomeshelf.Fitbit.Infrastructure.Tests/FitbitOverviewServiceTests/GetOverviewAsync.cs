@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
@@ -10,6 +10,10 @@ namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitOverviewServiceTests;
 
 public class GetOverviewAsync
 {
+    /// <summary>
+    ///     Returns null when the dashboard is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNull_WhenDashboardMissing()
     {
@@ -28,6 +32,10 @@ public class GetOverviewAsync
         result.ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Uses the last known weight across range.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UsesLastKnownWeightAcrossRange()
     {
@@ -76,6 +84,10 @@ public class GetOverviewAsync
         weightAfterUpdate.WeightKg.ShouldBe(82);
     }
 
+    /// <summary>
+    ///     Creates the context.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static TomeshelfFitbitDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<TomeshelfFitbitDbContext>().UseInMemoryDatabase(Guid.NewGuid()
@@ -88,6 +100,11 @@ public class GetOverviewAsync
         return context;
     }
 
+    /// <summary>
+    ///     Creates the snapshot.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <returns>The result of the operation.</returns>
     private static FitbitDashboardDto CreateSnapshot(string date)
     {
         return new FitbitDashboardDto

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -19,6 +19,12 @@ public sealed class SweepShiftKeysCommandHandler : ICommandHandler<SweepShiftKey
     private readonly IGearboxClient _gearboxClient;
     private readonly IEnumerable<IShiftKeySource> _sources;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="SweepShiftKeysCommandHandler" /> class.
+    /// </summary>
+    /// <param name="sources">The sources.</param>
+    /// <param name="gearboxClient">The gearbox client.</param>
+    /// <param name="clock">The clock.</param>
     public SweepShiftKeysCommandHandler(IEnumerable<IShiftKeySource> sources, IGearboxClient gearboxClient, IClock clock)
     {
         _sources = sources;
@@ -26,6 +32,12 @@ public sealed class SweepShiftKeysCommandHandler : ICommandHandler<SweepShiftKey
         _clock = clock;
     }
 
+    /// <summary>
+    ///     Handles.
+    /// </summary>
+    /// <param name="command">The command.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<ShiftKeySweepResult> Handle(SweepShiftKeysCommand command, CancellationToken cancellationToken)
     {
         var now = _clock.UtcNow;
@@ -69,6 +81,11 @@ public sealed class SweepShiftKeysCommandHandler : ICommandHandler<SweepShiftKey
         return new ShiftKeySweepResult(sinceUtc, now, summary, items);
     }
 
+    /// <summary>
+    ///     Clamps.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The result of the operation.</returns>
     private static TimeSpan Clamp(TimeSpan value)
     {
         if (value < MinimumLookback)

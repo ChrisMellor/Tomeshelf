@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.HumbleBundle.Application.Abstractions.External;
@@ -10,6 +10,10 @@ namespace Tomeshelf.HumbleBundle.Application.Tests.Features.Bundles.Commands.Ref
 
 public class Handle
 {
+    /// <summary>
+    ///     The exception is propagated when the scraper throws exception.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ScraperThrowsException_ExceptionIsPropagated()
     {
@@ -33,6 +37,10 @@ public class Handle
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Calls scraper and ingest service when the command is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ValidCommand_CallsScraperAndIngestService()
     {

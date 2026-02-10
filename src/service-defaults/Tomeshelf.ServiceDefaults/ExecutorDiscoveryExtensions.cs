@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -57,6 +57,11 @@ public static class ExecutorDiscoveryExtensions
         return app;
     }
 
+    /// <summary>
+    ///     Allows the body.
+    /// </summary>
+    /// <param name="description">The description.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool AllowsBody(ApiDescription description)
     {
         if ((description.HttpMethod?.Equals("GET", StringComparison.OrdinalIgnoreCase) == true) || (description.HttpMethod?.Equals("DELETE", StringComparison.OrdinalIgnoreCase) == true) || (description.HttpMethod?.Equals("HEAD", StringComparison.OrdinalIgnoreCase) == true))
@@ -75,6 +80,11 @@ public static class ExecutorDiscoveryExtensions
         return description.ParameterDescriptions.Any(static p => (p.Source == BindingSource.Body) || (p.Source == BindingSource.Form) || (p.Source == BindingSource.FormFile));
     }
 
+    /// <summary>
+    ///     Creates the endpoint.
+    /// </summary>
+    /// <param name="description">The description.</param>
+    /// <returns>The result of the operation.</returns>
     private static ExecutorDiscoveredEndpoint? CreateEndpoint(ApiDescription description)
     {
         var method = description.HttpMethod?.ToUpperInvariant();

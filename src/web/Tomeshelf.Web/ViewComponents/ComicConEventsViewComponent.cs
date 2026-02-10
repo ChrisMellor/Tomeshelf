@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,12 +12,21 @@ public sealed class ComicConEventsViewComponent : ViewComponent
     private readonly IGuestsApi _api;
     private readonly ILogger<ComicConEventsViewComponent> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ComicConEventsViewComponent" /> class.
+    /// </summary>
+    /// <param name="api">The api.</param>
+    /// <param name="logger">The logger.</param>
     public ComicConEventsViewComponent(IGuestsApi api, ILogger<ComicConEventsViewComponent> logger)
     {
         _api = api;
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Invokes asynchronously.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<IViewComponentResult> InvokeAsync()
     {
         try

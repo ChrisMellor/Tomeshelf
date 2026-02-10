@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
@@ -11,6 +11,10 @@ namespace Tomeshelf.MCM.Api.Tests.Controllers.GuestsControllerTests;
 
 public class Get
 {
+    /// <summary>
+    ///     Returns bad request when the page is less than one.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsBadRequest_WhenPageIsLessThanOne()
     {
@@ -28,6 +32,10 @@ public class Get
         problem.Detail.ShouldBe("page must be >= 1");
     }
 
+    /// <summary>
+    ///     Returns bad request when the page size is out of range.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsBadRequest_WhenPageSizeIsOutOfRange()
     {
@@ -45,6 +53,10 @@ public class Get
         problem.Detail.ShouldBe("pageSize must be between 1 and 400");
     }
 
+    /// <summary>
+    ///     Returns ok with paged results.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsOk_WithPagedResults()
     {

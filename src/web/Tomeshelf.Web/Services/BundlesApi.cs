@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
@@ -19,6 +19,11 @@ public sealed class BundlesApi : IBundlesApi
     private readonly HttpClient _http;
     private readonly ILogger<BundlesApi> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="BundlesApi" /> class.
+    /// </summary>
+    /// <param name="httpClientFactory">The http client factory.</param>
+    /// <param name="logger">The logger.</param>
     public BundlesApi(IHttpClientFactory httpClientFactory, ILogger<BundlesApi> logger)
     {
         _http = httpClientFactory.CreateClient(HttpClientName);

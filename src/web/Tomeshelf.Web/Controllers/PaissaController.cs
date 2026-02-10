@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +10,11 @@ namespace Tomeshelf.Web.Controllers;
 [Route("paissa")]
 public sealed class PaissaController(IPaissaApi api) : Controller
 {
+    /// <summary>
+    ///     Indexs.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {

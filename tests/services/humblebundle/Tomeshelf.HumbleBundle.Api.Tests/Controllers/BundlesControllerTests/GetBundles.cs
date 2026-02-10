@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
@@ -13,6 +13,10 @@ namespace Tomeshelf.HumbleBundle.Api.Tests.Controllers.BundlesControllerTests;
 
 public class GetBundles
 {
+    /// <summary>
+    ///     Returns ok with mapped responses.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsOk_WithMappedResponses()
     {

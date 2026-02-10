@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
@@ -14,6 +14,11 @@ namespace Tomeshelf.HumbleBundle.Api;
 
 public class Program
 {
+    /// <summary>
+    ///     Mains.
+    /// </summary>
+    /// <param name="args">The args.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Shouldly;
@@ -9,6 +9,10 @@ namespace Tomeshelf.Executor.Tests.Services.EndpointPingServiceTests;
 
 public class SendAsync
 {
+    /// <summary>
+    ///     Returns the success for ok responses.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsSuccessForOkResponses()
     {
@@ -57,6 +61,10 @@ public class SendAsync
         values!.ShouldContain("application/json");
     }
 
+    /// <summary>
+    ///     Uses post when the method is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenMethodMissing_UsesPost()
     {
@@ -79,6 +87,10 @@ public class SendAsync
         result.StatusCode.ShouldBe(202);
     }
 
+    /// <summary>
+    ///     Returns failure when the request fails.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenRequestFails_ReturnsFailure()
     {

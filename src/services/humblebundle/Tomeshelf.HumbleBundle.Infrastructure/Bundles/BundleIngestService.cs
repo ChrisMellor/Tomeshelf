@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -19,6 +19,11 @@ public sealed class BundleIngestService : IBundleIngestService
     private readonly TomeshelfBundlesDbContext _dbContext;
     private readonly ILogger<BundleIngestService> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="BundleIngestService" /> class.
+    /// </summary>
+    /// <param name="dbContext">The db context.</param>
+    /// <param name="logger">The logger.</param>
     public BundleIngestService(TomeshelfBundlesDbContext dbContext, ILogger<BundleIngestService> logger)
     {
         _dbContext = dbContext;
@@ -92,6 +97,13 @@ public sealed class BundleIngestService : IBundleIngestService
         return new BundleIngestResult(counters.Created, counters.Updated, counters.Unchanged, bundles.Count, observedAt);
     }
 
+    /// <summary>
+    ///     Sets the if different.
+    /// </summary>
+    /// <param name="current">The current.</param>
+    /// <param name="updated">The updated.</param>
+    /// <param name="setter">The setter.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool SetIfDifferent(string current, string updated, Action<string> setter)
     {
         if (!string.Equals(current, updated, StringComparison.Ordinal))
@@ -104,6 +116,12 @@ public sealed class BundleIngestService : IBundleIngestService
         return false;
     }
 
+    /// <summary>
+    ///     Updates the entity.
+    /// </summary>
+    /// <param name="entity">The entity.</param>
+    /// <param name="scraped">The scraped.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool UpdateEntity(Bundle entity, ScrapedBundle scraped)
     {
         var changed = false;

@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Shouldly;
 using System;
@@ -14,6 +14,10 @@ namespace Tomeshelf.Web.Tests.Services.FileUploadsApiTests;
 
 public class EmptyPayload
 {
+    /// <summary>
+    ///     Throws when the response is empty.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenResponseEmpty_Throws()
     {

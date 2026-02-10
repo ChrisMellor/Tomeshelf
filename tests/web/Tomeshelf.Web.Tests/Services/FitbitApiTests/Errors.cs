@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Shouldly;
 using System;
@@ -13,6 +13,10 @@ namespace Tomeshelf.Web.Tests.Services.FitbitApiTests;
 
 public class Errors
 {
+    /// <summary>
+    ///     Returns message when the service is unavailable.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenServiceUnavailable_ReturnsMessage()
     {

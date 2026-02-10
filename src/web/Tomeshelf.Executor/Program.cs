@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +13,12 @@ namespace Tomeshelf.Executor;
 
 public class Program
 {
+    /// <summary>
+    ///     Builds the app.
+    /// </summary>
+    /// <param name="args">The args.</param>
+    /// <param name="configureBuilder">The configure builder.</param>
+    /// <returns>The result of the operation.</returns>
     public static WebApplication BuildApp(string[] args, Action<WebApplicationBuilder>? configureBuilder = null)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -69,6 +75,10 @@ public class Program
         return app;
     }
 
+    /// <summary>
+    ///     Mains.
+    /// </summary>
+    /// <param name="args">The args.</param>
     public static void Main(string[] args)
     {
         var app = BuildApp(args);

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 
 namespace Tomeshelf.MCM.Infrastructure.Tests.TomeshelfMcmDbContextFactoryTests;
@@ -8,18 +8,27 @@ public class CreateDbContext : IDisposable
     private readonly string? _originalColonEnv;
     private readonly string? _originalUnderscoreEnv;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="CreateDbContext" /> class.
+    /// </summary>
     public CreateDbContext()
     {
         _originalUnderscoreEnv = Environment.GetEnvironmentVariable("ConnectionStrings__mcmdb");
         _originalColonEnv = Environment.GetEnvironmentVariable("ConnectionStrings:mcmdb");
     }
 
+    /// <summary>
+    ///     Releases resources used by this instance.
+    /// </summary>
     public void Dispose()
     {
         Environment.SetEnvironmentVariable("ConnectionStrings__mcmdb", _originalUnderscoreEnv);
         Environment.SetEnvironmentVariable("ConnectionStrings:mcmdb", _originalColonEnv);
     }
 
+    /// <summary>
+    ///     Uses colon connection string when set.
+    /// </summary>
     [Fact]
     public void UsesColonConnectionString_WhenSet()
     {
@@ -41,6 +50,9 @@ public class CreateDbContext : IDisposable
         connectionString.ShouldContain("Initial Catalog=colon_db");
     }
 
+    /// <summary>
+    ///     Uses default connection string when the environment is missing.
+    /// </summary>
     [Fact]
     public void UsesDefaultConnectionString_WhenEnvironmentMissing()
     {
@@ -62,6 +74,9 @@ public class CreateDbContext : IDisposable
         connectionString.ShouldContain("Initial Catalog=mcmdb");
     }
 
+    /// <summary>
+    ///     Uses underscore connection string when set.
+    /// </summary>
     [Fact]
     public void UsesUnderscoreConnectionString_WhenSet()
     {

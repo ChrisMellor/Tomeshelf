@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -27,6 +27,12 @@ namespace Tomeshelf.Web;
 /// </summary>
 public class Program
 {
+    /// <summary>
+    ///     Builds the app.
+    /// </summary>
+    /// <param name="args">The args.</param>
+    /// <param name="configureBuilder">The configure builder.</param>
+    /// <returns>The result of the operation.</returns>
     public static WebApplication BuildApp(string[] args, Action<WebApplicationBuilder>? configureBuilder = null)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -444,11 +450,20 @@ public class Program
         app.Run();
     }
 
+    /// <summary>
+    ///     Determines whether the current process is running in docker.
+    /// </summary>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool IsRunningInDocker()
     {
         return File.Exists("/.dockerenv");
     }
 
+    /// <summary>
+    ///     Attempts to resolve a gateway base URI.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <returns>The result of the operation.</returns>
     private static Uri? TryResolveGatewayBaseUri(WebApplicationBuilder builder)
     {
         var configured = builder.Configuration["Services:GatewayBase"];
@@ -471,6 +486,12 @@ public class Program
         return null;
     }
 
+    /// <summary>
+    ///     Attempts to get an aspire service endpoint URI.
+    /// </summary>
+    /// <param name="configuration">The configuration.</param>
+    /// <param name="serviceName">The service name.</param>
+    /// <returns>The result of the operation.</returns>
     private static Uri? TryGetAspireServiceEndpointUri(IConfiguration configuration, string serviceName)
     {
         var serviceSection = configuration.GetSection("services")
@@ -519,6 +540,11 @@ public class Program
         return null;
     }
 
+    /// <summary>
+    ///     Ensures the trailing slash.
+    /// </summary>
+    /// <param name="uri">The uri.</param>
+    /// <returns>The result of the operation.</returns>
     private static Uri EnsureTrailingSlash(Uri uri)
     {
         var left = uri.GetLeftPart(UriPartial.Path);

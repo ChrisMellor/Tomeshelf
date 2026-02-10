@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
@@ -8,6 +8,10 @@ namespace Tomeshelf.Fitbit.Application.Tests.Features.Dashboard.Queries.GetFitbi
 
 public class Handle
 {
+    /// <summary>
+    ///     Calls dashboard service and returns result when the query is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ValidQuery_CallsDashboardServiceAndReturnsResult()
     {

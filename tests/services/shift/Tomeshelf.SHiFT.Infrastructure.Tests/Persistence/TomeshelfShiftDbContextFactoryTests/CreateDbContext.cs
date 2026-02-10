@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.SHiFT.Infrastructure.Persistence;
 
@@ -9,18 +9,27 @@ public class CreateDbContext : IDisposable
     private readonly string? _originalColonEnv;
     private readonly string? _originalUnderscoreEnv;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="CreateDbContext" /> class.
+    /// </summary>
     public CreateDbContext()
     {
         _originalUnderscoreEnv = Environment.GetEnvironmentVariable("ConnectionStrings__shiftdb");
         _originalColonEnv = Environment.GetEnvironmentVariable("ConnectionStrings:shiftdb");
     }
 
+    /// <summary>
+    ///     Releases resources used by this instance.
+    /// </summary>
     public void Dispose()
     {
         Environment.SetEnvironmentVariable("ConnectionStrings__shiftdb", _originalUnderscoreEnv);
         Environment.SetEnvironmentVariable("ConnectionStrings:shiftdb", _originalColonEnv);
     }
 
+    /// <summary>
+    ///     Uses colon connection string when set.
+    /// </summary>
     [Fact]
     public void UsesColonConnectionString_WhenSet()
     {
@@ -44,6 +53,9 @@ public class CreateDbContext : IDisposable
                .ShouldContain("Initial Catalog=colon_db");
     }
 
+    /// <summary>
+    ///     Uses default connection string when the env is not set.
+    /// </summary>
     [Fact]
     public void UsesDefaultConnectionString_WhenNoEnvSet()
     {
@@ -67,6 +79,9 @@ public class CreateDbContext : IDisposable
                .ShouldContain("Initial Catalog=shiftdb");
     }
 
+    /// <summary>
+    ///     Uses underscore connection string when set.
+    /// </summary>
     [Fact]
     public void UsesUnderscoreConnectionString_WhenSet()
     {

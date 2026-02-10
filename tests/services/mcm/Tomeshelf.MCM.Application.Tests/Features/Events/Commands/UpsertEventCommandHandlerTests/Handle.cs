@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.MCM.Application.Features.Events.Commands;
@@ -9,6 +9,10 @@ namespace Tomeshelf.MCM.Application.Tests.Features.Events.Commands.UpsertEventCo
 
 public class Handle
 {
+    /// <summary>
+    ///     The exception is propagated when the event service throws exception.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task EventServiceThrowsException_ExceptionIsPropagated()
     {
@@ -37,6 +41,10 @@ public class Handle
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Calls upsert async and returns true when the command is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ValidCommand_CallsUpsertAsyncAndReturnsTrue()
     {

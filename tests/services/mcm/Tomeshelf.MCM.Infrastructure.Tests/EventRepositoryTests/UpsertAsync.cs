@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.MCM.Application.Models;
 using Tomeshelf.MCM.Domain.Mcm;
@@ -8,6 +8,10 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.EventRepositoryTests;
 
 public class UpsertAsync
 {
+    /// <summary>
+    ///     Adds event when missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task AddsEvent_WhenMissing()
     {
@@ -32,6 +36,10 @@ public class UpsertAsync
                .ShouldBe("New Event");
     }
 
+    /// <summary>
+    ///     Updates event when the value is an exists.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UpdatesEvent_WhenExists()
     {
@@ -65,6 +73,10 @@ public class UpsertAsync
                .ShouldBe("Updated Name");
     }
 
+    /// <summary>
+    ///     Creates the context.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static TomeshelfMcmDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseSqlite($"DataSource={Guid.NewGuid():N};Mode=Memory;Cache=Shared")

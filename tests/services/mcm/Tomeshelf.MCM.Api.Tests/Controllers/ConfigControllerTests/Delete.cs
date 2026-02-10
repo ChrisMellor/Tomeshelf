@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
@@ -11,6 +11,10 @@ namespace Tomeshelf.MCM.Api.Tests.Controllers.ConfigControllerTests;
 
 public class Delete
 {
+    /// <summary>
+    ///     Returns no content when the value is a deleted.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNoContent_WhenDeleted()
     {
@@ -33,6 +37,10 @@ public class Delete
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Returns not found when missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNotFound_WhenMissing()
     {

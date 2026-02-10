@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Quartz;
 using Tomeshelf.Executor.Configuration;
@@ -10,6 +10,10 @@ namespace Tomeshelf.Executor.Tests.Jobs.TriggerEndpointJobTests;
 
 public class Execute
 {
+    /// <summary>
+    ///     Does not ping when the endpoint is disabled.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenEndpointDisabled_DoesNotPing()
     {
@@ -39,6 +43,10 @@ public class Execute
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Does not ping when the endpoint name is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenEndpointNameMissing_DoesNotPing()
     {
@@ -67,6 +75,10 @@ public class Execute
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Pings configured target when the endpoint is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenEndpointValid_PingsConfiguredTarget()
     {
@@ -101,6 +113,10 @@ public class Execute
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Does not ping when the URL is invalid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenUrlInvalid_DoesNotPing()
     {
@@ -129,6 +145,11 @@ public class Execute
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Creates the context.
+    /// </summary>
+    /// <param name="endpointName">The endpoint name.</param>
+    /// <returns>The result of the operation.</returns>
     private static IJobExecutionContext CreateContext(string? endpointName)
     {
         var context = A.Fake<IJobExecutionContext>();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,6 +20,10 @@ namespace Tomeshelf.Paissa.Infrastructure;
 /// </remarks>
 public static class DependencyInjection
 {
+    /// <summary>
+    ///     Adds the infrastructure services.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddScoped<IPaissaClient, PaissaClient>();

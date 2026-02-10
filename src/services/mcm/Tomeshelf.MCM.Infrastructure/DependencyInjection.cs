@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -13,6 +13,10 @@ public static class DependencyInjection
 {
     private const string ConnectionName = "mcmdb";
 
+    /// <summary>
+    ///     Adds the infrastructure services.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
     {
         var connectionString = builder.Configuration[$"ConnectionStrings:{ConnectionName}"];

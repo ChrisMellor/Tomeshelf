@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Tomeshelf.Executor.Configuration;
 using Tomeshelf.Executor.Services;
@@ -8,6 +8,10 @@ namespace Tomeshelf.Executor.Tests.Services.ExecutorSchedulerHostedServiceTests;
 
 public class StopAsync
 {
+    /// <summary>
+    ///     Disposes the subscription.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task DisposesSubscription()
     {

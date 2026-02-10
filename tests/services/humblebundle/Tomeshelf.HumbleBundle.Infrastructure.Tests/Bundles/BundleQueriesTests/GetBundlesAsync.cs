@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.HumbleBundle.Domain.HumbleBundle;
 using Tomeshelf.HumbleBundle.Infrastructure.Bundles;
@@ -7,6 +7,10 @@ namespace Tomeshelf.HumbleBundle.Infrastructure.Tests.Bundles.BundleQueriesTests
 
 public class GetBundlesAsync
 {
+    /// <summary>
+    ///     Excludes the expired and orders by end date then title.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ExcludesExpiredAndOrdersByEndDateThenTitle()
     {
@@ -48,6 +52,10 @@ public class GetBundlesAsync
            .ShouldBeInRange(before, after);
     }
 
+    /// <summary>
+    ///     Includes the expired and orders by end date then title.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task IncludesExpiredAndOrdersByEndDateThenTitle()
     {
@@ -88,6 +96,13 @@ public class GetBundlesAsync
            .ShouldBeInRange(before, after);
     }
 
+    /// <summary>
+    ///     Creates the bundle.
+    /// </summary>
+    /// <param name="machineName">The machine name.</param>
+    /// <param name="title">The title.</param>
+    /// <param name="endsAt">The ends at.</param>
+    /// <returns>The result of the operation.</returns>
     private static Bundle CreateBundle(string machineName, string title, DateTimeOffset? endsAt)
     {
         var now = DateTimeOffset.UtcNow;
@@ -112,6 +127,10 @@ public class GetBundlesAsync
         };
     }
 
+    /// <summary>
+    ///     Creates the context.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static TomeshelfBundlesDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<TomeshelfBundlesDbContext>().UseInMemoryDatabase(Guid.NewGuid()

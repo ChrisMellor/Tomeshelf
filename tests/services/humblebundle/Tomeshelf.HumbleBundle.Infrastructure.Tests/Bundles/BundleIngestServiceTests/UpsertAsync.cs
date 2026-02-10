@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
 using Tomeshelf.HumbleBundle.Application.Features.Bundles.Models;
@@ -9,6 +9,10 @@ namespace Tomeshelf.HumbleBundle.Infrastructure.Tests.Bundles.BundleIngestServic
 
 public class UpsertAsync
 {
+    /// <summary>
+    ///     Creates new bundles and ands populates timestamps.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task CreatesNewBundles_AndPopulatesTimestamps()
     {
@@ -55,6 +59,10 @@ public class UpsertAsync
         createdSecond.Url.ShouldBe("https://example.com/bundle-two");
     }
 
+    /// <summary>
+    ///     Leaves bundle unchanged when there is no fields change.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task LeavesBundleUnchanged_WhenNoFieldsChange()
     {
@@ -101,6 +109,10 @@ public class UpsertAsync
         updated.LastUpdatedUtc.ShouldBe(existingUpdated);
     }
 
+    /// <summary>
+    ///     Returns zeros when there is no bundles supplied.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsZeros_WhenNoBundlesSupplied()
     {
@@ -129,6 +141,10 @@ public class UpsertAsync
         (await context.Bundles.CountAsync()).ShouldBe(1);
     }
 
+    /// <summary>
+    ///     Reuses entity when the duplicate machine names scraped.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReusesEntity_WhenDuplicateMachineNamesScraped()
     {
@@ -160,6 +176,10 @@ public class UpsertAsync
         entity.LastUpdatedUtc.ShouldBe(secondObserved);
     }
 
+    /// <summary>
+    ///     Updates existing bundle when the fields change.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UpdatesExistingBundle_WhenFieldsChange()
     {
@@ -209,6 +229,10 @@ public class UpsertAsync
         updated.ShortDescription.ShouldBe("new desc");
     }
 
+    /// <summary>
+    ///     Creates the context.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static TomeshelfBundlesDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<TomeshelfBundlesDbContext>().UseInMemoryDatabase(Guid.NewGuid()
@@ -218,6 +242,23 @@ public class UpsertAsync
         return new TomeshelfBundlesDbContext(options);
     }
 
+    /// <summary>
+    ///     Creates the scraped bundle.
+    /// </summary>
+    /// <param name="machineName">The machine name.</param>
+    /// <param name="observedUtc">The observed utc.</param>
+    /// <param name="category">The category.</param>
+    /// <param name="stamp">The stamp.</param>
+    /// <param name="title">The title.</param>
+    /// <param name="shortName">The short name.</param>
+    /// <param name="url">The url.</param>
+    /// <param name="tileImageUrl">The tile image url.</param>
+    /// <param name="tileLogoUrl">The tile logo url.</param>
+    /// <param name="heroImageUrl">The hero image url.</param>
+    /// <param name="shortDescription">The short description.</param>
+    /// <param name="startsAt">The starts at.</param>
+    /// <param name="endsAt">The ends at.</param>
+    /// <returns>The result of the operation.</returns>
     private static ScrapedBundle CreateScrapedBundle(string machineName, DateTimeOffset observedUtc, string category = "books", string stamp = "bundle", string title = "Bundle One", string shortName = "Bundle", string url = "https://example.com/bundle-one", string tileImageUrl = "tile", string tileLogoUrl = "logo", string heroImageUrl = "hero", string shortDescription = "desc", DateTimeOffset? startsAt = null, DateTimeOffset? endsAt = null)
     {
         return new ScrapedBundle(machineName, category, stamp, title, shortName, url, tileImageUrl, tileLogoUrl, heroImageUrl, shortDescription, startsAt, endsAt, observedUtc);

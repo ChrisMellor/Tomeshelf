@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Shouldly;
 using Tomeshelf.Fitbit.Application;
@@ -8,6 +8,10 @@ namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitAuthorizationServiceTests;
 
 public class ExchangeAuthorizationCodeAsync
 {
+    /// <summary>
+    ///     Throws when the client credentials are missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Throws_WhenClientCredentialsMissing()
     {
@@ -28,6 +32,10 @@ public class ExchangeAuthorizationCodeAsync
         exception.Message.ShouldBe("Fitbit client credentials are not configured.");
     }
 
+    /// <summary>
+    ///     Throws when the code verifier is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Throws_WhenCodeVerifierMissing()
     {
@@ -48,6 +56,10 @@ public class ExchangeAuthorizationCodeAsync
         exception.Message.ShouldBe("Missing PKCE code verifier for Fitbit authorization exchange.");
     }
 
+    /// <summary>
+    ///     Updates token cache on success.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UpdatesTokenCache_OnSuccess()
     {

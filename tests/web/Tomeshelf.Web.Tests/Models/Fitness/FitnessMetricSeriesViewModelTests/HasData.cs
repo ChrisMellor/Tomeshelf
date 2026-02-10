@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Bogus;
 using Shouldly;
 using Tomeshelf.Web.Models.Fitness;
@@ -7,6 +7,9 @@ namespace Tomeshelf.Web.Tests.Models.Fitness.FitnessMetricSeriesViewModelTests;
 
 public class HasData
 {
+    /// <summary>
+    ///     Returns false when the all values are null.
+    /// </summary>
     [Fact]
     public void WhenAllValuesNull_ReturnsFalse()
     {
@@ -31,6 +34,9 @@ public class HasData
         hasData.ShouldBeFalse();
     }
 
+    /// <summary>
+    ///     Returns true when the any value is present.
+    /// </summary>
     [Fact]
     public void WhenAnyValuePresent_ReturnsTrue()
     {
@@ -56,6 +62,9 @@ public class HasData
         hasData.ShouldBeTrue();
     }
 
+    /// <summary>
+    ///     Returns false when the values are null.
+    /// </summary>
     [Fact]
     public void WhenValuesNull_ReturnsFalse()
     {

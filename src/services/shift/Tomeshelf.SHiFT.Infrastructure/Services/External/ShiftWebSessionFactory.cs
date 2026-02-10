@@ -14,6 +14,10 @@ public sealed class ShiftWebSessionFactory : IShiftWebSessionFactory
 {
     private readonly IHttpClientFactory _httpClientFactory;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ShiftWebSessionFactory" /> class.
+    /// </summary>
+    /// <param name="httpClientFactory">The http client factory.</param>
     public ShiftWebSessionFactory(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;

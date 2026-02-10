@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.Security;
@@ -10,6 +10,10 @@ namespace Tomeshelf.SHiFT.Infrastructure.Tests.Persistence.Repositories.ShiftSet
 
 public class DeleteAsync
 {
+    /// <summary>
+    ///     Removes the matching row.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task RemovesMatchingRow()
     {

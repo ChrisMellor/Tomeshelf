@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
@@ -9,6 +9,10 @@ namespace Tomeshelf.Web.Tests.ProgramTests;
 
 public class OAuthRemoteFailure
 {
+    /// <summary>
+    ///     Writes the session and redirects.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WritesSessionAndRedirects()
     {

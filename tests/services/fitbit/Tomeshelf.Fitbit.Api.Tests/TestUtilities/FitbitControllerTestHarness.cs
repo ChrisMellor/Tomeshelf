@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -13,6 +13,12 @@ namespace Tomeshelf.Fitbit.Api.Tests.TestUtilities;
 
 public static class FitbitControllerTestHarness
 {
+    /// <summary>
+    ///     Creates the controller.
+    /// </summary>
+    /// <param name="dashboardHandler">The dashboard handler.</param>
+    /// <param name="overviewHandler">The overview handler.</param>
+    /// <returns>The result of the operation.</returns>
     public static FitbitController CreateController(IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto> dashboardHandler, IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto> overviewHandler)
     {
         var options = new FitbitOptions
@@ -33,6 +39,11 @@ public static class FitbitControllerTestHarness
         return controller;
     }
 
+    /// <summary>
+    ///     Creates the snapshot.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <returns>The result of the operation.</returns>
     public static FitbitDashboardDto CreateSnapshot(string date)
     {
         return new FitbitDashboardDto
@@ -78,6 +89,11 @@ public static class FitbitControllerTestHarness
     {
         private readonly Func<UrlActionContext, string?> _action;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="TestUrlHelper" /> class.
+        /// </summary>
+        /// <param name="actionContext">The action context.</param>
+        /// <param name="action">The action.</param>
         public TestUrlHelper(ActionContext actionContext, Func<UrlActionContext, string?> action)
         {
             ActionContext = actionContext;
@@ -86,26 +102,52 @@ public static class FitbitControllerTestHarness
 
         public ActionContext ActionContext { get; }
 
+        /// <summary>
+        ///     Actions.
+        /// </summary>
+        /// <param name="actionContext">The action context.</param>
+        /// <returns>The result of the operation.</returns>
         public string? Action(UrlActionContext actionContext)
         {
             return _action(actionContext);
         }
 
+        /// <summary>
+        ///     Contents.
+        /// </summary>
+        /// <param name="contentPath">The content path.</param>
+        /// <returns>The result of the operation.</returns>
         public string? Content(string? contentPath)
         {
             return contentPath;
         }
 
+        /// <summary>
+        ///     Determines whether the specified url is a local URL.
+        /// </summary>
+        /// <param name="url">The url.</param>
+        /// <returns>True if the condition is met; otherwise, false.</returns>
         public bool IsLocalUrl(string? url)
         {
             return true;
         }
 
+        /// <summary>
+        ///     Links.
+        /// </summary>
+        /// <param name="routeName">The route name.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>The result of the operation.</returns>
         public string? Link(string? routeName, object? values)
         {
             return null;
         }
 
+        /// <summary>
+        ///     Routes the url.
+        /// </summary>
+        /// <param name="routeContext">The route context.</param>
+        /// <returns>The result of the operation.</returns>
         public string? RouteUrl(UrlRouteContext routeContext)
         {
             return null;

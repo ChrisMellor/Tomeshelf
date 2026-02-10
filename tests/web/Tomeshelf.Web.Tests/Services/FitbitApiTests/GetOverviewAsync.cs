@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Shouldly;
 using System;
@@ -15,6 +15,10 @@ namespace Tomeshelf.Web.Tests.Services.FitbitApiTests;
 
 public class GetOverviewAsync
 {
+    /// <summary>
+    ///     Returns null when not found.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenNotFound_ReturnsNull()
     {
@@ -36,6 +40,10 @@ public class GetOverviewAsync
         result.ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Returns authorization required exception when the value is a redirect.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenRedirect_ReturnsAuthorizationRequiredException()
     {
@@ -57,6 +65,10 @@ public class GetOverviewAsync
         exception.Location.ShouldBe(new Uri("https://example.test/auth"));
     }
 
+    /// <summary>
+    ///     Deserializes payload when the operation succeeds.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenSuccess_DeserializesPayload()
     {
@@ -82,6 +94,10 @@ public class GetOverviewAsync
         result!.Daily.Date.ShouldBe("2020-01-01");
     }
 
+    /// <summary>
+    ///     Throws rate limit message when the too many requests contain empty body.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenTooManyRequestsWithEmptyBody_ThrowsRateLimitMessage()
     {

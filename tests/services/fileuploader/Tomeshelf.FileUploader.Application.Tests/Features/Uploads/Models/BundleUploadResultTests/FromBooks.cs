@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using Shouldly;
 using Tomeshelf.FileUploader.Application.Features.Uploads.Models;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.FileUploader.Application.Tests.Features.Uploads.Models.Bundl
 
 public class FromBooks
 {
+    /// <summary>
+    ///     Distinct bundles are case insensitive.
+    /// </summary>
     [Fact]
     public void DistinctBundles_AreCaseInsensitive()
     {
@@ -30,6 +33,9 @@ public class FromBooks
         result.FilesSkipped.ShouldBe(3);
     }
 
+    /// <summary>
+    ///     Returns zero counts when there are no books.
+    /// </summary>
     [Fact]
     public void WithNoBooks_ReturnsZeroCounts()
     {

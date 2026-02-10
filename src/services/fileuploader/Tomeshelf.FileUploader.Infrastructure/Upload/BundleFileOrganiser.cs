@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -8,6 +8,11 @@ namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 
 public sealed class BundleFileOrganiser
 {
+    /// <summary>
+    ///     Builds the plan.
+    /// </summary>
+    /// <param name="rootDirectory">The root directory.</param>
+    /// <returns>The result of the operation.</returns>
     public IReadOnlyList<BookPlan> BuildPlan(string rootDirectory)
     {
         var files = Directory.EnumerateFiles(rootDirectory, "*.*", SearchOption.AllDirectories)
@@ -47,12 +52,22 @@ public sealed class BundleFileOrganiser
         return plans;
     }
 
+    /// <summary>
+    ///     Determines whether the specified file is a supplement file.
+    /// </summary>
+    /// <param name="file">The file.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool IsSupplementFile(FileInfo file)
     {
         return file.Extension.Equals(".zip", StringComparison.OrdinalIgnoreCase) &&
                file.Name.Contains("supplement", StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    ///     Orders the book files.
+    /// </summary>
+    /// <param name="files">The files.</param>
+    /// <returns>The result of the operation.</returns>
     private static IEnumerable<FileInfo> OrderBookFiles(IEnumerable<FileInfo> files)
     {
         return files.OrderBy(file => IsSupplementFile(file) ? 1 : 0)
@@ -60,6 +75,11 @@ public sealed class BundleFileOrganiser
                     .ThenBy(file => file.Name, StringComparer.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    ///     Gets the bundle name.
+    /// </summary>
+    /// <param name="file">The file.</param>
+    /// <returns>The result of the operation.</returns>
     private static string? GetBundleName(FileInfo file)
     {
         var directory = file.Directory;
@@ -76,6 +96,11 @@ public sealed class BundleFileOrganiser
         return null;
     }
 
+    /// <summary>
+    ///     Gets the document metadata.
+    /// </summary>
+    /// <param name="file">The file.</param>
+    /// <returns>The result of the operation.</returns>
     private static DocumentMetadata GetDocumentMetadata(FileInfo file)
     {
         try
@@ -96,6 +121,11 @@ public sealed class BundleFileOrganiser
         }
     }
 
+    /// <summary>
+    ///     Sanitizes the for path.
+    /// </summary>
+    /// <param name="s">The s.</param>
+    /// <returns>The resulting string.</returns>
     private static string SanitizeForPath(string s)
     {
         s = s.Replace(":", " -", StringComparison.Ordinal)
@@ -108,6 +138,11 @@ public sealed class BundleFileOrganiser
         return s.Trim();
     }
 
+    /// <summary>
+    ///     Attempts to get a title.
+    /// </summary>
+    /// <param name="files">The files.</param>
+    /// <returns>The result of the operation.</returns>
     private static string? TryGetTitle(IGrouping<string, FileInfo> files)
     {
         foreach (var ext in new[] { ".epub", ".pdf", ".mobi" })

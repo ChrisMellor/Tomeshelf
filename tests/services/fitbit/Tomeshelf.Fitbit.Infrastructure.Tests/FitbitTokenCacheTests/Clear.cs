@@ -1,10 +1,13 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 
 namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitTokenCacheTests;
 
 public class Clear
 {
+    /// <summary>
+    ///     Removes the values from session.
+    /// </summary>
     [Fact]
     public void RemovesValuesFromSession()
     {
@@ -23,6 +26,10 @@ public class Clear
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Creates the cache.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static (FitbitTokenCache Cache, ISession Session) CreateCache()
     {
         var accessor = A.Fake<IHttpContextAccessor>();

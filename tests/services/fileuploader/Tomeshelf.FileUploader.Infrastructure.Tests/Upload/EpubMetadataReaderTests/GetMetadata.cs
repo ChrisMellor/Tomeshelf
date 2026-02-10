@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using Shouldly;
 using Tomeshelf.FileUploader.Infrastructure.Upload;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.FileUploader.Infrastructure.Tests.Upload.EpubMetadataReaderT
 
 public class GetMetadata
 {
+    /// <summary>
+    ///     Reads the title from epub.
+    /// </summary>
     [Fact]
     public void ReadsTitleFromEpub()
     {
@@ -42,6 +45,10 @@ public class GetMetadata
         }
     }
 
+    /// <summary>
+    ///     Creates the temp directory.
+    /// </summary>
+    /// <returns>The resulting string.</returns>
     private static string CreateTempDirectory()
     {
         var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid()
@@ -51,6 +58,10 @@ public class GetMetadata
         return path;
     }
 
+    /// <summary>
+    ///     Attempts to delete a directory.
+    /// </summary>
+    /// <param name="path">The path.</param>
     private static void TryDeleteDirectory(string path)
     {
         if (string.IsNullOrWhiteSpace(path))

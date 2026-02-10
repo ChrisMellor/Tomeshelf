@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -24,6 +24,12 @@ public sealed class ApiEndpointDiscoveryService : IApiEndpointDiscoveryService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<ApiEndpointDiscoveryService> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ApiEndpointDiscoveryService" /> class.
+    /// </summary>
+    /// <param name="configuration">The configuration.</param>
+    /// <param name="httpClientFactory">The http client factory.</param>
+    /// <param name="logger">The logger.</param>
     public ApiEndpointDiscoveryService(IConfiguration configuration, IHttpClientFactory httpClientFactory, ILogger<ApiEndpointDiscoveryService> logger)
     {
         _configuration = configuration;
@@ -31,6 +37,11 @@ public sealed class ApiEndpointDiscoveryService : IApiEndpointDiscoveryService
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Gets the apis asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public Task<IReadOnlyList<ApiServiceDescriptor>> GetApisAsync(CancellationToken cancellationToken)
     {
         var servicesSection = _configuration.GetSection("services");
@@ -86,6 +97,12 @@ public sealed class ApiEndpointDiscoveryService : IApiEndpointDiscoveryService
         return Task.FromResult<IReadOnlyList<ApiServiceDescriptor>>(ordered);
     }
 
+    /// <summary>
+    ///     Gets the endpoints asynchronously.
+    /// </summary>
+    /// <param name="baseAddress">The base address.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<IReadOnlyList<ExecutorDiscoveredEndpoint>> GetEndpointsAsync(string baseAddress, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(baseAddress) || !Uri.TryCreate(baseAddress, UriKind.Absolute, out var baseUri))

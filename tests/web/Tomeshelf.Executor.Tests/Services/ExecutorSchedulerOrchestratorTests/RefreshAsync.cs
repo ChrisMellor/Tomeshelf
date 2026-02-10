@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Quartz;
 using Quartz.Impl.Matchers;
@@ -12,6 +12,10 @@ namespace Tomeshelf.Executor.Tests.Services.ExecutorSchedulerOrchestratorTests;
 
 public class RefreshAsync
 {
+    /// <summary>
+    ///     Removes jobs and standby when disabled.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenDisabled_RemovesJobsAndStandby()
     {
@@ -56,6 +60,10 @@ public class RefreshAsync
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Schedules endpoints and starts when enabled.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenEnabled_SchedulesEndpointsAndStarts()
     {

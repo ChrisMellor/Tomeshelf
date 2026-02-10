@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using Shouldly;
@@ -12,6 +12,10 @@ namespace Tomeshelf.SHiFT.Api.Tests.Controllers.ConfigControllerTests;
 
 public class Get
 {
+    /// <summary>
+    ///     Returns not found when missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNotFound_WhenMissing()
     {
@@ -33,6 +37,10 @@ public class Get
         result.Result.ShouldBeOfType<NotFoundResult>();
     }
 
+    /// <summary>
+    ///     Returns ok when found.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsOk_WhenFound()
     {

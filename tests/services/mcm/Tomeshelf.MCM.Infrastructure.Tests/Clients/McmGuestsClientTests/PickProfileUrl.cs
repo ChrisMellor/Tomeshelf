@@ -1,4 +1,4 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.MCM.Infrastructure.Clients;
 using Tomeshelf.MCM.Infrastructure.Responses;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.Clients.McmGuestsClientTests;
 
 public class PickProfileUrl
 {
+    /// <summary>
+    ///     Returns the first available profile url.
+    /// </summary>
     [Fact]
     public void ReturnsFirstAvailableProfileUrl()
     {
@@ -24,6 +27,9 @@ public class PickProfileUrl
         url.ShouldBe("https://imdb.example/guest");
     }
 
+    /// <summary>
+    ///     Returns trimmed profile URL when present.
+    /// </summary>
     [Fact]
     public void ReturnsTrimmedProfileUrl_WhenPresent()
     {

@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Hosting;
 using Shouldly;
@@ -8,6 +8,10 @@ namespace Tomeshelf.Web.Tests.ProgramTests;
 
 public class OAuthRedirect
 {
+    /// <summary>
+    ///     Adds the google parameters.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task AddsGoogleParameters()
     {

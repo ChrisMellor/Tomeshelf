@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
@@ -8,6 +8,10 @@ namespace Tomeshelf.Fitbit.Application.Tests.Features.Authorization.Commands.Bui
 
 public class Handle
 {
+    /// <summary>
+    ///     The exception is propagated when building the authorization URI throws.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task BuildAuthorizationUriThrows_ExceptionIsPropagated()
     {
@@ -34,6 +38,10 @@ public class Handle
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Returns authorization redirect when the command is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ValidCommand_ReturnsAuthorizationRedirect()
     {

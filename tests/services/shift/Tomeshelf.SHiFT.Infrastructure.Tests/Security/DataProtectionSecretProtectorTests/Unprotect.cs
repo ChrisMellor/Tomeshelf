@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.DataProtection;
+﻿using Microsoft.AspNetCore.DataProtection;
 using Shouldly;
 using Tomeshelf.SHiFT.Infrastructure.Security;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.SHiFT.Infrastructure.Tests.Security.DataProtectionSecretProt
 
 public class Unprotect
 {
+    /// <summary>
+    ///     Returns the original value.
+    /// </summary>
     [Fact]
     public void ReturnsOriginalValue()
     {

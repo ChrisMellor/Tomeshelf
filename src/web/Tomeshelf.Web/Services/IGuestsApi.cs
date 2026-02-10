@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Web.Models;
@@ -27,8 +27,18 @@ public interface IGuestsApi
     /// </returns>
     Task<IReadOnlyList<McmEventConfigModel>> GetComicConEventsAsync(CancellationToken cancellationToken, bool forceRefresh = false);
 
+    /// <summary>
+    ///     Inserts or updates the comic con event asynchronously.
+    /// </summary>
+    /// <param name="eventId">The event id.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     Task UpsertComicConEventAsync(string eventId, string name, CancellationToken cancellationToken);
 
+    /// <summary>
+    ///     Deletes the comic con event asynchronously.
+    /// </summary>
     /// <returns><see langword="true" /> if the event was deleted; <see langword="false" /> if it does not exist.</returns>
     Task<bool> DeleteComicConEventAsync(string eventId, CancellationToken cancellationToken);
 

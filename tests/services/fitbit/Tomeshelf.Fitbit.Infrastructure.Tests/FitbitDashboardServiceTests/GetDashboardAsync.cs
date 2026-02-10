@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -9,6 +9,10 @@ namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitDashboardServiceTests;
 
 public sealed class GetDashboardAsync
 {
+    /// <summary>
+    ///     Forces the refresh bypasses cache and refetches.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ForceRefreshBypassesCacheAndRefetches()
     {
@@ -67,6 +71,10 @@ public sealed class GetDashboardAsync
         third!.Activity.Steps.ShouldBe(2);
     }
 
+    /// <summary>
+    ///     Populates bedtime and wake time when the sleep times contain full timestamps.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task PopulatesBedtimeAndWakeTime_WhenSleepTimesContainFullTimestamps()
     {

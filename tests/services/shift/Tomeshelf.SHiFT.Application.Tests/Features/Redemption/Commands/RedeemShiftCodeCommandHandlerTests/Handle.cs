@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.External;
@@ -9,6 +9,10 @@ namespace Tomeshelf.SHiFT.Application.Tests.Features.Redemption.Commands.RedeemS
 
 public class Handle
 {
+    /// <summary>
+    ///     Calls the gearbox client and returns results.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task CallsGearboxClientAndReturnsResults()
     {

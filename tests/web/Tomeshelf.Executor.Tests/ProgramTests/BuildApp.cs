@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Shouldly;
@@ -9,6 +9,9 @@ namespace Tomeshelf.Executor.Tests.ProgramTests;
 
 public class BuildApp
 {
+    /// <summary>
+    ///     Registers the executor services.
+    /// </summary>
     [Fact]
     public void RegistersExecutorServices()
     {

@@ -1,4 +1,4 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.HumbleBundle.Api.Controllers;
 using Tomeshelf.HumbleBundle.Api.Tests.TestUtilities;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.HumbleBundle.Api.Tests.Controllers.BundleResponseTests;
 
 public class FromDto
 {
+    /// <summary>
+    ///     Returns null seconds when the already is expired.
+    /// </summary>
     [Fact]
     public void ReturnsNullSeconds_WhenAlreadyExpired()
     {
@@ -20,6 +23,9 @@ public class FromDto
         response.SecondsRemaining.ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Returns null seconds when there is no end date.
+    /// </summary>
     [Fact]
     public void ReturnsNullSeconds_WhenNoEndDate()
     {

@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -28,6 +28,11 @@ public sealed class PaissaController(IQueryHandler<GetAcceptingEntriesQuery, Pai
         return Ok(response);
     }
 
+    /// <summary>
+    ///     Maps the district.
+    /// </summary>
+    /// <param name="district">The district.</param>
+    /// <returns>The result of the operation.</returns>
     private static PaissaDistrictResponse MapDistrict(PaissaDistrictSummaryDto district)
     {
         var tabs = district.SizeGroups
@@ -39,11 +44,21 @@ public sealed class PaissaController(IQueryHandler<GetAcceptingEntriesQuery, Pai
         return new PaissaDistrictResponse(district.Id, district.Name, tabs);
     }
 
+    /// <summary>
+    ///     Maps the plot.
+    /// </summary>
+    /// <param name="plot">The plot.</param>
+    /// <returns>The result of the operation.</returns>
     private static PaissaPlotResponse MapPlot(PaissaPlotSummaryDto plot)
     {
         return new PaissaPlotResponse(plot.Ward, plot.Plot, plot.Price, plot.Entries, plot.LastUpdatedUtc, plot.AllowsPersonal, plot.AllowsFreeCompany, plot.IsEligibilityUnknown);
     }
 
+    /// <summary>
+    ///     Maps the world.
+    /// </summary>
+    /// <param name="world">The world.</param>
+    /// <returns>The result of the operation.</returns>
     private static PaissaWorldResponse MapWorld(PaissaWorldSummaryDto world)
     {
         var districts = world.Districts

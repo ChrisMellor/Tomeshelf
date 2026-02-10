@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -17,12 +17,25 @@ public sealed class FitnessController : Controller
     private readonly IFitbitApi _fitbitApi;
     private readonly ILogger<FitnessController> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitnessController" /> class.
+    /// </summary>
+    /// <param name="fitbitApi">The fitbit api.</param>
+    /// <param name="logger">The logger.</param>
     public FitnessController(IFitbitApi fitbitApi, ILogger<FitnessController> logger)
     {
         _fitbitApi = fitbitApi;
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Indexs.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <param name="refresh">The refresh.</param>
+    /// <param name="unit">The unit.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpGet("")]
     public async Task<IActionResult> Index([FromQuery] string date, [FromQuery] bool refresh = false, [FromQuery] string unit = null, CancellationToken cancellationToken = default)
     {
@@ -106,6 +119,11 @@ public sealed class FitnessController : Controller
         }
     }
 
+    /// <summary>
+    ///     Builds the date range label.
+    /// </summary>
+    /// <param name="items">The items.</param>
+    /// <returns>The resulting string.</returns>
     private static string BuildDateRangeLabel(IReadOnlyList<FitbitOverviewDayModel> items)
     {
         if (items is null || (items.Count == 0))
@@ -119,6 +137,13 @@ public sealed class FitnessController : Controller
         return $"{start:ddd dd MMM} - {end:ddd dd MMM}";
     }
 
+    /// <summary>
+    ///     Builds the range view model.
+    /// </summary>
+    /// <param name="title">The title.</param>
+    /// <param name="range">The range.</param>
+    /// <param name="unit">The unit.</param>
+    /// <returns>The result of the operation.</returns>
     private static FitnessRangeViewModel BuildRangeViewModel(string title, FitbitOverviewRangeModel range, WeightUnit unit)
     {
         if (range?.Items is null || (range.Items.Count == 0))
@@ -201,6 +226,11 @@ public sealed class FitnessController : Controller
         };
     }
 
+    /// <summary>
+    ///     Creates the summary.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <returns>The result of the operation.</returns>
     private static DaySummaryViewModel CreateSummary(FitbitDashboardModel model)
     {
         var summary = new DaySummaryViewModel
@@ -218,6 +248,11 @@ public sealed class FitnessController : Controller
             : null;
     }
 
+    /// <summary>
+    ///     Determines whether the specified summary has any metrics.
+    /// </summary>
+    /// <param name="summary">The summary.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool HasAnyMetrics(DaySummaryViewModel summary)
     {
         if (summary.Weight.StartingWeightKg.HasValue || summary.Weight.CurrentWeightKg.HasValue || summary.Weight.ChangeKg.HasValue || summary.Weight.BodyFatPercentage.HasValue || summary.Weight.LeanMassKg.HasValue)
@@ -243,6 +278,11 @@ public sealed class FitnessController : Controller
         return false;
     }
 
+    /// <summary>
+    ///     Parses the date.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The result of the operation.</returns>
     private static DateOnly ParseDate(string value)
     {
         if (DateOnly.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
@@ -253,6 +293,11 @@ public sealed class FitnessController : Controller
         return DateOnly.FromDateTime(DateTime.Today);
     }
 
+    /// <summary>
+    ///     Resolves the date.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <returns>The result of the operation.</returns>
     private static DateOnly ResolveDate(string date)
     {
         if (!string.IsNullOrWhiteSpace(date) && DateOnly.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))

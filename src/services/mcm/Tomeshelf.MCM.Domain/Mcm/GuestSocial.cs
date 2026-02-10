@@ -1,9 +1,12 @@
-using System;
+﻿using System;
 
 namespace Tomeshelf.MCM.Domain.Mcm;
 
 public class GuestSocial
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="GuestSocial" /> class.
+    /// </summary>
     public GuestSocial()
     {
         Id = Guid.NewGuid();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
@@ -15,12 +15,22 @@ public sealed class PaissaApi : IPaissaApi
     private readonly HttpClient _http;
     private readonly ILogger<PaissaApi> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="PaissaApi" /> class.
+    /// </summary>
+    /// <param name="httpClientFactory">The http client factory.</param>
+    /// <param name="logger">The logger.</param>
     public PaissaApi(IHttpClientFactory httpClientFactory, ILogger<PaissaApi> logger)
     {
         _http = httpClientFactory.CreateClient(HttpClientName);
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Gets the world asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<PaissaWorldModel> GetWorldAsync(CancellationToken cancellationToken)
     {
         const string url = "paissa/world";

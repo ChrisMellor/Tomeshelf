@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Executor.Configuration;
@@ -10,6 +10,10 @@ namespace Tomeshelf.Executor.Tests.Controllers.HomeControllerTests;
 
 public class Ping
 {
+    /// <summary>
+    ///     Returns ping defaults when using GET.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Get_ReturnsPingDefaults()
     {
@@ -25,6 +29,10 @@ public class Ping
         model.Ping.Method.ShouldBe("GET");
     }
 
+    /// <summary>
+    ///     Returns view with errors when using POST and the URL is invalid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Post_InvalidUrl_ReturnsViewWithErrors()
     {
@@ -48,6 +56,10 @@ public class Ping
         controller.ModelState[nameof(EndpointPingModel.Url)]!.Errors.ShouldNotBeEmpty();
     }
 
+    /// <summary>
+    ///     Returns result and status message when using POST and the operation succeeds.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Post_Success_ReturnsResultAndStatusMessage()
     {

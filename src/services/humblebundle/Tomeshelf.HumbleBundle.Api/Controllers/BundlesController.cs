@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -21,6 +21,12 @@ public sealed class BundlesController : ControllerBase
     private readonly IQueryHandler<GetBundlesQuery, IReadOnlyList<BundleDto>> _queryHandler;
     private readonly ICommandHandler<RefreshBundlesCommand, BundleIngestResult> _refreshHandler;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="BundlesController" /> class.
+    /// </summary>
+    /// <param name="queryHandler">The query handler.</param>
+    /// <param name="refreshHandler">The refresh handler.</param>
+    /// <param name="logger">The logger.</param>
     public BundlesController(IQueryHandler<GetBundlesQuery, IReadOnlyList<BundleDto>> queryHandler, ICommandHandler<RefreshBundlesCommand, BundleIngestResult> refreshHandler, ILogger<BundlesController> logger)
     {
         _queryHandler = queryHandler;
@@ -83,6 +89,12 @@ public sealed class BundlesController : ControllerBase
     /// <param name="GeneratedUtc">Timestamp when this projection was generated.</param>
     public sealed record BundleResponse(string MachineName, string Category, string Stamp, string Title, string ShortName, string Url, string TileImageUrl, string TileLogoUrl, string HeroImageUrl, string ShortDescription, DateTimeOffset? StartsAt, DateTimeOffset? EndsAt, DateTimeOffset FirstSeenUtc, DateTimeOffset LastSeenUtc, DateTimeOffset LastUpdatedUtc, double? SecondsRemaining, DateTimeOffset GeneratedUtc)
     {
+        /// <summary>
+        ///     Froms the dto.
+        /// </summary>
+        /// <param name="dto">The dto.</param>
+        /// <param name="now">The now.</param>
+        /// <returns>The result of the operation.</returns>
         public static BundleResponse FromDto(BundleDto dto, DateTimeOffset now)
         {
             double? secondsRemaining = null;

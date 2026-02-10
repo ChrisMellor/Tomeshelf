@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -20,6 +20,12 @@ public sealed class GetAcceptingEntriesQueryHandler : IQueryHandler<GetAccepting
     private readonly IClock _clock;
     private readonly IPaissaWorldSettings _settings;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="GetAcceptingEntriesQueryHandler" /> class.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="settings">The settings.</param>
+    /// <param name="clock">The clock.</param>
     public GetAcceptingEntriesQueryHandler(IPaissaClient client, IPaissaWorldSettings settings, IClock clock)
     {
         _client = client;
@@ -27,6 +33,12 @@ public sealed class GetAcceptingEntriesQueryHandler : IQueryHandler<GetAccepting
         _clock = clock;
     }
 
+    /// <summary>
+    ///     Handles.
+    /// </summary>
+    /// <param name="query">The query.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<PaissaWorldSummaryDto> Handle(GetAcceptingEntriesQuery query, CancellationToken cancellationToken)
     {
         var world = await _client.GetWorldAsync(_settings.WorldId, cancellationToken);
@@ -62,6 +74,11 @@ public sealed class GetAcceptingEntriesQueryHandler : IQueryHandler<GetAccepting
         return new PaissaWorldSummaryDto(world.Id, world.Name, retrievedAtUtc, orderedDistricts);
     }
 
+    /// <summary>
+    ///     Maps the plot.
+    /// </summary>
+    /// <param name="plot">The plot.</param>
+    /// <returns>The result of the operation.</returns>
     private static PaissaPlotSummaryDto MapPlot(PaissaPlot plot)
     {
         var entries = plot.LotteryEntries.GetValueOrDefault();

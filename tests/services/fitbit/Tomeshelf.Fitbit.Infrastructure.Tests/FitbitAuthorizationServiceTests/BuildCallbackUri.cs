@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Shouldly;
 using Tomeshelf.Fitbit.Application;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitAuthorizationServiceTests;
 
 public class BuildCallbackUri
 {
+    /// <summary>
+    ///     Throws when the base URI is invalid.
+    /// </summary>
     [Fact]
     public void Throws_WhenBaseUriInvalid()
     {
@@ -20,6 +23,9 @@ public class BuildCallbackUri
         exception.Message.ShouldBe("Invalid Fitbit CallbackBaseUri 'not a uri'.");
     }
 
+    /// <summary>
+    ///     Throws when the base and request is missing.
+    /// </summary>
     [Fact]
     public void Throws_WhenMissingBaseAndRequest()
     {
@@ -37,6 +43,9 @@ public class BuildCallbackUri
         exception.Message.ShouldBe("Fitbit CallbackBaseUri is not configured and no HTTP request is available to infer it.");
     }
 
+    /// <summary>
+    ///     Uses request when the base URI is missing.
+    /// </summary>
     [Fact]
     public void UsesRequest_WhenBaseUriMissing()
     {

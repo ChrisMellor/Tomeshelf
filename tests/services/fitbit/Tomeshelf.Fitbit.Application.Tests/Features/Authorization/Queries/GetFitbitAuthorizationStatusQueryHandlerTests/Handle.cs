@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
@@ -8,6 +8,10 @@ namespace Tomeshelf.Fitbit.Application.Tests.Features.Authorization.Queries.GetF
 
 public class Handle
 {
+    /// <summary>
+    ///     Returns authorized status when the has access token and refresh token.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task HasAccessTokenAndRefreshToken_ReturnsAuthorizedStatus()
     {
@@ -31,6 +35,10 @@ public class Handle
         result.HasRefreshToken.ShouldBeTrue();
     }
 
+    /// <summary>
+    ///     Returns unauthorized status when there is no access token.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task NoAccessToken_ReturnsUnauthorizedStatus()
     {
@@ -53,6 +61,10 @@ public class Handle
         result.HasRefreshToken.ShouldBeTrue();
     }
 
+    /// <summary>
+    ///     Returns no refresh status when there is no refresh token.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task NoRefreshToken_ReturnsNoRefreshStatus()
     {
@@ -75,6 +87,10 @@ public class Handle
         result.HasRefreshToken.ShouldBeFalse();
     }
 
+    /// <summary>
+    ///     Returns fully unauthorized status when there are no tokens.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task NoTokens_ReturnsFullyUnauthorizedStatus()
     {

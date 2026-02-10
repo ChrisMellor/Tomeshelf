@@ -6,12 +6,20 @@ namespace Tomeshelf.SHiFT.Infrastructure.Persistence;
 
 public sealed class TomeshelfShiftDbContext : DbContext, IDataProtectionKeyContext
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="TomeshelfShiftDbContext" /> class.
+    /// </summary>
+    /// <param name="options">The options.</param>
     public TomeshelfShiftDbContext(DbContextOptions<TomeshelfShiftDbContext> options) : base(options) { }
 
     public DbSet<SettingsEntity> ShiftSettings => Set<SettingsEntity>();
 
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = default!;
 
+    /// <summary>
+    ///     Ons the model creating.
+    /// </summary>
+    /// <param name="modelBuilder">The model builder.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<SettingsEntity>(b =>

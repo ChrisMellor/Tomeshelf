@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Tomeshelf.Web.Models.Fitness;
 
@@ -8,6 +8,12 @@ public static class WeightUnitConverter
     private const double KilogramsPerStone = 6.35029318;
     private const double PoundsPerStone = 14d;
 
+    /// <summary>
+    ///     Converts.
+    /// </summary>
+    /// <param name="kilograms">The kilograms.</param>
+    /// <param name="unit">The unit.</param>
+    /// <returns>The result of the operation.</returns>
     public static double? Convert(double? kilograms, WeightUnit unit)
     {
         if (!kilograms.HasValue)
@@ -23,6 +29,11 @@ public static class WeightUnitConverter
         };
     }
 
+    /// <summary>
+    ///     Gets the unit label.
+    /// </summary>
+    /// <param name="unit">The unit.</param>
+    /// <returns>The resulting string.</returns>
     public static string GetUnitLabel(WeightUnit unit)
     {
         return unit switch
@@ -33,6 +44,11 @@ public static class WeightUnitConverter
         };
     }
 
+    /// <summary>
+    ///     Parses.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The result of the operation.</returns>
     public static WeightUnit Parse(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -50,6 +66,11 @@ public static class WeightUnitConverter
         };
     }
 
+    /// <summary>
+    ///     Tos the query value.
+    /// </summary>
+    /// <param name="unit">The unit.</param>
+    /// <returns>The resulting string.</returns>
     public static string ToQueryValue(WeightUnit unit)
     {
         return unit switch
@@ -60,6 +81,11 @@ public static class WeightUnitConverter
         };
     }
 
+    /// <summary>
+    ///     Tos the stones and pounds.
+    /// </summary>
+    /// <param name="kilograms">The kilograms.</param>
+    /// <returns>The result of the operation.</returns>
     public static (int Stones, double Pounds) ToStonesAndPounds(double kilograms)
     {
         var totalPounds = kilograms * PoundsPerKilogram;

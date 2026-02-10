@@ -1,9 +1,12 @@
-using Shouldly;
+﻿using Shouldly;
 
 namespace Tomeshelf.Fitbit.Domain.Tests.FitbitDailySnapshotTests;
 
 public class GetNetWeightChangeKg
 {
+    /// <summary>
+    ///     Returns correct difference when both weights are provided.
+    /// </summary>
     [Fact]
     public void BothWeightsProvided_ReturnsCorrectDifference()
     {
@@ -22,6 +25,9 @@ public class GetNetWeightChangeKg
         netChange!.Value.ShouldBeInRange(-1.51, -1.49);
     }
 
+    /// <summary>
+    ///     Returns null when no weights are provided.
+    /// </summary>
     [Fact]
     public void NoWeightsProvided_ReturnsNull()
     {
@@ -39,6 +45,9 @@ public class GetNetWeightChangeKg
         netChange.HasValue.ShouldBeFalse();
     }
 
+    /// <summary>
+    ///     Returns null when only current weight is provided.
+    /// </summary>
     [Fact]
     public void OnlyCurrentWeightProvided_ReturnsNull()
     {
@@ -56,6 +65,9 @@ public class GetNetWeightChangeKg
         netChange.HasValue.ShouldBeFalse();
     }
 
+    /// <summary>
+    ///     Returns null when only starting weight is provided.
+    /// </summary>
     [Fact]
     public void OnlyStartingWeightProvided_ReturnsNull()
     {
@@ -73,6 +85,9 @@ public class GetNetWeightChangeKg
         netChange.HasValue.ShouldBeFalse();
     }
 
+    /// <summary>
+    ///     Returns zero when the starting weight same as current.
+    /// </summary>
     [Fact]
     public void StartingWeightSameAsCurrent_ReturnsZero()
     {

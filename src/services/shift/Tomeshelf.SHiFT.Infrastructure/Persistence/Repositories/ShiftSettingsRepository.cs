@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -266,6 +266,11 @@ public sealed class ShiftSettingsRepository : IShiftSettingsRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>
+    ///     Looks the like protected value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool LooksLikeProtectedValue(string value)
     {
         if (string.IsNullOrWhiteSpace(value) || (value.Length < 50))

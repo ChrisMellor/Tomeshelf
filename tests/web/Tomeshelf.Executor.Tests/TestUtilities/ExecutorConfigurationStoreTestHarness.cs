@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -9,6 +9,10 @@ internal static class ExecutorConfigurationStoreTestHarness
 {
     private const string SettingsEnvVar = "EXECUTOR_SETTINGS_DIR";
 
+    /// <summary>
+    ///     Prepares the settings directory.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     public static (string Directory, Action Restore) PrepareSettingsDirectory()
     {
         var directory = Path.Combine(Path.GetTempPath(), "Tomeshelf.Executor.Tests", Guid.NewGuid()
@@ -27,6 +31,11 @@ internal static class ExecutorConfigurationStoreTestHarness
         });
     }
 
+    /// <summary>
+    ///     Serializes the options.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns>The resulting string.</returns>
     public static string SerializeOptions(string name)
     {
         var payload = new

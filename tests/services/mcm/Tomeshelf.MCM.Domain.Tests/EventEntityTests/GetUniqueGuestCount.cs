@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.MCM.Domain.Mcm;
 
 namespace Tomeshelf.MCM.Domain.Tests.EventEntityTests;
 
 public class GetUniqueGuestCount
 {
+    /// <summary>
+    ///     Excludes the deleted guests.
+    /// </summary>
     [Fact]
     public void ExcludesDeletedGuests()
     {
@@ -51,6 +54,9 @@ public class GetUniqueGuestCount
         result.ShouldBe(2);
     }
 
+    /// <summary>
+    ///     Returns the correct count.
+    /// </summary>
     [Fact]
     public void ReturnsCorrectCount()
     {
@@ -96,6 +102,9 @@ public class GetUniqueGuestCount
         result.ShouldBe(2);
     }
 
+    /// <summary>
+    ///     Returns zero when there are no guests.
+    /// </summary>
     [Fact]
     public void ReturnsZero_WhenNoGuests()
     {

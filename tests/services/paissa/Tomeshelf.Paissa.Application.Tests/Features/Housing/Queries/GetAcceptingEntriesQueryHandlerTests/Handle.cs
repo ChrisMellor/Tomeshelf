@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.Paissa.Application.Abstractions.Common;
@@ -11,6 +11,10 @@ namespace Tomeshelf.Paissa.Application.Tests.Features.Housing.Queries.GetAccepti
 
 public class Handle
 {
+    /// <summary>
+    ///     Filters unknown sizes when the require known size.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task FiltersUnknownSizes_WhenRequireKnownSize()
     {
@@ -50,6 +54,10 @@ public class Handle
               .ShouldBe("Known");
     }
 
+    /// <summary>
+    ///     Orders the districts and groups by size.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task OrdersDistrictsAndGroupsBySize()
     {
@@ -130,6 +138,10 @@ public class Handle
            .ShouldBe(2);
     }
 
+    /// <summary>
+    ///     Returns paissa world summary when the query is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ValidQuery_ReturnsPaissaWorldSummary()
     {

@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
 using Tomeshelf.MCM.Application.Models;
@@ -8,6 +8,10 @@ namespace Tomeshelf.MCM.Application.Tests.Services.EventServiceTests;
 
 public class UpsertAsync
 {
+    /// <summary>
+    ///     Calls the repository.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task CallsRepository()
     {

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +13,16 @@ namespace Tomeshelf.Executor.Tests.TestUtilities;
 
 internal static class HomeControllerTestHarness
 {
+    /// <summary>
+    ///     Creates the controller.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <param name="apis">The apis.</param>
+    /// <param name="store">The store.</param>
+    /// <param name="scheduler">The scheduler.</param>
+    /// <param name="discovery">The discovery.</param>
+    /// <param name="pingService">The ping service.</param>
+    /// <returns>The result of the operation.</returns>
     public static HomeController CreateController(
         ExecutorOptions options,
         IReadOnlyList<ApiServiceDescriptor> apis,

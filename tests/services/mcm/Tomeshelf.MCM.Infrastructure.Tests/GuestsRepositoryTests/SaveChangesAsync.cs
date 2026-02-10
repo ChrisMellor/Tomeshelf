@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.MCM.Domain.Mcm;
 using Tomeshelf.MCM.Infrastructure.Repositories;
@@ -7,6 +7,10 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.GuestsRepositoryTests;
 
 public class SaveChangesAsync
 {
+    /// <summary>
+    ///     Persists the changes.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task PersistsChanges()
     {
@@ -29,6 +33,10 @@ public class SaveChangesAsync
         savedGuest.ShouldBe(guest);
     }
 
+    /// <summary>
+    ///     Creates the context.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static TomeshelfMcmDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()

@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Executor.Configuration;
@@ -10,6 +10,10 @@ namespace Tomeshelf.Executor.Tests.Controllers.HomeControllerTests;
 
 public class Edit
 {
+    /// <summary>
+    ///     Redirects when using GET and the endpoint is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Get_MissingEndpoint_Redirects()
     {
@@ -23,6 +27,10 @@ public class Edit
         result.ShouldBeOfType<RedirectToActionResult>();
     }
 
+    /// <summary>
+    ///     Updates endpoint when using POST and the value is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Post_Valid_UpdatesEndpoint()
     {

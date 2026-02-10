@@ -1,4 +1,4 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.Paissa.Domain.Entities;
 using Tomeshelf.Paissa.Domain.ValueObjects;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.Paissa.Domain.Tests.PaissaPlotTests;
 
 public class Create
 {
+    /// <summary>
+    ///     Throws when the default timestamp.
+    /// </summary>
     [Fact]
     public void DefaultTimestamp_Throws()
     {
@@ -19,6 +22,11 @@ public class Create
         exception.ShouldNotBeNull();
     }
 
+    /// <summary>
+    ///     Throws when the ward or plot is invalid.
+    /// </summary>
+    /// <param name="wardNumber">The ward number.</param>
+    /// <param name="plotNumber">The plot number.</param>
     [Theory]
     [InlineData(0, 1)]
     [InlineData(1, 0)]
@@ -34,6 +42,9 @@ public class Create
         exception.ShouldNotBeNull();
     }
 
+    /// <summary>
+    ///     Throws when the negative lottery entries.
+    /// </summary>
     [Fact]
     public void NegativeLotteryEntries_Throws()
     {
@@ -47,6 +58,9 @@ public class Create
         exception.ShouldNotBeNull();
     }
 
+    /// <summary>
+    ///     Throws when the negative price.
+    /// </summary>
     [Fact]
     public void NegativePrice_Throws()
     {
@@ -60,6 +74,9 @@ public class Create
         exception.ShouldNotBeNull();
     }
 
+    /// <summary>
+    ///     Sets properties and flags when the parameters are valid.
+    /// </summary>
     [Fact]
     public void ValidParameters_SetsPropertiesAndFlags()
     {

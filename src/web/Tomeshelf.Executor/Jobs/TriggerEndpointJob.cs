@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -18,6 +18,11 @@ public class TriggerEndpointJob(IEndpointPingService pingService, IOptionsMonito
 
     private readonly IEndpointPingService _pingService = pingService;
 
+    /// <summary>
+    ///     Executes.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task Execute(IJobExecutionContext context)
     {
         var jobDataMap = context.MergedJobDataMap;
@@ -75,6 +80,11 @@ public class TriggerEndpointJob(IEndpointPingService pingService, IOptionsMonito
         }
     }
 
+    /// <summary>
+    ///     Resolves the time zone.
+    /// </summary>
+    /// <param name="timeZoneId">The time zone id.</param>
+    /// <returns>The result of the operation.</returns>
     public static TimeZoneInfo ResolveTimeZone(string? timeZoneId)
     {
         if (string.IsNullOrWhiteSpace(timeZoneId))

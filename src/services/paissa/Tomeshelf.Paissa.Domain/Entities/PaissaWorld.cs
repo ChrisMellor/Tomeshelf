@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,6 +9,12 @@ namespace Tomeshelf.Paissa.Domain.Entities;
 /// </summary>
 public sealed record PaissaWorld
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="PaissaWorld" /> class.
+    /// </summary>
+    /// <param name="id">The id.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="districts">The districts.</param>
     private PaissaWorld(int id, string name, IReadOnlyList<PaissaDistrict> districts)
     {
         Id = id;
@@ -22,6 +28,13 @@ public sealed record PaissaWorld
 
     public IReadOnlyList<PaissaDistrict> Districts { get; }
 
+    /// <summary>
+    ///     Creates.
+    /// </summary>
+    /// <param name="id">The id.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="districts">The districts.</param>
+    /// <returns>The result of the operation.</returns>
     public static PaissaWorld Create(int id, string name, IReadOnlyList<PaissaDistrict> districts)
     {
         if (id <= 0)
@@ -49,6 +62,11 @@ public sealed record PaissaWorld
         return new PaissaWorld(id, name, safeDistricts);
     }
 
+    /// <summary>
+    ///     Filters the accepting entry districts.
+    /// </summary>
+    /// <param name="requireKnownSize">The require known size.</param>
+    /// <returns>The result of the operation.</returns>
     public PaissaWorld FilterAcceptingEntryDistricts(bool requireKnownSize)
     {
         var districts = Districts.Select(district => district.FilterAcceptingEntryPlots(requireKnownSize))

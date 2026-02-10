@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
@@ -18,6 +18,11 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly ILogger<ExecutorConfigurationStore> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ExecutorConfigurationStore" /> class.
+    /// </summary>
+    /// <param name="environment">The environment.</param>
+    /// <param name="logger">The logger.</param>
     public ExecutorConfigurationStore(IHostEnvironment environment, ILogger<ExecutorConfigurationStore> logger)
     {
         ArgumentNullException.ThrowIfNull(environment);
@@ -29,6 +34,11 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Gets asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<ExecutorOptions> GetAsync(CancellationToken cancellationToken = default)
     {
         await _lock.WaitAsync(cancellationToken);
@@ -59,6 +69,12 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
         }
     }
 
+    /// <summary>
+    ///     Saves asynchronously.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task SaveAsync(ExecutorOptions options, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -87,6 +103,10 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
         }
     }
 
+    /// <summary>
+    ///     Resolves the read path.
+    /// </summary>
+    /// <returns>The resulting string.</returns>
     private string ResolveReadPath()
     {
         if (!string.IsNullOrWhiteSpace(_environmentFilePath) && File.Exists(_environmentFilePath))
@@ -97,6 +117,10 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
         return _defaultFilePath;
     }
 
+    /// <summary>
+    ///     Resolves the write path.
+    /// </summary>
+    /// <returns>The resulting string.</returns>
     private string ResolveWritePath()
     {
         return _environmentFilePath ?? _defaultFilePath;
@@ -104,8 +128,15 @@ public sealed class ExecutorConfigurationStore : IExecutorConfigurationStore
 
     private sealed record ExecutorSettingsDocument
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ExecutorSettingsDocument" /> class.
+        /// </summary>
         public ExecutorSettingsDocument() { }
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ExecutorSettingsDocument" /> class.
+        /// </summary>
+        /// <param name="options">The options.</param>
         public ExecutorSettingsDocument(ExecutorOptions options)
         {
             Executor = options.Clone();

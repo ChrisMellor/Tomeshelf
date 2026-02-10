@@ -1,10 +1,13 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Tomeshelf.Application.Shared;
 
 namespace Tomeshelf.Application.Shared.Tests.ServiceCollectionExtensionsTests;
 
 public class AddApplication
 {
+    /// <summary>
+    ///     Adds the services.
+    /// </summary>
     [Fact]
     public void AddsServices()
     {

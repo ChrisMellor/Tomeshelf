@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
 using System.Net;
@@ -10,6 +10,10 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.Clients.McmGuestsClientTests;
 
 public class FetchGuestsAsync
 {
+    /// <summary>
+    ///     Logs warning when the event ID contains special characters.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task LogsWarning_WhenEventIdContainsSpecialCharacters()
     {
@@ -29,6 +33,10 @@ public class FetchGuestsAsync
         logger.LogEntries.ShouldContain(entry => (entry.LogLevel == LogLevel.Warning) && (entry.EventId.Id == 0) && (entry.Message == $"MCM API returned {HttpStatusCode.InternalServerError} for event {cleanedEventId}."));
     }
 
+    /// <summary>
+    ///     Returns the mapped guests.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsMappedGuests()
     {
@@ -110,6 +118,10 @@ public class FetchGuestsAsync
            .ShouldBe(string.Empty);
     }
 
+    /// <summary>
+    ///     Throws when the API returns error.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Throws_WhenApiReturnsError()
     {
@@ -125,6 +137,10 @@ public class FetchGuestsAsync
         handler.RequestMessage.ShouldNotBeNull();
     }
 
+    /// <summary>
+    ///     Throws when the payload is empty.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Throws_WhenPayloadIsEmpty()
     {
@@ -140,6 +156,10 @@ public class FetchGuestsAsync
         exception.Message.ShouldBe("MCM API returned an empty payload.");
     }
 
+    /// <summary>
+    ///     Throws when the people is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Throws_WhenPeopleMissing()
     {
@@ -165,6 +185,10 @@ public class FetchGuestsAsync
     {
         private readonly HttpClient _client;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="StubHttpClientFactory" /> class.
+        /// </summary>
+        /// <param name="client">The client.</param>
         public StubHttpClientFactory(HttpClient client)
         {
             _client = client;
@@ -172,6 +196,11 @@ public class FetchGuestsAsync
 
         public string? LastName { get; private set; }
 
+        /// <summary>
+        ///     Creates the client.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>The result of the operation.</returns>
         public HttpClient CreateClient(string name)
         {
             LastName = name;
@@ -184,6 +213,10 @@ public class FetchGuestsAsync
     {
         private readonly HttpResponseMessage _response;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="StubHttpMessageHandler" /> class.
+        /// </summary>
+        /// <param name="response">The response.</param>
         public StubHttpMessageHandler(HttpResponseMessage response)
         {
             _response = response;
@@ -195,6 +228,12 @@ public class FetchGuestsAsync
 
         public string? RequestContentType { get; private set; }
 
+        /// <summary>
+        ///     Sends asynchronously.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             RequestMessage = request;

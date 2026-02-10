@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
@@ -29,6 +29,13 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
     private readonly TomeshelfFitbitDbContext _dbContext;
     private readonly ILogger<FitbitDashboardService> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitbitDashboardService" /> class.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="cache">The cache.</param>
+    /// <param name="dbContext">The db context.</param>
+    /// <param name="logger">The logger.</param>
     public FitbitDashboardService(IFitbitApiClient client, IMemoryCache cache, TomeshelfFitbitDbContext dbContext, ILogger<FitbitDashboardService> logger)
     {
         _client = client;
@@ -90,6 +97,13 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         return snapshot;
     }
 
+    /// <summary>
+    ///     Applies the weight fallback asynchronously.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <param name="summary">The summary.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<FitbitWeightSummaryDto> ApplyWeightFallbackAsync(DateOnly date, FitbitWeightSummaryDto summary, CancellationToken cancellationToken)
     {
         if (HasWeightData(summary))
@@ -126,6 +140,13 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         };
     }
 
+    /// <summary>
+    ///     Applies the weight fallback asynchronously.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<FitbitDashboardDto> ApplyWeightFallbackAsync(DateOnly date, FitbitDashboardDto snapshot, CancellationToken cancellationToken)
     {
         if (snapshot is null)
@@ -144,6 +165,11 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         return snapshot with { Weight = updatedWeight };
     }
 
+    /// <summary>
+    ///     Builds the activity summary.
+    /// </summary>
+    /// <param name="response">The response.</param>
+    /// <returns>The result of the operation.</returns>
     private static FitbitActivitySummaryDto BuildActivitySummary(ActivitiesResponse response)
     {
         if (response?.Summary is null)
@@ -157,6 +183,12 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         return new FitbitActivitySummaryDto(response.Summary.Steps, distance, response.Summary.Floors);
     }
 
+    /// <summary>
+    ///     Builds the calories summary.
+    /// </summary>
+    /// <param name="foodLog">The food log.</param>
+    /// <param name="activities">The activities.</param>
+    /// <returns>The result of the operation.</returns>
     private static FitbitCaloriesSummaryDto BuildCaloriesSummary(FoodLogSummaryResponse foodLog, ActivitiesResponse activities)
     {
         var summary = foodLog?.Summary;
@@ -182,6 +214,11 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         };
     }
 
+    /// <summary>
+    ///     Builds the sleep summary.
+    /// </summary>
+    /// <param name="response">The response.</param>
+    /// <returns>The result of the operation.</returns>
     private static FitbitSleepSummaryDto BuildSleepSummary(SleepResponse response)
     {
         if (response?.Entries is not
@@ -273,6 +310,11 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         };
     }
 
+    /// <summary>
+    ///     Builds the weight summary.
+    /// </summary>
+    /// <param name="response">The response.</param>
+    /// <returns>The result of the operation.</returns>
     private static FitbitWeightSummaryDto BuildWeightSummary(WeightResponse response)
     {
         if (response?.Entries is not
@@ -345,6 +387,13 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         };
     }
 
+    /// <summary>
+    ///     Fetchs the snapshot asynchronously.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <param name="existingSnapshot">The existing snapshot.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<DashboardFetchResult> FetchSnapshotAsync(DateOnly date, FitbitDailySnapshot existingSnapshot, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Fetching Fitbit data from API for {Date}", date);
@@ -409,11 +458,28 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         return new DashboardFetchResult(snapshot, status);
     }
 
+    /// <summary>
+    ///     Gets the first failure.
+    /// </summary>
+    /// <typeparam name="T1">The type of T1.</typeparam>
+    /// <typeparam name="T2">The type of T2.</typeparam>
+    /// <typeparam name="T3">The type of T3.</typeparam>
+    /// <typeparam name="T4">The type of T4.</typeparam>
+    /// <param name="activities">The activities.</param>
+    /// <param name="calories">The calories.</param>
+    /// <param name="sleep">The sleep.</param>
+    /// <param name="weight">The weight.</param>
+    /// <returns>The result of the operation.</returns>
     private static Exception GetFirstFailure<T1, T2, T3, T4>(FetchResult<T1> activities, FetchResult<T2> calories, FetchResult<T3> sleep, FetchResult<T4> weight)
     {
         return activities.Exception ?? calories.Exception ?? sleep.Exception ?? weight.Exception ?? new InvalidOperationException("Failed to fetch Fitbit data.");
     }
 
+    /// <summary>
+    ///     Determines whether the specified summary has weight data.
+    /// </summary>
+    /// <param name="summary">The summary.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool HasWeightData(FitbitWeightSummaryDto summary)
     {
         if (summary is null)
@@ -424,16 +490,32 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         return summary.CurrentWeightKg.HasValue || summary.StartingWeightKg.HasValue || summary.ChangeKg.HasValue || summary.BodyFatPercentage.HasValue || summary.LeanMassKg.HasValue;
     }
 
+    /// <summary>
+    ///     Determines whether the specified exception is a cancellation.
+    /// </summary>
+    /// <param name="exception">The exception.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool IsCancellation(Exception exception, CancellationToken cancellationToken)
     {
         return exception is OperationCanceledException && cancellationToken.IsCancellationRequested;
     }
 
+    /// <summary>
+    ///     Determines whether the specified exception is a critical fitbit failure.
+    /// </summary>
+    /// <param name="exception">The exception.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool IsCriticalFitbitFailure(Exception exception)
     {
         return exception is InvalidOperationException or FitbitRateLimitExceededException or FitbitBadRequestException or HttpRequestException;
     }
 
+    /// <summary>
+    ///     Maps the snapshot.
+    /// </summary>
+    /// <param name="entity">The entity.</param>
+    /// <returns>The result of the operation.</returns>
     private static FitbitDashboardDto MapSnapshot(FitbitDailySnapshot entity)
     {
         return new FitbitDashboardDto
@@ -478,6 +560,12 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         };
     }
 
+    /// <summary>
+    ///     Parses the date time.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <param name="time">The time.</param>
+    /// <returns>The result of the operation.</returns>
     private static DateTimeOffset? ParseDateTime(string date, string time)
     {
         if (string.IsNullOrWhiteSpace(date) && string.IsNullOrWhiteSpace(time))
@@ -523,6 +611,15 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         return null;
     }
 
+    /// <summary>
+    ///     Attempts to fetch asynchronously.
+    /// </summary>
+    /// <typeparam name="T">The type of t.</typeparam>
+    /// <param name="metric">The metric.</param>
+    /// <param name="fetch">The fetch.</param>
+    /// <param name="date">The date.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<FetchResult<T>> TryFetchAsync<T>(string metric, Func<Task<T>> fetch, DateOnly date, CancellationToken cancellationToken)
     {
         try
@@ -540,6 +637,13 @@ public sealed class FitbitDashboardService : IFitbitDashboardService
         }
     }
 
+    /// <summary>
+    ///     Inserts or updates the snapshot asynchronously.
+    /// </summary>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <param name="status">The status.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     private async Task UpsertSnapshotAsync(FitbitDashboardDto snapshot, CancellationToken cancellationToken, FetchStatus status)
     {
         var date = DateOnly.ParseExact(snapshot.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture);

@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Shouldly;
 using Tomeshelf.Executor.Models;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.Executor.Tests.Models.EndpointEditorModelTests;
 
 public class Validation
 {
+    /// <summary>
+    ///     Fails the when required fields missing.
+    /// </summary>
     [Fact]
     public void FailsWhenRequiredFieldsMissing()
     {

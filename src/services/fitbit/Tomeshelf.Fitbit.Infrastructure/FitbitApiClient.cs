@@ -30,6 +30,13 @@ internal sealed class FitbitApiClient : IFitbitApiClient
     private readonly IOptionsMonitor<FitbitOptions> _options;
     private readonly FitbitTokenCache _tokenCache;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitbitApiClient" /> class.
+    /// </summary>
+    /// <param name="httpClientFactory">The http client factory.</param>
+    /// <param name="options">The options.</param>
+    /// <param name="tokenCache">The token cache.</param>
+    /// <param name="logger">The logger.</param>
     public FitbitApiClient(IHttpClientFactory httpClientFactory, IOptionsMonitor<FitbitOptions> options, FitbitTokenCache tokenCache, ILogger<FitbitApiClient> logger)
     {
         _httpClient = httpClientFactory.CreateClient(HttpClientName);
@@ -38,6 +45,12 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Gets the activities asynchronously.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public Task<ActivitiesResponse> GetActivitiesAsync(DateOnly date, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
@@ -46,6 +59,12 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return GetJsonAsync<ActivitiesResponse>(path, cancellationToken);
     }
 
+    /// <summary>
+    ///     Gets the calories in asynchronously.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public Task<FoodLogSummaryResponse> GetCaloriesInAsync(DateOnly date, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
@@ -54,6 +73,12 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return GetJsonAsync<FoodLogSummaryResponse>(path, cancellationToken);
     }
 
+    /// <summary>
+    ///     Gets the sleep asynchronously.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public Task<SleepResponse> GetSleepAsync(DateOnly date, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
@@ -62,6 +87,13 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return GetJsonAsync<SleepResponse>(path, cancellationToken);
     }
 
+    /// <summary>
+    ///     Gets the weight asynchronously.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <param name="lookbackDays">The lookback days.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public Task<WeightResponse> GetWeightAsync(DateOnly date, int lookbackDays, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
@@ -71,6 +103,11 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return GetJsonAsync<WeightResponse>(path, cancellationToken);
     }
 
+    /// <summary>
+    ///     Ensures the access token asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<bool> EnsureAccessTokenAsync(CancellationToken cancellationToken)
     {
         if (!IsAccessTokenStale())
@@ -87,6 +124,13 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return !IsAccessTokenExpired();
     }
 
+    /// <summary>
+    ///     Gets the json asynchronously.
+    /// </summary>
+    /// <typeparam name="T">The type of t.</typeparam>
+    /// <param name="path">The path.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<T> GetJsonAsync<T>(string path, CancellationToken cancellationToken)
     {
         if (!await EnsureAccessTokenAsync(cancellationToken)
@@ -176,6 +220,11 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         }
     }
 
+    /// <summary>
+    ///     Gets the retry after delay.
+    /// </summary>
+    /// <param name="response">The response.</param>
+    /// <returns>The result of the operation.</returns>
     private static TimeSpan? GetRetryAfterDelay(HttpResponseMessage response)
     {
         if (response.Headers.RetryAfter is
@@ -211,6 +260,10 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return null;
     }
 
+    /// <summary>
+    ///     Gets the user id.
+    /// </summary>
+    /// <returns>The resulting string.</returns>
     private string GetUserId()
     {
         var userId = _options.CurrentValue.UserId;
@@ -220,6 +273,10 @@ internal sealed class FitbitApiClient : IFitbitApiClient
             : Uri.EscapeDataString(userId);
     }
 
+    /// <summary>
+    ///     Determines whether the access token is expired.
+    /// </summary>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private bool IsAccessTokenExpired()
     {
         if (!TryGetAccessToken(out _))
@@ -236,6 +293,10 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return expiresAt.Value <= DateTimeOffset.UtcNow;
     }
 
+    /// <summary>
+    ///     Determines whether the access token is stale.
+    /// </summary>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private bool IsAccessTokenStale()
     {
         if (!TryGetAccessToken(out _))
@@ -252,6 +313,11 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return expiresAt.Value <= DateTimeOffset.UtcNow.Add(RefreshSkew);
     }
 
+    /// <summary>
+    ///     Attempts to get an access token.
+    /// </summary>
+    /// <param name="token">The token.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private bool TryGetAccessToken(out string token)
     {
         var cached = _tokenCache.AccessToken;
@@ -268,6 +334,13 @@ internal sealed class FitbitApiClient : IFitbitApiClient
         return true;
     }
 
+    /// <summary>
+    ///     Attempts to refresh a token asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <param name="failedAccessToken">The failed access token.</param>
+    /// <param name="force">The force.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<bool> TryRefreshTokenAsync(CancellationToken cancellationToken, string failedAccessToken = null, bool force = false)
     {
         await RefreshLock.WaitAsync(cancellationToken)

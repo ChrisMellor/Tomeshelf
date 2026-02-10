@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.MCM.Domain.Mcm;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.TomeshelfMcmDbContextTests;
 
 public class OnModelCreating
 {
+    /// <summary>
+    ///     Entities are configured with expected metadata.
+    /// </summary>
     [Fact]
     public void Entities_AreConfiguredWithExpectedMetadata()
     {

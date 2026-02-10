@@ -1,4 +1,4 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.MCM.Infrastructure.Clients;
 using Tomeshelf.MCM.Infrastructure.Responses;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.Clients.McmGuestsClientTests;
 
 public class PickImageUrl
 {
+    /// <summary>
+    ///     Returns the correct url.
+    /// </summary>
     [Fact]
     public void ReturnsCorrectUrl()
     {

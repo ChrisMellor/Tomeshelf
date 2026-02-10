@@ -1,12 +1,21 @@
-using System;
+﻿using System;
 using System.Text.Json;
 
 namespace Tomeshelf.Fitbit.Application.Exceptions;
 
 public sealed class FitbitBadRequestException : Exception
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitbitBadRequestException" /> class.
+    /// </summary>
+    /// <param name="rawMessage">The raw message.</param>
     public FitbitBadRequestException(string rawMessage) : base(BuildMessage(rawMessage)) { }
 
+    /// <summary>
+    ///     Builds the message.
+    /// </summary>
+    /// <param name="raw">The raw.</param>
+    /// <returns>The resulting string.</returns>
     private static string BuildMessage(string raw)
     {
         if (string.IsNullOrWhiteSpace(raw))

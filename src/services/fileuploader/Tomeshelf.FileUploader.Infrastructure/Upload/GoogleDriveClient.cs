@@ -1,4 +1,4 @@
-using Google.Apis.Auth.OAuth2;
+﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Drive.v3;
@@ -29,6 +29,11 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
     private string? _rootFolderId;
     private bool _validatedRoot;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="GoogleDriveClient" /> class.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <param name="logger">The logger.</param>
     public GoogleDriveClient(IOptions<GoogleDriveOptions> options, ILogger<GoogleDriveClient> logger)
     {
         _options = options.Value;
@@ -42,6 +47,9 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         _drive = BuildDriveService(_options);
     }
 
+    /// <summary>
+    ///     Releases resources used by this instance.
+    /// </summary>
     public void Dispose()
     {
         if (_disposed)
@@ -53,6 +61,12 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         _disposed = true;
     }
 
+    /// <summary>
+    ///     Ensures the folder path asynchronously.
+    /// </summary>
+    /// <param name="folderPath">The folder path.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<string> EnsureFolderPathAsync(string folderPath, CancellationToken cancellationToken)
     {
         var segments = folderPath.Split(['/', '\\'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -102,6 +116,16 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         return parentId;
     }
 
+    /// <summary>
+    ///     Uploads the file asynchronously.
+    /// </summary>
+    /// <param name="parentFolderId">The parent folder id.</param>
+    /// <param name="fileName">The file name.</param>
+    /// <param name="content">The content.</param>
+    /// <param name="contentLength">The content length.</param>
+    /// <param name="contentType">The content type.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<UploadOutcome> UploadFileAsync(string parentFolderId, string fileName, Stream content, long contentLength, string? contentType, CancellationToken cancellationToken)
     {
         _ = content ?? throw new ArgumentNullException(nameof(content));
@@ -170,6 +194,11 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         }
     }
 
+    /// <summary>
+    ///     Builds the drive service.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <returns>The result of the operation.</returns>
     private DriveService BuildDriveService(GoogleDriveOptions options)
     {
         var credential = CreateCredential(options);
@@ -188,6 +217,11 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         return service;
     }
 
+    /// <summary>
+    ///     Creates the credential.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <returns>The result of the operation.</returns>
     private static IConfigurableHttpClientInitializer CreateCredential(GoogleDriveOptions options)
     {
         if (!string.IsNullOrWhiteSpace(options.RefreshToken) && !string.IsNullOrWhiteSpace(options.ClientId) && !string.IsNullOrWhiteSpace(options.ClientSecret))
@@ -210,6 +244,13 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         throw new InvalidOperationException("GoogleDrive OAuth credentials were not configured. Supply ClientId, ClientSecret, and RefreshToken.");
     }
 
+    /// <summary>
+    ///     Creates the folder asynchronously.
+    /// </summary>
+    /// <param name="parentId">The parent id.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<string> CreateFolderAsync(string parentId, string name, CancellationToken cancellationToken)
     {
         var request = _drive.Files.Create(new DriveFile
@@ -232,11 +273,23 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         return created.Id;
     }
 
+    /// <summary>
+    ///     Escapes the query literal.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The resulting string.</returns>
     private static string EscapeQueryLiteral(string value)
     {
         return value.Replace("'", "\\'", StringComparison.Ordinal);
     }
 
+    /// <summary>
+    ///     Finds the file asynchronously.
+    /// </summary>
+    /// <param name="parentId">The parent id.</param>
+    /// <param name="fileName">The file name.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<DriveFile?> FindFileAsync(string parentId, string fileName, CancellationToken cancellationToken)
     {
         var list = _drive.Files.List();
@@ -256,6 +309,13 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         return response.Files?.FirstOrDefault();
     }
 
+    /// <summary>
+    ///     Finds the folder asynchronously.
+    /// </summary>
+    /// <param name="parentId">The parent id.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<string?> FindFolderAsync(string parentId, string name, CancellationToken cancellationToken)
     {
         var list = _drive.Files.List();
@@ -276,6 +336,12 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
                       ?.Id;
     }
 
+    /// <summary>
+    ///     Validates the root folder asynchronously.
+    /// </summary>
+    /// <param name="folderId">The folder id.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<string> ValidateRootFolderAsync(string folderId, CancellationToken cancellationToken)
     {
         try
@@ -307,6 +373,12 @@ internal sealed class GoogleDriveClient : IGoogleDriveClient, IDisposable
         }
     }
 
+    /// <summary>
+    ///     Validates the upload.
+    /// </summary>
+    /// <param name="progress">The progress.</param>
+    /// <param name="fileName">The file name.</param>
+    /// <param name="targetId">The target id.</param>
     private void ValidateUpload(IUploadProgress progress, string fileName, string targetId)
     {
         if (progress.Exception is not null)

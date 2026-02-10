@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Shouldly;
 using Tomeshelf.Web.Models.Fitness;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.Web.Tests.Models.Fitness.FitnessDashboardViewModelTests;
 
 public class IsToday
 {
+    /// <summary>
+    ///     Returns true when the selected date matches today.
+    /// </summary>
     [Fact]
     public void WhenSelectedDateMatchesToday_ReturnsTrue()
     {

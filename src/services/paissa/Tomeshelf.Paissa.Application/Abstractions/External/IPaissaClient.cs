@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Paissa.Domain.Entities;
 
@@ -15,5 +15,11 @@ namespace Tomeshelf.Paissa.Application.Abstractions.External;
 /// </remarks>
 public interface IPaissaClient
 {
+    /// <summary>
+    ///     Gets the world asynchronously.
+    /// </summary>
+    /// <param name="worldId">The world id.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     Task<PaissaWorld> GetWorldAsync(int worldId, CancellationToken cancellationToken);
 }

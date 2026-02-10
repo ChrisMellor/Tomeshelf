@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.MCM.Domain.Mcm;
 using Tomeshelf.MCM.Infrastructure.Repositories;
@@ -7,6 +7,10 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.EventRepositoryTests;
 
 public class DeleteAsync
 {
+    /// <summary>
+    ///     Deletes event with guests when found.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task DeletesEventWithGuests_WhenFound()
     {
@@ -50,6 +54,10 @@ public class DeleteAsync
         context.Information.ShouldBeEmpty();
     }
 
+    /// <summary>
+    ///     Deletes event without guests when found.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task DeletesEventWithoutGuests_WhenFound()
     {
@@ -73,6 +81,10 @@ public class DeleteAsync
         context.Events.ShouldBeEmpty();
     }
 
+    /// <summary>
+    ///     Returns false when the event not found.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsFalse_WhenEventNotFound()
     {
@@ -88,6 +100,10 @@ public class DeleteAsync
         result.ShouldBeFalse();
     }
 
+    /// <summary>
+    ///     Creates the context.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static TomeshelfMcmDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseSqlite($"DataSource={Guid.NewGuid():N};Mode=Memory;Cache=Shared")

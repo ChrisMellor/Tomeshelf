@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -16,6 +16,10 @@ public sealed class BundleQueries : IBundleQueries
 {
     private readonly TomeshelfBundlesDbContext _dbContext;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="BundleQueries" /> class.
+    /// </summary>
+    /// <param name="dbContext">The db context.</param>
     public BundleQueries(TomeshelfBundlesDbContext dbContext)
     {
         _dbContext = dbContext;

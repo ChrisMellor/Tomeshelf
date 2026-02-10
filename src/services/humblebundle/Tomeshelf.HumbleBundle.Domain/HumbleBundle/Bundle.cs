@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Tomeshelf.HumbleBundle.Domain.HumbleBundle;
 
@@ -84,6 +84,10 @@ public class Bundle
     /// </summary>
     public DateTimeOffset LastUpdatedUtc { get; set; } = DateTimeOffset.UtcNow;
 
+    /// <summary>
+    ///     Gets the remaining time.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     public TimeSpan? GetRemainingTime()
     {
         if (EndsAt.HasValue)

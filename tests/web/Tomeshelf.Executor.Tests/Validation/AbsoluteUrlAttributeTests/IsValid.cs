@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Shouldly;
 using Tomeshelf.Executor.Validation;
 
@@ -8,6 +8,10 @@ public class IsValid
 {
     private readonly AbsoluteUrlAttribute _attribute = new();
 
+    /// <summary>
+    ///     Returns error when the inputs are invalid.
+    /// </summary>
+    /// <param name="value">The value.</param>
     [Theory]
     [InlineData("http:///")]
     [InlineData("::::")]
@@ -23,6 +27,10 @@ public class IsValid
         result!.ErrorMessage.ShouldContain("must be a fully-qualified http, https, or ftp URL");
     }
 
+    /// <summary>
+    ///     Returns success when the inputs are valid.
+    /// </summary>
+    /// <param name="value">The value.</param>
     [Theory]
     [InlineData("http://example.com")]
     [InlineData("https://example.com/path")]

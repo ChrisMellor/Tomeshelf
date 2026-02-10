@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
@@ -15,8 +15,15 @@ public sealed class AbsoluteUrlAttribute : ValidationAttribute, IClientModelVali
     private static readonly string[] DefaultSchemes = ["http", "https", "ftp"];
     private static readonly HashSet<string> AllowedSchemes = new HashSet<string>(DefaultSchemes, StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="AbsoluteUrlAttribute" /> class.
+    /// </summary>
     public AbsoluteUrlAttribute() : base("The {0} field must be a fully-qualified http, https, or ftp URL.") { }
 
+    /// <summary>
+    ///     Adds the validation.
+    /// </summary>
+    /// <param name="context">The context.</param>
     public void AddValidation(ClientModelValidationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -26,6 +33,12 @@ public sealed class AbsoluteUrlAttribute : ValidationAttribute, IClientModelVali
         MergeAttribute(context.Attributes, "data-val-absoluteurl-schemes", string.Join(",", DefaultSchemes));
     }
 
+    /// <summary>
+    ///     Determines whether the specified value is valid.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <param name="validationContext">The validation context.</param>
+    /// <returns>The result of the operation.</returns>
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         if (value is null)
@@ -57,6 +70,13 @@ public sealed class AbsoluteUrlAttribute : ValidationAttribute, IClientModelVali
         return ValidationResult.Success;
     }
 
+    /// <summary>
+    ///     Merges the attribute.
+    /// </summary>
+    /// <param name="attributes">The attributes.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="value">The value.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool MergeAttribute(IDictionary<string, string> attributes, string key, string value)
     {
         if (attributes.ContainsKey(key))
@@ -69,6 +89,12 @@ public sealed class AbsoluteUrlAttribute : ValidationAttribute, IClientModelVali
         return true;
     }
 
+    /// <summary>
+    ///     Attempts to create an absolute URI.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <param name="uri">The uri.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool TryCreateAbsolute(string value, [NotNullWhen(true)] out Uri? uri)
     {
         if (Uri.TryCreate(value, UriKind.Absolute, out uri) && AllowedSchemes.Contains(uri.Scheme))

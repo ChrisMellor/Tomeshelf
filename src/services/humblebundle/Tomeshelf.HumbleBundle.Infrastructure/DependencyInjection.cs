@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,6 +12,10 @@ public static class DependencyInjection
 {
     private const string ConnectionName = "humblebundledb";
 
+    /// <summary>
+    ///     Adds the infrastructure services.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
     {
         var connectionString = builder.Configuration[$"ConnectionStrings:{ConnectionName}"];

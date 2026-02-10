@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,11 +12,21 @@ public sealed class ListShiftSettingsQueryHandler : IQueryHandler<ListShiftSetti
 {
     private readonly IShiftSettingsRepository _repository;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ListShiftSettingsQueryHandler" /> class.
+    /// </summary>
+    /// <param name="repository">The repository.</param>
     public ListShiftSettingsQueryHandler(IShiftSettingsRepository repository)
     {
         _repository = repository;
     }
 
+    /// <summary>
+    ///     Handles.
+    /// </summary>
+    /// <param name="query">The query.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<IReadOnlyList<ShiftSettingsDto>> Handle(ListShiftSettingsQuery query, CancellationToken cancellationToken)
     {
         var entities = await _repository.GetAllAsync(cancellationToken);

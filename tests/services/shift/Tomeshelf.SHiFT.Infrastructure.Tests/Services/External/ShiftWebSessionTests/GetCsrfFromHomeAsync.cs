@@ -1,10 +1,14 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.SHiFT.Infrastructure.Tests.TestUtilities;
 
 namespace Tomeshelf.SHiFT.Infrastructure.Tests.Services.External.ShiftWebSessionTests;
 
 public class GetCsrfFromHomeAsync
 {
+    /// <summary>
+    ///     Returns the token.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsToken()
     {
@@ -20,6 +24,10 @@ public class GetCsrfFromHomeAsync
         token.ShouldBe("token-123");
     }
 
+    /// <summary>
+    ///     Throws the when missing token.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ThrowsWhenMissingToken()
     {

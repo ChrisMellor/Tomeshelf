@@ -1,10 +1,16 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.MCM.Application.Services;
 
 namespace Tomeshelf.MCM.Application.Tests.GuestsServiceTests;
 
 public class SplitName
 {
+    /// <summary>
+    ///     Splits the name correctly.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <param name="expectedFirstName">The expected first name.</param>
+    /// <param name="expectedLastName">The expected last name.</param>
     [Theory]
     [InlineData("John Doe", "John", "Doe")]
     [InlineData("John", "John", "")]

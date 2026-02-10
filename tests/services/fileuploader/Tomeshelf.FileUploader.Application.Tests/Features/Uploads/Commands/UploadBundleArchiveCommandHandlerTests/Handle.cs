@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.FileUploader.Application.Abstractions.Upload;
@@ -9,6 +9,10 @@ namespace Tomeshelf.FileUploader.Application.Tests.Features.Uploads.Commands.Upl
 
 public class Handle
 {
+    /// <summary>
+    ///     The exception is propagated when uploading the service throws.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UploadServiceThrows_ExceptionIsPropagated()
     {
@@ -35,6 +39,10 @@ public class Handle
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Calls upload service and returns result when the command is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ValidCommand_CallsUploadServiceAndReturnsResult()
     {

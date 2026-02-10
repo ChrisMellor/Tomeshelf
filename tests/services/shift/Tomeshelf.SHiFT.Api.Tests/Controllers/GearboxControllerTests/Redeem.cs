@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
@@ -16,6 +16,10 @@ namespace Tomeshelf.SHiFT.Api.Tests.Controllers.GearboxControllerTests;
 
 public class Redeem
 {
+    /// <summary>
+    ///     Returns bad request when the code is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsBadRequest_WhenCodeMissing()
     {
@@ -35,6 +39,10 @@ public class Redeem
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Returns the summary and results.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsSummaryAndResults()
     {

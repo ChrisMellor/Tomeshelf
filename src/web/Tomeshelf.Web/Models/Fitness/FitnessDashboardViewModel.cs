@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Tomeshelf.Web.Models.Fitness;
 
@@ -32,6 +32,13 @@ public sealed class FitnessDashboardViewModel
 
     public bool HasData => ErrorMessage is null && Summary is not null;
 
+    /// <summary>
+    ///     Emptys.
+    /// </summary>
+    /// <param name="selectedDate">The selected date.</param>
+    /// <param name="unit">The unit.</param>
+    /// <param name="message">The message.</param>
+    /// <returns>The result of the operation.</returns>
     public static FitnessDashboardViewModel Empty(string selectedDate, WeightUnit unit, string message = null)
     {
         var selected = DateOnly.Parse(selectedDate);

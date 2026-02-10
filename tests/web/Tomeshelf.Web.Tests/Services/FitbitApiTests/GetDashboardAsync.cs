@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Shouldly;
 using System;
@@ -15,6 +15,10 @@ namespace Tomeshelf.Web.Tests.Services.FitbitApiTests;
 
 public class GetDashboardAsync
 {
+    /// <summary>
+    ///     Builds the query string.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task BuildsQueryString()
     {
@@ -41,6 +45,10 @@ public class GetDashboardAsync
         path.ShouldBe("/api/Fitbit/Dashboard?date=2020-01-01&refresh=true&returnUrl=https%3A%2F%2Freturn.example%2F%3Fa%3D1");
     }
 
+    /// <summary>
+    ///     Uses default redirect when the without location is unauthorized.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenUnauthorizedWithoutLocation_UsesDefaultRedirect()
     {

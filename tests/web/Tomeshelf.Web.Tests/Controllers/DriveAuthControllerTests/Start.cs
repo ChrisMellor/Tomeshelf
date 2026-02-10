@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -17,6 +17,9 @@ public class Start
 {
     private const string ReturnUrlKey = "gd_returnUrl";
 
+    /// <summary>
+    ///     Returnsos auth result view when the config is missing.
+    /// </summary>
     [Fact]
     public void WhenConfigMissing_ReturnsOAuthResultView()
     {
@@ -36,6 +39,9 @@ public class Start
         model.Message.ShouldContain("Google Drive OAuth is not configured");
     }
 
+    /// <summary>
+    ///     Sets return URL and challenges when the config is present.
+    /// </summary>
     [Fact]
     public void WhenConfigPresent_SetsReturnUrlAndChallenges()
     {

@@ -1,12 +1,21 @@
-using System;
+﻿using System;
 using System.Text.Json;
 
 namespace Tomeshelf.Web.Services;
 
 public sealed class FitbitBackendUnavailableException : Exception
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitbitBackendUnavailableException" /> class.
+    /// </summary>
+    /// <param name="message">The message.</param>
     public FitbitBackendUnavailableException(string message) : base(BuildMessage(message)) { }
 
+    /// <summary>
+    ///     Builds the message.
+    /// </summary>
+    /// <param name="raw">The raw.</param>
+    /// <returns>The resulting string.</returns>
     private static string BuildMessage(string raw)
     {
         if (string.IsNullOrWhiteSpace(raw))

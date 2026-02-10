@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.WeightUnitConverterTests;
 
 public class Convert
 {
+    /// <summary>
+    ///     Returns null when the value is null.
+    /// </summary>
     [Fact]
     public void WhenNull_ReturnsNull()
     {
@@ -16,6 +19,9 @@ public class Convert
         result.ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Returns converted value when the value is a pounds.
+    /// </summary>
     [Fact]
     public void WhenPounds_ReturnsConvertedValue()
     {
@@ -28,6 +34,9 @@ public class Convert
         result!.Value.ShouldBeInRange(22.0362, 22.0562);
     }
 
+    /// <summary>
+    ///     Returns converted value when the value is a stones.
+    /// </summary>
     [Fact]
     public void WhenStones_ReturnsConvertedValue()
     {

@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Shouldly;
 using System;
@@ -14,6 +14,10 @@ namespace Tomeshelf.Web.Tests.Services.ShiftApiTests;
 
 public class EnumParsing
 {
+    /// <summary>
+    ///     Parses the error code enum from string.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ParsesErrorCodeEnumFromString()
     {

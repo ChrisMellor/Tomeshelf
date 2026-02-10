@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Executor.Configuration;
@@ -9,6 +9,10 @@ namespace Tomeshelf.Executor.Tests.Controllers.HomeControllerTests;
 
 public class Delete
 {
+    /// <summary>
+    ///     Removes endpoint when using POST.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Post_RemovesEndpoint()
     {

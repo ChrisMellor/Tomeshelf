@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Executor.Configuration;
@@ -10,6 +10,10 @@ namespace Tomeshelf.Executor.Tests.Controllers.HomeControllerTests;
 
 public class GetDiscoveredEndpoints
 {
+    /// <summary>
+    ///     Returns the mapped payload.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsMappedPayload()
     {
@@ -33,6 +37,10 @@ public class GetDiscoveredEndpoints
                 .ShouldBe("Group");
     }
 
+    /// <summary>
+    ///     Returns bad request when the base is empty.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WithEmptyBase_ReturnsBadRequest()
     {

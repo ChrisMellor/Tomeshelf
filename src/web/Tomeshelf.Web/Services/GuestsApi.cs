@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -91,6 +91,13 @@ public sealed class GuestsApi : IGuestsApi
         return ordered;
     }
 
+    /// <summary>
+    ///     Inserts or updates the comic con event asynchronously.
+    /// </summary>
+    /// <param name="eventId">The event id.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task UpsertComicConEventAsync(string eventId, string name, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(eventId))
@@ -116,6 +123,12 @@ public sealed class GuestsApi : IGuestsApi
         _cache.Remove(EventsCacheKey);
     }
 
+    /// <summary>
+    ///     Deletes the comic con event asynchronously.
+    /// </summary>
+    /// <param name="eventId">The event id.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<bool> DeleteComicConEventAsync(string eventId, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(eventId))

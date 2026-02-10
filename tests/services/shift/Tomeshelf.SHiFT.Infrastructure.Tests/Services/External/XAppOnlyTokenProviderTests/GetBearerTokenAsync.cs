@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
@@ -10,6 +10,10 @@ namespace Tomeshelf.SHiFT.Infrastructure.Tests.Services.External.XAppOnlyTokenPr
 
 public class GetBearerTokenAsync
 {
+    /// <summary>
+    ///     Caches token until invalidated.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task CachesToken_UntilInvalidated()
     {
@@ -48,6 +52,10 @@ public class GetBearerTokenAsync
         handler.CallCount.ShouldBe(2);
     }
 
+    /// <summary>
+    ///     Returns bearer token when configured.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsBearerToken_WhenConfigured()
     {
@@ -73,6 +81,10 @@ public class GetBearerTokenAsync
         factory.CallCount.ShouldBe(0);
     }
 
+    /// <summary>
+    ///     Returns null when the credentials are missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNull_WhenCredentialsMissing()
     {
@@ -101,6 +113,10 @@ public class GetBearerTokenAsync
         factory.CallCount.ShouldBe(0);
     }
 
+    /// <summary>
+    ///     Returns null when the O auth endpoint is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNull_WhenOAuthEndpointMissing()
     {
@@ -128,6 +144,10 @@ public class GetBearerTokenAsync
         factory.CallCount.ShouldBe(0);
     }
 
+    /// <summary>
+    ///     Returns null when the response fails.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNull_WhenResponseFails()
     {
@@ -155,6 +175,10 @@ public class GetBearerTokenAsync
         handler.CallCount.ShouldBe(1);
     }
 
+    /// <summary>
+    ///     Returns null when the token missing from payload.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNull_WhenTokenMissingFromPayload()
     {
@@ -186,6 +210,10 @@ public class GetBearerTokenAsync
     {
         private readonly HttpClient _client;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SpyHttpClientFactory" /> class.
+        /// </summary>
+        /// <param name="client">The client.</param>
         public SpyHttpClientFactory(HttpClient client)
         {
             _client = client;
@@ -195,6 +223,11 @@ public class GetBearerTokenAsync
 
         public string? LastName { get; private set; }
 
+        /// <summary>
+        ///     Creates the client.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>The result of the operation.</returns>
         public HttpClient CreateClient(string name)
         {
             CallCount++;
@@ -208,6 +241,10 @@ public class GetBearerTokenAsync
     {
         private readonly Queue<string> _tokens;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SequenceTokenHandler" /> class.
+        /// </summary>
+        /// <param name="tokens">The tokens.</param>
         public SequenceTokenHandler(IEnumerable<string> tokens)
         {
             _tokens = new Queue<string>(tokens);
@@ -215,6 +252,12 @@ public class GetBearerTokenAsync
 
         public int CallCount { get; private set; }
 
+        /// <summary>
+        ///     Sends asynchronously.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             CallCount++;
@@ -232,6 +275,11 @@ public class GetBearerTokenAsync
         private readonly string _payload;
         private readonly HttpStatusCode _status;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="FailureTokenHandler" /> class.
+        /// </summary>
+        /// <param name="status">The status.</param>
+        /// <param name="payload">The payload.</param>
         public FailureTokenHandler(HttpStatusCode status, string payload)
         {
             _status = status;
@@ -240,6 +288,12 @@ public class GetBearerTokenAsync
 
         public int CallCount { get; private set; }
 
+        /// <summary>
+        ///     Sends asynchronously.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             CallCount++;

@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Shouldly;
 using System;
@@ -16,6 +16,10 @@ namespace Tomeshelf.Web.Tests.Services.BundlesApiTests;
 
 public class GetBundlesAsync
 {
+    /// <summary>
+    ///     Deserializes the response.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task DeserializesResponse()
     {
@@ -50,6 +54,10 @@ public class GetBundlesAsync
         request.RequestUri!.PathAndQuery.ShouldBe("/bundles?includeExpired=true");
     }
 
+    /// <summary>
+    ///     Throws when the payload is empty.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenPayloadEmpty_Throws()
     {

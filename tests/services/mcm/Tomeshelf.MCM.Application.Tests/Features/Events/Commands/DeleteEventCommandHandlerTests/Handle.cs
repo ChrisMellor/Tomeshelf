@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.MCM.Application.Features.Events.Commands;
@@ -8,6 +8,10 @@ namespace Tomeshelf.MCM.Application.Tests.Features.Events.Commands.DeleteEventCo
 
 public class Handle
 {
+    /// <summary>
+    ///     Calls the service and returns result.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task CallsServiceAndReturnsResult()
     {

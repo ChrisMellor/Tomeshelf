@@ -1,10 +1,14 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Tomeshelf.MCM.Domain.Mcm;
 
 namespace Tomeshelf.MCM.Infrastructure;
 
 public sealed class TomeshelfMcmDbContext : DbContext
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="TomeshelfMcmDbContext" /> class.
+    /// </summary>
+    /// <param name="options">The options.</param>
     public TomeshelfMcmDbContext(DbContextOptions<TomeshelfMcmDbContext> options) : base(options) { }
 
     public DbSet<EventEntity> Events => Set<EventEntity>();
@@ -15,6 +19,10 @@ public sealed class TomeshelfMcmDbContext : DbContext
 
     public DbSet<GuestSocial> Social => Set<GuestSocial>();
 
+    /// <summary>
+    ///     Ons the model creating.
+    /// </summary>
+    /// <param name="modelBuilder">The model builder.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<EventEntity>(e =>

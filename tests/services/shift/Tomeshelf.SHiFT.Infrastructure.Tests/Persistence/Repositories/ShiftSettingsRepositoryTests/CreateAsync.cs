@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.Security;
@@ -10,6 +10,10 @@ namespace Tomeshelf.SHiFT.Infrastructure.Tests.Persistence.Repositories.ShiftSet
 
 public class CreateAsync
 {
+    /// <summary>
+    ///     Persists trimmed values and ands stores encrypted password.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task PersistsTrimmedValues_AndStoresEncryptedPassword()
     {
@@ -39,6 +43,10 @@ public class CreateAsync
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Throws when the email already exists.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Throws_WhenEmailAlreadyExists()
     {
@@ -70,6 +78,15 @@ public class CreateAsync
         exception.Message.ShouldBe("SHiFT email already exists");
     }
 
+    /// <summary>
+    ///     Throws the when required values missing.
+    /// </summary>
+    /// <param name="email">The email.</param>
+    /// <param name="service">The service.</param>
+    /// <param name="password">The password.</param>
+    /// <param name="paramName">The param name.</param>
+    /// <param name="expectedMessage">The expected message.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Theory]
     [InlineData("", "psn", "secret", "email", "Missing email")]
     [InlineData("user@example.com", "", "secret", "service", "Missing service")]

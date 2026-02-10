@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -19,6 +19,14 @@ public class HomeController : Controller
     private readonly IExecutorSchedulerOrchestrator _scheduler;
     private readonly IExecutorConfigurationStore _store;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="HomeController" /> class.
+    /// </summary>
+    /// <param name="store">The store.</param>
+    /// <param name="scheduler">The scheduler.</param>
+    /// <param name="discovery">The discovery.</param>
+    /// <param name="pingService">The ping service.</param>
+    /// <param name="logger">The logger.</param>
     public HomeController(IExecutorConfigurationStore store, IExecutorSchedulerOrchestrator scheduler, IApiEndpointDiscoveryService discovery, IEndpointPingService pingService, ILogger<HomeController> logger)
     {
         _store = store;
@@ -28,6 +36,11 @@ public class HomeController : Controller
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Creates.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpGet]
     public async Task<IActionResult> Create(CancellationToken cancellationToken)
     {
@@ -41,6 +54,12 @@ public class HomeController : Controller
         }, null, null, cancellationToken));
     }
 
+    /// <summary>
+    ///     Creates.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind(Prefix = "Editor")] EndpointEditorModel model, CancellationToken cancellationToken)
@@ -71,6 +90,12 @@ public class HomeController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    ///     Deletes.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(string name, CancellationToken cancellationToken)
@@ -87,6 +112,12 @@ public class HomeController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    ///     Edits.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpGet]
     public async Task<IActionResult> Edit(string name, CancellationToken cancellationToken)
     {
@@ -105,6 +136,14 @@ public class HomeController : Controller
         return View(ToEditorModel(endpoint));
     }
 
+    /// <summary>
+    ///     Edits.
+    /// </summary>
+    /// <param name="routeName">The route name.</param>
+    /// <param name="originalName">The original name.</param>
+    /// <param name="model">The model.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit([FromRoute(Name = "name")] string? routeName, [FromForm(Name = "originalName")] string? originalName, [Bind(Prefix = "")] EndpointEditorModel model, CancellationToken cancellationToken)
@@ -148,6 +187,12 @@ public class HomeController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    ///     Gets the discovered endpoints.
+    /// </summary>
+    /// <param name="baseUri">The base uri.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpGet("discovery/endpoints")]
     public async Task<IActionResult> GetDiscoveredEndpoints([FromQuery] string baseUri, CancellationToken cancellationToken)
     {
@@ -172,6 +217,11 @@ public class HomeController : Controller
         return Ok(payload);
     }
 
+    /// <summary>
+    ///     Indexs.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
@@ -181,6 +231,11 @@ public class HomeController : Controller
         return View(await CreateViewModelAsync(options, null, null, null, cancellationToken));
     }
 
+    /// <summary>
+    ///     Pings.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpGet]
     public async Task<IActionResult> Ping(CancellationToken cancellationToken)
     {
@@ -190,6 +245,12 @@ public class HomeController : Controller
         return View(await CreateViewModelAsync(options, null, new EndpointPingModel { Method = "GET" }, null, cancellationToken));
     }
 
+    /// <summary>
+    ///     Pings.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Ping([Bind(Prefix = "Ping")] EndpointPingModel model, CancellationToken cancellationToken)
@@ -219,6 +280,12 @@ public class HomeController : Controller
         return View("Ping", viewModel);
     }
 
+    /// <summary>
+    ///     Toggles.
+    /// </summary>
+    /// <param name="enabled">The enabled.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Toggle(bool enabled, CancellationToken cancellationToken)
@@ -237,6 +304,15 @@ public class HomeController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    ///     Creates the view model asynchronously.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <param name="editor">The editor.</param>
+    /// <param name="ping">The ping.</param>
+    /// <param name="pingResult">The ping result.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<ExecutorConfigurationViewModel> CreateViewModelAsync(ExecutorOptions options, EndpointEditorModel? editor, EndpointPingModel? ping, EndpointPingResultViewModel? pingResult, CancellationToken cancellationToken)
     {
         var apis = await _discovery.GetApisAsync(cancellationToken);
@@ -266,6 +342,11 @@ public class HomeController : Controller
         };
     }
 
+    /// <summary>
+    ///     Normalizes the url.
+    /// </summary>
+    /// <param name="url">The url.</param>
+    /// <returns>The resulting string.</returns>
     private static string NormalizeUrl(string? url)
     {
         var trimmed = url?.Trim() ?? string.Empty;
@@ -283,6 +364,11 @@ public class HomeController : Controller
             : trimmed;
     }
 
+    /// <summary>
+    ///     Parses the headers.
+    /// </summary>
+    /// <param name="headers">The headers.</param>
+    /// <returns>The result of the operation.</returns>
     private static Dictionary<string, string>? ParseHeaders(string? headers)
     {
         if (string.IsNullOrWhiteSpace(headers))
@@ -313,12 +399,23 @@ public class HomeController : Controller
         return dictionary;
     }
 
+    /// <summary>
+    ///     Persists asynchronously.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     private async Task PersistAsync(ExecutorOptions options, CancellationToken cancellationToken)
     {
         await _store.SaveAsync(options, cancellationToken);
         await _scheduler.RefreshAsync(options, cancellationToken);
     }
 
+    /// <summary>
+    ///     Tos the editor model.
+    /// </summary>
+    /// <param name="endpoint">The endpoint.</param>
+    /// <returns>The result of the operation.</returns>
     private static EndpointEditorModel ToEditorModel(EndpointScheduleOptions endpoint)
     {
         var headers = endpoint.Headers is null || (endpoint.Headers.Count == 0)
@@ -336,6 +433,11 @@ public class HomeController : Controller
         };
     }
 
+    /// <summary>
+    ///     Tos the options.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <returns>The result of the operation.</returns>
     private static EndpointScheduleOptions ToOptions(EndpointEditorModel model)
     {
         var endpoint = new EndpointScheduleOptions
@@ -352,6 +454,11 @@ public class HomeController : Controller
         return endpoint;
     }
 
+    /// <summary>
+    ///     Tos the ping result.
+    /// </summary>
+    /// <param name="result">The result.</param>
+    /// <returns>The result of the operation.</returns>
     private EndpointPingResultViewModel ToPingResult(EndpointPingResult result)
     {
         return new EndpointPingResultViewModel
@@ -364,6 +471,11 @@ public class HomeController : Controller
         };
     }
 
+    /// <summary>
+    ///     Tos the summary.
+    /// </summary>
+    /// <param name="endpoint">The endpoint.</param>
+    /// <returns>The result of the operation.</returns>
     private static EndpointSummaryViewModel ToSummary(EndpointScheduleOptions endpoint)
     {
         var headersDisplay = endpoint.Headers is null || (endpoint.Headers.Count == 0)
@@ -381,6 +493,11 @@ public class HomeController : Controller
         };
     }
 
+    /// <summary>
+    ///     Trims the body.
+    /// </summary>
+    /// <param name="body">The body.</param>
+    /// <returns>The result of the operation.</returns>
     private static string? TrimBody(string? body)
     {
         const int maxLength = 2000;
@@ -394,6 +511,11 @@ public class HomeController : Controller
             : $"{body[..maxLength]}... (truncated)";
     }
 
+    /// <summary>
+    ///     Updates the endpoint.
+    /// </summary>
+    /// <param name="target">The target.</param>
+    /// <param name="model">The model.</param>
     private static void UpdateEndpoint(EndpointScheduleOptions target, EndpointEditorModel model)
     {
         target.Name = model.Name;

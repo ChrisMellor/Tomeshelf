@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Shouldly;
 using Tomeshelf.FileUploader.Application.Abstractions.Upload;
@@ -8,6 +8,9 @@ namespace Tomeshelf.FileUploader.Infrastructure.Tests.DependencyInjectionTests;
 
 public class AddInfrastructureServices
 {
+    /// <summary>
+    ///     Registers the expected services.
+    /// </summary>
     [Fact]
     public void RegistersExpectedServices()
     {

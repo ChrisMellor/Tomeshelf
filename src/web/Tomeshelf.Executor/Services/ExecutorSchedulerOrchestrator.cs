@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -20,6 +20,12 @@ public sealed class ExecutorSchedulerOrchestrator : IExecutorSchedulerOrchestrat
 
     private readonly ISchedulerFactory _schedulerFactory;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ExecutorSchedulerOrchestrator" /> class.
+    /// </summary>
+    /// <param name="schedulerFactory">The scheduler factory.</param>
+    /// <param name="executorOptions">The executor options.</param>
+    /// <param name="logger">The logger.</param>
     public ExecutorSchedulerOrchestrator(ISchedulerFactory schedulerFactory, IOptionsMonitor<ExecutorOptions> executorOptions, ILogger<ExecutorSchedulerOrchestrator> logger)
     {
         _schedulerFactory = schedulerFactory;
@@ -27,6 +33,12 @@ public sealed class ExecutorSchedulerOrchestrator : IExecutorSchedulerOrchestrat
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Refreshs asynchronously.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task RefreshAsync(ExecutorOptions? options = null, CancellationToken cancellationToken = default)
     {
         var scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
@@ -86,6 +98,11 @@ public sealed class ExecutorSchedulerOrchestrator : IExecutorSchedulerOrchestrat
         }
     }
 
+    /// <summary>
+    ///     Determines whether the specified endpoint is valid.
+    /// </summary>
+    /// <param name="endpoint">The endpoint.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool IsValid(EndpointScheduleOptions endpoint)
     {
         return endpoint.Enabled && !string.IsNullOrWhiteSpace(endpoint.Name) && !string.IsNullOrWhiteSpace(endpoint.Url) && !string.IsNullOrWhiteSpace(endpoint.Cron);

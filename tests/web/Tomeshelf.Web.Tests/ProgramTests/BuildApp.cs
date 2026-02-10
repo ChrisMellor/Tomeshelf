@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Shouldly;
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,9 @@ namespace Tomeshelf.Web.Tests.ProgramTests;
 
 public class BuildApp
 {
+    /// <summary>
+    ///     Uses default service addresses when the value is a development.
+    /// </summary>
     [Fact]
     public void Development_UsesDefaultServiceAddresses()
     {
@@ -56,6 +59,10 @@ public class BuildApp
         uploads.Timeout.ShouldBe(TimeSpan.FromMinutes(30));
     }
 
+    /// <summary>
+    ///     Invalids the service uris.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     public static IEnumerable<object[]> InvalidServiceUris()
     {
         yield return new object[] { "Services:McmApiBase", GuestsApi.HttpClientName, "Invalid URI in configuration setting 'Services:McmApiBase'." };
@@ -66,6 +73,9 @@ public class BuildApp
         yield return new object[] { "Services:FileUploaderApiBase", FileUploadsApi.HttpClientName, "Invalid URI in configuration setting 'Services:FileUploaderApiBase'." };
     }
 
+    /// <summary>
+    ///     Uses API base fallback for guests when the value is a production.
+    /// </summary>
     [Fact]
     public void Production_UsesApiBaseFallbackForGuests()
     {
@@ -87,6 +97,9 @@ public class BuildApp
         client.BaseAddress.ShouldBe(new Uri("https://fallback.example.test/"));
     }
 
+    /// <summary>
+    ///     Uses configured service addresses when the value is a production.
+    /// </summary>
     [Fact]
     public void Production_UsesConfiguredServiceAddresses()
     {
@@ -121,6 +134,9 @@ public class BuildApp
         uploads.BaseAddress.ShouldBe(new Uri("https://uploads.example.test/"));
     }
 
+    /// <summary>
+    ///     Uses gateway addresses when the gateway configured.
+    /// </summary>
     [Fact]
     public void WhenGatewayConfigured_UsesGatewayAddresses()
     {
@@ -150,6 +166,12 @@ public class BuildApp
         uploads.BaseAddress.ShouldBe(new Uri("https://gateway.example.test/api/fileuploader/"));
     }
 
+    /// <summary>
+    ///     Throws when the URI configured is invalid.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="clientName">The client name.</param>
+    /// <param name="message">The message.</param>
     [Theory]
     [MemberData(nameof(InvalidServiceUris))]
     public void WhenInvalidUriConfigured_Throws(string key, string clientName, string message)

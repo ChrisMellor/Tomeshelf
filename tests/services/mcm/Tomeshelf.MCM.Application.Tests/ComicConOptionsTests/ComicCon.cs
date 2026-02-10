@@ -1,9 +1,12 @@
-using Shouldly;
+﻿using Shouldly;
 
 namespace Tomeshelf.MCM.Application.Tests.ComicConOptionsTests;
 
 public class ComicCon
 {
+    /// <summary>
+    ///     Determines whether the current instance can set and get list.
+    /// </summary>
     [Fact]
     public void CanSetAndGetList()
     {
@@ -30,6 +33,9 @@ public class ComicCon
         options.ComicCon.ShouldBeSameAs(locations);
     }
 
+    /// <summary>
+    ///     Defaults the to empty list.
+    /// </summary>
     [Fact]
     public void DefaultsToEmptyList()
     {

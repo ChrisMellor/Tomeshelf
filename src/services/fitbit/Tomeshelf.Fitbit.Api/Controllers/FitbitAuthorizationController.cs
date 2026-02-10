@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +16,22 @@ public sealed class FitbitAuthorizationController : ControllerBase
     private readonly ILogger<FitbitAuthorizationController> _logger;
     private readonly IQueryHandler<GetFitbitAuthorizationStatusQuery, FitbitAuthorizationStatus> _statusHandler;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitbitAuthorizationController" /> class.
+    /// </summary>
+    /// <param name="statusHandler">The status handler.</param>
+    /// <param name="logger">The logger.</param>
     public FitbitAuthorizationController(IQueryHandler<GetFitbitAuthorizationStatusQuery, FitbitAuthorizationStatus> statusHandler, ILogger<FitbitAuthorizationController> logger)
     {
         _statusHandler = statusHandler;
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Authorizes.
+    /// </summary>
+    /// <param name="returnUrl">The return url.</param>
+    /// <returns>The result of the operation.</returns>
     [HttpGet("authorize")]
     public IActionResult Authorize([FromQuery] string returnUrl)
     {
@@ -34,6 +44,11 @@ public sealed class FitbitAuthorizationController : ControllerBase
         return Challenge(properties, FitbitOAuthDefaults.AuthenticationScheme);
     }
 
+    /// <summary>
+    ///     Failures.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <returns>The result of the operation.</returns>
     [HttpGet("failure")]
     public IActionResult Failure([FromQuery] string message)
     {
@@ -46,6 +61,10 @@ public sealed class FitbitAuthorizationController : ControllerBase
         return BadRequest(new { message = payload });
     }
 
+    /// <summary>
+    ///     Status.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpGet("status")]
     public async Task<IActionResult> Status()
     {

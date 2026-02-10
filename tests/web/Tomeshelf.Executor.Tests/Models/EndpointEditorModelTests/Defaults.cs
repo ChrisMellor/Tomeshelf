@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.Executor.Models;
 
 namespace Tomeshelf.Executor.Tests.Models.EndpointEditorModelTests;
 
 public class Defaults
 {
+    /// <summary>
+    ///     Determines whether the current instance is an expected.
+    /// </summary>
     [Fact]
     public void AreExpected()
     {

@@ -1,10 +1,15 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.WeightUnitConverterTests;
 
 public class ToQueryValue
 {
+    /// <summary>
+    ///     Returns the expected token.
+    /// </summary>
+    /// <param name="unit">The unit.</param>
+    /// <param name="expected">The expected.</param>
     [Theory]
     [InlineData(WeightUnit.Stones, "st")]
     [InlineData(WeightUnit.Pounds, "lb")]

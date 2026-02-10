@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -165,6 +165,12 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
         }
     }
 
+    /// <summary>
+    ///     Calculates the remaining.
+    /// </summary>
+    /// <param name="endsAt">The ends at.</param>
+    /// <param name="now">The now.</param>
+    /// <returns>The result of the operation.</returns>
     private static TimeSpan? CalculateRemaining(DateTimeOffset? endsAt, DateTimeOffset now)
     {
         if (!endsAt.HasValue)
@@ -179,6 +185,11 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
             : null;
     }
 
+    /// <summary>
+    ///     Capitalizes.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The resulting string.</returns>
     private static string Capitalize(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -189,6 +200,11 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
         return char.ToUpperInvariant(value[0]) + value[1..];
     }
 
+    /// <summary>
+    ///     Categorises.
+    /// </summary>
+    /// <param name="vm">The vm.</param>
+    /// <returns>The resulting string.</returns>
     private static string Categorise(BundleViewModel vm)
     {
         return string.IsNullOrWhiteSpace(vm.Category)
@@ -198,6 +214,10 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
             : Capitalize(vm.Category);
     }
 
+    /// <summary>
+    ///     Gets the drive auth.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private GoogleDriveAuthModel? GetDriveAuth()
     {
         var clientId = HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId);
@@ -219,6 +239,10 @@ public sealed class BundlesController(IBundlesApi api, IFileUploadsApi uploadsAp
         };
     }
 
+    /// <summary>
+    ///     Determines whether the current instance has drive tokens.
+    /// </summary>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private bool HasDriveTokens()
     {
         return !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken));

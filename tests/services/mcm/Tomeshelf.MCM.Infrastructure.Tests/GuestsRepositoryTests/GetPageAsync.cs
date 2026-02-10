@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.MCM.Domain.Mcm;
 using Tomeshelf.MCM.Infrastructure.Repositories;
@@ -7,6 +7,10 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.GuestsRepositoryTests;
 
 public class GetPageAsync
 {
+    /// <summary>
+    ///     Returns paged guests excluding deleted.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsPagedGuests_ExcludingDeleted()
     {
@@ -53,6 +57,10 @@ public class GetPageAsync
               .ShouldBe("A");
     }
 
+    /// <summary>
+    ///     Returns paged guests including deleted.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsPagedGuests_IncludingDeleted()
     {
@@ -94,6 +102,10 @@ public class GetPageAsync
         result.Items.Count.ShouldBe(3);
     }
 
+    /// <summary>
+    ///     Creates the context.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static TomeshelfMcmDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()

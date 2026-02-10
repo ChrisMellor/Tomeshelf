@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -14,6 +14,10 @@ namespace Tomeshelf.FileUploader.Api.Tests.Controllers.UploadsControllerTests;
 
 public class Upload
 {
+    /// <summary>
+    ///     Returns bad request when the archive is empty.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsBadRequest_WhenArchiveIsEmpty()
     {
@@ -30,6 +34,10 @@ public class Upload
         badRequest.Value.ShouldBe("A bundle archive (.zip) file is required.");
     }
 
+    /// <summary>
+    ///     Returns bad request when the archive is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsBadRequest_WhenArchiveIsMissing()
     {
@@ -45,6 +53,10 @@ public class Upload
         badRequest.Value.ShouldBe("A bundle archive (.zip) file is required.");
     }
 
+    /// <summary>
+    ///     Returns bad request when the credentials missing and defaults unset.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsBadRequest_WhenCredentialsMissingAndDefaultsUnset()
     {
@@ -61,6 +73,10 @@ public class Upload
         badRequest.Value.ShouldBe("Google Drive OAuth credentials are missing. Authorise via the web app and try again.");
     }
 
+    /// <summary>
+    ///     Uses credential overrides when the value is a provided.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UsesCredentialOverrides_WhenProvided()
     {
@@ -111,6 +127,10 @@ public class Upload
         captured.OverrideOptions.ApplicationName.ShouldBe("Tomeshelf");
     }
 
+    /// <summary>
+    ///     Uses default options when the credentials are missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UsesDefaultOptions_WhenCredentialsMissing()
     {
@@ -146,6 +166,12 @@ public class Upload
            .ShouldBeTrue();
     }
 
+    /// <summary>
+    ///     Creates the controller.
+    /// </summary>
+    /// <param name="handler">The handler.</param>
+    /// <param name="defaults">The defaults.</param>
+    /// <returns>The result of the operation.</returns>
     private static UploadsController CreateController(ICommandHandler<UploadBundleArchiveCommand, BundleUploadResult> handler, GoogleDriveOptions defaults)
     {
         var options = Options.Create(defaults);
@@ -153,6 +179,12 @@ public class Upload
         return new UploadsController(handler, options, NullLogger<UploadsController>.Instance);
     }
 
+    /// <summary>
+    ///     Creates the form file.
+    /// </summary>
+    /// <param name="data">The data.</param>
+    /// <param name="fileName">The file name.</param>
+    /// <returns>The result of the operation.</returns>
     private static IFormFile CreateFormFile(byte[] data, string fileName)
     {
         var stream = new MemoryStream(data);

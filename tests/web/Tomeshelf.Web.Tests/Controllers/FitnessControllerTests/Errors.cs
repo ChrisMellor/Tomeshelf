@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
@@ -17,6 +17,10 @@ namespace Tomeshelf.Web.Tests.Controllers.FitnessControllerTests;
 
 public class Errors
 {
+    /// <summary>
+    ///     Redirects when the authorization required.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenAuthorizationRequired_Redirects()
     {
@@ -37,6 +41,10 @@ public class Errors
         redirect.Url.ShouldBe(location.ToString());
     }
 
+    /// <summary>
+    ///     Returns error view when the backend is unavailable.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenBackendUnavailable_ReturnsErrorView()
     {
@@ -58,6 +66,10 @@ public class Errors
         model.Unit.ShouldBe(WeightUnit.Kilograms);
     }
 
+    /// <summary>
+    ///     Returns generic error when the unexpected exception.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenUnexpectedException_ReturnsGenericError()
     {
@@ -78,6 +90,12 @@ public class Errors
         model.ErrorMessage.ShouldBe("Unable to load Fitbit data at this time.");
     }
 
+    /// <summary>
+    ///     Creates the controller.
+    /// </summary>
+    /// <param name="api">The api.</param>
+    /// <param name="logger">The logger.</param>
+    /// <returns>The result of the operation.</returns>
     private static FitnessController CreateController(IFitbitApi api, ILogger<FitnessController> logger)
     {
         var httpContext = new DefaultHttpContext();

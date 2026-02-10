@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using FakeItEasy;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +12,10 @@ namespace Tomeshelf.Executor.Tests.Services.ApiEndpointDiscoveryServiceTests;
 
 public class GetEndpointsAsync
 {
+    /// <summary>
+    ///     Returns empty when the base URI is invalid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenBaseUriInvalid_ReturnsEmpty()
     {
@@ -25,6 +29,10 @@ public class GetEndpointsAsync
         results.ShouldBeEmpty();
     }
 
+    /// <summary>
+    ///     Returns empty when requesting throws.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenRequestThrows_ReturnsEmpty()
     {
@@ -41,6 +49,10 @@ public class GetEndpointsAsync
         results.ShouldBeEmpty();
     }
 
+    /// <summary>
+    ///     Returns empty when the response fails.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenResponseFails_ReturnsEmpty()
     {
@@ -57,6 +69,10 @@ public class GetEndpointsAsync
         results.ShouldBeEmpty();
     }
 
+    /// <summary>
+    ///     Returns endpoints when the response ok.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenResponseOk_ReturnsEndpoints()
     {

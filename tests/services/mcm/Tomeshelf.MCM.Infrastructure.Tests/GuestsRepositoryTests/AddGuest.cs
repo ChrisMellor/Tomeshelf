@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.MCM.Domain.Mcm;
 using Tomeshelf.MCM.Infrastructure.Repositories;
@@ -7,6 +7,9 @@ namespace Tomeshelf.MCM.Infrastructure.Tests.GuestsRepositoryTests;
 
 public class AddGuest
 {
+    /// <summary>
+    ///     Adds the guest to context.
+    /// </summary>
     [Fact]
     public void AddsGuestToContext()
     {
@@ -29,6 +32,10 @@ public class AddGuest
         entry.Entity.ShouldBe(guest);
     }
 
+    /// <summary>
+    ///     Creates the context.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static TomeshelfMcmDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<TomeshelfMcmDbContext>().UseInMemoryDatabase(Guid.NewGuid()

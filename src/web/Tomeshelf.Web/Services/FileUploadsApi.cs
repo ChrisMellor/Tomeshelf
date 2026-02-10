@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -20,12 +20,25 @@ public sealed class FileUploadsApi : IFileUploadsApi
     private readonly HttpClient _http;
     private readonly ILogger<FileUploadsApi> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FileUploadsApi" /> class.
+    /// </summary>
+    /// <param name="httpClientFactory">The http client factory.</param>
+    /// <param name="logger">The logger.</param>
     public FileUploadsApi(IHttpClientFactory httpClientFactory, ILogger<FileUploadsApi> logger)
     {
         _http = httpClientFactory.CreateClient(HttpClientName);
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Uploads the bundle asynchronously.
+    /// </summary>
+    /// <param name="archiveStream">The archive stream.</param>
+    /// <param name="fileName">The file name.</param>
+    /// <param name="auth">The auth.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<BundleUploadResultModel> UploadBundleAsync(Stream archiveStream, string fileName, GoogleDriveAuthModel? auth, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archiveStream);

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.SHiFT.Domain.Entities;
 using Tomeshelf.SHiFT.Infrastructure.Persistence;
@@ -7,6 +7,9 @@ namespace Tomeshelf.SHiFT.Infrastructure.Tests.Persistence.TomeshelfShiftDbConte
 
 public class OnModelCreating
 {
+    /// <summary>
+    ///     Settings entity is configured with expected metadata.
+    /// </summary>
     [Fact]
     public void SettingsEntity_IsConfiguredWithExpectedMetadata()
     {

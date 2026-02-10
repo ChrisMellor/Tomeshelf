@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
@@ -11,6 +11,10 @@ namespace Tomeshelf.MCM.Api.Tests.Controllers.GuestsControllerTests;
 
 public class Sync
 {
+    /// <summary>
+    ///     Returns not found when the sync result is null.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNotFound_WhenSyncResultIsNull()
     {
@@ -32,6 +36,10 @@ public class Sync
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Returns ok with sync result.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsOk_WithSyncResult()
     {

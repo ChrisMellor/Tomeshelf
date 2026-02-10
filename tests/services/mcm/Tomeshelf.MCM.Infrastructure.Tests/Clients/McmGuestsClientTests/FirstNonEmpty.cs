@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.MCM.Infrastructure.Clients;
 
 namespace Tomeshelf.MCM.Infrastructure.Tests.Clients.McmGuestsClientTests;
 
 public class FirstNonEmpty
 {
+    /// <summary>
+    ///     Returns empty when the all values are missing.
+    /// </summary>
     [Fact]
     public void ReturnsEmpty_WhenAllValuesMissing()
     {
@@ -19,6 +22,9 @@ public class FirstNonEmpty
         result.ShouldBe(string.Empty);
     }
 
+    /// <summary>
+    ///     Returns the first non empty value.
+    /// </summary>
     [Fact]
     public void ReturnsFirstNonEmptyValue()
     {

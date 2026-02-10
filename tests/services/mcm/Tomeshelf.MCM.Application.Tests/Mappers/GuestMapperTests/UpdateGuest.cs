@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using Shouldly;
 using Tomeshelf.MCM.Application.Mappers;
 using Tomeshelf.MCM.Domain.Mcm;
@@ -7,6 +7,9 @@ namespace Tomeshelf.MCM.Application.Tests.Mappers.GuestMapperTests;
 
 public class UpdateGuest
 {
+    /// <summary>
+    ///     Reactivates and updates information when the value is a deleted.
+    /// </summary>
     [Fact]
     public void WhenDeleted_ReactivatesAndUpdatesInformation()
     {
@@ -49,6 +52,9 @@ public class UpdateGuest
         target.Information.Socials!.Imdb.ShouldBe(source.Information.Socials!.Imdb);
     }
 
+    /// <summary>
+    ///     Returns false when the source info is missing.
+    /// </summary>
     [Fact]
     public void WhenSourceInfoMissing_ReturnsFalse()
     {

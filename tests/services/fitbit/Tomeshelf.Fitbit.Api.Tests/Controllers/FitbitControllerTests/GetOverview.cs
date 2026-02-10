@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
@@ -12,6 +12,10 @@ namespace Tomeshelf.Fitbit.Api.Tests.Controllers.FitbitControllerTests;
 
 public class GetOverview
 {
+    /// <summary>
+    ///     Returns not found when the overview is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNotFound_WhenOverviewMissing()
     {
@@ -31,6 +35,10 @@ public class GetOverview
         result.Result.ShouldBeOfType<NotFoundResult>();
     }
 
+    /// <summary>
+    ///     Returns ok when the overview found.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsOk_WhenOverviewFound()
     {

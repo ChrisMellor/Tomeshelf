@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,10 @@ namespace Tomeshelf.AppHost.Tests.ProgramTests;
 
 public class BuildApp
 {
+    /// <summary>
+    ///     Adds the expected resources.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task AddsExpectedResources()
     {
@@ -29,6 +33,10 @@ public class BuildApp
         }
     }
 
+    /// <summary>
+    ///     Applies the fitbit values.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task AppliesFitbitValues()
     {
@@ -67,6 +75,10 @@ public class BuildApp
         clientSecret.ShouldBe("secret-123");
     }
 
+    /// <summary>
+    ///     Applies the shift scanner settings and usernames.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task AppliesShiftScannerSettingsAndUsernames()
     {
@@ -140,6 +152,10 @@ public class BuildApp
            .ShouldBeFalse();
     }
 
+    /// <summary>
+    ///     Flows the google drive settings.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task FlowsGoogleDriveSettings()
     {
@@ -196,6 +212,10 @@ public class BuildApp
         uploaderSharedDriveId.ShouldBe("shared-drive");
     }
 
+    /// <summary>
+    ///     Sets the executor settings directory.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task SetsExecutorSettingsDirectory()
     {
@@ -213,6 +233,10 @@ public class BuildApp
         settingsDir.ShouldEndWith($"Tomeshelf{Path.DirectorySeparatorChar}executor");
     }
 
+    /// <summary>
+    ///     Sets the sql server accept eula.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task SetsSqlServerAcceptEula()
     {
@@ -228,6 +252,12 @@ public class BuildApp
         acceptEula.ShouldBe("Y");
     }
 
+    /// <summary>
+    ///     Gets the environment asynchronously.
+    /// </summary>
+    /// <param name="app">The app.</param>
+    /// <param name="resourceName">The resource name.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private static async Task<IReadOnlyDictionary<string, string?>> GetEnvironmentAsync(DistributedApplication app, string resourceName)
     {
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
@@ -242,6 +272,10 @@ public class BuildApp
 
     private sealed class AppScope : IAsyncDisposable
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="AppScope" /> class.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
         public AppScope(IReadOnlyDictionary<string, string?>? settings = null)
         {
             App = Program.BuildApp(Array.Empty<string>(), builder =>
@@ -257,6 +291,10 @@ public class BuildApp
 
         public DistributedApplication App { get; }
 
+        /// <summary>
+        ///     Asynchronously releases resources used by this instance.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async ValueTask DisposeAsync()
         {
             if (App is IAsyncDisposable asyncDisposable)

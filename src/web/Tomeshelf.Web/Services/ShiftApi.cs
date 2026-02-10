@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -21,12 +21,23 @@ public sealed class ShiftApi : IShiftApi
     private readonly HttpClient _http;
     private readonly ILogger<ShiftApi> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ShiftApi" /> class.
+    /// </summary>
+    /// <param name="httpClientFactory">The http client factory.</param>
+    /// <param name="logger">The logger.</param>
     public ShiftApi(IHttpClientFactory httpClientFactory, ILogger<ShiftApi> logger)
     {
         _http = httpClientFactory.CreateClient(HttpClientName);
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Redeems the code asynchronously.
+    /// </summary>
+    /// <param name="code">The code.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<RedeemResponseModel> RedeemCodeAsync(string code, CancellationToken cancellationToken)
     {
         const string url = "gearbox/redeem";
@@ -43,6 +54,11 @@ public sealed class ShiftApi : IShiftApi
         return payload ?? throw new InvalidOperationException("Empty SHiFT payload");
     }
 
+    /// <summary>
+    ///     Gets the accounts asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<IReadOnlyList<ShiftAccountModel>> GetAccountsAsync(CancellationToken cancellationToken)
     {
         const string url = "config/shift";
@@ -59,6 +75,12 @@ public sealed class ShiftApi : IShiftApi
         return payload ?? [];
     }
 
+    /// <summary>
+    ///     Creates the account asynchronously.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<bool> CreateAccountAsync(ShiftAccountEditorModel model, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(model);
@@ -80,6 +102,12 @@ public sealed class ShiftApi : IShiftApi
         return true;
     }
 
+    /// <summary>
+    ///     Deletes the account asynchronously.
+    /// </summary>
+    /// <param name="id">The id.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task DeleteAccountAsync(int id, CancellationToken cancellationToken)
     {
         var url = $"config/shift/{id}";

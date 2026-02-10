@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Tomeshelf.Paissa.Domain.ValueObjects;
 
 namespace Tomeshelf.Paissa.Domain.Entities;
@@ -8,6 +8,17 @@ namespace Tomeshelf.Paissa.Domain.Entities;
 /// </summary>
 public sealed record PaissaPlot
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="PaissaPlot" /> class.
+    /// </summary>
+    /// <param name="wardNumber">The ward number.</param>
+    /// <param name="plotNumber">The plot number.</param>
+    /// <param name="size">The size.</param>
+    /// <param name="price">The price.</param>
+    /// <param name="lastUpdatedUtc">The last updated utc.</param>
+    /// <param name="purchaseSystem">The purchase system.</param>
+    /// <param name="lotteryEntries">The lottery entries.</param>
+    /// <param name="lotteryPhase">The lottery phase.</param>
     private PaissaPlot(int wardNumber, int plotNumber, HousingPlotSize size, long price, DateTimeOffset lastUpdatedUtc, PurchaseSystem purchaseSystem, int? lotteryEntries, LotteryPhase lotteryPhase)
     {
         WardNumber = wardNumber;
@@ -42,6 +53,18 @@ public sealed record PaissaPlot
 
     public PurchaseEligibility Eligibility => PurchaseSystem.ToEligibility();
 
+    /// <summary>
+    ///     Creates.
+    /// </summary>
+    /// <param name="wardNumber">The ward number.</param>
+    /// <param name="plotNumber">The plot number.</param>
+    /// <param name="size">The size.</param>
+    /// <param name="price">The price.</param>
+    /// <param name="lastUpdatedUtc">The last updated utc.</param>
+    /// <param name="purchaseSystem">The purchase system.</param>
+    /// <param name="lotteryEntries">The lottery entries.</param>
+    /// <param name="lotteryPhase">The lottery phase.</param>
+    /// <returns>The result of the operation.</returns>
     public static PaissaPlot Create(int wardNumber, int plotNumber, HousingPlotSize size, long price, DateTimeOffset lastUpdatedUtc, PurchaseSystem purchaseSystem, int? lotteryEntries, LotteryPhase lotteryPhase)
     {
         if (wardNumber <= 0)

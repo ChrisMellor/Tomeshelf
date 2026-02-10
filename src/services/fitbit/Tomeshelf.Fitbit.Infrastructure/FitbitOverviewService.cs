@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -17,6 +17,12 @@ public sealed class FitbitOverviewService : IFitbitOverviewService
     private readonly TomeshelfFitbitDbContext _dbContext;
     private readonly ILogger<FitbitOverviewService> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitbitOverviewService" /> class.
+    /// </summary>
+    /// <param name="dashboardService">The dashboard service.</param>
+    /// <param name="dbContext">The db context.</param>
+    /// <param name="logger">The logger.</param>
     public FitbitOverviewService(IFitbitDashboardService dashboardService, TomeshelfFitbitDbContext dbContext, ILogger<FitbitOverviewService> logger)
     {
         _dashboardService = dashboardService;
@@ -24,6 +30,13 @@ public sealed class FitbitOverviewService : IFitbitOverviewService
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Gets the overview asynchronously.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <param name="forceRefresh">The force refresh.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<FitbitOverviewDto> GetOverviewAsync(DateOnly date, bool forceRefresh, CancellationToken cancellationToken)
     {
         var daily = await _dashboardService.GetDashboardAsync(date, forceRefresh, cancellationToken)
@@ -46,6 +59,13 @@ public sealed class FitbitOverviewService : IFitbitOverviewService
         };
     }
 
+    /// <summary>
+    ///     Builds the range asynchronously.
+    /// </summary>
+    /// <param name="date">The date.</param>
+    /// <param name="days">The days.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<FitbitOverviewRangeDto> BuildRangeAsync(DateOnly date, int days, CancellationToken cancellationToken)
     {
         if (days <= 0)
@@ -102,6 +122,12 @@ public sealed class FitbitOverviewService : IFitbitOverviewService
         };
     }
 
+    /// <summary>
+    ///     Gets the last known weight asynchronously.
+    /// </summary>
+    /// <param name="startDate">The start date.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<double?> GetLastKnownWeightAsync(DateOnly startDate, CancellationToken cancellationToken)
     {
         var previous = await _dbContext.DailySnapshots

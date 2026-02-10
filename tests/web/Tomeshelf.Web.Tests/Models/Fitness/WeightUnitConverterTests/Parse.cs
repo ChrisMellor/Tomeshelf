@@ -1,10 +1,15 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.WeightUnitConverterTests;
 
 public class Parse
 {
+    /// <summary>
+    ///     Returns the expected unit.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <param name="expected">The expected.</param>
     [Theory]
     [InlineData(null, WeightUnit.Stones)]
     [InlineData("", WeightUnit.Stones)]

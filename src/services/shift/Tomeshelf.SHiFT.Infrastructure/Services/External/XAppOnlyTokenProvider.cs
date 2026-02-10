@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -25,6 +25,12 @@ public sealed class XAppOnlyTokenProvider
     private readonly SemaphoreSlim _refreshLock = new SemaphoreSlim(1, 1);
     private CachedToken? _cached;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="XAppOnlyTokenProvider" /> class.
+    /// </summary>
+    /// <param name="httpClientFactory">The http client factory.</param>
+    /// <param name="options">The options.</param>
+    /// <param name="logger">The logger.</param>
     public XAppOnlyTokenProvider(IHttpClientFactory httpClientFactory, IOptionsMonitor<ShiftKeyScannerOptions> options, ILogger<XAppOnlyTokenProvider> logger)
     {
         _httpClientFactory = httpClientFactory;
@@ -32,6 +38,11 @@ public sealed class XAppOnlyTokenProvider
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Gets the bearer token asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<string?> GetBearerTokenAsync(CancellationToken cancellationToken)
     {
         var settings = _options.CurrentValue?.X;
@@ -95,11 +106,20 @@ public sealed class XAppOnlyTokenProvider
         }
     }
 
+    /// <summary>
+    ///     Invalidates.
+    /// </summary>
     public void Invalidate()
     {
         _cached = null;
     }
 
+    /// <summary>
+    ///     Requests the token asynchronously.
+    /// </summary>
+    /// <param name="settings">The settings.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<string?> RequestTokenAsync(ShiftKeyScannerOptions.XSourceOptions settings, CancellationToken cancellationToken)
     {
         var client = _httpClientFactory.CreateClient(HttpClientName);

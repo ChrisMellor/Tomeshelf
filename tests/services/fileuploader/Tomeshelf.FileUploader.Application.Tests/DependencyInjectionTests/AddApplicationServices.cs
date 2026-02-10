@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
@@ -10,6 +10,9 @@ namespace Tomeshelf.FileUploader.Application.Tests.DependencyInjectionTests;
 
 public class AddApplicationServices
 {
+    /// <summary>
+    ///     Registers the handlers.
+    /// </summary>
     [Fact]
     public void RegistersHandlers()
     {

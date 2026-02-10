@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Shouldly;
 using Tomeshelf.Web.Models.Fitness;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.Web.Tests.Models.Fitness.FitnessDashboardViewModelTests;
 
 public class NextDate
 {
+    /// <summary>
+    ///     The next date is null when the selected date is today.
+    /// </summary>
     [Fact]
     public void WhenSelectedDateIsToday_NextDateIsNull()
     {

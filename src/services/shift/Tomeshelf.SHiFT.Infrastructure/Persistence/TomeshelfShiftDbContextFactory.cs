@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using System;
 
@@ -9,6 +9,11 @@ namespace Tomeshelf.SHiFT.Infrastructure.Persistence;
 /// </summary>
 public sealed class TomeshelfShiftDbContextFactory : IDesignTimeDbContextFactory<TomeshelfShiftDbContext>
 {
+    /// <summary>
+    ///     Creates the db context.
+    /// </summary>
+    /// <param name="args">The args.</param>
+    /// <returns>The result of the operation.</returns>
     public TomeshelfShiftDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<TomeshelfShiftDbContext>();

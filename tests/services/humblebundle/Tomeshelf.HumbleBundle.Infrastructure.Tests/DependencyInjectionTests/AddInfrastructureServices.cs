@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Shouldly;
@@ -10,6 +10,9 @@ namespace Tomeshelf.HumbleBundle.Infrastructure.Tests.DependencyInjectionTests;
 
 public class AddInfrastructureServices
 {
+    /// <summary>
+    ///     Registers the expected services.
+    /// </summary>
     [Fact]
     public void RegistersExpectedServices()
     {
@@ -40,6 +43,9 @@ public class AddInfrastructureServices
               .ShouldContain("Tomeshelf-HumbleBundle/1.0");
     }
 
+    /// <summary>
+    ///     Throws the when connection string missing.
+    /// </summary>
     [Fact]
     public void ThrowsWhenConnectionStringMissing()
     {

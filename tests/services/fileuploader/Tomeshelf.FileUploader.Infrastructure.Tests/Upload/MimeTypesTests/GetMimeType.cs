@@ -1,10 +1,15 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.FileUploader.Infrastructure.Upload;
 
 namespace Tomeshelf.FileUploader.Infrastructure.Tests.Upload.MimeTypesTests;
 
 public class GetMimeType
 {
+    /// <summary>
+    ///     Returns the expected result.
+    /// </summary>
+    /// <param name="fileName">The file name.</param>
+    /// <param name="expected">The expected.</param>
     [Theory]
     [InlineData("book.pdf", "application/pdf")]
     [InlineData("book.epub", "application/epub+zip")]

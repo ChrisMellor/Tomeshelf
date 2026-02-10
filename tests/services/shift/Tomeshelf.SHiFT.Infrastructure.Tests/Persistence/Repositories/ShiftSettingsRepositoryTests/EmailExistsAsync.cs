@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.Security;
 using Tomeshelf.SHiFT.Domain.Entities;
@@ -9,6 +9,10 @@ namespace Tomeshelf.SHiFT.Infrastructure.Tests.Persistence.Repositories.ShiftSet
 
 public class EmailExistsAsync
 {
+    /// <summary>
+    ///     Respects the excluding id.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task RespectsExcludingId()
     {

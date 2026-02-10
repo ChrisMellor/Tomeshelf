@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Executor.Configuration;
 using Tomeshelf.Executor.Models;
@@ -9,6 +9,10 @@ namespace Tomeshelf.Executor.Tests.Controllers.HomeControllerTests;
 
 public class Index
 {
+    /// <summary>
+    ///     Returns the sorted endpoints and apis.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsSortedEndpointsAndApis()
     {

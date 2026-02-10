@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Shouldly;
 using Tomeshelf.MCM.Application.Models;
 using Tomeshelf.MCM.Application.Records;
@@ -8,6 +8,10 @@ namespace Tomeshelf.MCM.Application.Tests.GuestsServiceTests;
 
 public class GetAsync
 {
+    /// <summary>
+    ///     Returns the paged result.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsPagedResult()
     {

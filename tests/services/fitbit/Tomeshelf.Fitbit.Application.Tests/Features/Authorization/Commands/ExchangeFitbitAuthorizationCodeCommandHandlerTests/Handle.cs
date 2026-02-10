@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.Fitbit.Application.Abstractions.Services;
@@ -8,6 +8,10 @@ namespace Tomeshelf.Fitbit.Application.Tests.Features.Authorization.Commands.Exc
 
 public class Handle
 {
+    /// <summary>
+    ///     The exception is propagated when exchanging the authorization code throws.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ExchangeAuthorizationCodeThrows_ExceptionIsPropagated()
     {
@@ -41,6 +45,10 @@ public class Handle
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Returns error result when the try consume state returns false.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task TryConsumeStateReturnsFalse_ReturnsErrorResult()
     {
@@ -67,6 +75,10 @@ public class Handle
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Calls exchange and returns success result when the try consume state returns true.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task TryConsumeStateReturnsTrue_CallsExchangeAndReturnsSuccessResult()
     {

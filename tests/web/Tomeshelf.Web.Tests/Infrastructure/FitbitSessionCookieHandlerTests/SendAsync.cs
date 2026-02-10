@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +9,10 @@ namespace Tomeshelf.Web.Tests.Infrastructure.FitbitSessionCookieHandlerTests;
 
 public class SendAsync
 {
+    /// <summary>
+    ///     Does not add cookie header when the cookie is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenCookieMissing_DoesNotAddCookieHeader()
     {
@@ -29,6 +33,10 @@ public class SendAsync
              .ShouldBeFalse();
     }
 
+    /// <summary>
+    ///     Adds cookie header when the cookie is present.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenCookiePresent_AddsCookieHeader()
     {
@@ -56,6 +64,12 @@ public class SendAsync
     {
         public HttpRequestMessage? LastRequest { get; private set; }
 
+        /// <summary>
+        ///     Sends asynchronously.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             LastRequest = request;

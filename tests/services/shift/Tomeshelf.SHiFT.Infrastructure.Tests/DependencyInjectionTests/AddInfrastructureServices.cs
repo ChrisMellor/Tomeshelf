@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Shouldly;
@@ -17,6 +17,10 @@ namespace Tomeshelf.SHiFT.Infrastructure.Tests.DependencyInjectionTests;
 
 public class AddInfrastructureServices
 {
+    /// <summary>
+    ///     Registers the expected services.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task RegistersExpectedServices()
     {
@@ -64,6 +68,9 @@ public class AddInfrastructureServices
                   .ShouldContain("application/json");
     }
 
+    /// <summary>
+    ///     Throws the when connection string missing.
+    /// </summary>
     [Fact]
     public void ThrowsWhenConnectionStringMissing()
     {

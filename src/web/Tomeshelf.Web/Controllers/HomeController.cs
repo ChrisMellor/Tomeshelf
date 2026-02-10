@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
@@ -78,6 +78,11 @@ public class HomeController : Controller
         return View();
     }
 
+    /// <summary>
+    ///     Gets the bundles summary asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<string> GetBundlesSummaryAsync(CancellationToken cancellationToken)
     {
         try
@@ -97,6 +102,11 @@ public class HomeController : Controller
         }
     }
 
+    /// <summary>
+    ///     Gets the events summary asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<string> GetEventsSummaryAsync(CancellationToken cancellationToken)
     {
         try
@@ -116,6 +126,11 @@ public class HomeController : Controller
         }
     }
 
+    /// <summary>
+    ///     Gets the fitness summary asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<string> GetFitnessSummaryAsync(CancellationToken cancellationToken)
     {
         try
@@ -158,6 +173,11 @@ public class HomeController : Controller
         }
     }
 
+    /// <summary>
+    ///     Gets the gaming summary asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<string> GetGamingSummaryAsync(CancellationToken cancellationToken)
     {
         try

@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using Shouldly;
 using Tomeshelf.MCM.Application.Mappers;
 using Tomeshelf.MCM.Domain.Mcm;
@@ -7,6 +7,9 @@ namespace Tomeshelf.MCM.Application.Tests.Mappers.GuestMapperTests;
 
 public class CloneForEvent
 {
+    /// <summary>
+    ///     Copies the identifiers and socials.
+    /// </summary>
     [Fact]
     public void CopiesIdentifiersAndSocials()
     {

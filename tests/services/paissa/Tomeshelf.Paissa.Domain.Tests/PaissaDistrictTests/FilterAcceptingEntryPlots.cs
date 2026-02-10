@@ -1,4 +1,4 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.Paissa.Domain.Entities;
 using Tomeshelf.Paissa.Domain.ValueObjects;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.Paissa.Domain.Tests.PaissaDistrictTests;
 
 public class FilterAcceptingEntryPlots
 {
+    /// <summary>
+    ///     Respects the known size flag.
+    /// </summary>
     [Fact]
     public void RespectsKnownSizeFlag()
     {
@@ -32,6 +35,9 @@ public class FilterAcceptingEntryPlots
         allowUnknown!.OpenPlots.Count.ShouldBe(2);
     }
 
+    /// <summary>
+    ///     Returns null when none match.
+    /// </summary>
     [Fact]
     public void WhenNoneMatch_ReturnsNull()
     {

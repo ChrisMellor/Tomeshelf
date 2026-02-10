@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
@@ -16,6 +16,10 @@ namespace Tomeshelf.SHiFT.Api.Tests.Controllers.GearboxControllerTests;
 
 public class Sweep
 {
+    /// <summary>
+    ///     Clamps hours to minimum.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ClampsHours_ToMinimum()
     {
@@ -41,6 +45,10 @@ public class Sweep
         result.ShouldBeOfType<OkObjectResult>();
     }
 
+    /// <summary>
+    ///     Clamps the hours and maps response.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ClampsHoursAndMapsResponse()
     {
@@ -95,6 +103,10 @@ public class Sweep
                .ShouldBe(1);
     }
 
+    /// <summary>
+    ///     Uses default lookback when the hours are null.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UsesDefaultLookback_WhenHoursNull()
     {

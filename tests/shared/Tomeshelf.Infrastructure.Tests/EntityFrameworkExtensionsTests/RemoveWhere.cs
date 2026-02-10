@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Shouldly;
@@ -8,6 +8,9 @@ namespace Tomeshelf.Infrastructure.Tests.EntityFrameworkExtensionsTests;
 
 public class RemoveWhere
 {
+    /// <summary>
+    ///     Removes the matching items.
+    /// </summary>
     [Fact]
     public void RemovesMatchingItems()
     {
@@ -30,6 +33,9 @@ public class RemoveWhere
         items.ShouldBe(new[] { 1, 3, 5 });
     }
 
+    /// <summary>
+    ///     Leaves collection unchanged when there are no matches.
+    /// </summary>
     [Fact]
     public void WhenNoMatches_LeavesCollectionUnchanged()
     {
@@ -49,6 +55,11 @@ public class RemoveWhere
         items.ShouldBe(new[] { "alpha", "bravo" });
     }
 
+    /// <summary>
+    ///     Gets the remove where method.
+    /// </summary>
+    /// <param name="itemType">The item type.</param>
+    /// <returns>The result of the operation.</returns>
     private static MethodInfo GetRemoveWhereMethod(Type itemType)
     {
         var assembly = typeof(ServiceCollectionExtensions).Assembly;

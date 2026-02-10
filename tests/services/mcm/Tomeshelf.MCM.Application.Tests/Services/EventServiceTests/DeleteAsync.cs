@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
@@ -8,6 +8,10 @@ namespace Tomeshelf.MCM.Application.Tests.Services.EventServiceTests;
 
 public class DeleteAsync
 {
+    /// <summary>
+    ///     Calls the repository and returns result.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task CallsRepositoryAndReturnsResult()
     {

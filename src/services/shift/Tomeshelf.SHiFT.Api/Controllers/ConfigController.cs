@@ -46,6 +46,11 @@ public sealed class ConfigController : ControllerBase
         _deleteHandler = deleteHandler;
     }
 
+    /// <summary>
+    ///     Gets the all.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<ShiftSettingsDto>>> GetAll(CancellationToken cancellationToken)
     {
@@ -54,6 +59,12 @@ public sealed class ConfigController : ControllerBase
         return Ok(dtos);
     }
 
+    /// <summary>
+    ///     Deletes.
+    /// </summary>
+    /// <param name="id">The id.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
@@ -86,6 +97,12 @@ public sealed class ConfigController : ControllerBase
             : Ok(dto);
     }
 
+    /// <summary>
+    ///     Posts.
+    /// </summary>
+    /// <param name="request">The request.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] ShiftSettingsUpdateRequest request, CancellationToken cancellationToken)
     {

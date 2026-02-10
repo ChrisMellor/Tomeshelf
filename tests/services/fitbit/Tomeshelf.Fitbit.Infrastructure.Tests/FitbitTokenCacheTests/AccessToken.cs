@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Bogus;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
@@ -8,6 +8,9 @@ namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitTokenCacheTests;
 
 public class AccessToken
 {
+    /// <summary>
+    ///     Returns value when the in session.
+    /// </summary>
     [Fact]
     public void WhenInSession_ReturnsValue()
     {
@@ -29,6 +32,9 @@ public class AccessToken
         result.ShouldBe(token);
     }
 
+    /// <summary>
+    ///     Returns null when the not in session.
+    /// </summary>
     [Fact]
     public void WhenNotInSession_ReturnsNull()
     {
@@ -46,6 +52,10 @@ public class AccessToken
         result.ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Creates the cache.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static (FitbitTokenCache Cache, ISession Session) CreateCache()
     {
         var accessor = A.Fake<IHttpContextAccessor>();

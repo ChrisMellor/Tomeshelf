@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -28,6 +28,13 @@ public sealed class XShiftKeySource : IShiftKeySource
     private readonly IOptionsMonitor<ShiftKeyScannerOptions> _options;
     private readonly XAppOnlyTokenProvider _tokenProvider;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="XShiftKeySource" /> class.
+    /// </summary>
+    /// <param name="httpClientFactory">The http client factory.</param>
+    /// <param name="options">The options.</param>
+    /// <param name="tokenProvider">The token provider.</param>
+    /// <param name="logger">The logger.</param>
     public XShiftKeySource(IHttpClientFactory httpClientFactory, IOptionsMonitor<ShiftKeyScannerOptions> options, XAppOnlyTokenProvider tokenProvider, ILogger<XShiftKeySource> logger)
     {
         _httpClientFactory = httpClientFactory;
@@ -38,6 +45,12 @@ public sealed class XShiftKeySource : IShiftKeySource
 
     public string Name => "x";
 
+    /// <summary>
+    ///     Gets the keys asynchronously.
+    /// </summary>
+    /// <param name="sinceUtc">The since utc.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<IReadOnlyList<ShiftKeyCandidate>> GetKeysAsync(DateTimeOffset sinceUtc, CancellationToken cancellationToken = default)
     {
         var settings = _options.CurrentValue?.X;
@@ -95,6 +108,12 @@ public sealed class XShiftKeySource : IShiftKeySource
         return results;
     }
 
+    /// <summary>
+    ///     Builds the request.
+    /// </summary>
+    /// <param name="url">The url.</param>
+    /// <param name="bearerToken">The bearer token.</param>
+    /// <returns>The result of the operation.</returns>
     private static HttpRequestMessage BuildRequest(string url, string bearerToken)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -103,6 +122,13 @@ public sealed class XShiftKeySource : IShiftKeySource
         return request;
     }
 
+    /// <summary>
+    ///     Builds the url.
+    /// </summary>
+    /// <param name="apiBase">The api base.</param>
+    /// <param name="relativePath">The relative path.</param>
+    /// <param name="query">The query.</param>
+    /// <returns>The resulting string.</returns>
     private static string BuildUrl(string apiBase, string relativePath, Dictionary<string, string?> query)
     {
         var baseUri = apiBase?.TrimEnd('/');
@@ -130,12 +156,26 @@ public sealed class XShiftKeySource : IShiftKeySource
         return url;
     }
 
+    /// <summary>
+    ///     Formats the rfc 3339 utc.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The resulting string.</returns>
     private static string FormatRfc3339Utc(DateTimeOffset value)
     {
         return value.ToUniversalTime()
                     .ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
     }
 
+    /// <summary>
+    ///     Gets the user id asynchronously.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="apiBase">The api base.</param>
+    /// <param name="bearerToken">The bearer token.</param>
+    /// <param name="username">The username.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<string?> GetUserIdAsync(HttpClient client, string apiBase, string bearerToken, string username, CancellationToken cancellationToken)
     {
         var query = new Dictionary<string, string?> { ["user.fields"] = "id" };
@@ -162,6 +202,17 @@ public sealed class XShiftKeySource : IShiftKeySource
         return id;
     }
 
+    /// <summary>
+    ///     Gets the user tweets v 2 asynchronously.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="apiBase">The api base.</param>
+    /// <param name="bearerToken">The bearer token.</param>
+    /// <param name="settings">The settings.</param>
+    /// <param name="userId">The user id.</param>
+    /// <param name="sinceUtc">The since utc.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<IReadOnlyList<XV2Tweet>> GetUserTweetsV2Async(HttpClient client, string apiBase, string bearerToken, ShiftKeyScannerOptions.XSourceOptions settings, string userId, DateTimeOffset sinceUtc, CancellationToken cancellationToken)
     {
         var tweets = new List<XV2Tweet>();
@@ -227,6 +278,12 @@ public sealed class XShiftKeySource : IShiftKeySource
         return tweets;
     }
 
+    /// <summary>
+    ///     Reads the body asynchronously.
+    /// </summary>
+    /// <param name="response">The response.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private static async Task<string?> ReadBodyAsync(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         try

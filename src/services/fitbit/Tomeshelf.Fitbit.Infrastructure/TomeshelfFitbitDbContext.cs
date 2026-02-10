@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Tomeshelf.Fitbit.Domain;
 
@@ -12,6 +12,10 @@ public sealed class TomeshelfFitbitDbContext(DbContextOptions<TomeshelfFitbitDbC
 {
     public DbSet<FitbitDailySnapshot> DailySnapshots => Set<FitbitDailySnapshot>();
 
+    /// <summary>
+    ///     Ons the model creating.
+    /// </summary>
+    /// <param name="modelBuilder">The model builder.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var snapshot = modelBuilder.Entity<FitbitDailySnapshot>();

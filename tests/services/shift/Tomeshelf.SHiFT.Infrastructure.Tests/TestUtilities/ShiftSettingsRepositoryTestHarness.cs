@@ -1,10 +1,14 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Tomeshelf.SHiFT.Infrastructure.Persistence;
 
 namespace Tomeshelf.SHiFT.Infrastructure.Tests.TestUtilities;
 
 internal static class ShiftSettingsRepositoryTestHarness
 {
+    /// <summary>
+    ///     Creates the context asynchronously.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     internal static async Task<TomeshelfShiftDbContext> CreateContextAsync()
     {
         var options = new DbContextOptionsBuilder<TomeshelfShiftDbContext>()
@@ -17,6 +21,10 @@ internal static class ShiftSettingsRepositoryTestHarness
         return context;
     }
 
+    /// <summary>
+    ///     Creates the sqlite context asynchronously.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     internal static async Task<TomeshelfShiftDbContext> CreateSqliteContextAsync()
     {
         var options = new DbContextOptionsBuilder<TomeshelfShiftDbContext>()

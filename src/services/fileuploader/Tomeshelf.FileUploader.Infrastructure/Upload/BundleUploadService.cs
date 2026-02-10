@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -19,6 +19,13 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
     private readonly GoogleDriveOptions _options;
     private readonly BundleFileOrganiser _organiser;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="BundleUploadService" /> class.
+    /// </summary>
+    /// <param name="organiser">The organiser.</param>
+    /// <param name="driveFactory">The drive factory.</param>
+    /// <param name="options">The options.</param>
+    /// <param name="logger">The logger.</param>
     public BundleUploadService(BundleFileOrganiser organiser, IGoogleDriveClientFactory driveFactory, IOptions<GoogleDriveOptions> options, ILogger<BundleUploadService> logger)
     {
         _organiser = organiser;
@@ -27,6 +34,14 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
         _options = options.Value;
     }
 
+    /// <summary>
+    ///     Uploads asynchronously.
+    /// </summary>
+    /// <param name="archiveStream">The archive stream.</param>
+    /// <param name="archiveFileName">The archive file name.</param>
+    /// <param name="overrideOptions">The override options.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<BundleUploadResult> UploadAsync(Stream archiveStream, string archiveFileName, GoogleDriveOptions? overrideOptions, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archiveStream);
@@ -94,6 +109,13 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
         }
     }
 
+    /// <summary>
+    ///     Extracts asynchronously.
+    /// </summary>
+    /// <param name="archivePath">The archive path.</param>
+    /// <param name="destinationDirectory">The destination directory.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     private static Task ExtractAsync(string archivePath, string destinationDirectory, CancellationToken cancellationToken)
     {
         var extension = Path.GetExtension(archivePath);
@@ -111,6 +133,11 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    ///     Merges the options.
+    /// </summary>
+    /// <param name="overrideOptions">The override options.</param>
+    /// <returns>The result of the operation.</returns>
     private GoogleDriveOptions MergeOptions(GoogleDriveOptions? overrideOptions)
     {
         if (overrideOptions is null)
@@ -135,6 +162,14 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
         };
     }
 
+    /// <summary>
+    ///     Saves the archive asynchronously.
+    /// </summary>
+    /// <param name="archive">The archive.</param>
+    /// <param name="archiveFileName">The archive file name.</param>
+    /// <param name="workingDirectory">The working directory.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private static async Task<string> SaveArchiveAsync(Stream archive, string archiveFileName, string workingDirectory, CancellationToken cancellationToken)
     {
         var safeName = string.IsNullOrWhiteSpace(archiveFileName)
@@ -149,6 +184,10 @@ public sealed class BundleUploadService : IHumbleBundleUploadService
         return destination;
     }
 
+    /// <summary>
+    ///     Attempts to delete a directory.
+    /// </summary>
+    /// <param name="path">The path.</param>
     private void TryDeleteDirectory(string path)
     {
         try

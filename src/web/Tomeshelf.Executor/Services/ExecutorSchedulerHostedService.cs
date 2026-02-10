@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -15,6 +15,12 @@ public sealed class ExecutorSchedulerHostedService : IHostedService
     private readonly IExecutorSchedulerOrchestrator _orchestrator;
     private IDisposable? _subscription;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ExecutorSchedulerHostedService" /> class.
+    /// </summary>
+    /// <param name="orchestrator">The orchestrator.</param>
+    /// <param name="optionsMonitor">The options monitor.</param>
+    /// <param name="logger">The logger.</param>
     public ExecutorSchedulerHostedService(IExecutorSchedulerOrchestrator orchestrator, IOptionsMonitor<ExecutorOptions> optionsMonitor, ILogger<ExecutorSchedulerHostedService> logger)
     {
         _orchestrator = orchestrator;
@@ -22,6 +28,11 @@ public sealed class ExecutorSchedulerHostedService : IHostedService
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Starts asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting Executor scheduler hosted service.");
@@ -33,6 +44,11 @@ public sealed class ExecutorSchedulerHostedService : IHostedService
         });
     }
 
+    /// <summary>
+    ///     Stops asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task StopAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Stopping Executor scheduler hosted service.");

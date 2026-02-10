@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.MCM.Application.Contracts;
@@ -10,6 +10,10 @@ namespace Tomeshelf.MCM.Application.Tests.Features.Guests.Queries.GetGuestsQuery
 
 public class Handle
 {
+    /// <summary>
+    ///     Builds the event config model and calls service.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task BuildsEventConfigModelAndCallsService()
     {
@@ -34,6 +38,10 @@ public class Handle
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Uses the empty name when missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UsesEmptyNameWhenMissing()
     {

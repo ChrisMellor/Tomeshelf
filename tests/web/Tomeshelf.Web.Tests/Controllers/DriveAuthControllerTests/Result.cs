@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +20,9 @@ public class Result
     private const string ReturnUrlKey = "gd_returnUrl";
     private const string ErrorKey = "gd_error";
 
+    /// <summary>
+    ///     Returns error view and clears session when the error in session.
+    /// </summary>
     [Fact]
     public void WhenErrorInSession_ReturnsErrorViewAndClearsSession()
     {
@@ -47,6 +50,9 @@ public class Result
                    .ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Overrides session return URL when the return URL provided.
+    /// </summary>
     [Fact]
     public void WhenReturnUrlProvided_OverridesSessionReturnUrl()
     {
@@ -76,6 +82,9 @@ public class Result
                    .ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Returns failure view when the tokens are missing.
+    /// </summary>
     [Fact]
     public void WhenTokensMissing_ReturnsFailureView()
     {
@@ -98,6 +107,9 @@ public class Result
         model.Message.ShouldBe("Google authorisation did not complete. Please try again.");
     }
 
+    /// <summary>
+    ///     Returns success view and uses return URL when the tokens are present.
+    /// </summary>
     [Fact]
     public void WhenTokensPresent_ReturnsSuccessViewAndUsesReturnUrl()
     {

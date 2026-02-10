@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +10,10 @@ namespace Tomeshelf.Web.Tests.ProgramTests;
 
 public class OAuthCreatingTicket
 {
+    /// <summary>
+    ///     Sets the session values from login hint.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task SetsSessionValuesFromLoginHint()
     {
@@ -42,6 +46,10 @@ public class OAuthCreatingTicket
                    .ShouldBe("hint@example.test");
     }
 
+    /// <summary>
+    ///     Uses the configured email when no login hint.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UsesConfiguredEmailWhenNoLoginHint()
     {
@@ -63,6 +71,10 @@ public class OAuthCreatingTicket
                    .ShouldBe("config@example.test");
     }
 
+    /// <summary>
+    ///     Sets error when the refresh token is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenRefreshTokenMissing_SetsError()
     {

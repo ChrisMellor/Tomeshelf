@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -13,11 +13,20 @@ public sealed class DriveAuthController : Controller
     public const string AuthenticationScheme = "GoogleDrive";
     private readonly IConfiguration _configuration;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="DriveAuthController" /> class.
+    /// </summary>
+    /// <param name="configuration">The configuration.</param>
     public DriveAuthController(IConfiguration configuration)
     {
         _configuration = configuration;
     }
 
+    /// <summary>
+    ///     Results.
+    /// </summary>
+    /// <param name="returnUrl">The return url.</param>
+    /// <returns>The result of the operation.</returns>
     [HttpGet("result")]
     public IActionResult Result([FromQuery] string? returnUrl = null)
     {
@@ -56,6 +65,11 @@ public sealed class DriveAuthController : Controller
         });
     }
 
+    /// <summary>
+    ///     Starts.
+    /// </summary>
+    /// <param name="returnUrl">The return url.</param>
+    /// <returns>The result of the operation.</returns>
     [HttpGet("start")]
     public IActionResult Start([FromQuery] string? returnUrl = null)
     {
@@ -84,11 +98,19 @@ public sealed class DriveAuthController : Controller
         return Challenge(properties, AuthenticationScheme);
     }
 
+    /// <summary>
+    ///     Determines whether the current instance has drive tokens.
+    /// </summary>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private bool HasDriveTokens()
     {
         return !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientId)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.ClientSecret)) && !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(GoogleDriveSessionKeys.RefreshToken));
     }
 
+    /// <summary>
+    ///     LoadOs the auth config.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private (string? ClientId, string? ClientSecret, string? UserEmail) LoadOAuthConfig()
     {
         var drive = _configuration.GetSection("GoogleDrive");

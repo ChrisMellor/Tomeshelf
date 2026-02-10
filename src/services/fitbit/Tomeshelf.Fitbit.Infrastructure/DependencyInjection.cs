@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +10,10 @@ public static class DependencyInjection
 {
     private const string ConnectionName = "fitbitDb";
 
+    /// <summary>
+    ///     Adds the infrastructure services.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
     {
         builder.AddSqlServerDbContext<TomeshelfFitbitDbContext>(ConnectionName);

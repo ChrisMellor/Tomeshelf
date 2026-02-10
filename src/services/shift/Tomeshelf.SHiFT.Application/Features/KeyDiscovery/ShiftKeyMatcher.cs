@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -8,6 +8,11 @@ public static class ShiftKeyMatcher
 {
     private static readonly Regex ShiftKeyRegex = new Regex(@"\b[A-Z0-9]{5}(?:-[A-Z0-9]{5}){4}\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    /// <summary>
+    ///     Extracts.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <returns>The result of the operation.</returns>
     public static IReadOnlyList<string> Extract(string? text)
     {
         if (string.IsNullOrWhiteSpace(text))

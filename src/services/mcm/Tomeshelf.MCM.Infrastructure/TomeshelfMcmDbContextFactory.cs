@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -9,6 +9,11 @@ namespace Tomeshelf.MCM.Infrastructure;
 /// </summary>
 public sealed class TomeshelfMcmDbContextFactory : IDesignTimeDbContextFactory<TomeshelfMcmDbContext>
 {
+    /// <summary>
+    ///     Creates the db context.
+    /// </summary>
+    /// <param name="args">The args.</param>
+    /// <returns>The result of the operation.</returns>
     public TomeshelfMcmDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<TomeshelfMcmDbContext>();

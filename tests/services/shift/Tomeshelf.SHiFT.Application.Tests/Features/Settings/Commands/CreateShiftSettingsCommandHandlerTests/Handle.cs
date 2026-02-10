@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.Common;
@@ -11,6 +11,10 @@ namespace Tomeshelf.SHiFT.Application.Tests.Features.Settings.Commands.CreateShi
 
 public class Handle
 {
+    /// <summary>
+    ///     Throws when the email exists.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenEmailExists_Throws()
     {
@@ -34,6 +38,10 @@ public class Handle
         await Should.ThrowAsync<InvalidOperationException>(act);
     }
 
+    /// <summary>
+    ///     Sets null encrypted password when the password is empty.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WithEmptyPassword_SetsNullEncryptedPassword()
     {
@@ -67,6 +75,10 @@ public class Handle
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Sets null encrypted password when the password is null.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WithNullPassword_SetsNullEncryptedPassword()
     {
@@ -100,6 +112,10 @@ public class Handle
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Protects and stores encrypted password when the value is a password.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WithPassword_ProtectsAndStoresEncryptedPassword()
     {

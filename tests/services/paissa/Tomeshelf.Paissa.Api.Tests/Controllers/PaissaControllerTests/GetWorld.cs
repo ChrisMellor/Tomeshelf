@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
@@ -11,6 +11,10 @@ namespace Tomeshelf.Paissa.Api.Tests.Controllers.PaissaControllerTests;
 
 public class GetWorld
 {
+    /// <summary>
+    ///     Maps the response.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task MapsResponse()
     {

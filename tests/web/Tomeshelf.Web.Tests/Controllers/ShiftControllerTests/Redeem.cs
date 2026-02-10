@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
@@ -12,6 +12,10 @@ namespace Tomeshelf.Web.Tests.Controllers.ShiftControllerTests;
 
 public class Redeem
 {
+    /// <summary>
+    ///     Returns error message when apiing throws.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenApiThrows_ReturnsErrorMessage()
     {
@@ -33,6 +37,10 @@ public class Redeem
         viewModel.ErrorMessage.ShouldBe("Redeem failed: boom");
     }
 
+    /// <summary>
+    ///     Returns validation error when the code is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenCodeMissing_ReturnsValidationError()
     {
@@ -59,6 +67,10 @@ public class Redeem
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Returns response when the code is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenCodeValid_ReturnsResponse()
     {

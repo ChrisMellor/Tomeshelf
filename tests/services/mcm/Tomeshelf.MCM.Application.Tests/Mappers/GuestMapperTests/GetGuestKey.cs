@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using Shouldly;
 using Tomeshelf.MCM.Application.Mappers;
 using Tomeshelf.MCM.Domain.Mcm;
@@ -7,6 +7,9 @@ namespace Tomeshelf.MCM.Application.Tests.Mappers.GuestMapperTests;
 
 public class GetGuestKey
 {
+    /// <summary>
+    ///     Trims the names and combines.
+    /// </summary>
     [Fact]
     public void TrimsNamesAndCombines()
     {
@@ -31,6 +34,9 @@ public class GetGuestKey
         key.ShouldBe($"{firstName} {lastName}");
     }
 
+    /// <summary>
+    ///     Returns empty when the names are missing.
+    /// </summary>
     [Fact]
     public void WhenNamesMissing_ReturnsEmpty()
     {

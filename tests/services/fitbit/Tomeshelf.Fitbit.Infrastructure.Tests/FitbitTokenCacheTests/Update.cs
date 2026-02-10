@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Bogus;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
@@ -7,6 +7,9 @@ namespace Tomeshelf.Fitbit.Infrastructure.Tests.FitbitTokenCacheTests;
 
 public class Update
 {
+    /// <summary>
+    ///     Sets the values in session.
+    /// </summary>
     [Fact]
     public void SetsValuesInSession()
     {
@@ -29,6 +32,10 @@ public class Update
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Creates the cache.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static (FitbitTokenCache Cache, ISession Session) CreateCache()
     {
         var accessor = A.Fake<IHttpContextAccessor>();

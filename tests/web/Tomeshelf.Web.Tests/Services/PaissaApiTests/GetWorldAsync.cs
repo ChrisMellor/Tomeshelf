@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Shouldly;
 using System;
@@ -16,6 +16,10 @@ namespace Tomeshelf.Web.Tests.Services.PaissaApiTests;
 
 public class GetWorldAsync
 {
+    /// <summary>
+    ///     Deserializes the payload.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task DeserializesPayload()
     {
@@ -42,6 +46,10 @@ public class GetWorldAsync
         request.RequestUri!.PathAndQuery.ShouldBe("/paissa/world");
     }
 
+    /// <summary>
+    ///     Throws when the payload is empty.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenPayloadEmpty_Throws()
     {

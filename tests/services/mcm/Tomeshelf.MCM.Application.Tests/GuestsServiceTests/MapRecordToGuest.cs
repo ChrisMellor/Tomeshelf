@@ -1,4 +1,4 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.MCM.Application.Records;
 using Tomeshelf.MCM.Application.Services;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.MCM.Application.Tests.GuestsServiceTests;
 
 public class MapRecordToGuest
 {
+    /// <summary>
+    ///     Maps null socials when the profile URL is empty.
+    /// </summary>
     [Fact]
     public void MapsNullSocials_WhenProfileUrlEmpty()
     {
@@ -21,6 +24,9 @@ public class MapRecordToGuest
         result.Information!.Socials.ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Maps the record correctly.
+    /// </summary>
     [Fact]
     public void MapsRecordCorrectly()
     {

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Tomeshelf.HumbleBundle.Domain.HumbleBundle;
 
 namespace Tomeshelf.HumbleBundle.Infrastructure;
@@ -14,6 +14,10 @@ public class TomeshelfBundlesDbContext(DbContextOptions<TomeshelfBundlesDbContex
     /// </summary>
     public DbSet<Bundle> Bundles => Set<Bundle>();
 
+    /// <summary>
+    ///     Ons the model creating.
+    /// </summary>
+    /// <param name="modelBuilder">The model builder.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

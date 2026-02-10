@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Shouldly;
 using System.IO.Compression;
@@ -9,6 +9,10 @@ namespace Tomeshelf.FileUploader.Infrastructure.Tests.Upload.BundleUploadService
 
 public class UploadAsync
 {
+    /// <summary>
+    ///     Throws the when no files found.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ThrowsWhenNoFilesFound()
     {
@@ -34,6 +38,10 @@ public class UploadAsync
         factory.CreateCalls.ShouldBe(0);
     }
 
+    /// <summary>
+    ///     Uploads the files and uses override options.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UploadsFilesAndUsesOverrideOptions()
     {
@@ -88,6 +96,11 @@ public class UploadAsync
                .ShouldBe("OverrideRoot/My Bundle by Author/Unknown Title");
     }
 
+    /// <summary>
+    ///     Creates the zip stream.
+    /// </summary>
+    /// <param name="entries">The entries.</param>
+    /// <returns>The result of the operation.</returns>
     private static MemoryStream CreateZipStream(params (string Path, string Content)[] entries)
     {
         var stream = new MemoryStream();
@@ -114,6 +127,11 @@ public class UploadAsync
 
         public int CreateCalls { get; private set; }
 
+        /// <summary>
+        ///     Creates.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <returns>The result of the operation.</returns>
         public IGoogleDriveClient Create(GoogleDriveOptions options)
         {
             Options = options;
@@ -131,8 +149,17 @@ public class UploadAsync
 
         public Func<string, string, UploadOutcome>? UploadOutcomeFactory { get; set; }
 
+        /// <summary>
+        ///     Releases resources used by this instance.
+        /// </summary>
         public void Dispose() { }
 
+        /// <summary>
+        ///     Ensures the folder path asynchronously.
+        /// </summary>
+        /// <param name="folderPath">The folder path.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
         public Task<string> EnsureFolderPathAsync(string folderPath, CancellationToken cancellationToken)
         {
             FolderPaths.Add(folderPath);
@@ -140,6 +167,16 @@ public class UploadAsync
             return Task.FromResult("folder-id");
         }
 
+        /// <summary>
+        ///     Uploads the file asynchronously.
+        /// </summary>
+        /// <param name="parentFolderId">The parent folder id.</param>
+        /// <param name="fileName">The file name.</param>
+        /// <param name="content">The content.</param>
+        /// <param name="contentLength">The content length.</param>
+        /// <param name="contentType">The content type.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
         public Task<UploadOutcome> UploadFileAsync(string parentFolderId, string fileName, Stream content, long contentLength, string? contentType, CancellationToken cancellationToken)
         {
             UploadedFiles.Add(fileName);

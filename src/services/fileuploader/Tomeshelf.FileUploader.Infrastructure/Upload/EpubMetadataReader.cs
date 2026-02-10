@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO.Compression;
 using System.Xml.Linq;
 
@@ -6,6 +6,11 @@ namespace Tomeshelf.FileUploader.Infrastructure.Upload;
 
 internal static class EpubMetadataReader
 {
+    /// <summary>
+    ///     Gets the metadata.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <returns>The result of the operation.</returns>
     public static DocumentMetadata GetMetadata(string path)
     {
         using var zip = ZipFile.OpenRead(path);

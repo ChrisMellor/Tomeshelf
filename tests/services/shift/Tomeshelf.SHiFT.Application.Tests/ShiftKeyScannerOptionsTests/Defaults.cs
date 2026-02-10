@@ -1,9 +1,12 @@
-using Shouldly;
+﻿using Shouldly;
 
 namespace Tomeshelf.SHiFT.Application.Tests.ShiftKeyScannerOptionsTests;
 
 public class Defaults
 {
+    /// <summary>
+    ///     Defaults are expected.
+    /// </summary>
     [Fact]
     public void Defaults_AreExpected()
     {

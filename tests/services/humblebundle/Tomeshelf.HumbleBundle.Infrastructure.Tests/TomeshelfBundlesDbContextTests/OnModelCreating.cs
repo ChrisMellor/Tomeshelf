@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tomeshelf.HumbleBundle.Domain.HumbleBundle;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.HumbleBundle.Infrastructure.Tests.TomeshelfBundlesDbContextT
 
 public class OnModelCreating
 {
+    /// <summary>
+    ///     Bundle entity is configured with expected metadata.
+    /// </summary>
     [Fact]
     public void BundleEntity_IsConfiguredWithExpectedMetadata()
     {

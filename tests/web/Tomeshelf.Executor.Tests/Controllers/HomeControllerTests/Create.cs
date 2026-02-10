@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Tomeshelf.Executor.Configuration;
@@ -10,6 +10,10 @@ namespace Tomeshelf.Executor.Tests.Controllers.HomeControllerTests;
 
 public class Create
 {
+    /// <summary>
+    ///     Returns editor defaults when using GET.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Get_ReturnsEditorDefaults()
     {
@@ -26,6 +30,10 @@ public class Create
         model.Editor.Method.ShouldBe("POST");
     }
 
+    /// <summary>
+    ///     Returns view with error when using POST and the duplicate name.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Post_DuplicateName_ReturnsViewWithError()
     {
@@ -63,6 +71,10 @@ public class Create
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Returns view when using POST and the model is invalid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Post_InvalidModel_ReturnsView()
     {
@@ -83,6 +95,10 @@ public class Create
          .MustNotHaveHappened();
     }
 
+    /// <summary>
+    ///     Adds endpoint and redirects when using POST and the value is valid.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Post_Valid_AddsEndpointAndRedirects()
     {

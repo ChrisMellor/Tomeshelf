@@ -1,9 +1,12 @@
-using System;
+﻿using System;
 
 namespace Tomeshelf.MCM.Domain.Mcm;
 
 public class GuestInfoEntity
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="GuestInfoEntity" /> class.
+    /// </summary>
     public GuestInfoEntity()
     {
         Id = Guid.NewGuid();

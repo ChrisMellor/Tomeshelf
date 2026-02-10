@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
@@ -13,6 +13,10 @@ namespace Tomeshelf.Web.Tests.Controllers.ComicConControllerTests;
 
 public class Index
 {
+    /// <summary>
+    ///     Returns the grouped guests and view bag stats.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsGroupedGuestsAndViewBagStats()
     {

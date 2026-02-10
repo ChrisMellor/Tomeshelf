@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -17,6 +17,10 @@ public class Index
 {
     private const string LastViewedCookieName = "tomeshelf_bundles_lastViewedUtc";
 
+    /// <summary>
+    ///     Builds the grouped bundles and sets cookie.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task BuildsGroupedBundlesAndSetsCookie()
     {

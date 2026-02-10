@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.FileUploader.Infrastructure.Upload;
 
 namespace Tomeshelf.FileUploader.Infrastructure.Tests.Upload.BundleFileOrganiserTests;
 
 public class BuildPlan
 {
+    /// <summary>
+    ///     Falls back to root directory name when there is no bundle folder present.
+    /// </summary>
     [Fact]
     public void FallsBackToRootDirectoryName_WhenNoBundleFolderPresent()
     {
@@ -31,6 +34,9 @@ public class BuildPlan
         }
     }
 
+    /// <summary>
+    ///     Uses the bundle directory and supplement naming.
+    /// </summary>
     [Fact]
     public void UsesBundleDirectoryAndSupplementNaming()
     {
@@ -63,6 +69,10 @@ public class BuildPlan
         }
     }
 
+    /// <summary>
+    ///     Creates the temp directory.
+    /// </summary>
+    /// <returns>The resulting string.</returns>
     private static string CreateTempDirectory()
     {
         var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid()
@@ -72,6 +82,10 @@ public class BuildPlan
         return path;
     }
 
+    /// <summary>
+    ///     Attempts to delete a directory.
+    /// </summary>
+    /// <param name="path">The path.</param>
     private static void TryDeleteDirectory(string path)
     {
         if (string.IsNullOrWhiteSpace(path))

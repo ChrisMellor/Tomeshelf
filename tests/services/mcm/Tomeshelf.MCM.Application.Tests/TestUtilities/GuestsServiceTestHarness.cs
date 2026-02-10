@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Tomeshelf.MCM.Application.Abstractions.Clients;
 using Tomeshelf.MCM.Application.Abstractions.Mappers;
 using Tomeshelf.MCM.Application.Abstractions.Persistence;
@@ -8,6 +8,10 @@ namespace Tomeshelf.MCM.Application.Tests.TestUtilities;
 
 public static class GuestsServiceTestHarness
 {
+    /// <summary>
+    ///     Creates the service.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     public static (GuestsService Service, IMcmGuestsClient Client, IGuestMapper Mapper, IGuestsRepository Repository) CreateService()
     {
         var client = A.Fake<IMcmGuestsClient>();

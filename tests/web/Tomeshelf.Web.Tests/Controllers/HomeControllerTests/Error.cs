@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +12,9 @@ namespace Tomeshelf.Web.Tests.Controllers.HomeControllerTests;
 
 public class Error
 {
+    /// <summary>
+    ///     Uses the trace identifier when no activity.
+    /// </summary>
     [Fact]
     public void UsesTraceIdentifierWhenNoActivity()
     {

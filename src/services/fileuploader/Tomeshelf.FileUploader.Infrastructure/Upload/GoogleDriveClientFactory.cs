@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Tomeshelf.FileUploader.Application;
@@ -10,12 +10,22 @@ internal sealed class GoogleDriveClientFactory : IGoogleDriveClientFactory
     private readonly IOptions<GoogleDriveOptions> _defaults;
     private readonly IServiceProvider _serviceProvider;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="GoogleDriveClientFactory" /> class.
+    /// </summary>
+    /// <param name="defaults">The defaults.</param>
+    /// <param name="serviceProvider">The service provider.</param>
     public GoogleDriveClientFactory(IOptions<GoogleDriveOptions> defaults, IServiceProvider serviceProvider)
     {
         _defaults = defaults;
         _serviceProvider = serviceProvider;
     }
 
+    /// <summary>
+    ///     Creates.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <returns>The result of the operation.</returns>
     public IGoogleDriveClient Create(GoogleDriveOptions options)
     {
         var merged = new GoogleDriveOptions

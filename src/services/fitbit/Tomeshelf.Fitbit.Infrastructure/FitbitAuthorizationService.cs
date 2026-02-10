@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -29,6 +29,15 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
     private readonly IOptionsMonitor<FitbitOptions> _options;
     private readonly FitbitTokenCache _tokenCache;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitbitAuthorizationService" /> class.
+    /// </summary>
+    /// <param name="httpClientFactory">The http client factory.</param>
+    /// <param name="tokenCache">The token cache.</param>
+    /// <param name="memoryCache">The memory cache.</param>
+    /// <param name="logger">The logger.</param>
+    /// <param name="options">The options.</param>
+    /// <param name="httpContextAccessor">The http context accessor.</param>
     public FitbitAuthorizationService(IHttpClientFactory httpClientFactory, FitbitTokenCache tokenCache, IMemoryCache memoryCache, ILogger<FitbitAuthorizationService> logger, IOptionsMonitor<FitbitOptions> options, IHttpContextAccessor httpContextAccessor)
     {
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -39,6 +48,12 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
+    /// <summary>
+    ///     Builds the authorization uri.
+    /// </summary>
+    /// <param name="returnUrl">The return url.</param>
+    /// <param name="state">The state.</param>
+    /// <returns>The result of the operation.</returns>
     public Uri BuildAuthorizationUri(string returnUrl, out string state)
     {
         var options = _options.CurrentValue;
@@ -85,6 +100,13 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
         return new Uri(builder.ToString());
     }
 
+    /// <summary>
+    ///     Exchanges the authorization code asynchronously.
+    /// </summary>
+    /// <param name="code">The code.</param>
+    /// <param name="codeVerifier">The code verifier.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task ExchangeAuthorizationCodeAsync(string code, string codeVerifier, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(codeVerifier))
@@ -140,6 +162,13 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
         _logger.LogInformation("Successfully obtained Fitbit access token via authorization code grant.");
     }
 
+    /// <summary>
+    ///     Attempts to consume a state.
+    /// </summary>
+    /// <param name="state">The state.</param>
+    /// <param name="codeVerifier">The code verifier.</param>
+    /// <param name="returnUrl">The return url.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     public bool TryConsumeState(string state, out string codeVerifier, out string returnUrl)
     {
         if (string.IsNullOrWhiteSpace(state))
@@ -166,6 +195,12 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
         return false;
     }
 
+    /// <summary>
+    ///     Builds the callback uri.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <param name="request">The request.</param>
+    /// <returns>The result of the operation.</returns>
     public static Uri BuildCallbackUri(FitbitOptions options, HttpRequest request)
     {
         if (options is null)
@@ -223,6 +258,11 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
         return new Uri(baseUri, pathValue);
     }
 
+    /// <summary>
+    ///     Bases the 64 url encode.
+    /// </summary>
+    /// <param name="data">The data.</param>
+    /// <returns>The resulting string.</returns>
     private static string Base64UrlEncode(byte[] data)
     {
         return Convert.ToBase64String(data)
@@ -231,6 +271,11 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
                       .Replace('/', '_');
     }
 
+    /// <summary>
+    ///     Creates the code challenge.
+    /// </summary>
+    /// <param name="codeVerifier">The code verifier.</param>
+    /// <returns>The resulting string.</returns>
     private static string CreateCodeChallenge(string codeVerifier)
     {
         using var sha256 = SHA256.Create();
@@ -239,6 +284,10 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
         return Base64UrlEncode(hash);
     }
 
+    /// <summary>
+    ///     Creates the code verifier.
+    /// </summary>
+    /// <returns>The resulting string.</returns>
     private static string CreateCodeVerifier()
     {
         var bytes = new byte[32];
@@ -247,6 +296,11 @@ public sealed class FitbitAuthorizationService : IFitbitAuthorizationService
         return Base64UrlEncode(bytes);
     }
 
+    /// <summary>
+    ///     Gets the state cache key.
+    /// </summary>
+    /// <param name="state">The state.</param>
+    /// <returns>The resulting string.</returns>
     private static string GetStateCacheKey(string state)
     {
         return $"fitbit:oauth:state:{state}";

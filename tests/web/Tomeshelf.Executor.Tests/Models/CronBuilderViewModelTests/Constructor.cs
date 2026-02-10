@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using Shouldly;
 using Tomeshelf.Executor.Models;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.Executor.Tests.Models.CronBuilderViewModelTests;
 
 public class Constructor
 {
+    /// <summary>
+    ///     Uses empty string when the initial value is null.
+    /// </summary>
     [Fact]
     public void WhenInitialValueNull_UsesEmptyString()
     {
@@ -23,6 +26,9 @@ public class Constructor
         model.InputName.ShouldBe(inputName);
     }
 
+    /// <summary>
+    ///     Throws when the input ID is null.
+    /// </summary>
     [Fact]
     public void WhenNullInputId_Throws()
     {
@@ -36,6 +42,9 @@ public class Constructor
         Should.Throw<ArgumentNullException>(act);
     }
 
+    /// <summary>
+    ///     Throws when the input name is null.
+    /// </summary>
     [Fact]
     public void WhenNullInputName_Throws()
     {

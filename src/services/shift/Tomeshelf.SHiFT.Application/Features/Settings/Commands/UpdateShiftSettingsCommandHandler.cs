@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
@@ -14,6 +14,12 @@ public sealed class UpdateShiftSettingsCommandHandler : ICommandHandler<UpdateSh
     private readonly ISecretProtector _protector;
     private readonly IShiftSettingsRepository _repository;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="UpdateShiftSettingsCommandHandler" /> class.
+    /// </summary>
+    /// <param name="repository">The repository.</param>
+    /// <param name="protector">The protector.</param>
+    /// <param name="clock">The clock.</param>
     public UpdateShiftSettingsCommandHandler(IShiftSettingsRepository repository, ISecretProtector protector, IClock clock)
     {
         _repository = repository;
@@ -21,6 +27,12 @@ public sealed class UpdateShiftSettingsCommandHandler : ICommandHandler<UpdateSh
         _clock = clock;
     }
 
+    /// <summary>
+    ///     Handles.
+    /// </summary>
+    /// <param name="command">The command.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<bool> Handle(UpdateShiftSettingsCommand command, CancellationToken cancellationToken)
     {
         var entity = await _repository.GetByIdAsync(command.Id, cancellationToken);

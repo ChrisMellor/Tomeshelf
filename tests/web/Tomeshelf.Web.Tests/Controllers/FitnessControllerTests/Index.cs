@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
@@ -17,6 +17,10 @@ namespace Tomeshelf.Web.Tests.Controllers.FitnessControllerTests;
 
 public class Index
 {
+    /// <summary>
+    ///     Returns populated model when the overview has summary.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenOverviewHasSummary_ReturnsPopulatedModel()
     {
@@ -55,6 +59,10 @@ public class Index
         model.Last30Days.HasData.ShouldBeFalse();
     }
 
+    /// <summary>
+    ///     Returns empty model when the overview is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenOverviewMissing_ReturnsEmptyModel()
     {
@@ -85,6 +93,10 @@ public class Index
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Builds metrics when the range data is present.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenRangeDataPresent_BuildsMetrics()
     {
@@ -147,6 +159,10 @@ public class Index
              .Values[0]!.Value.ShouldBe(1000);
     }
 
+    /// <summary>
+    ///     Shows daily missing message when the trend data present but daily is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenTrendDataPresentButDailyMissing_ShowsDailyMissingMessage()
     {
@@ -189,6 +205,12 @@ public class Index
         model.Last7Days.HasData.ShouldBeTrue();
     }
 
+    /// <summary>
+    ///     Creates the controller.
+    /// </summary>
+    /// <param name="api">The api.</param>
+    /// <param name="logger">The logger.</param>
+    /// <returns>The result of the operation.</returns>
     private static FitnessController CreateController(IFitbitApi api, ILogger<FitnessController> logger)
     {
         var httpContext = new DefaultHttpContext();

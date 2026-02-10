@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Shouldly;
 using Tomeshelf.Executor.Configuration;
@@ -9,6 +9,10 @@ namespace Tomeshelf.Executor.Tests.Services.ExecutorConfigurationStoreTests;
 
 public class SaveAsync
 {
+    /// <summary>
+    ///     Writes the and reads back.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WritesAndReadsBack()
     {

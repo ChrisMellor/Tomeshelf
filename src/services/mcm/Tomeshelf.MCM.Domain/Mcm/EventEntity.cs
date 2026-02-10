@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,10 +10,19 @@ namespace Tomeshelf.MCM.Domain.Mcm;
 /// </summary>
 public sealed class EventEntity
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="EventEntity" /> class.
+    /// </summary>
     public EventEntity() : this(string.Empty, string.Empty)
     {
     }
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="EventEntity" /> class.
+    /// </summary>
+    /// <param name="id">The id.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="guests">The guests.</param>
     public EventEntity(string id, string name, ICollection<GuestEntity>? guests = null)
     {
         Id = id ?? string.Empty;

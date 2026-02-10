@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using FakeItEasy;
 using Shouldly;
 using Tomeshelf.SHiFT.Application.Abstractions.Security;
@@ -10,6 +10,10 @@ namespace Tomeshelf.SHiFT.Infrastructure.Tests.Persistence.Repositories.ShiftSet
 
 public class GetForUseAsync
 {
+    /// <summary>
+    ///     Handles the cryptographic failure.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task HandlesCryptographicFailure()
     {
@@ -51,6 +55,10 @@ public class GetForUseAsync
                .ShouldBeEmpty();
     }
 
+    /// <summary>
+    ///     Unprotects twice when the password was protected twice.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UnprotectsTwice_WhenPasswordWasProtectedTwice()
     {
@@ -87,6 +95,10 @@ public class GetForUseAsync
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Returns empty when there are no rows.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsEmpty_WhenNoRows()
     {

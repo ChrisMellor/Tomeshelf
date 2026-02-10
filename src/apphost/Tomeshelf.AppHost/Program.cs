@@ -12,8 +12,16 @@ using System.IO;
 namespace Tomeshelf.AppHost;
 
 /// <summary>
-///     Aspire AppHost that defines and wires up application resources.
+///     Provides the entry point and configuration logic for the Aspire AppHost, orchestrating the setup and composition of
+///     distributed application resources such as APIs, databases, and gateways.
 /// </summary>
+/// <remarks>
+///     The Program class is responsible for initializing and wiring together all components required for the
+///     distributed application, including configuring environment variables, Docker Compose resources, and service
+///     dependencies. It exposes methods to build and configure the application, allowing for extensibility via optional
+///     builder configuration delegates. This class is intended to be used as the main entry point for launching and
+///     managing the distributed application's lifecycle.
+/// </remarks>
 public class Program
 {
     private const string ContainerExecutorSettingsDirectory = "/home/app/.tomeshelf/executor";
@@ -21,6 +29,15 @@ public class Program
     private const string ExecutorSettingsVolumeName = "executor-settings";
     private const string SqlDataVolumeName = "tomeshelf-sql-data";
 
+    /// <summary>
+    ///     Creates and builds the distributed application configured by this AppHost.
+    /// </summary>
+    /// <param name="args">Command-line arguments.</param>
+    /// <param name="configureBuilder">
+    ///     Optional callback invoked after the builder is created (and user secrets are added) to allow callers to further
+    ///     customize the builder before resources are registered.
+    /// </param>
+    /// <returns>The built <see cref="DistributedApplication" /> instance.</returns>
     public static DistributedApplication BuildApp(string[] args, Action<IDistributedApplicationBuilder>? configureBuilder = null)
     {
         var builder = CreateBuilder(args, configureBuilder);
@@ -28,6 +45,16 @@ public class Program
         return builder.Build();
     }
 
+    /// <summary>
+    ///     Creates and configures the distributed application builder and registers all resources (databases, APIs, gateway,
+    ///     and UI projects).
+    /// </summary>
+    /// <param name="args">Command-line arguments.</param>
+    /// <param name="configureBuilder">
+    ///     Optional callback invoked after the builder is created (and user secrets are added) to allow callers to further
+    ///     customize the builder before resources are registered.
+    /// </param>
+    /// <returns>The configured <see cref="IDistributedApplicationBuilder" />.</returns>
     public static IDistributedApplicationBuilder CreateBuilder(string[] args, Action<IDistributedApplicationBuilder>? configureBuilder = null)
     {
         var options = new DistributedApplicationOptions
@@ -78,6 +105,12 @@ public class Program
         app.Run();
     }
 
+    /// <summary>
+    ///     Applies SHiFT Key scanner settings to the SHiFT API resource by mapping configuration values to environment
+    ///     variables.
+    /// </summary>
+    /// <param name="api">The SHiFT API resource builder to apply settings to.</param>
+    /// <param name="scanner">The <c>ShiftKeyScanner</c> configuration section.</param>
     private static void ApplyShiftScannerSettings(IResourceBuilder<ProjectResource> api, IConfigurationSection scanner)
     {
         ArgumentNullException.ThrowIfNull(api);
@@ -113,6 +146,12 @@ public class Program
         }
     }
 
+    /// <summary>
+    ///     Applies a single environment value to a project resource if the value is present (non-empty).
+    /// </summary>
+    /// <param name="api">The project resource builder.</param>
+    /// <param name="key">The environment variable key to set.</param>
+    /// <param name="value">The environment variable value to set.</param>
     private static void ApplyValue(IResourceBuilder<ProjectResource> api, string key, string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -123,6 +162,14 @@ public class Program
         api.WithEnvironment(key, value);
     }
 
+    /// <summary>
+    ///     Resolves the host directory used to store Executor settings when running outside containers.
+    /// </summary>
+    /// <remarks>
+    ///     Prefers <see cref="Environment.SpecialFolder.LocalApplicationData" />, then <see cref="Environment.SpecialFolder.ApplicationData" />,
+    ///     then <see cref="Environment.SpecialFolder.UserProfile" />, falling back to the current working directory.
+    /// </remarks>
+    /// <returns>The absolute path to the Executor settings directory on the host.</returns>
     private static string ResolveHostExecutorSettingsDirectory()
     {
         var basePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -143,6 +190,12 @@ public class Program
         return Path.Combine(basePath, "Tomeshelf", "executor");
     }
 
+    /// <summary>
+    ///     Adds the SQL Server container resource used by the application and configures persistence and Docker Compose
+    ///     behavior.
+    /// </summary>
+    /// <param name="builder">The distributed application builder.</param>
+    /// <returns>The SQL Server resource builder.</returns>
     private static IResourceBuilder<SqlServerServerResource> SetupDatabase(IDistributedApplicationBuilder builder)
     {
         var database = builder.AddSqlServer("sql")
@@ -156,6 +209,12 @@ public class Program
         return database;
     }
 
+    /// <summary>
+    ///     Registers the Executor UI/project and configures its settings directory mapping and dependencies on API services.
+    /// </summary>
+    /// <param name="builder">The distributed application builder.</param>
+    /// <param name="apis">API project resources that the Executor depends on.</param>
+    /// <returns>The Executor project resource builder.</returns>
     private static IResourceBuilder<ProjectResource> SetupExecutor(IDistributedApplicationBuilder builder, params IResourceBuilder<ProjectResource>[] apis)
     {
         var hostExecutorSettingsDirectory = ResolveHostExecutorSettingsDirectory();
@@ -190,6 +249,11 @@ public class Program
         return executor;
     }
 
+    /// <summary>
+    ///     Registers the File Uploader API project and forwards Google Drive configuration values as environment variables.
+    /// </summary>
+    /// <param name="builder">The distributed application builder.</param>
+    /// <returns>The File Uploader API project resource builder.</returns>
     private static IResourceBuilder<ProjectResource> SetupFileUploaderApi(IDistributedApplicationBuilder builder)
     {
         var api = builder.AddProject<Tomeshelf_FileUploader_Api>("fileuploaderapi")
@@ -239,6 +303,13 @@ public class Program
         return api;
     }
 
+    /// <summary>
+    ///     Registers the Fitbit API project, provisions its database, and maps Fitbit configuration values into environment
+    ///     variables (including callback settings).
+    /// </summary>
+    /// <param name="builder">The distributed application builder.</param>
+    /// <param name="database">The shared SQL Server resource.</param>
+    /// <returns>The Fitbit API project resource builder.</returns>
     private static IResourceBuilder<ProjectResource> SetupFitbitApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
     {
         var settings = builder.Configuration.GetSection("fitbit");
@@ -266,6 +337,18 @@ public class Program
         return api;
     }
 
+    /// <summary>
+    ///     Registers the YARP gateway and configures routes to backend APIs, exposing a stable host port for external
+    ///     access.
+    /// </summary>
+    /// <param name="builder">The distributed application builder.</param>
+    /// <param name="mcmApi">The MCM API resource.</param>
+    /// <param name="humbleBundleApi">The Humble Bundle API resource.</param>
+    /// <param name="fitbitApi">The Fitbit API resource.</param>
+    /// <param name="paissaApi">The Paissa API resource.</param>
+    /// <param name="fileUploaderApi">The File Uploader API resource.</param>
+    /// <param name="shiftApi">The SHiFT API resource.</param>
+    /// <returns>The YARP gateway resource builder.</returns>
     private static IResourceBuilder<YarpResource> SetupGateway(IDistributedApplicationBuilder builder, IResourceBuilder<ProjectResource> mcmApi, IResourceBuilder<ProjectResource> humbleBundleApi, IResourceBuilder<ProjectResource> fitbitApi, IResourceBuilder<ProjectResource> paissaApi, IResourceBuilder<ProjectResource> fileUploaderApi, IResourceBuilder<ProjectResource> shiftApi)
     {
         var gateway = builder.AddYarp("gateway")
@@ -328,6 +411,12 @@ public class Program
         return gateway;
     }
 
+    /// <summary>
+    ///     Registers the Humble Bundle API project and provisions its database.
+    /// </summary>
+    /// <param name="builder">The distributed application builder.</param>
+    /// <param name="database">The shared SQL Server resource.</param>
+    /// <returns>The Humble Bundle API project resource builder.</returns>
     private static IResourceBuilder<ProjectResource> SetupHumbleBundleApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
     {
         var db = database.AddDatabase("humblebundledb");
@@ -344,6 +433,12 @@ public class Program
         return api;
     }
 
+    /// <summary>
+    ///     Registers the MCM API project and provisions its database.
+    /// </summary>
+    /// <param name="builder">The distributed application builder.</param>
+    /// <param name="database">The shared SQL Server resource.</param>
+    /// <returns>The MCM API project resource builder.</returns>
     private static IResourceBuilder<ProjectResource> SetupMcmApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
     {
         var db = database.AddDatabase("mcmdb");
@@ -360,6 +455,11 @@ public class Program
         return api;
     }
 
+    /// <summary>
+    ///     Registers the Paissa API project.
+    /// </summary>
+    /// <param name="builder">The distributed application builder.</param>
+    /// <returns>The Paissa API project resource builder.</returns>
     private static IResourceBuilder<ProjectResource> SetupPaissaApi(IDistributedApplicationBuilder builder)
     {
         var api = builder.AddProject<Tomeshelf_Paissa_Api>("paissaapi")
@@ -372,6 +472,12 @@ public class Program
         return api;
     }
 
+    /// <summary>
+    ///     Registers the SHiFT API project, provisions its database, and applies scanner settings from configuration.
+    /// </summary>
+    /// <param name="builder">The distributed application builder.</param>
+    /// <param name="database">The shared SQL Server resource.</param>
+    /// <returns>The SHiFT API project resource builder.</returns>
     private static IResourceBuilder<ProjectResource> SetupShiftApi(IDistributedApplicationBuilder builder, IResourceBuilder<SqlServerServerResource> database)
     {
         var db = database.AddDatabase("shiftdb");
@@ -391,6 +497,13 @@ public class Program
         return api;
     }
 
+    /// <summary>
+    ///     Registers the MVC web frontend project, forwards Google Drive configuration values, and configures it to use the
+    ///     YARP gateway for backend API access.
+    /// </summary>
+    /// <param name="builder">The distributed application builder.</param>
+    /// <param name="gateway">The YARP gateway resource.</param>
+    /// <returns>The Web project resource builder.</returns>
     private static IResourceBuilder<ProjectResource> SetupWeb(IDistributedApplicationBuilder builder, IResourceBuilder<YarpResource> gateway)
     {
         var web = builder.AddProject<Tomeshelf_Web>("web")

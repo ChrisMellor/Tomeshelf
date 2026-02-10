@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.SHiFT.Infrastructure.Exceptions;
 
 namespace Tomeshelf.SHiFT.Infrastructure.Tests.Exceptions.MissingConnectionStringExceptionTests;
 
 public class Message
 {
+    /// <summary>
+    ///     Includes the connection string.
+    /// </summary>
     [Fact]
     public void IncludesConnectionString()
     {

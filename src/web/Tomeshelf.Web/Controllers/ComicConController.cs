@@ -16,6 +16,11 @@ namespace Tomeshelf.Web.Controllers;
 [Route("comiccon")]
 public class ComicConController(IGuestsApi api) : Controller
 {
+    /// <summary>
+    ///     Configs.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpGet("config")]
     public async Task<IActionResult> Config(CancellationToken cancellationToken = default)
     {
@@ -37,6 +42,12 @@ public class ComicConController(IGuestsApi api) : Controller
         }
     }
 
+    /// <summary>
+    ///     Inserts or updates.
+    /// </summary>
+    /// <param name="editor">The editor.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpPost("config/upsert")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Upsert([Bind(Prefix = "Editor")] McmEventConfigEditorModel editor, CancellationToken cancellationToken = default)
@@ -86,6 +97,12 @@ public class ComicConController(IGuestsApi api) : Controller
         }
     }
 
+    /// <summary>
+    ///     Deletes.
+    /// </summary>
+    /// <param name="id">The id.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     [HttpPost("config/delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete([FromForm] string id, CancellationToken cancellationToken = default)
@@ -141,6 +158,11 @@ public class ComicConController(IGuestsApi api) : Controller
         return View("Index", result.Groups);
     }
 
+    /// <summary>
+    ///     Safes the load events asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<IReadOnlyList<McmEventConfigModel>> SafeLoadEventsAsync(CancellationToken cancellationToken)
     {
         try

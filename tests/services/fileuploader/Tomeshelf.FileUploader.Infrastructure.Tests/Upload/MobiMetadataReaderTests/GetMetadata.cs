@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Shouldly;
 using Tomeshelf.FileUploader.Infrastructure.Upload;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.FileUploader.Infrastructure.Tests.Upload.MobiMetadataReaderT
 
 public class GetMetadata
 {
+    /// <summary>
+    ///     Falls the back to pdb title when no exth.
+    /// </summary>
     [Fact]
     public void FallsBackToPdbTitleWhenNoExth()
     {
@@ -34,6 +37,9 @@ public class GetMetadata
         }
     }
 
+    /// <summary>
+    ///     Uses the exth title when present.
+    /// </summary>
     [Fact]
     public void UsesExthTitleWhenPresent()
     {
@@ -73,6 +79,10 @@ public class GetMetadata
         }
     }
 
+    /// <summary>
+    ///     Creates the temp directory.
+    /// </summary>
+    /// <returns>The resulting string.</returns>
     private static string CreateTempDirectory()
     {
         var path = Path.Combine(Path.GetTempPath(), "tomeshelf-tests", Guid.NewGuid()
@@ -82,6 +92,10 @@ public class GetMetadata
         return path;
     }
 
+    /// <summary>
+    ///     Attempts to delete a directory.
+    /// </summary>
+    /// <param name="path">The path.</param>
     private static void TryDeleteDirectory(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -99,6 +113,12 @@ public class GetMetadata
         catch { }
     }
 
+    /// <summary>
+    ///     WriteBs the e 32.
+    /// </summary>
+    /// <param name="data">The data.</param>
+    /// <param name="offset">The offset.</param>
+    /// <param name="value">The value.</param>
     private static void WriteBE32(byte[] data, int offset, uint value)
     {
         data[offset] = (byte)((value >> 24) & 0xFF);

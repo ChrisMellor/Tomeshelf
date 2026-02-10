@@ -172,6 +172,11 @@ public sealed class GuestsService : IGuestsService
         return new GuestSyncResultDto("Succeeded", added, updated, removed, total, DateTimeOffset.UtcNow);
     }
 
+    /// <summary>
+    ///     Maps the record to guest.
+    /// </summary>
+    /// <param name="record">The record.</param>
+    /// <returns>The result of the operation.</returns>
     internal static GuestEntity MapRecordToGuest(GuestRecord record)
     {
         var (firstName, lastName) = SplitName(record.Name);
@@ -191,6 +196,11 @@ public sealed class GuestsService : IGuestsService
         return new GuestEntity { Information = information };
     }
 
+    /// <summary>
+    ///     Splits the name.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns>The result of the operation.</returns>
     internal static (string FirstName, string LastName) SplitName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))

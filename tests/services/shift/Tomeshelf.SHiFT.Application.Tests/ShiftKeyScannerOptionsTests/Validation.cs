@@ -1,10 +1,13 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Shouldly;
 
 namespace Tomeshelf.SHiFT.Application.Tests.ShiftKeyScannerOptionsTests;
 
 public class Validation
 {
+    /// <summary>
+    ///     Fails for out of range lookback when the value is a validation.
+    /// </summary>
     [Fact]
     public void Validation_FailsForOutOfRangeLookback()
     {
@@ -20,6 +23,9 @@ public class Validation
         results.ShouldContain(result => result.MemberNames.Contains(nameof(ShiftKeyScannerOptions.LookbackHours)));
     }
 
+    /// <summary>
+    ///     Fails for out of rangex options when the value is a validation.
+    /// </summary>
     [Fact]
     public void Validation_FailsForOutOfRangeXOptions()
     {

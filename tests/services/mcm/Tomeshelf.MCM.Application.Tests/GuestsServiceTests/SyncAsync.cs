@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Shouldly;
 using Tomeshelf.MCM.Application.Models;
 using Tomeshelf.MCM.Application.Records;
@@ -9,6 +9,10 @@ namespace Tomeshelf.MCM.Application.Tests.GuestsServiceTests;
 
 public class SyncAsync
 {
+    /// <summary>
+    ///     Adds the new guest.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task AddsNewGuest()
     {
@@ -52,6 +56,10 @@ public class SyncAsync
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Removes the guest.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task RemovesGuest()
     {
@@ -96,6 +104,10 @@ public class SyncAsync
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Returns null when the event does not exist.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNull_WhenEventDoesNotExist()
     {
@@ -112,6 +124,10 @@ public class SyncAsync
         result.ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Saves changes when there are no updates.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task SavesChanges_WhenNoUpdates()
     {
@@ -155,6 +171,10 @@ public class SyncAsync
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Updates the guest.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task UpdatesGuest()
     {

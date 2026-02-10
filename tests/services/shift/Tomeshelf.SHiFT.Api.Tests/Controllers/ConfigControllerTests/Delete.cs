@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using Shouldly;
@@ -12,6 +12,10 @@ namespace Tomeshelf.SHiFT.Api.Tests.Controllers.ConfigControllerTests;
 
 public class Delete
 {
+    /// <summary>
+    ///     Returns the no content.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNoContent()
     {

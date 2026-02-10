@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +13,10 @@ namespace Tomeshelf.Web.Tests.Controllers.PaissaControllerTests;
 
 public class Index
 {
+    /// <summary>
+    ///     Aggregates the plot totals.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task AggregatesPlotTotals()
     {

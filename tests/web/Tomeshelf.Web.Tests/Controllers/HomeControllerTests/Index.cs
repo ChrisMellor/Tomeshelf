@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +22,10 @@ namespace Tomeshelf.Web.Tests.Controllers.HomeControllerTests;
 
 public class Index
 {
+    /// <summary>
+    ///     Builds the summary strings.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task BuildsSummaryStrings()
     {
@@ -73,6 +77,10 @@ public class Index
         model.GamingSummary.ShouldBe("3 plots listed");
     }
 
+    /// <summary>
+    ///     Shows unavailable summary when the bundles API fails.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenBundlesApiFails_ShowsUnavailableSummary()
     {
@@ -103,6 +111,10 @@ public class Index
         model.EducationSummary.ShouldBe("Bundles unavailable");
     }
 
+    /// <summary>
+    ///     Shows connect message when the fitbit authorization required.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenFitbitAuthorizationRequired_ShowsConnectMessage()
     {
@@ -133,6 +145,15 @@ public class Index
         model.HealthSummary.ShouldBe("Connect Fitbit to sync");
     }
 
+    /// <summary>
+    ///     Creates the controller.
+    /// </summary>
+    /// <param name="bundlesApi">The bundles api.</param>
+    /// <param name="fitbitApi">The fitbit api.</param>
+    /// <param name="guestsApi">The guests api.</param>
+    /// <param name="paissaApi">The paissa api.</param>
+    /// <param name="logger">The logger.</param>
+    /// <returns>The result of the operation.</returns>
     private static HomeController CreateController(IBundlesApi bundlesApi, IFitbitApi fitbitApi, IGuestsApi guestsApi, IPaissaApi paissaApi, ILogger<HomeController> logger)
     {
         var httpContext = new DefaultHttpContext();

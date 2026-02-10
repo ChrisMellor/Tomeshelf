@@ -1,10 +1,14 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.SHiFT.Infrastructure.Tests.TestUtilities;
 
 namespace Tomeshelf.SHiFT.Infrastructure.Tests.Services.External.ShiftWebSessionTests;
 
 public class BuildRedeemBodyAsync
 {
+    /// <summary>
+    ///     Returns the matching options.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsMatchingOptions()
     {
@@ -51,6 +55,10 @@ public class BuildRedeemBodyAsync
            .ShouldContain("utf8=%E2%9C%93");
     }
 
+    /// <summary>
+    ///     Returns null display name when the button is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNullDisplayName_WhenMissingButton()
     {
@@ -75,6 +83,10 @@ public class BuildRedeemBodyAsync
            .ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Throws the when no matching form.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ThrowsWhenNoMatchingForm()
     {

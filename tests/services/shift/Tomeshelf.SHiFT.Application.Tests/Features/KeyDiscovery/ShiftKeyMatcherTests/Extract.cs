@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.SHiFT.Application.Features.KeyDiscovery;
 
 namespace Tomeshelf.SHiFT.Application.Tests.Features.KeyDiscovery.ShiftKeyMatcherTests;
 
 public class Extract
 {
+    /// <summary>
+    ///     Finds the keys and normalizes case.
+    /// </summary>
     [Fact]
     public void FindsKeysAndNormalizesCase()
     {
@@ -22,6 +25,9 @@ public class Extract
            .ShouldBe("12345-ABCDE-67890-FGHIJ-KLMNO");
     }
 
+    /// <summary>
+    ///     Returns empty when there are no matches.
+    /// </summary>
     [Fact]
     public void WhenNoMatches_ReturnsEmpty()
     {
@@ -35,6 +41,9 @@ public class Extract
         results.ShouldBeEmpty();
     }
 
+    /// <summary>
+    ///     Returns empty when the or whitespace is null.
+    /// </summary>
     [Fact]
     public void WhenNullOrWhitespace_ReturnsEmpty()
     {

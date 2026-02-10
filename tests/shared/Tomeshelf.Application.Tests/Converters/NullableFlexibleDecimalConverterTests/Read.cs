@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using Shouldly;
 using Tomeshelf.Application.Shared;
@@ -9,6 +9,9 @@ public class Read
 {
     private readonly JsonSerializerOptions _options = new JsonSerializerOptions(JsonSerializerDefaults.Web) { Converters = { new NullableFlexibleDecimalConverter() } };
 
+    /// <summary>
+    ///     Returns null when the value is null.
+    /// </summary>
     [Fact]
     public void Null_ReturnsNull()
     {
@@ -27,6 +30,9 @@ public class Read
         value.ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Returns decimal when the value is a number.
+    /// </summary>
     [Fact]
     public void Number_ReturnsDecimal()
     {
@@ -45,6 +51,9 @@ public class Read
         value.ShouldBe(123.45m);
     }
 
+    /// <summary>
+    ///     Parses when the string contains currency and commas.
+    /// </summary>
     [Fact]
     public void StringCurrencyAndCommas_Parses()
     {
@@ -63,6 +72,9 @@ public class Read
         value.ShouldBe(1234.50m);
     }
 
+    /// <summary>
+    ///     Returns null when the string is empty.
+    /// </summary>
     [Fact]
     public void StringEmpty_ReturnsNull()
     {
@@ -81,6 +93,9 @@ public class Read
         value.ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Returns null when the string is invalid.
+    /// </summary>
     [Fact]
     public void StringInvalid_ReturnsNull()
     {

@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Shouldly;
 using System;
@@ -17,6 +17,10 @@ namespace Tomeshelf.Web.Tests.Services.FileUploadsApiTests;
 
 public class UploadBundleAsync
 {
+    /// <summary>
+    ///     Includes the credentials in multipart content.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task IncludesCredentialsInMultipartContent()
     {
@@ -79,6 +83,10 @@ public class UploadBundleAsync
            .ShouldBe("user@example.com");
     }
 
+    /// <summary>
+    ///     Does not include credential fields when the auth is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenAuthMissing_DoesNotIncludeCredentialFields()
     {
@@ -125,6 +133,10 @@ public class UploadBundleAsync
              .ShouldBeFalse();
     }
 
+    /// <summary>
+    ///     Throws when the stream is null.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenStreamNull_Throws()
     {

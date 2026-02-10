@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -16,6 +16,10 @@ namespace Tomeshelf.Web.Tests.Services.GuestsApiTests;
 
 public class GetComicConGuestsByEventResultAsync
 {
+    /// <summary>
+    ///     Paginates the and groups guests.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task PaginatesAndGroupsGuests()
     {

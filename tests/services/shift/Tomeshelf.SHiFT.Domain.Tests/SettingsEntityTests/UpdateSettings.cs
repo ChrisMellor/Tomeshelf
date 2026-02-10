@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using Shouldly;
 using Tomeshelf.SHiFT.Domain.Entities;
 
@@ -6,6 +6,9 @@ namespace Tomeshelf.SHiFT.Domain.Tests.SettingsEntityTests;
 
 public class UpdateSettings
 {
+    /// <summary>
+    ///     Updates the all fields and timestamp.
+    /// </summary>
     [Fact]
     public void UpdatesAllFieldsAndTimestamp()
     {
@@ -35,6 +38,9 @@ public class UpdateSettings
         (settings.UpdatedUtc >= beforeUpdate).ShouldBeTrue();
     }
 
+    /// <summary>
+    ///     Stills updates timestamp when the same values.
+    /// </summary>
     [Fact]
     public void WithSameValues_StillUpdatesTimestamp()
     {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +22,10 @@ public class Upload
     private const string RefreshTokenKey = "gd_refreshToken";
     private const string UserEmailKey = "gd_userEmail";
 
+    /// <summary>
+    ///     Shows upload error when the archive is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenArchiveMissing_ShowsUploadError()
     {
@@ -37,6 +41,10 @@ public class Upload
         model.Error.ShouldBe("Please choose a Humble Bundle zip archive to upload.");
     }
 
+    /// <summary>
+    ///     Shows auth error when the auth is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenAuthMissing_ShowsAuthError()
     {
@@ -53,6 +61,10 @@ public class Upload
         model.Error.ShouldBe("Google Drive is not authorised. Please run the OAuth flow first.");
     }
 
+    /// <summary>
+    ///     Uploads archive when the auth is present.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenAuthPresent_UploadsArchive()
     {
@@ -81,6 +93,9 @@ public class Upload
          .MustHaveHappenedOnceExactly();
     }
 
+    /// <summary>
+    ///     Shows authorization error when the tokens are missing.
+    /// </summary>
     [Fact]
     public void WhenTokensMissing_ShowsAuthorizationError()
     {
@@ -96,6 +111,10 @@ public class Upload
         model.Error.ShouldBe("Google Drive is not authorised yet. Run the OAuth flow first.");
     }
 
+    /// <summary>
+    ///     Returns error when uploading throws.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenUploadThrows_ReturnsError()
     {
@@ -119,6 +138,10 @@ public class Upload
         model.Error.ShouldBe("Upload failed: boom");
     }
 
+    /// <summary>
+    ///     Creates the archive.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static IFormFile CreateArchive()
     {
         var stream = new MemoryStream(new byte[] { 1, 2, 3, 4 });
@@ -126,6 +149,12 @@ public class Upload
         return new FormFile(stream, 0, stream.Length, "archive", "bundle.zip");
     }
 
+    /// <summary>
+    ///     Creates the controller.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="uploadsApi">The uploads api.</param>
+    /// <returns>The result of the operation.</returns>
     private static BundlesController CreateController(out TestSession session, IFileUploadsApi uploadsApi = null)
     {
         session = new TestSession();

@@ -1,10 +1,13 @@
-using Shouldly;
+﻿using Shouldly;
 using Tomeshelf.Web.Models.Fitness;
 
 namespace Tomeshelf.Web.Tests.Models.Fitness.WeightUnitConverterTests;
 
 public class ToStonesAndPounds
 {
+    /// <summary>
+    ///     Converts the to stones and pounds.
+    /// </summary>
     [Fact]
     public void ConvertsToStonesAndPounds()
     {

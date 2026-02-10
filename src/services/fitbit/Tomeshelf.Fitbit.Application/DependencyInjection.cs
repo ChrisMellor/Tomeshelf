@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Commands;
 using Tomeshelf.Fitbit.Application.Features.Authorization.Models;
@@ -11,6 +11,11 @@ namespace Tomeshelf.Fitbit.Application;
 
 public static class DependencyInjection
 {
+    /// <summary>
+    ///     Adds the application services.
+    /// </summary>
+    /// <param name="services">The services.</param>
+    /// <returns>The result of the operation.</returns>
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto>, GetFitbitDashboardQueryHandler>();

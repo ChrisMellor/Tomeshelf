@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
 using System.Net;
 using System.Text;
@@ -8,6 +8,10 @@ namespace Tomeshelf.HumbleBundle.Infrastructure.Tests.Bundles.HumbleBundleScrape
 
 public class ScrapeAsync
 {
+    /// <summary>
+    ///     Parses the bundles from html payload.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ParsesBundlesFromHtmlPayload()
     {
@@ -69,6 +73,10 @@ public class ScrapeAsync
         second.EndsAt.ShouldBeNull();
     }
 
+    /// <summary>
+    ///     Returns empty list when there is no bundle data is present.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsEmptyList_WhenNoBundleDataIsPresent()
     {
@@ -87,6 +95,10 @@ public class ScrapeAsync
         bundles.ShouldBeEmpty();
     }
 
+    /// <summary>
+    ///     Throws when the JSON payload is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Throws_WhenJsonPayloadIsMissing()
     {
@@ -106,6 +118,10 @@ public class ScrapeAsync
     {
         private readonly HttpClient _client;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="StubHttpClientFactory" /> class.
+        /// </summary>
+        /// <param name="client">The client.</param>
         public StubHttpClientFactory(HttpClient client)
         {
             _client = client;
@@ -113,6 +129,11 @@ public class ScrapeAsync
 
         public string? LastName { get; private set; }
 
+        /// <summary>
+        ///     Creates the client.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>The result of the operation.</returns>
         public HttpClient CreateClient(string name)
         {
             LastName = name;
@@ -125,6 +146,10 @@ public class ScrapeAsync
     {
         private readonly HttpResponseMessage _response;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="StubHttpMessageHandler" /> class.
+        /// </summary>
+        /// <param name="response">The response.</param>
         public StubHttpMessageHandler(HttpResponseMessage response)
         {
             _response = response;
@@ -132,6 +157,12 @@ public class ScrapeAsync
 
         public HttpRequestMessage? RequestMessage { get; private set; }
 
+        /// <summary>
+        ///     Sends asynchronously.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             RequestMessage = request;

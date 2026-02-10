@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
@@ -10,6 +10,10 @@ namespace Tomeshelf.SHiFT.Infrastructure.Tests.Services.External.XShiftKeySource
 
 public class GetKeysAsync
 {
+    /// <summary>
+    ///     Extracts codes from tweets.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ExtractsCodes_FromTweets()
     {
@@ -67,6 +71,10 @@ public class GetKeysAsync
         handler.LastTweetRequest.Headers.Authorization!.Parameter.ShouldBe("token");
     }
 
+    /// <summary>
+    ///     Paginates when the next token provided.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task Paginates_WhenNextTokenProvided()
     {
@@ -128,6 +136,10 @@ public class GetKeysAsync
         tweetRequests[1].RequestUri!.Query.ShouldContain("pagination_token=next-1");
     }
 
+    /// <summary>
+    ///     Returns empty when the bearer token is unavailable.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsEmpty_WhenBearerTokenUnavailable()
     {
@@ -158,6 +170,10 @@ public class GetKeysAsync
         handler.Requests.ShouldBeEmpty();
     }
 
+    /// <summary>
+    ///     Returns empty when disabled.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsEmpty_WhenDisabled()
     {
@@ -177,6 +193,10 @@ public class GetKeysAsync
         handler.Requests.ShouldBeEmpty();
     }
 
+    /// <summary>
+    ///     Returns empty when the tweet fetch fails.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsEmpty_WhenTweetFetchFails()
     {
@@ -207,6 +227,10 @@ public class GetKeysAsync
                .ShouldBeTrue();
     }
 
+    /// <summary>
+    ///     Returns empty when the user lookup fails.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsEmpty_WhenUserLookupFails()
     {
@@ -234,6 +258,10 @@ public class GetKeysAsync
         handler.Requests.ShouldHaveSingleItem();
     }
 
+    /// <summary>
+    ///     Returns empty when the user lookup returns no ID.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsEmpty_WhenUserLookupReturnsNoId()
     {
@@ -262,6 +290,10 @@ public class GetKeysAsync
         handler.Requests[0].RequestUri!.AbsolutePath.ShouldContain("/users/by/username/");
     }
 
+    /// <summary>
+    ///     Returns empty when the usernames are missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsEmpty_WhenUsernamesMissing()
     {
@@ -293,11 +325,20 @@ public class GetKeysAsync
     {
         private readonly HttpClient _client;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="StubHttpClientFactory" /> class.
+        /// </summary>
+        /// <param name="client">The client.</param>
         public StubHttpClientFactory(HttpClient client)
         {
             _client = client;
         }
 
+        /// <summary>
+        ///     Creates the client.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>The result of the operation.</returns>
         public HttpClient CreateClient(string name)
         {
             return _client;
@@ -320,6 +361,12 @@ public class GetKeysAsync
 
         public Queue<string> TweetResponses { get; } = new();
 
+        /// <summary>
+        ///     Sends asynchronously.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             Requests.Add(request);

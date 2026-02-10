@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -20,6 +20,11 @@ public sealed class FitbitApi : IFitbitApi
     private readonly HttpClient _httpClient;
     private readonly ILogger<FitbitApi> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitbitApi" /> class.
+    /// </summary>
+    /// <param name="httpClientFactory">The http client factory.</param>
+    /// <param name="logger">The logger.</param>
     public FitbitApi(IHttpClientFactory httpClientFactory, ILogger<FitbitApi> logger)
     {
         _httpClient = httpClientFactory.CreateClient(HttpClientName);
@@ -44,6 +49,14 @@ public sealed class FitbitApi : IFitbitApi
            .ConfigureAwait(false);
     }
 
+    /// <summary>
+    ///     Builds the query.
+    /// </summary>
+    /// <param name="basePath">The base path.</param>
+    /// <param name="date">The date.</param>
+    /// <param name="refresh">The refresh.</param>
+    /// <param name="returnUrl">The return url.</param>
+    /// <returns>The resulting string.</returns>
     private static string BuildQuery(string basePath, string date, bool refresh, string returnUrl)
     {
         var parameters = new List<string>();
@@ -65,11 +78,23 @@ public sealed class FitbitApi : IFitbitApi
         return $"{basePath}{query}";
     }
 
+    /// <summary>
+    ///     Creates the serializer options.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     private static JsonSerializerOptions CreateSerializerOptions()
     {
         return new JsonSerializerOptions(JsonSerializerDefaults.Web);
     }
 
+    /// <summary>
+    ///     Gets the payload asynchronously.
+    /// </summary>
+    /// <typeparam name="T">The type of t.</typeparam>
+    /// <param name="url">The url.</param>
+    /// <param name="payloadName">The payload name.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     private async Task<T> GetPayloadAsync<T>(string url, string payloadName, CancellationToken cancellationToken)
     {
         var started = DateTimeOffset.UtcNow;
@@ -145,6 +170,11 @@ public sealed class FitbitApi : IFitbitApi
         return model;
     }
 
+    /// <summary>
+    ///     Determines whether the specified status code is a redirect status.
+    /// </summary>
+    /// <param name="statusCode">The status code.</param>
+    /// <returns>True if the condition is met; otherwise, false.</returns>
     private static bool IsRedirectStatus(HttpStatusCode statusCode)
     {
         return (statusCode == HttpStatusCode.Redirect) || (statusCode == HttpStatusCode.RedirectKeepVerb) || (statusCode == HttpStatusCode.RedirectMethod) || (statusCode == HttpStatusCode.MovedPermanently) || (statusCode == HttpStatusCode.SeeOther) || (statusCode == HttpStatusCode.TemporaryRedirect) || (statusCode == HttpStatusCode.PermanentRedirect);

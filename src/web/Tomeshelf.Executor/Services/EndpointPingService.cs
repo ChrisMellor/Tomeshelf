@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
@@ -14,12 +14,25 @@ public sealed class EndpointPingService : IEndpointPingService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<EndpointPingService> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="EndpointPingService" /> class.
+    /// </summary>
+    /// <param name="httpClientFactory">The http client factory.</param>
+    /// <param name="logger">The logger.</param>
     public EndpointPingService(IHttpClientFactory httpClientFactory, ILogger<EndpointPingService> logger)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
 
+    /// <summary>
+    ///     Sends asynchronously.
+    /// </summary>
+    /// <param name="target">The target.</param>
+    /// <param name="method">The method.</param>
+    /// <param name="headers">The headers.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the operation result.</returns>
     public async Task<EndpointPingResult> SendAsync(Uri target, string method, Dictionary<string, string>? headers, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(target);
@@ -52,6 +65,11 @@ public sealed class EndpointPingService : IEndpointPingService
         }
     }
 
+    /// <summary>
+    ///     Adds the headers.
+    /// </summary>
+    /// <param name="headers">The headers.</param>
+    /// <param name="request">The request.</param>
     private static void AddHeaders(Dictionary<string, string>? headers, HttpRequestMessage request)
     {
         if (headers is null)
@@ -71,6 +89,13 @@ public sealed class EndpointPingService : IEndpointPingService
         }
     }
 
+    /// <summary>
+    ///     Builds the request.
+    /// </summary>
+    /// <param name="target">The target.</param>
+    /// <param name="method">The method.</param>
+    /// <param name="headers">The headers.</param>
+    /// <returns>The result of the operation.</returns>
     private static HttpRequestMessage BuildRequest(Uri target, string? method, Dictionary<string, string>? headers)
     {
         var httpMethod = CreateMethod(method);
@@ -80,6 +105,11 @@ public sealed class EndpointPingService : IEndpointPingService
         return request;
     }
 
+    /// <summary>
+    ///     Creates the method.
+    /// </summary>
+    /// <param name="methodName">The method name.</param>
+    /// <returns>The result of the operation.</returns>
     private static HttpMethod CreateMethod(string? methodName)
     {
         if (string.IsNullOrWhiteSpace(methodName))

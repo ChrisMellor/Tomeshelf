@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
@@ -14,6 +14,10 @@ namespace Tomeshelf.Fitbit.Api.Tests.Controllers.FitbitControllerTests;
 
 public class GetDashboard
 {
+    /// <summary>
+    ///     Returns bad gateway when the bad request.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsBadGateway_WhenBadRequest()
     {
@@ -34,6 +38,10 @@ public class GetDashboard
         objectResult.StatusCode.ShouldBe(502);
     }
 
+    /// <summary>
+    ///     Returns not found when the snapshot is missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsNotFound_WhenSnapshotMissing()
     {
@@ -53,6 +61,10 @@ public class GetDashboard
         result.Result.ShouldBeOfType<NotFoundResult>();
     }
 
+    /// <summary>
+    ///     Returns ok when the snapshot found.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsOk_WhenSnapshotFound()
     {
@@ -74,6 +86,10 @@ public class GetDashboard
         ok.Value.ShouldBeSameAs(snapshot);
     }
 
+    /// <summary>
+    ///     Returns rate limit with retry after.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsRateLimit_WithRetryAfter()
     {
@@ -99,6 +115,10 @@ public class GetDashboard
                            .ShouldBe(10);
     }
 
+    /// <summary>
+    ///     Returns redirect when the value is unauthorized.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsRedirect_WhenUnauthorized()
     {
@@ -119,6 +139,10 @@ public class GetDashboard
         redirect.Url.ShouldBe("https://example.test/authorize");
     }
 
+    /// <summary>
+    ///     Returns service unavailable when the value is a timeout.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task ReturnsServiceUnavailable_WhenTimeout()
     {

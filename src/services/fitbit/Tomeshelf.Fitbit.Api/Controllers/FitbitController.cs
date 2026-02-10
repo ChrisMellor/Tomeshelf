@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -25,6 +25,13 @@ public sealed class FitbitController : ControllerBase
     private readonly IOptionsMonitor<FitbitOptions> _options;
     private readonly IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto> _overviewHandler;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FitbitController" /> class.
+    /// </summary>
+    /// <param name="dashboardHandler">The dashboard handler.</param>
+    /// <param name="overviewHandler">The overview handler.</param>
+    /// <param name="options">The options.</param>
+    /// <param name="logger">The logger.</param>
     public FitbitController(IQueryHandler<GetFitbitDashboardQuery, FitbitDashboardDto> dashboardHandler, IQueryHandler<GetFitbitOverviewQuery, FitbitOverviewDto> overviewHandler, IOptionsMonitor<FitbitOptions> options, ILogger<FitbitController> logger)
     {
         _dashboardHandler = dashboardHandler;
@@ -223,6 +230,11 @@ public sealed class FitbitController : ControllerBase
         }
     }
 
+    /// <summary>
+    ///     Builds the authorize redirect target.
+    /// </summary>
+    /// <param name="requestedReturnUrl">The requested return url.</param>
+    /// <returns>The resulting string.</returns>
     private string BuildAuthorizeRedirectTarget(string requestedReturnUrl)
     {
         var queryReturnUrl = requestedReturnUrl ?? Request.Query["returnUrl"];
@@ -254,6 +266,11 @@ public sealed class FitbitController : ControllerBase
         return $"/api/fitbit/auth/authorize?returnUrl={Uri.EscapeDataString(target)}";
     }
 
+    /// <summary>
+    ///     Resolves the date.
+    /// </summary>
+    /// <param name="input">The input.</param>
+    /// <returns>The result of the operation.</returns>
     private static DateOnly ResolveDate(string input)
     {
         if (!string.IsNullOrWhiteSpace(input) && DateOnly.TryParseExact(input, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))

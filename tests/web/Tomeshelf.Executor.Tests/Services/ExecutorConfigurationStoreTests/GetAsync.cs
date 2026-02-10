@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Shouldly;
 using Tomeshelf.Executor.Services;
@@ -8,6 +8,10 @@ namespace Tomeshelf.Executor.Tests.Services.ExecutorConfigurationStoreTests;
 
 public class GetAsync
 {
+    /// <summary>
+    ///     Uses environment file when the environment file exists.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenEnvironmentFileExists_UsesEnvironmentFile()
     {
@@ -41,6 +45,10 @@ public class GetAsync
         }
     }
 
+    /// <summary>
+    ///     Returns defaults when the files are missing.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [Fact]
     public async Task WhenMissingFiles_ReturnsDefaults()
     {
