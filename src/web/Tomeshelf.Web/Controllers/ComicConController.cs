@@ -1,7 +1,10 @@
 ﻿using System.Diagnostics;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tomeshelf.Web.Models.Mcm;
 using Tomeshelf.Web.Services;
 
 namespace Tomeshelf.Web.Controllers;
@@ -13,6 +16,102 @@ namespace Tomeshelf.Web.Controllers;
 [Route("comiccon")]
 public class ComicConController(IGuestsApi api) : Controller
 {
+    [HttpGet("config")]
+    public async Task<IActionResult> Config(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var events = await api.GetComicConEventsAsync(cancellationToken, forceRefresh: true);
+
+            return View("Config", new McmEventsConfigViewModel
+            {
+                Events = events
+            });
+        }
+        catch (Exception ex)
+        {
+            return View("Config", new McmEventsConfigViewModel
+            {
+                ErrorMessage = $"Unable to load MCM event configuration: {ex.Message}"
+            });
+        }
+    }
+
+    [HttpPost("config/upsert")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Upsert([Bind(Prefix = "Editor")] McmEventConfigEditorModel editor, CancellationToken cancellationToken = default)
+    {
+        editor.Id = (editor.Id ?? string.Empty).Trim();
+        editor.Name = (editor.Name ?? string.Empty).Trim();
+
+        if (string.IsNullOrWhiteSpace(editor.Id))
+        {
+            ModelState.AddModelError("Editor.Id", "Event ID is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(editor.Name))
+        {
+            ModelState.AddModelError("Editor.Name", "Event name is required.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            var events = await SafeLoadEventsAsync(cancellationToken);
+
+            return View("Config", new McmEventsConfigViewModel
+            {
+                Events = events,
+                Editor = editor
+            });
+        }
+
+        try
+        {
+            await api.UpsertComicConEventAsync(editor.Id, editor.Name, cancellationToken);
+
+            TempData["StatusMessage"] = $"Saved event '{editor.Name}' ({editor.Id}).";
+
+            return RedirectToAction(nameof(Config));
+        }
+        catch (Exception ex)
+        {
+            var events = await SafeLoadEventsAsync(cancellationToken);
+
+            return View("Config", new McmEventsConfigViewModel
+            {
+                Events = events,
+                Editor = editor,
+                ErrorMessage = $"Failed to save event: {ex.Message}"
+            });
+        }
+    }
+
+    [HttpPost("config/delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete([FromForm] string id, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            TempData["StatusMessage"] = "Event ID is required.";
+
+            return RedirectToAction(nameof(Config));
+        }
+
+        try
+        {
+            var deleted = await api.DeleteComicConEventAsync(id, cancellationToken);
+            TempData["StatusMessage"] = deleted
+                ? $"Deleted event '{id}'."
+                : $"Event '{id}' not found.";
+        }
+        catch (Exception ex)
+        {
+            TempData["StatusMessage"] = $"Failed to delete event '{id}': {ex.Message}";
+        }
+
+        return RedirectToAction(nameof(Config));
+    }
+
     /// <summary>
     ///     Handles HTTP GET requests to retrieve and display the list of guests for a specified event.
     /// </summary>
@@ -40,5 +139,17 @@ public class ComicConController(IGuestsApi api) : Controller
         ViewBag.ElapsedMs = sw.ElapsedMilliseconds;
 
         return View("Index", result.Groups);
+    }
+
+    private async Task<IReadOnlyList<McmEventConfigModel>> SafeLoadEventsAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await api.GetComicConEventsAsync(cancellationToken, forceRefresh: true);
+        }
+        catch
+        {
+            return Array.Empty<McmEventConfigModel>();
+        }
     }
 }

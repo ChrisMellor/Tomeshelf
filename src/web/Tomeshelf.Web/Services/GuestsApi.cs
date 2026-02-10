@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -62,9 +64,9 @@ public sealed class GuestsApi : IGuestsApi
     ///     A read-only list of event configuration models representing the available Comic Con events. The list is empty if no
     ///     events are found.
     /// </returns>
-    public async Task<IReadOnlyList<McmEventConfigModel>> GetComicConEventsAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<McmEventConfigModel>> GetComicConEventsAsync(CancellationToken cancellationToken, bool forceRefresh = false)
     {
-        if (_cache.TryGetValue(EventsCacheKey, out IReadOnlyList<McmEventConfigModel> cached))
+        if (!forceRefresh && _cache.TryGetValue(EventsCacheKey, out IReadOnlyList<McmEventConfigModel> cached))
         {
             return cached;
         }
@@ -87,6 +89,58 @@ public sealed class GuestsApi : IGuestsApi
         _cache.Set(EventsCacheKey, ordered, new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = EventsCacheDuration });
 
         return ordered;
+    }
+
+    public async Task UpsertComicConEventAsync(string eventId, string name, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(eventId))
+        {
+            throw new ArgumentException("Event ID is required.", nameof(eventId));
+        }
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Event name is required.", nameof(name));
+        }
+
+        var url = "Config";
+        var started = DateTimeOffset.UtcNow;
+        var payload = new { Id = eventId.Trim(), Name = name.Trim() };
+
+        using var res = await _http.PutAsJsonAsync(url, payload, Json, cancellationToken);
+        var duration = DateTimeOffset.UtcNow - started;
+        _logger.LogInformation("HTTP PUT {Url} -> {Status} in {Duration}ms", url, (int)res.StatusCode, (int)duration.TotalMilliseconds);
+
+        res.EnsureSuccessStatusCode();
+
+        _cache.Remove(EventsCacheKey);
+    }
+
+    public async Task<bool> DeleteComicConEventAsync(string eventId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(eventId))
+        {
+            throw new ArgumentException("Event ID is required.", nameof(eventId));
+        }
+
+        var safeId = Uri.EscapeDataString(eventId.Trim());
+        var url = $"Config/{safeId}";
+        var started = DateTimeOffset.UtcNow;
+
+        using var res = await _http.DeleteAsync(url, cancellationToken);
+        var duration = DateTimeOffset.UtcNow - started;
+        _logger.LogInformation("HTTP DELETE {Url} -> {Status} in {Duration}ms", url, (int)res.StatusCode, (int)duration.TotalMilliseconds);
+
+        if (res.StatusCode == HttpStatusCode.NotFound)
+        {
+            return false;
+        }
+
+        res.EnsureSuccessStatusCode();
+
+        _cache.Remove(EventsCacheKey);
+
+        return true;
     }
 
     /// <summary>

@@ -152,6 +152,18 @@ public sealed class ShiftSettingsRepository : IShiftSettingsRepository
     }
 
     /// <summary>
+    ///     Asynchronously retrieves all configured SHiFT settings records.
+    /// </summary>
+    public async Task<IReadOnlyList<SettingsEntity>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.ShiftSettings
+                             .AsNoTracking()
+                             .OrderBy(x => x.Email)
+                             .ThenBy(x => x.Id)
+                             .ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
     ///     Retrieves a list of SHiFT user credentials for use, including email, decrypted password, and associated service.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>

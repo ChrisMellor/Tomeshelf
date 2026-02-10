@@ -79,6 +79,17 @@ public interface IShiftSettingsRepository
     Task<IReadOnlyList<(int Id, string Email, string Password, string Service)>> GetForUseAsync(CancellationToken cancellationToken);
 
     /// <summary>
+    ///     Asynchronously retrieves all configured SHiFT settings records.
+    /// </summary>
+    /// <remarks>
+    ///     This method is intended for configuration management experiences where accounts need to be listed for
+    ///     editing/deletion. Passwords remain encrypted in the returned entities.
+    /// </remarks>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <returns>A read-only list of settings entities.</returns>
+    Task<IReadOnlyList<SettingsEntity>> GetAllAsync(CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Asynchronously updates the shift settings for the specified shift identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the shift to update.</param>

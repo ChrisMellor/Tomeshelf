@@ -25,7 +25,12 @@ public interface IGuestsApi
     ///     A task that represents the asynchronous operation. The task result contains a read-only list of Comic Con event
     ///     configuration models. The list will be empty if no events are available.
     /// </returns>
-    Task<IReadOnlyList<McmEventConfigModel>> GetComicConEventsAsync(CancellationToken cancellationToken);
+    Task<IReadOnlyList<McmEventConfigModel>> GetComicConEventsAsync(CancellationToken cancellationToken, bool forceRefresh = false);
+
+    Task UpsertComicConEventAsync(string eventId, string name, CancellationToken cancellationToken);
+
+    /// <returns><see langword="true" /> if the event was deleted; <see langword="false" /> if it does not exist.</returns>
+    Task<bool> DeleteComicConEventAsync(string eventId, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Asynchronously retrieves the list of guest groups and the total number of guests for a specified Comic Con

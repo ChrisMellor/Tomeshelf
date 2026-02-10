@@ -24,6 +24,13 @@ public partial class DropFitbitCredentials : Migration
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.DropTable("FitbitCredentials");
+        // SQL Server throws when dropping a non-existent table; keep this migration idempotent.
+        // Note: keep schema unqualified to match the behavior of migrationBuilder.DropTable(...).
+        migrationBuilder.Sql(@"
+IF OBJECT_ID(N'[FitbitCredentials]', N'U') IS NOT NULL
+BEGIN
+    DROP TABLE [FitbitCredentials];
+END
+");
     }
 }

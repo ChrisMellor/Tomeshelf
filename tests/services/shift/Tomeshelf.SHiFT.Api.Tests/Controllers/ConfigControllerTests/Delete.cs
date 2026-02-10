@@ -1,5 +1,6 @@
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.SHiFT.Api.Controllers;
@@ -16,10 +17,11 @@ public class Delete
     {
         // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>();
+        var listHandler = A.Fake<IQueryHandler<ListShiftSettingsQuery, IReadOnlyList<ShiftSettingsDto>>>();
         var createHandler = A.Fake<ICommandHandler<CreateShiftSettingsCommand, int>>();
         var updateHandler = A.Fake<ICommandHandler<UpdateShiftSettingsCommand, bool>>();
         var deleteHandler = A.Fake<ICommandHandler<DeleteShiftSettingsCommand, bool>>();
-        var controller = new ConfigController(queryHandler, createHandler, updateHandler, deleteHandler);
+        var controller = new ConfigController(queryHandler, listHandler, createHandler, updateHandler, deleteHandler);
 
         // Act
         var result = await controller.Delete(12, CancellationToken.None);

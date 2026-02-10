@@ -1,5 +1,6 @@
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.SHiFT.Api.Controllers;
@@ -16,10 +17,11 @@ public class Get
     {
         // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>();
+        var listHandler = A.Fake<IQueryHandler<ListShiftSettingsQuery, IReadOnlyList<ShiftSettingsDto>>>();
         var createHandler = A.Fake<ICommandHandler<CreateShiftSettingsCommand, int>>();
         var updateHandler = A.Fake<ICommandHandler<UpdateShiftSettingsCommand, bool>>();
         var deleteHandler = A.Fake<ICommandHandler<DeleteShiftSettingsCommand, bool>>();
-        var controller = new ConfigController(queryHandler, createHandler, updateHandler, deleteHandler);
+        var controller = new ConfigController(queryHandler, listHandler, createHandler, updateHandler, deleteHandler);
 
         A.CallTo(() => queryHandler.Handle(A<GetShiftSettingsQuery>._, A<CancellationToken>._))
          .Returns(Task.FromResult<ShiftSettingsDto?>(null));
@@ -36,10 +38,11 @@ public class Get
     {
         // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>();
+        var listHandler = A.Fake<IQueryHandler<ListShiftSettingsQuery, IReadOnlyList<ShiftSettingsDto>>>();
         var createHandler = A.Fake<ICommandHandler<CreateShiftSettingsCommand, int>>();
         var updateHandler = A.Fake<ICommandHandler<UpdateShiftSettingsCommand, bool>>();
         var deleteHandler = A.Fake<ICommandHandler<DeleteShiftSettingsCommand, bool>>();
-        var controller = new ConfigController(queryHandler, createHandler, updateHandler, deleteHandler);
+        var controller = new ConfigController(queryHandler, listHandler, createHandler, updateHandler, deleteHandler);
         var dto = new ShiftSettingsDto(7, "user@example.com", "psn", true, DateTimeOffset.UtcNow);
 
         A.CallTo(() => queryHandler.Handle(A<GetShiftSettingsQuery>._, A<CancellationToken>._))

@@ -12,31 +12,138 @@
         </p>
     </section>
 
+    @if (TempData["StatusMessage"] is string statusMessage)
+    {
+        <div class="alert alert-success mb-0">@statusMessage</div>
+    }
+
     <section class="shift-layout">
-        <div class="shift-card">
-            <h2 class="h5">Redeem a code</h2>
-            <p class="text-muted">Paste a code and launch it across all accounts.</p>
+        <div class="d-grid gap-3">
+            <div class="shift-card">
+                <h2 class="h5">Redeem a code</h2>
+                <p class="text-muted">Paste a code and launch it across all accounts.</p>
 
-            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-            {
-                <div class="alert alert-danger">@Model.ErrorMessage</div>
-            }
+                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger">@Model.ErrorMessage</div>
+                }
 
-            <form asp-action="Redeem" method="post" class="mt-3">
-                <div class="mb-3">
-                    <label class="form-label" for="ShiftCode">SHiFT code</label>
-                    <input id="ShiftCode"
-                           name="Code"
-                           class="form-control shift-input"
-                           value="@Model.Code"
-                           autocomplete="off"
-                           placeholder="e.g. ABCDE-FGHIJ-KLMNO"/>
-                    <span asp-validation-for="Code" class="text-danger small"></span>
+                <form asp-action="Redeem" method="post" class="mt-3">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label" for="ShiftCode">SHiFT code</label>
+                        <input id="ShiftCode"
+                               name="Code"
+                               class="form-control shift-input"
+                               value="@Model.Code"
+                               autocomplete="off"
+                               placeholder="e.g. ABCDE-FGHIJ-KLMNO"/>
+                        <span asp-validation-for="Code" class="text-danger small"></span>
+                    </div>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-lightning-charge me-1" aria-hidden="true"></i>Redeem code
+                    </button>
+                </form>
+            </div>
+
+            <div class="shift-card">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h2 class="h5 mb-1">Configured accounts</h2>
+                        <p class="text-muted mb-0">Manage the accounts used when redeeming codes.</p>
+                    </div>
+                    <span class="badge text-bg-secondary">@Model.Accounts.Count account(s)</span>
                 </div>
-                <button class="btn btn-primary" type="submit">
-                    <i class="bi bi-lightning-charge me-1" aria-hidden="true"></i>Redeem code
-                </button>
-            </form>
+
+                @if (!string.IsNullOrWhiteSpace(Model.AccountErrorMessage))
+                {
+                    <div class="alert alert-danger mt-3">@Model.AccountErrorMessage</div>
+                }
+
+                @if (Model.Accounts.Count == 0)
+                {
+                    <div class="shift-empty mt-3">
+                        <div class="fw-semibold">No accounts configured</div>
+                        <div class="small">Add an account below to enable redemptions.</div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th scope="col">Email</th>
+                                <th scope="col">Service</th>
+                                <th scope="col">Password</th>
+                                <th scope="col">Updated</th>
+                                <th scope="col"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var account in Model.Accounts)
+                            {
+                                <tr>
+                                    <td class="text-break">
+                                        <div class="fw-semibold">@account.Email</div>
+                                        <div class="text-muted small">ID @account.Id</div>
+                                    </td>
+                                    <td>@account.DefaultService</td>
+                                    <td>
+                                        <span class="badge @(account.HasPassword ? "text-bg-success" : "text-bg-danger")">
+                                            @(account.HasPassword ? "Set" : "Missing")
+                                        </span>
+                                    </td>
+                                    <td class="text-muted small">@account.UpdatedUtc.ToLocalTime().ToString("g")</td>
+                                    <td class="text-end">
+                                        <form asp-action="DeleteAccount" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@account.Id"/>
+                                            <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('Delete @account.Email?');">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                <hr class="my-4"/>
+
+                <h3 class="h6 mb-3">Add an account</h3>
+
+                <form asp-action="AddAccount" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="Account.Email" class="form-label"></label>
+                            <input asp-for="Account.Email" class="form-control" autocomplete="email"/>
+                            <span asp-validation-for="Account.Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Account.Password" class="form-label"></label>
+                            <input asp-for="Account.Password" class="form-control" type="password" autocomplete="current-password"/>
+                            <span asp-validation-for="Account.Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Account.DefaultService" class="form-label"></label>
+                            <input asp-for="Account.DefaultService" class="form-control" list="shift-services" placeholder="psn"/>
+                            <datalist id="shift-services">
+                                <option value="psn"></option>
+                                <option value="steam"></option>
+                                <option value="xbox"></option>
+                                <option value="epic"></option>
+                            </datalist>
+                            <div class="form-text">Service code from the SHiFT redemption form (commonly <code>psn</code>, <code>steam</code>, <code>xbox</code>, <code>epic</code>).</div>
+                            <span asp-validation-for="Account.DefaultService" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 d-flex align-items-center gap-2">
+                            <button class="btn btn-outline-primary" type="submit">Add account</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
         <div class="shift-results">
             @if (Model.Response is

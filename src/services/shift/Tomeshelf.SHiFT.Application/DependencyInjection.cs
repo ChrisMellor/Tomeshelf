@@ -16,6 +16,7 @@ public static class DependencyInjection
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>, GetShiftSettingsQueryHandler>();
+        services.AddScoped<IQueryHandler<ListShiftSettingsQuery, IReadOnlyList<ShiftSettingsDto>>, ListShiftSettingsQueryHandler>();
         services.AddScoped<ICommandHandler<CreateShiftSettingsCommand, int>, CreateShiftSettingsCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateShiftSettingsCommand, bool>, UpdateShiftSettingsCommandHandler>();
         services.AddScoped<ICommandHandler<DeleteShiftSettingsCommand, bool>, DeleteShiftSettingsCommandHandler>();

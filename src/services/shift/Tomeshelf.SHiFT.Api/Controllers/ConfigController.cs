@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,7 @@ public sealed class ConfigController : ControllerBase
 {
     private readonly ICommandHandler<CreateShiftSettingsCommand, int> _createHandler;
     private readonly ICommandHandler<DeleteShiftSettingsCommand, bool> _deleteHandler;
+    private readonly IQueryHandler<ListShiftSettingsQuery, IReadOnlyList<ShiftSettingsDto>> _listHandler;
     private readonly IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?> _queryHandler;
     private readonly ICommandHandler<UpdateShiftSettingsCommand, bool> _updateHandler;
 
@@ -31,15 +33,25 @@ public sealed class ConfigController : ControllerBase
     ///     Initializes a new instance of the ConfigController class using the specified handlers.
     /// </summary>
     /// <param name="queryHandler">Query handler for retrieving shift settings.</param>
+    /// <param name="listHandler">Query handler for listing shift settings.</param>
     /// <param name="createHandler">Command handler for creating shift settings.</param>
     /// <param name="updateHandler">Command handler for updating shift settings.</param>
     /// <param name="deleteHandler">Command handler for deleting shift settings.</param>
-    public ConfigController(IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?> queryHandler, ICommandHandler<CreateShiftSettingsCommand, int> createHandler, ICommandHandler<UpdateShiftSettingsCommand, bool> updateHandler, ICommandHandler<DeleteShiftSettingsCommand, bool> deleteHandler)
+    public ConfigController(IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?> queryHandler, IQueryHandler<ListShiftSettingsQuery, IReadOnlyList<ShiftSettingsDto>> listHandler, ICommandHandler<CreateShiftSettingsCommand, int> createHandler, ICommandHandler<UpdateShiftSettingsCommand, bool> updateHandler, ICommandHandler<DeleteShiftSettingsCommand, bool> deleteHandler)
     {
         _queryHandler = queryHandler;
+        _listHandler = listHandler;
         _createHandler = createHandler;
         _updateHandler = updateHandler;
         _deleteHandler = deleteHandler;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyList<ShiftSettingsDto>>> GetAll(CancellationToken cancellationToken)
+    {
+        var dtos = await _listHandler.Handle(new ListShiftSettingsQuery(), cancellationToken);
+
+        return Ok(dtos);
     }
 
     [HttpDelete("{id:int}")]

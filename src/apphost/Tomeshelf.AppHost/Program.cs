@@ -274,6 +274,13 @@ public class Program
                              .PublishAsDockerComposeService((resource, service) =>
                               {
                                   service.Restart = "unless-stopped";
+                                  // Publish the gateway to the host so external callers (and tooling) can reach APIs via /api/*.
+                                  // Container-to-container calls still use the container port (5000).
+                                  service.Ports ??= new List<string>();
+                                  if (!service.Ports.Contains("5000:5000"))
+                                  {
+                                      service.Ports.Add("5000:5000");
+                                  }
                               })
                              .WithConfiguration(yarp =>
                               {

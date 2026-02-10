@@ -1,5 +1,6 @@
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using Shouldly;
 using Tomeshelf.Application.Shared.Abstractions.Messaging;
 using Tomeshelf.SHiFT.Api.Contracts;
@@ -17,10 +18,11 @@ public class Put
     {
         // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>();
+        var listHandler = A.Fake<IQueryHandler<ListShiftSettingsQuery, IReadOnlyList<ShiftSettingsDto>>>();
         var createHandler = A.Fake<ICommandHandler<CreateShiftSettingsCommand, int>>();
         var updateHandler = A.Fake<ICommandHandler<UpdateShiftSettingsCommand, bool>>();
         var deleteHandler = A.Fake<ICommandHandler<DeleteShiftSettingsCommand, bool>>();
-        var controller = new ConfigController(queryHandler, createHandler, updateHandler, deleteHandler);
+        var controller = new ConfigController(queryHandler, listHandler, createHandler, updateHandler, deleteHandler);
         var request = new ShiftSettingsUpdateRequest("user@example.com", "secret", "xbox");
 
         A.CallTo(() => updateHandler.Handle(A<UpdateShiftSettingsCommand>._, A<CancellationToken>._))
@@ -39,10 +41,11 @@ public class Put
     {
         // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>();
+        var listHandler = A.Fake<IQueryHandler<ListShiftSettingsQuery, IReadOnlyList<ShiftSettingsDto>>>();
         var createHandler = A.Fake<ICommandHandler<CreateShiftSettingsCommand, int>>();
         var updateHandler = A.Fake<ICommandHandler<UpdateShiftSettingsCommand, bool>>();
         var deleteHandler = A.Fake<ICommandHandler<DeleteShiftSettingsCommand, bool>>();
-        var controller = new ConfigController(queryHandler, createHandler, updateHandler, deleteHandler);
+        var controller = new ConfigController(queryHandler, listHandler, createHandler, updateHandler, deleteHandler);
         var request = new ShiftSettingsUpdateRequest("user@example.com", "secret", "xbox");
 
         UpdateShiftSettingsCommand? captured = null;
@@ -67,10 +70,11 @@ public class Put
     {
         // Arrange
         var queryHandler = A.Fake<IQueryHandler<GetShiftSettingsQuery, ShiftSettingsDto?>>();
+        var listHandler = A.Fake<IQueryHandler<ListShiftSettingsQuery, IReadOnlyList<ShiftSettingsDto>>>();
         var createHandler = A.Fake<ICommandHandler<CreateShiftSettingsCommand, int>>();
         var updateHandler = A.Fake<ICommandHandler<UpdateShiftSettingsCommand, bool>>();
         var deleteHandler = A.Fake<ICommandHandler<DeleteShiftSettingsCommand, bool>>();
-        var controller = new ConfigController(queryHandler, createHandler, updateHandler, deleteHandler);
+        var controller = new ConfigController(queryHandler, listHandler, createHandler, updateHandler, deleteHandler);
         var request = new ShiftSettingsUpdateRequest("user@example.com", "secret", "xbox");
 
         A.CallTo(() => updateHandler.Handle(A<UpdateShiftSettingsCommand>._, A<CancellationToken>._))
