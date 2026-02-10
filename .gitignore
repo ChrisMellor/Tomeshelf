@@ -370,3 +370,5 @@ FodyWeavers.xsd
 /.dotnet/.dotnet
 /.dotnet/sdk-10.0.102/Sdks
 /src/apphost/Tomeshelf.AppHost/tomeshelf
+/src/apphost/Tomeshelf.AppHost/.dotnet/.dotnet
+/src/apphost/Tomeshelf.AppHost/aspire-output/
