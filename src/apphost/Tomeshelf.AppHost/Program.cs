@@ -166,7 +166,8 @@ public class Program
     ///     Resolves the host directory used to store Executor settings when running outside containers.
     /// </summary>
     /// <remarks>
-    ///     Prefers <see cref="Environment.SpecialFolder.LocalApplicationData" />, then <see cref="Environment.SpecialFolder.ApplicationData" />,
+    ///     Prefers <see cref="Environment.SpecialFolder.LocalApplicationData" />, then
+    ///     <see cref="Environment.SpecialFolder.ApplicationData" />,
     ///     then <see cref="Environment.SpecialFolder.UserProfile" />, falling back to the current working directory.
     /// </remarks>
     /// <returns>The absolute path to the Executor settings directory on the host.</returns>
@@ -349,7 +350,9 @@ public class Program
     /// <param name="fileUploaderApi">The File Uploader API resource.</param>
     /// <param name="shiftApi">The SHiFT API resource.</param>
     /// <returns>The YARP gateway resource builder.</returns>
-    private static IResourceBuilder<YarpResource> SetupGateway(IDistributedApplicationBuilder builder, IResourceBuilder<ProjectResource> mcmApi, IResourceBuilder<ProjectResource> humbleBundleApi, IResourceBuilder<ProjectResource> fitbitApi, IResourceBuilder<ProjectResource> paissaApi, IResourceBuilder<ProjectResource> fileUploaderApi, IResourceBuilder<ProjectResource> shiftApi)
+    private static IResourceBuilder<YarpResource> SetupGateway(IDistributedApplicationBuilder builder, IResourceBuilder<ProjectResource> mcmApi,
+        IResourceBuilder<ProjectResource> humbleBundleApi, IResourceBuilder<ProjectResource> fitbitApi, IResourceBuilder<ProjectResource> paissaApi,
+        IResourceBuilder<ProjectResource> fileUploaderApi, IResourceBuilder<ProjectResource> shiftApi)
     {
         var gateway = builder.AddYarp("gateway")
                              .WithHostPort(5000)
